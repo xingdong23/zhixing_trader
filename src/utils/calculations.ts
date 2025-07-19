@@ -240,7 +240,8 @@ export function calculateTradingStats(records: TradeRecord[]): TradingStats {
     ? Math.abs(losingTrades.reduce((sum, r) => sum + (r.realizedPnLPercent || 0), 0) / losingTrades.length)
     : 0;
 
-  const avgRiskRewardRatio = avgLossPercent > 0 ? avgWinPercent / avgLossPercent : 0;
+  // 计算平均风险收益比（盈利交易平均收益 / 亏损交易平均亏损）
+  const avgRiskRewardRatio = (avgLossPercent > 0 && avgWinPercent > 0) ? avgWinPercent / avgLossPercent : 0;
 
   // 纪律统计
   const perfectExecutions = closedRecords.filter(r => r.disciplineRating === DisciplineRating.PERFECT).length;

@@ -33,6 +33,7 @@ const initialAppState: AppState = {
   tradingStats: initialStats,
   activePlans: [],
   activeRecords: [],
+  liveJournals: [],
   playbooks: generateDefaultPlaybooks(),
   insights: [],
   currentView: 'dashboard',
@@ -104,6 +105,18 @@ export function useAppState() {
     const filteredPlans = appState.activePlans.filter(plan => plan.id !== planId);
     updateAppState({
       activePlans: filteredPlans
+    });
+  };
+
+  // 添加盘中观察日志
+  const addLiveJournal = (tradeId: string, journal: Omit<LiveJournal, 'id'>) => {
+    const newJournal: LiveJournal = {
+      ...journal,
+      id: `journal_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+    };
+
+    updateAppState({
+      liveJournals: [...appState.liveJournals, newJournal]
     });
   };
 
@@ -248,6 +261,9 @@ export function useAppState() {
     // 记录相关
     addTradeRecord,
     updateTradeRecord,
+
+    // 日志相关
+    addLiveJournal,
 
     // 剧本相关
     addPlaybook,

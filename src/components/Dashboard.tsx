@@ -15,6 +15,7 @@ interface DashboardProps {
   onNewPlan: () => void;
   onViewPlan: (planId: string) => void;
   onViewPlaybook: (playbookId: string) => void;
+  onViewMarket: () => void;
   onViewInsights: () => void;
   onViewSettings: () => void;
 }
@@ -26,6 +27,7 @@ export function Dashboard({
   onNewPlan,
   onViewPlan,
   onViewPlaybook,
+  onViewMarket,
   onViewInsights,
   onViewSettings
 }: DashboardProps) {
@@ -150,6 +152,14 @@ export function Dashboard({
         >
           <Plus className="w-6 h-6" />
           <span className="text-lg">新建交易计划</span>
+        </button>
+
+        <button
+          onClick={onViewMarket}
+          className="flex-1 md:flex-none bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-semibold py-4 px-6 rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 flex items-center justify-center space-x-3"
+        >
+          <BarChart3 className="w-5 h-5" />
+          <span>股票市场</span>
         </button>
 
         <button

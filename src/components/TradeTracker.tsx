@@ -13,42 +13,49 @@ import {
   TradeStatus 
 } from '@/types';
 import { calculateLifecyclePosition, calculatePriceChangePercent } from '@/utils/calculations';
-import { 
-  TrendingUp, 
-  TrendingDown, 
-  Target, 
-  Shield, 
-  Edit3, 
-  Clock, 
+import {
+  TrendingUp,
+  TrendingDown,
+  Target,
+  Shield,
+  Edit3,
+  Clock,
   AlertTriangle,
   CheckCircle,
   Lock,
   Activity,
   Eye,
-  DollarSign
+  DollarSign,
+  Image,
+  X
 } from 'lucide-react';
 
 interface TradeTrackerProps {
   activePlans: TradingPlan[];
   activeRecords: TradeRecord[];
+  liveJournals: LiveJournal[];
   onUpdatePlan: (planId: string, updates: Partial<TradingPlan>) => void;
   onCloseTrade: (planId: string) => void;
   onAddJournal: (tradeId: string, journal: Omit<LiveJournal, 'id'>) => void;
   onBack: () => void;
 }
 
-export function TradeTracker({ 
-  activePlans, 
-  activeRecords, 
-  onUpdatePlan, 
-  onCloseTrade, 
-  onAddJournal, 
-  onBack 
+export function TradeTracker({
+  activePlans,
+  activeRecords,
+  liveJournals,
+  onUpdatePlan,
+  onCloseTrade,
+  onAddJournal,
+  onBack
 }: TradeTrackerProps) {
   const [selectedPlan, setSelectedPlan] = useState<TradingPlan | null>(null);
   const [currentPrice, setCurrentPrice] = useState<number>(0);
   const [journalText, setJournalText] = useState<string>('');
   const [journalEmotion, setJournalEmotion] = useState<TradingEmotion>(TradingEmotion.CALM);
+  const [journalScreenshot, setJournalScreenshot] = useState<string>('');
+  const [isEditing, setIsEditing] = useState(false);
+  const [editForm, setEditForm] = useState<Partial<TradingPlan>>({});
 
   // 模拟实时价格更新
   useEffect(() => {
@@ -61,6 +68,79 @@ export function TradeTracker({
     }
   }, [selectedPlan]);
 
+  // 开始编辑
+  const handleStartEdit = () => {
+    if (selectedPlan) {
+      setEditForm({
+        symbol: selectedPlan.symbol,
+        symbolName: selectedPlan.symbolName,
+        plannedEntryPrice: selectedPlan.plannedEntryPrice,
+        stopLoss: selectedPlan.stopLoss,
+        takeProfit: selectedPlan.takeProfit,
+        buyingLogic: selectedPlan.buyingLogic
+      });
+      setIsEditing(true);
+    }
+  };
+
+  // 保存编辑
+  const handleSaveEdit = () => {
+    if (selectedPlan && editForm) {
+      onUpdatePlan(selectedPlan.id, editForm);
+      setIsEditing(false);
+      setEditForm({});
+    }
+  };
+
+  // 取消编辑
+  const handleCancelEdit = () => {
+    setIsEditing(false);
+    setEditForm({});
+  };
+
+  // 更新编辑表单
+  const handleEditFormChange = (field: string, value: any) => {
+    if (field.includes('.')) {
+      const [parent, child] = field.split('.');
+      setEditForm(prev => ({
+        ...prev,
+        [parent]: {
+          ...(prev[parent as keyof typeof prev] as any),
+          [child]: value
+        }
+      }));
+    } else {
+      setEditForm(prev => ({ ...prev, [field]: value }));
+    }
+  };
+
+  // 处理截图粘贴
+  const handleJournalPaste = (e: React.ClipboardEvent) => {
+    const items = e.clipboardData?.items;
+    if (!items) return;
+
+    for (let i = 0; i < items.length; i++) {
+      const item = items[i];
+      if (item.type.indexOf('image') !== -1) {
+        const file = item.getAsFile();
+        if (file) {
+          const reader = new FileReader();
+          reader.onload = (event) => {
+            const result = event.target?.result as string;
+            setJournalScreenshot(result);
+          };
+          reader.readAsDataURL(file);
+        }
+        break;
+      }
+    }
+  };
+
+  // 移除截图
+  const handleRemoveJournalScreenshot = () => {
+    setJournalScreenshot('');
+  };
+
   const handleAddJournal = () => {
     if (!selectedPlan || !journalText.trim()) return;
 
@@ -70,12 +150,14 @@ export function TradeTracker({
       currentPrice,
       observation: journalText,
       emotion: journalEmotion,
-      consideringAdjustment: false
+      consideringAdjustment: false,
+      screenshot: journalScreenshot || undefined
     };
 
     onAddJournal(selectedPlan.id, journal);
     setJournalText('');
     setJournalEmotion(TradingEmotion.CALM);
+    setJournalScreenshot('');
   };
 
   const getLifecyclePosition = (plan: TradingPlan) => {
@@ -89,6 +171,26 @@ export function TradeTracker({
 
   const getPnLPercent = (plan: TradingPlan) => {
     return calculatePriceChangePercent(plan.plannedEntryPrice, currentPrice || plan.plannedEntryPrice);
+  };
+
+  // 获取当前交易的观察日志
+  const getCurrentTradeJournals = () => {
+    if (!selectedPlan || !liveJournals) return [];
+    return liveJournals
+      .filter(journal => journal && journal.tradeId === selectedPlan.id)
+      .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+  };
+
+  // 获取情绪标签的显示文本和颜色
+  const getEmotionDisplay = (emotion: TradingEmotion) => {
+    const emotionMap = {
+      [TradingEmotion.CALM]: { text: '冷静', color: 'text-blue-600' },
+      [TradingEmotion.EXCITED]: { text: '兴奋', color: 'text-green-600' },
+      [TradingEmotion.FEAR]: { text: '恐惧', color: 'text-red-600' },
+      [TradingEmotion.GREED]: { text: '贪婪', color: 'text-orange-600' },
+      [TradingEmotion.FOMO]: { text: 'FOMO', color: 'text-purple-600' }
+    };
+    return emotionMap[emotion] || { text: '未知', color: 'text-gray-600' };
   };
 
   const getStatusColor = (pnlPercent: number) => {
@@ -293,6 +395,7 @@ export function TradeTracker({
                         平仓并复盘
                       </button>
                       <button
+                        onClick={handleStartEdit}
                         className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
                         disabled={selectedPlan.disciplineLocked}
                       >
@@ -301,6 +404,107 @@ export function TradeTracker({
                     </div>
                   </CardContent>
                 </Card>
+
+                {/* 编辑计划表单 */}
+                {isEditing && (
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="flex items-center">
+                        <Edit3 className="w-5 h-5 mr-2 text-blue-500" />
+                        修改交易计划
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-4">
+                        {/* 股票信息 */}
+                        <div className="grid grid-cols-2 gap-4">
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">股票代码</label>
+                            <input
+                              type="text"
+                              value={editForm.symbol || ''}
+                              onChange={(e) => handleEditFormChange('symbol', e.target.value)}
+                              className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                              placeholder="如：IONQ"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">股票名称</label>
+                            <input
+                              type="text"
+                              value={editForm.symbolName || ''}
+                              onChange={(e) => handleEditFormChange('symbolName', e.target.value)}
+                              className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                              placeholder="如：量子计算龙头不"
+                            />
+                          </div>
+                        </div>
+
+                        {/* 价格设置 */}
+                        <div className="grid grid-cols-3 gap-4">
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">计划买入价</label>
+                            <input
+                              type="number"
+                              step="0.01"
+                              value={editForm.plannedEntryPrice || ''}
+                              onChange={(e) => handleEditFormChange('plannedEntryPrice', parseFloat(e.target.value) || 0)}
+                              className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">止损价</label>
+                            <input
+                              type="number"
+                              step="0.01"
+                              value={editForm.stopLoss || ''}
+                              onChange={(e) => handleEditFormChange('stopLoss', parseFloat(e.target.value) || 0)}
+                              className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">止盈价</label>
+                            <input
+                              type="number"
+                              step="0.01"
+                              value={editForm.takeProfit || ''}
+                              onChange={(e) => handleEditFormChange('takeProfit', parseFloat(e.target.value) || 0)}
+                              className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            />
+                          </div>
+                        </div>
+
+                        {/* 买入理由 */}
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">买入理由</label>
+                          <textarea
+                            value={editForm.buyingLogic?.technical || ''}
+                            onChange={(e) => handleEditFormChange('buyingLogic.technical', e.target.value)}
+                            rows={3}
+                            className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            placeholder="更新您的买入理由..."
+                          />
+                        </div>
+
+                        {/* 操作按钮 */}
+                        <div className="flex space-x-3">
+                          <button
+                            onClick={handleSaveEdit}
+                            className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg font-semibold transition-colors"
+                          >
+                            保存修改
+                          </button>
+                          <button
+                            onClick={handleCancelEdit}
+                            className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                          >
+                            取消
+                          </button>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
 
                 {/* 盘中观察日志 */}
                 <Card>
@@ -318,10 +522,35 @@ export function TradeTracker({
                         <textarea
                           value={journalText}
                           onChange={(e) => setJournalText(e.target.value)}
-                          placeholder="记录您当前的想法、市场观察、情绪变化等..."
+                          onPaste={handleJournalPaste}
+                          placeholder="记录您当前的想法、市场观察、情绪变化等...（支持Ctrl+V粘贴K线图截图）"
                           rows={3}
                           className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                         />
+
+                        {/* 截图预览 */}
+                        {journalScreenshot && (
+                          <div className="relative">
+                            <div className="flex items-center justify-between mb-2">
+                              <span className="text-sm font-medium text-gray-700 flex items-center">
+                                <Image className="w-4 h-4 mr-1" />
+                                K线图截图
+                              </span>
+                              <button
+                                onClick={handleRemoveJournalScreenshot}
+                                className="text-red-500 hover:text-red-700 p-1"
+                                title="移除截图"
+                              >
+                                <X className="w-4 h-4" />
+                              </button>
+                            </div>
+                            <img
+                              src={journalScreenshot}
+                              alt="K线图截图"
+                              className="max-w-full h-auto max-h-64 rounded-lg border border-gray-300 shadow-sm"
+                            />
+                          </div>
+                        )}
                         <div className="flex items-center justify-between">
                           <select
                             value={journalEmotion}
@@ -350,25 +579,49 @@ export function TradeTracker({
                     <div>
                       <h4 className="font-semibold text-gray-900 mb-3">历史观察记录</h4>
                       <div className="space-y-3">
-                        {/* 这里应该显示实际的观察记录，目前显示示例 */}
-                        <div className="border border-gray-200 rounded-lg p-3">
-                          <div className="flex justify-between items-start mb-2">
-                            <span className="text-sm text-gray-500">
-                              {new Date().toLocaleString()}
-                            </span>
-                            <span className="text-sm font-medium text-blue-600">冷静</span>
+                        {getCurrentTradeJournals().length > 0 ? (
+                          getCurrentTradeJournals().map((journal) => {
+                            const emotionDisplay = getEmotionDisplay(journal.emotion);
+                            return (
+                              <div key={journal.id} className="border border-gray-200 rounded-lg p-3">
+                                <div className="flex justify-between items-start mb-2">
+                                  <span className="text-sm text-gray-500">
+                                    {new Date(journal.timestamp).toLocaleString()}
+                                  </span>
+                                  <span className={`text-sm font-medium ${emotionDisplay.color}`}>
+                                    {emotionDisplay.text}
+                                  </span>
+                                </div>
+                                <p className="text-sm text-gray-700">
+                                  {journal.observation}
+                                </p>
+                                {/* 截图显示 */}
+                                {journal.screenshot && (
+                                  <div className="mt-3">
+                                    <div className="flex items-center mb-2">
+                                      <Image className="w-4 h-4 mr-1 text-gray-500" />
+                                      <span className="text-xs text-gray-500">K线图截图</span>
+                                    </div>
+                                    <img
+                                      src={journal.screenshot}
+                                      alt="K线图截图"
+                                      className="max-w-full h-auto max-h-48 rounded-lg border border-gray-300 shadow-sm cursor-pointer hover:shadow-md transition-shadow"
+                                      onClick={() => window.open(journal.screenshot, '_blank')}
+                                      title="点击查看大图"
+                                    />
+                                  </div>
+                                )}
+                                <div className="mt-2 text-xs text-gray-500">
+                                  当时价格: ¥{journal.currentPrice.toFixed(2)}
+                                </div>
+                              </div>
+                            );
+                          })
+                        ) : (
+                          <div className="text-center py-4 text-gray-500 text-sm">
+                            暂无观察记录，开始记录您的盘中观察吧
                           </div>
-                          <p className="text-sm text-gray-700">
-                            股价按预期在支撑位获得支撑，成交量有所放大，技术形态良好。
-                          </p>
-                          <div className="mt-2 text-xs text-gray-500">
-                            当时价格: ¥{(currentPrice || selectedPlan.plannedEntryPrice).toFixed(2)}
-                          </div>
-                        </div>
-                        
-                        <div className="text-center py-4 text-gray-500 text-sm">
-                          暂无更多观察记录
-                        </div>
+                        )}
                       </div>
                     </div>
                   </CardContent>

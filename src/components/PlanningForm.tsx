@@ -14,17 +14,19 @@ import {
   PlanQualityResponse 
 } from '@/types';
 import { calculatePlanQualityScore, calculateRiskRewardRatio } from '@/utils/calculations';
-import { 
-  Target, 
-  Shield, 
-  Brain, 
-  Camera, 
-  Lock, 
-  Unlock, 
+import {
+  Target,
+  Shield,
+  Brain,
+  Camera,
+  Lock,
+  Unlock,
   BookOpen,
   AlertTriangle,
   CheckCircle,
-  Info
+  Info,
+  Copy,
+  X
 } from 'lucide-react';
 
 interface PlanningFormProps {
@@ -40,20 +42,22 @@ export function PlanningForm({ playbooks, onSubmit, onCancel }: PlanningFormProp
     plannedEntryPrice: 0,
     positionSize: 0,
     buyingLogic: {
-      technical: '',
+      technical: '', // 简化为单一买入理由
       fundamental: '',
       news: ''
     },
     stopLoss: 0,
     takeProfit: 0,
     riskRewardRatio: 0,
-    emotion: undefined,
-    informationSource: undefined,
+    emotion: TradingEmotion.CALM, // 默认冷静
+    informationSource: InformationSource.SELF_ANALYSIS, // 默认自主分析
     disciplineLocked: false,
     chartSnapshot: '',
     playbookId: '',
     status: TradeStatus.PLANNING
   });
+
+  const [useTrailingStop, setUseTrailingStop] = useState(false); // 移动止盈开关
 
   const [qualityScore, setQualityScore] = useState<PlanQualityResponse>({
     score: 0,
@@ -86,6 +90,40 @@ export function PlanningForm({ playbooks, onSubmit, onCancel }: PlanningFormProp
       setFormData(prev => ({ ...prev, riskRewardRatio: ratio }));
     }
   }, [formData.plannedEntryPrice, formData.stopLoss, formData.takeProfit]);
+
+  // 全局粘贴事件监听器
+  useEffect(() => {
+    const handleGlobalPaste = (e: ClipboardEvent) => {
+      // 只在决策快照区域获得焦点时处理
+      const target = e.target as HTMLElement;
+      if (target?.getAttribute('data-paste-target') === 'true') {
+        e.preventDefault();
+        console.log('全局粘贴事件触发');
+
+        const items = e.clipboardData?.items;
+        if (items) {
+          for (let i = 0; i < items.length; i++) {
+            if (items[i].type.indexOf('image') !== -1) {
+              const file = items[i].getAsFile();
+              if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                  handleInputChange('chartSnapshot', e.target?.result as string);
+                };
+                reader.readAsDataURL(file);
+              }
+              break;
+            }
+          }
+        }
+      }
+    };
+
+    document.addEventListener('paste', handleGlobalPaste);
+    return () => {
+      document.removeEventListener('paste', handleGlobalPaste);
+    };
+  }, []);
 
   const handleInputChange = (field: string, value: any) => {
     if (field.includes('.')) {
@@ -126,8 +164,10 @@ export function PlanningForm({ playbooks, onSubmit, onCancel }: PlanningFormProp
   };
 
   const handleSubmit = () => {
-    if (qualityScore.score < 80) {
-      alert('计划质量分不足80分，请完善后再提交');
+    // 简化验证 - 只检查必填字段
+    if (!formData.symbol || !formData.symbolName || !formData.plannedEntryPrice ||
+        !formData.stopLoss || !formData.takeProfit || !formData.buyingLogic?.technical) {
+      alert('请填写所有必填字段（股票信息、价格设置、买入理由）');
       return;
     }
 
@@ -138,7 +178,7 @@ export function PlanningForm({ playbooks, onSubmit, onCancel }: PlanningFormProp
       symbol: formData.symbol!,
       symbolName: formData.symbolName!,
       plannedEntryPrice: formData.plannedEntryPrice!,
-      positionSize: formData.positionSize!,
+      positionSize: formData.positionSize || 100, // 默认100股
       buyingLogic: formData.buyingLogic!,
       stopLoss: formData.stopLoss!,
       takeProfit: formData.takeProfit!,
@@ -173,81 +213,59 @@ export function PlanningForm({ playbooks, onSubmit, onCancel }: PlanningFormProp
         {/* 页面标题 */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">新建交易计划</h1>
-          <p className="text-gray-600">参谋部作业流程 - 制定高质量的交易计划</p>
+          <p className="text-gray-600">记录您的技术分析图表和交易决策</p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* 左侧：表单区域 */}
+          {/* 左侧：简化表单区域 */}
           <div className="lg:col-span-2 space-y-6">
-            {/* 剧本选择 */}
+
+            {/* 股票信息 - 简化版 */}
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center">
-                  <BookOpen className="w-5 h-5 mr-2 text-blue-500" />
-                  选择交易剧本（可选）
+                  <Target className="w-5 h-5 mr-2 text-blue-500" />
+                  股票信息
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <select
-                  value={formData.playbookId || ''}
-                  onChange={(e) => handlePlaybookSelect(e.target.value)}
-                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                >
-                  <option value="">从空白开始</option>
-                  {playbooks.map(playbook => (
-                    <option key={playbook.id} value={playbook.id}>
-                      {playbook.name} - 胜率{(playbook.performance.winRate * 100).toFixed(1)}%
-                    </option>
-                  ))}
-                </select>
-                {selectedPlaybook && (
-                  <div className="mt-3 p-3 bg-blue-50 rounded-lg">
-                    <p className="text-sm text-blue-800">{selectedPlaybook.description}</p>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-
-            {/* 基础信息 */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center">
-                  <Target className="w-5 h-5 mr-2 text-green-500" />
-                  基础信息
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      股票代码 *
-                    </label>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">股票代码</label>
                     <input
                       type="text"
                       value={formData.symbol || ''}
-                      onChange={(e) => handleInputChange('symbol', e.target.value.toUpperCase())}
-                      placeholder="如：000001"
+                      onChange={(e) => handleInputChange('symbol', e.target.value)}
+                      placeholder="如: 000001"
                       className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      股票名称 *
-                    </label>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">股票名称</label>
                     <input
                       type="text"
                       value={formData.symbolName || ''}
                       onChange={(e) => handleInputChange('symbolName', e.target.value)}
-                      placeholder="如：平安银行"
+                      placeholder="如: 平安银行"
                       className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     />
                   </div>
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              </CardContent>
+            </Card>
+
+            {/* 价格设置 */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center">
+                  <Target className="w-5 h-5 mr-2 text-green-500" />
+                  价格设置
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-3 gap-4 mb-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      计划买入价 *
-                    </label>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">计划买入价 *</label>
                     <input
                       type="number"
                       step="0.01"
@@ -258,83 +276,7 @@ export function PlanningForm({ playbooks, onSubmit, onCancel }: PlanningFormProp
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      仓位大小 *
-                    </label>
-                    <input
-                      type="number"
-                      value={formData.positionSize || ''}
-                      onChange={(e) => handleInputChange('positionSize', parseInt(e.target.value) || 0)}
-                      placeholder="股数"
-                      className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* 买入逻辑 */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center">
-                  <Brain className="w-5 h-5 mr-2 text-purple-500" />
-                  买入逻辑分析
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    技术面分析 *
-                  </label>
-                  <textarea
-                    value={formData.buyingLogic?.technical || ''}
-                    onChange={(e) => handleInputChange('buyingLogic.technical', e.target.value)}
-                    placeholder="描述技术指标、图形形态、支撑阻力等..."
-                    rows={3}
-                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    基本面分析
-                  </label>
-                  <textarea
-                    value={formData.buyingLogic?.fundamental || ''}
-                    onChange={(e) => handleInputChange('buyingLogic.fundamental', e.target.value)}
-                    placeholder="描述公司基本面、行业状况、财务指标等..."
-                    rows={3}
-                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    消息面分析
-                  </label>
-                  <textarea
-                    value={formData.buyingLogic?.news || ''}
-                    onChange={(e) => handleInputChange('buyingLogic.news', e.target.value)}
-                    placeholder="描述相关新闻、政策、事件等..."
-                    rows={3}
-                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  />
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* 风险管理 */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center">
-                  <Shield className="w-5 h-5 mr-2 text-red-500" />
-                  风险管理预案
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      止损价 *
-                    </label>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">止损价 *</label>
                     <input
                       type="number"
                       step="0.01"
@@ -346,7 +288,7 @@ export function PlanningForm({ playbooks, onSubmit, onCancel }: PlanningFormProp
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      止盈价 *
+                      {useTrailingStop ? '初始止盈价' : '止盈价'} *
                     </label>
                     <input
                       type="number"
@@ -358,11 +300,26 @@ export function PlanningForm({ playbooks, onSubmit, onCancel }: PlanningFormProp
                     />
                   </div>
                 </div>
+
+                {/* 移动止盈选项 */}
+                <div className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
+                  <input
+                    type="checkbox"
+                    id="trailingStop"
+                    checked={useTrailingStop}
+                    onChange={(e) => setUseTrailingStop(e.target.checked)}
+                    className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                  />
+                  <label htmlFor="trailingStop" className="text-sm font-medium text-gray-700">
+                    启用移动止盈（盈利后动态调整止盈价）
+                  </label>
+                </div>
+
                 {formData.riskRewardRatio > 0 && (
                   <div className="p-3 bg-gray-50 rounded-lg">
                     <p className="text-sm text-gray-600">
                       风险收益比: <span className={`font-semibold ${
-                        formData.riskRewardRatio >= 2 ? 'text-green-600' : 
+                        formData.riskRewardRatio >= 2 ? 'text-green-600' :
                         formData.riskRewardRatio >= 1.5 ? 'text-yellow-600' : 'text-red-600'
                       }`}>
                         {formData.riskRewardRatio.toFixed(2)}:1
@@ -373,50 +330,26 @@ export function PlanningForm({ playbooks, onSubmit, onCancel }: PlanningFormProp
               </CardContent>
             </Card>
 
-            {/* 情绪与来源 */}
+            {/* 买入理由 - 简化版 */}
             <Card>
               <CardHeader>
-                <CardTitle>交易心理状态</CardTitle>
+                <CardTitle className="flex items-center">
+                  <Brain className="w-5 h-5 mr-2 text-purple-500" />
+                  买入理由
+                </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      当前情绪 *
-                    </label>
-                    <select
-                      value={formData.emotion || ''}
-                      onChange={(e) => handleInputChange('emotion', e.target.value)}
-                      className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    >
-                      <option value="">请选择</option>
-                      <option value={TradingEmotion.CALM}>冷静分析</option>
-                      <option value={TradingEmotion.CONFIDENT}>自信</option>
-                      <option value={TradingEmotion.UNCERTAIN}>不确定</option>
-                      <option value={TradingEmotion.FOMO}>害怕错过</option>
-                      <option value={TradingEmotion.FEAR}>恐惧</option>
-                      <option value={TradingEmotion.GREED}>贪婪</option>
-                      <option value={TradingEmotion.REVENGE}>报复性交易</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      信息来源 *
-                    </label>
-                    <select
-                      value={formData.informationSource || ''}
-                      onChange={(e) => handleInputChange('informationSource', e.target.value)}
-                      className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    >
-                      <option value="">请选择</option>
-                      <option value={InformationSource.SELF_ANALYSIS}>自己分析</option>
-                      <option value={InformationSource.PROFESSIONAL_REPORT}>专业报告</option>
-                      <option value={InformationSource.TECHNICAL_SIGNAL}>技术信号</option>
-                      <option value={InformationSource.NEWS_MEDIA}>新闻媒体</option>
-                      <option value={InformationSource.FRIEND_RECOMMEND}>朋友推荐</option>
-                      <option value={InformationSource.SOCIAL_MEDIA}>社交媒体</option>
-                    </select>
-                  </div>
+              <CardContent>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    为什么现在买入这只股票？ *
+                  </label>
+                  <textarea
+                    value={formData.buyingLogic?.technical || ''}
+                    onChange={(e) => handleInputChange('buyingLogic.technical', e.target.value)}
+                    placeholder="简单描述您的买入理由，比如：突破关键阻力位、回踩支撑位反弹、技术指标金叉等..."
+                    rows={4}
+                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
                 </div>
               </CardContent>
             </Card>
@@ -430,28 +363,133 @@ export function PlanningForm({ playbooks, onSubmit, onCancel }: PlanningFormProp
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    K线图快照 (推荐上传)
-                  </label>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={(e) => {
-                      const file = e.target.files?.[0];
-                      if (file) {
-                        const reader = new FileReader();
-                        reader.onload = (e) => {
-                          handleInputChange('chartSnapshot', e.target?.result as string);
-                        };
-                        reader.readAsDataURL(file);
-                      }
-                    }}
-                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  />
-                  <p className="text-sm text-gray-500 mt-2">
-                    上传K线图可以提高计划质量分，帮助后续复盘分析
-                  </p>
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      K线图快照 (推荐上传)
+                    </label>
+
+                    {/* 图片上传区域 */}
+                    <div
+                      className="relative border-2 border-dashed border-gray-300 rounded-lg p-6 hover:border-blue-400 transition-colors focus:border-blue-500 focus:outline-none"
+                      onDrop={(e) => {
+                        e.preventDefault();
+                        const file = e.dataTransfer.files[0];
+                        if (file && file.type.startsWith('image/')) {
+                          const reader = new FileReader();
+                          reader.onload = (e) => {
+                            handleInputChange('chartSnapshot', e.target?.result as string);
+                          };
+                          reader.readAsDataURL(file);
+                        }
+                      }}
+                      onDragOver={(e) => e.preventDefault()}
+                      onPaste={(e) => {
+                        e.preventDefault();
+                        console.log('粘贴事件触发', e.clipboardData);
+
+                        const items = e.clipboardData?.items;
+                        if (items) {
+                          console.log('剪贴板项目数量:', items.length);
+                          for (let i = 0; i < items.length; i++) {
+                            console.log(`项目 ${i}:`, items[i].type, items[i].kind);
+                            if (items[i].type.indexOf('image') !== -1) {
+                              console.log('找到图片项目');
+                              const file = items[i].getAsFile();
+                              if (file) {
+                                console.log('获取到文件:', file.name, file.size);
+                                const reader = new FileReader();
+                                reader.onload = (e) => {
+                                  console.log('文件读取完成');
+                                  handleInputChange('chartSnapshot', e.target?.result as string);
+                                };
+                                reader.readAsDataURL(file);
+                              }
+                              break;
+                            }
+                          }
+                        } else {
+                          console.log('没有剪贴板数据');
+                        }
+                      }}
+                      onClick={() => {
+                        // 确保元素获得焦点以接收粘贴事件
+                        (document.activeElement as HTMLElement)?.blur();
+                        setTimeout(() => {
+                          const element = document.querySelector('[data-paste-target]') as HTMLElement;
+                          element?.focus();
+                        }, 0);
+                      }}
+                      tabIndex={0}
+                      data-paste-target="true"
+                    >
+                      {formData.chartSnapshot ? (
+                        <div className="relative">
+                          <img
+                            src={formData.chartSnapshot}
+                            alt="K线图快照"
+                            className="max-w-full h-auto rounded-lg shadow-sm"
+                          />
+                          <div className="absolute top-2 right-2 flex space-x-2">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                navigator.clipboard.write([
+                                  new ClipboardItem({
+                                    'image/png': fetch(formData.chartSnapshot).then(r => r.blob())
+                                  })
+                                ]).then(() => {
+                                  alert('图片已复制到剪贴板');
+                                }).catch(() => {
+                                  alert('复制失败，请手动复制');
+                                });
+                              }}
+                              className="p-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                              title="复制图片"
+                            >
+                              <Copy className="w-4 h-4" />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => handleInputChange('chartSnapshot', '')}
+                              className="p-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+                              title="删除图片"
+                            >
+                              <X className="w-4 h-4" />
+                            </button>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="text-center">
+                          <Camera className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                          <div className="space-y-2">
+                            <p className="text-gray-600">拖拽图片到此处，或点击上传</p>
+                            <p className="text-sm text-blue-600 font-medium">📋 点击此区域后按 Ctrl+V 粘贴截图</p>
+                            <p className="text-xs text-gray-400">支持从任何截图工具直接粘贴</p>
+                          </div>
+                          <input
+                            type="file"
+                            accept="image/*"
+                            onChange={(e) => {
+                              const file = e.target.files?.[0];
+                              if (file) {
+                                const reader = new FileReader();
+                                reader.onload = (e) => {
+                                  handleInputChange('chartSnapshot', e.target?.result as string);
+                                };
+                                reader.readAsDataURL(file);
+                              }
+                            }}
+                            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                          />
+                        </div>
+                      )}
+                    </div>
+
+                    <p className="text-sm text-gray-500 mt-2">
+                      上传K线图可以提高计划质量分，帮助后续复盘分析。支持拖拽、粘贴截图或点击上传。
+                    </p>
+                  </div>
                 </div>
               </CardContent>
             </Card>

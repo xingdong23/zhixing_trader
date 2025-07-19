@@ -5,8 +5,10 @@
 
 import { useState } from 'react';
 import { Dashboard } from '@/components/Dashboard';
-import { PlanningForm } from '@/components/PlanningForm';
+import { UnifiedTradingPlan } from '@/components/UnifiedTradingPlan';
+import { StockMarket } from '@/components/StockMarket';
 import { TradeTracker } from '@/components/TradeTracker';
+import { AdvancedTradeTracker } from '@/components/AdvancedTradeTracker';
 import { TradeReview } from '@/components/TradeReview';
 import { InsightsLab } from '@/components/InsightsLab';
 import { PlaybookManager } from '@/components/PlaybookManager';
@@ -21,6 +23,7 @@ export default function Home() {
     addTradingPlan,
     updateTradingPlan,
     addTradeRecord,
+    addLiveJournal,
     addPlaybook,
     deletePlaybook,
     updateSettings,
@@ -55,14 +58,28 @@ export default function Home() {
     setCurrentView('dashboard');
   };
 
+  // 股票市场相关处理
+  const handleCreateTradingPlanFromStock = (stock: any) => {
+    // 从股票创建交易计划时，预填充股票信息
+    setCurrentView('planning');
+    // 这里可以传递股票信息到交易计划组件
+  };
+
   // 根据当前视图渲染不同的组件
   switch (appState.currentView) {
     case 'planning':
       return (
-        <PlanningForm
+        <UnifiedTradingPlan
           playbooks={appState.playbooks}
-          onSubmit={handlePlanSubmit}
+          onSave={handlePlanSubmit}
           onCancel={handlePlanCancel}
+        />
+      );
+
+    case 'market':
+      return (
+        <StockMarket
+          onCreateTradingPlan={handleCreateTradingPlanFromStock}
         />
       );
 
@@ -71,6 +88,7 @@ export default function Home() {
         <TradeTracker
           activePlans={appState.activePlans}
           activeRecords={appState.activeRecords}
+          liveJournals={appState.liveJournals}
           onUpdatePlan={updateTradingPlan}
           onCloseTrade={(planId) => {
             const plan = appState.activePlans.find(p => p.id === planId);
@@ -79,10 +97,7 @@ export default function Home() {
               setCurrentView('review');
             }
           }}
-          onAddJournal={(tradeId, journal) => {
-            console.log('添加观察日志:', tradeId, journal);
-            // TODO: 实现添加日志逻辑
-          }}
+          onAddJournal={addLiveJournal}
           onBack={() => setCurrentView('dashboard')}
         />
       );
@@ -195,6 +210,7 @@ export default function Home() {
             onNewPlan={handleNewPlan}
             onViewPlan={handleViewPlan}
             onViewPlaybook={handleViewPlaybook}
+            onViewMarket={() => setCurrentView('market')}
             onViewInsights={() => setCurrentView('insights')}
             onViewSettings={() => setCurrentView('settings')}
           />
