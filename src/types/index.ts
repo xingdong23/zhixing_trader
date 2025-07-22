@@ -190,6 +190,135 @@ export interface TradeRecord {
 
   // 状态
   status: TradeStatus;
+
+  // 持仓详细记录（新增）
+  positionDetails: PositionDetail[];
+
+  // 预定操作记录（新增）
+  plannedActions: PlannedAction[];
+
+  // 风险管理记录（新增）
+  riskManagement: RiskManagementRecord;
+}
+
+// ==================== 持仓记录增强 ====================
+
+// 持仓详细记录
+export interface PositionDetail {
+  id: string;
+  timestamp: Date;
+
+  // 持仓信息
+  quantity: number;            // 持仓数量
+  averagePrice: number;        // 平均成本
+  currentPrice: number;        // 当前价格
+  marketValue: number;         // 市值
+
+  // 盈亏信息
+  unrealizedPnL: number;       // 浮动盈亏
+  unrealizedPnLPercent: number; // 浮动盈亏百分比
+
+  // 风险指标
+  riskExposure: number;        // 风险敞口
+  portfolioWeight: number;     // 组合权重
+
+  // 备注
+  notes?: string;
+}
+
+// 预定操作类型
+export enum PlannedActionType {
+  BUY = 'buy',                 // 买入
+  SELL = 'sell',               // 卖出
+  STOP_LOSS = 'stop_loss',     // 止损
+  TAKE_PROFIT = 'take_profit', // 止盈
+  ADD_POSITION = 'add_position', // 加仓
+  REDUCE_POSITION = 'reduce_position', // 减仓
+  ADJUST_STOP = 'adjust_stop'  // 调整止损
+}
+
+// 预定操作状态
+export enum PlannedActionStatus {
+  PENDING = 'pending',         // 待执行
+  TRIGGERED = 'triggered',     // 已触发
+  EXECUTED = 'executed',       // 已执行
+  CANCELLED = 'cancelled',     // 已取消
+  EXPIRED = 'expired'          // 已过期
+}
+
+// 预定操作记录
+export interface PlannedAction {
+  id: string;
+  type: PlannedActionType;
+  status: PlannedActionStatus;
+
+  // 触发条件
+  triggerPrice: number;        // 触发价格
+  triggerCondition: string;    // 触发条件描述
+
+  // 执行参数
+  quantity: number;            // 数量
+  orderType: 'market' | 'limit' | 'stop'; // 订单类型
+  limitPrice?: number;         // 限价（如果是限价单）
+
+  // 时间信息
+  createdAt: Date;
+  triggeredAt?: Date;
+  executedAt?: Date;
+  expiresAt?: Date;
+
+  // 执行结果
+  executedPrice?: number;      // 实际执行价格
+  executedQuantity?: number;   // 实际执行数量
+
+  // 备注
+  reason: string;              // 设置原因
+  notes?: string;              // 备注
+
+  // 关联信息
+  relatedActionId?: string;    // 关联的其他操作
+}
+
+// 风险管理记录
+export interface RiskManagementRecord {
+  // 止损设置
+  stopLoss: {
+    initialPrice: number;      // 初始止损价
+    currentPrice: number;      // 当前止损价
+    adjustmentHistory: {
+      timestamp: Date;
+      oldPrice: number;
+      newPrice: number;
+      reason: string;
+    }[];
+  };
+
+  // 止盈设置
+  takeProfits: {
+    targetPrice: number;       // 目标价格
+    quantity: number;          // 止盈数量
+    status: 'active' | 'triggered' | 'executed';
+    executedAt?: Date;
+    executedPrice?: number;
+  }[];
+
+  // 仓位管理
+  positionSizing: {
+    maxPosition: number;       // 最大仓位
+    currentPosition: number;   // 当前仓位
+    riskPerTrade: number;      // 单笔风险
+    portfolioRisk: number;     // 组合风险
+  };
+
+  // 风险警报
+  riskAlerts: {
+    id: string;
+    type: 'stop_loss_hit' | 'max_loss_reached' | 'position_too_large' | 'correlation_risk';
+    message: string;
+    severity: 'low' | 'medium' | 'high' | 'critical';
+    timestamp: Date;
+    acknowledged: boolean;
+  }[];
 }
 
 // 盘中观察日志 - 执行过程中的心理记录
@@ -306,7 +435,7 @@ export interface AppState {
   insights: InsightCard[];
   
   // UI状态
-  currentView: 'dashboard' | 'planning' | 'tracking' | 'insights' | 'playbooks' | 'review';
+  currentView: 'dashboard' | 'planning' | 'tracking' | 'insights' | 'playbooks' | 'review' | 'settings';
   
   // 设置
   settings: {
@@ -343,6 +472,95 @@ export interface Stock {
   addedAt: Date;
   updatedAt: Date;
   notes?: string;              // 用户备注
+
+  // 观点追踪
+  opinions?: StockOpinion[];   // 观点记录列表
+}
+
+// 股票观点记录
+export interface StockOpinion {
+  id: string;
+  stockId: string;
+  source: string;              // 观点来源：MVP公众号、微信读书、某某大佬等
+  author: string;              // 作者/分析师
+  type: 'technical' | 'fundamental' | 'mixed';  // 观点类型
+
+  // 观点内容
+  title: string;               // 观点标题
+  content: string;             // 详细内容
+  sentiment: 'bullish' | 'bearish' | 'neutral';  // 看涨/看跌/中性
+
+  // 价格预期
+  targetPrice?: number;        // 目标价
+  stopLoss?: number;          // 止损价
+  timeframe?: string;         // 时间框架：短期/中期/长期
+
+  // 技术面分析
+  technicalAnalysis?: {
+    trend: string;             // 趋势分析
+    support: number[];         // 支撑位
+    resistance: number[];      // 阻力位
+    indicators: string[];      // 技术指标分析
+  };
+
+  // 基本面分析
+  fundamentalAnalysis?: {
+    valuation: string;         // 估值分析
+    growth: string;           // 成长性分析
+    risks: string[];          // 风险因素
+    catalysts: string[];      // 催化剂
+  };
+
+  // 元数据
+  createdAt: Date;
+  updatedAt: Date;
+  tags: string[];             // 标签：如"金叉"、"突破"、"财报"等
+  confidence: number;         // 信心度 1-10
+  isActive: boolean;          // 是否仍然有效
+}
+
+// ==================== 操作建议模块 ====================
+
+// 操作建议
+export interface TradingRecommendation {
+  id: string;
+  stockId: string;
+  stockSymbol: string;
+  stockName: string;
+
+  // 建议类型
+  type: 'daily' | 'weekly';
+  action: 'buy' | 'sell' | 'hold';
+
+  // 价格信息
+  currentPrice: number;
+  entryPrice: number;          // 建议买入价
+  stopLoss: number;           // 止损价
+  takeProfit: number[];       // 止盈价格（可多个）
+
+  // 分析依据
+  reason: string;             // 操作理由
+  technicalAnalysis: string;  // 技术面分析
+  riskLevel: 'low' | 'medium' | 'high';  // 风险等级
+
+  // 仓位管理
+  positionSize: string;       // 建议仓位大小
+  timeframe: string;          // 持有时间框架
+
+  // 元数据
+  publishedAt: Date;
+  expiresAt: Date;           // 建议过期时间
+  status: 'active' | 'expired' | 'executed' | 'cancelled';
+  confidence: number;        // 信心度 1-10
+
+  // 跟踪信息
+  performance?: {
+    entryExecuted: boolean;
+    entryPrice?: number;
+    currentReturn?: number;
+    maxReturn?: number;
+    maxDrawdown?: number;
+  };
 }
 
 // 技术条件
@@ -442,6 +660,92 @@ export interface StockPoolStats {
   byIndustry: Record<string, number>;
   byWatchLevel: Record<string, number>;
   recentlyAdded: number;       // 最近7天添加的数量
+  lastUpdated: Date;
+}
+
+// ==================== 专家意见系统 ====================
+
+// 专家/大佬信息
+export interface Expert {
+  id: string;
+  name: string;                // 专家名称，如 "巴菲特"、"段永平"
+  title?: string;              // 头衔，如 "价值投资大师"
+  avatar?: string;             // 头像图片
+  credibility: number;         // 可信度评分 (0-100)
+  specialties: string[];       // 专长领域，如 ["价值投资", "科技股"]
+  description?: string;        // 专家简介
+  isVerified: boolean;         // 是否认证
+  createdAt: Date;
+}
+
+// 价格指导类型
+export enum PriceGuidanceType {
+  BUY_POINT = 'buy_point',           // 买入点位
+  SELL_POINT = 'sell_point',         // 卖出点位
+  STOP_LOSS = 'stop_loss',           // 止损点位
+  TAKE_PROFIT = 'take_profit',       // 止盈点位
+  SUPPORT_LEVEL = 'support_level',   // 支撑位
+  RESISTANCE_LEVEL = 'resistance_level', // 阻力位
+  TARGET_PRICE = 'target_price'      // 目标价
+}
+
+// 价格指导
+export interface PriceGuidance {
+  type: PriceGuidanceType;
+  price: number;               // 指导价格
+  confidence: 'high' | 'medium' | 'low'; // 信心度
+  reasoning: string;           // 理由说明
+  timeframe?: string;          // 时间框架，如 "3个月内"
+}
+
+// 专家意见
+export interface ExpertOpinion {
+  id: string;
+  stockId: string;             // 关联的股票ID
+  expertId: string;            // 专家ID
+
+  // 意见内容
+  title: string;               // 意见标题
+  content: string;             // 详细分析内容
+  sentiment: 'bullish' | 'bearish' | 'neutral'; // 看多/看空/中性
+
+  // 价格指导
+  priceGuidances: PriceGuidance[]; // 多个价格指导
+
+  // 附件
+  chartImages: string[];       // K线图截图 (base64 或 URL)
+  attachments?: {
+    name: string;
+    url: string;
+    type: 'image' | 'pdf' | 'link';
+  }[];
+
+  // 元数据
+  publishedAt: Date;           // 发布时间
+  source?: string;             // 来源，如 "微博"、"雪球"
+  sourceUrl?: string;          // 原文链接
+  tags: string[];              // 标签，如 ["技术分析", "基本面"]
+
+  // 状态
+  isActive: boolean;           // 是否有效（过期的意见可以设为false）
+  priority: 'high' | 'medium' | 'low'; // 重要程度
+
+  // 时间戳
+  createdAt: Date;
+  updatedAt: Date;
+
+  // 用户交互
+  userNotes?: string;          // 用户备注
+  isBookmarked: boolean;       // 是否收藏
+}
+
+// 专家意见统计
+export interface ExpertOpinionStats {
+  totalOpinions: number;
+  byExpert: Record<string, number>;
+  bySentiment: Record<string, number>;
+  byTimeframe: Record<string, number>;
+  recentOpinions: number;      // 最近7天的意见数
   lastUpdated: Date;
 }
 

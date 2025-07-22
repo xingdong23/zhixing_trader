@@ -34,7 +34,7 @@ interface CardHeaderProps {
 
 export function CardHeader({ children, className }: CardHeaderProps) {
   return (
-    <div className={cn('px-6 py-4 border-b border-gray-100', className)}>
+    <div className={cn('px-6 py-5 border-b border-slate-100/50', className)}>
       {children}
     </div>
   );

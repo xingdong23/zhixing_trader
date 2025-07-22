@@ -31,8 +31,8 @@ export function calculatePlanQualityScore(plan: Partial<TradingPlan>): PlanQuali
   // 1. 基础信息完整性 (25分)
   let basicInfoScore = 0;
   if (plan.symbol && plan.symbolName) basicInfoScore += 8;
-  if (plan.plannedEntryPrice && plan.plannedEntryPrice > 0) basicInfoScore += 8;
-  if (plan.positionSize && plan.positionSize > 0) basicInfoScore += 9;
+  if (plan.positionLayers?.[0]?.targetPrice && plan.positionLayers[0].targetPrice > 0) basicInfoScore += 8;
+  if (plan.positionLayers?.[0]?.positionPercent && plan.positionLayers[0].positionPercent > 0) basicInfoScore += 9;
   
   if (basicInfoScore < 25) {
     suggestions.push('请完善基础信息：股票代码、计划价格、仓位大小');
@@ -41,11 +41,12 @@ export function calculatePlanQualityScore(plan: Partial<TradingPlan>): PlanQuali
 
   // 2. 风险管理 (25分)
   let riskScore = 0;
-  if (plan.stopLoss && plan.stopLoss > 0) {
+  if (plan.globalStopLoss && plan.globalStopLoss > 0) {
     riskScore += 12;
     // 检查止损合理性（不超过20%）
-    if (plan.plannedEntryPrice) {
-      const stopLossPercent = Math.abs(plan.plannedEntryPrice - plan.stopLoss) / plan.plannedEntryPrice;
+    const entryPrice = plan.positionLayers?.[0]?.targetPrice;
+    if (entryPrice) {
+      const stopLossPercent = Math.abs(entryPrice - plan.globalStopLoss) / entryPrice;
       if (stopLossPercent > 0.20) {
         suggestions.push('止损幅度过大，建议控制在20%以内');
         riskScore -= 3;
@@ -54,8 +55,9 @@ export function calculatePlanQualityScore(plan: Partial<TradingPlan>): PlanQuali
   } else {
     suggestions.push('必须设置止损价格');
   }
-  
-  if (plan.takeProfit && plan.takeProfit > 0) {
+
+  const takeProfitPrice = plan.takeProfitLayers?.[0]?.targetPrice;
+  if (takeProfitPrice && takeProfitPrice > 0) {
     riskScore += 8;
   } else {
     suggestions.push('建议设置止盈目标');
@@ -230,14 +232,24 @@ export function calculateTradingStats(records: TradeRecord[]): TradingStats {
   const losingTrades = closedRecords.filter(r => (r.realizedPnL || 0) < 0);
   
   const totalPnL = closedRecords.reduce((sum, r) => sum + (r.realizedPnL || 0), 0);
-  const totalPnLPercent = closedRecords.reduce((sum, r) => sum + (r.realizedPnLPercent || 0), 0);
-  
-  const avgWinPercent = winningTrades.length > 0 
-    ? winningTrades.reduce((sum, r) => sum + (r.realizedPnLPercent || 0), 0) / winningTrades.length
+  // 计算百分比收益（基于投入资金）
+  const totalPnLPercent = closedRecords.reduce((sum, r) => {
+    const percent = r.totalInvested > 0 ? (r.realizedPnL || 0) / r.totalInvested * 100 : 0;
+    return sum + percent;
+  }, 0);
+
+  const avgWinPercent = winningTrades.length > 0
+    ? winningTrades.reduce((sum, r) => {
+        const percent = r.totalInvested > 0 ? (r.realizedPnL || 0) / r.totalInvested * 100 : 0;
+        return sum + percent;
+      }, 0) / winningTrades.length
     : 0;
-    
+
   const avgLossPercent = losingTrades.length > 0
-    ? Math.abs(losingTrades.reduce((sum, r) => sum + (r.realizedPnLPercent || 0), 0) / losingTrades.length)
+    ? Math.abs(losingTrades.reduce((sum, r) => {
+        const percent = r.totalInvested > 0 ? (r.realizedPnL || 0) / r.totalInvested * 100 : 0;
+        return sum + percent;
+      }, 0) / losingTrades.length)
     : 0;
 
   // 计算平均风险收益比（盈利交易平均收益 / 亏损交易平均亏损）
@@ -251,12 +263,12 @@ export function calculateTradingStats(records: TradeRecord[]): TradingStats {
   const emotionBreakdown: Record<TradingEmotion, number> = {} as Record<TradingEmotion, number>;
   const sourceBreakdown: Record<InformationSource, number> = {} as Record<InformationSource, number>;
 
-  // 持仓天数计算
+  // 持仓天数计算（使用createdAt和updatedAt作为替代）
   const holdingDays = closedRecords
-    .filter(r => r.entryTime && r.exitTime)
+    .filter(r => r.createdAt && r.updatedAt)
     .map(r => {
-      const entry = new Date(r.entryTime!);
-      const exit = new Date(r.exitTime!);
+      const entry = new Date(r.createdAt);
+      const exit = new Date(r.updatedAt);
       return (exit.getTime() - entry.getTime()) / (1000 * 60 * 60 * 24);
     });
   

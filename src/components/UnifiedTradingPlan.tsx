@@ -5,28 +5,30 @@
 
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
-import { 
-  TradingPlan, 
-  PositionLayer, 
+import {
+  TradingPlan,
+  PositionLayer,
   TakeProfitLayer,
   TradingEmotion,
   InformationSource,
   DisciplineStatus,
-  TradingPlaybook
+  TradingPlaybook,
+  TradeStatus
 } from '@/types';
-import { 
-  Plus, 
-  Minus, 
-  Target, 
-  Shield, 
-  TrendingUp, 
+import {
+  Plus,
+  Minus,
+  Target,
+  Shield,
+  TrendingUp,
   AlertTriangle,
   Lock,
   Eye,
   Calculator,
   BarChart3,
   BookOpen,
-  Camera
+  Camera,
+  X
 } from 'lucide-react';
 
 interface UnifiedTradingPlanProps {
@@ -249,7 +251,7 @@ export function UnifiedTradingPlan({ playbooks, onSave, onCancel }: UnifiedTradi
       planQualityScore: 85, // 临时评分，后续可以实现自动评分
       chartSnapshot,
       playbookId: selectedPlaybook || undefined,
-      status: 'PLANNING'
+      status: TradeStatus.PLANNING
     };
     
     onSave(plan);

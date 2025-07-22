@@ -5,7 +5,7 @@
 
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
-import { TrendingUp, TrendingDown, Target, Brain, Plus, BookOpen, Activity, Settings } from 'lucide-react';
+import { TrendingUp, TrendingDown, Target, Brain, Plus, BookOpen, Activity, Settings, BarChart3 } from 'lucide-react';
 import { TradingStats, TradingPlan, TradingPlaybook } from '@/types';
 
 interface DashboardProps {
@@ -339,12 +339,12 @@ function ActiveTradesSection({
             </div>
             <div className="text-right">
               <p className="text-sm text-gray-600">计划价格</p>
-              <p className="font-semibold">¥{plan.plannedEntryPrice.toFixed(2)}</p>
+              <p className="font-semibold">¥{plan.positionLayers[0]?.targetPrice.toFixed(2) || 'N/A'}</p>
             </div>
           </div>
           <div className="flex justify-between items-center text-sm">
             <span className="text-gray-600">
-              止损: ¥{plan.stopLoss.toFixed(2)} | 止盈: ¥{plan.takeProfit.toFixed(2)}
+              止损: ¥{plan.globalStopLoss.toFixed(2)} | 止盈: ¥{plan.takeProfitLayers[0]?.targetPrice.toFixed(2) || 'N/A'}
             </span>
             <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs">
               {plan.status === 'planning' ? '计划中' : '执行中'}

@@ -98,14 +98,14 @@ export const defaultStrategies: Omit<SelectionStrategy, 'id' | 'createdAt' | 'up
     conditions: {
       technical: [
         {
-          type: 'price_change',
+          type: 'indicator',
           parameter: 'return_30d',
           operator: '>=',
           value: 15,
           description: '近30天涨幅超过15%'
         },
         {
-          type: 'price_change',
+          type: 'indicator',
           parameter: 'return_5d',
           operator: '<=',
           value: -5,
@@ -232,7 +232,7 @@ export const defaultStrategies: Omit<SelectionStrategy, 'id' | 'createdAt' | 'up
           description: 'RSI从超卖区域回升'
         },
         {
-          type: 'price_level',
+          type: 'indicator',
           parameter: 'support_level',
           operator: '>=',
           value: 0.98,

@@ -289,7 +289,7 @@ export function AdvancedTradeTracker({
                 </div>
               </div>
               <button
-                onClick={() => handleExecute(nextAction.layer.id, nextAction.type)}
+                onClick={() => handleExecute(nextAction.layer.id, nextAction.type as 'BUY' | 'SELL')}
                 className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
               >
                 立即执行

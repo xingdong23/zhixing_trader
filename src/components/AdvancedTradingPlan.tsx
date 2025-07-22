@@ -5,14 +5,15 @@
 
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
-import { 
-  TradingPlan, 
-  PositionLayer, 
+import {
+  TradingPlan,
+  PositionLayer,
   TakeProfitLayer,
   TradingEmotion,
   InformationSource,
   DisciplineStatus,
-  DisciplineViolation
+  DisciplineViolation,
+  TradeStatus
 } from '@/types';
 import { 
   Plus, 
@@ -63,7 +64,7 @@ export function AdvancedTradingPlan({ onSave, onCancel }: AdvancedTradingPlanPro
   
   // 心理状态
   const [emotion, setEmotion] = useState<TradingEmotion>(TradingEmotion.CALM);
-  const [informationSource, setInformationSource] = useState<InformationSource>(InformationSource.SELF_RESEARCH);
+  const [informationSource, setInformationSource] = useState<InformationSource>(InformationSource.SELF_ANALYSIS);
   const [disciplineLocked, setDisciplineLocked] = useState(false);
   
   // 计算总仓位
@@ -209,7 +210,7 @@ export function AdvancedTradingPlan({ onSave, onCancel }: AdvancedTradingPlanPro
       disciplineLocked,
       disciplineStatus,
       planQualityScore: 85, // 临时评分，后续可以实现自动评分
-      status: 'PLANNING'
+      status: TradeStatus.PLANNING
     };
     
     onSave(plan);
@@ -700,11 +701,12 @@ export function AdvancedTradingPlan({ onSave, onCancel }: AdvancedTradingPlanPro
                 onChange={(e) => setInformationSource(e.target.value as InformationSource)}
                 className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
               >
-                <option value={InformationSource.SELF_RESEARCH}>自主研究</option>
-                <option value={InformationSource.ANALYST_REPORT}>分析师报告</option>
+                <option value={InformationSource.SELF_ANALYSIS}>自主研究</option>
+                <option value={InformationSource.PROFESSIONAL_REPORT}>专业报告</option>
                 <option value={InformationSource.NEWS_MEDIA}>新闻媒体</option>
                 <option value={InformationSource.SOCIAL_MEDIA}>社交媒体</option>
-                <option value={InformationSource.INSIDER_TIP}>内幕消息</option>
+                <option value={InformationSource.FRIEND_RECOMMEND}>朋友推荐</option>
+                <option value={InformationSource.TECHNICAL_SIGNAL}>技术信号</option>
               </select>
             </div>
             <div>

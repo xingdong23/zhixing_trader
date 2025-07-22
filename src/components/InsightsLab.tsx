@@ -360,7 +360,7 @@ function generateInsights(stats: TradingStats, records: TradeRecord[]): InsightC
   if (fomoTrades > 0) {
     const fomoRecords = records.filter(r => r.planId && fomoTrades > 0); // 简化处理
     const fomoAvgReturn = fomoRecords.length > 0 
-      ? fomoRecords.reduce((sum, r) => sum + (r.realizedPnLPercent || 0), 0) / fomoRecords.length
+      ? fomoRecords.reduce((sum, r) => sum + (r.totalPnLPercent || 0), 0) / fomoRecords.length
       : 0;
     
     insights.push({

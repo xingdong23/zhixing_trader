@@ -61,7 +61,7 @@ export function TradeTracker({
   useEffect(() => {
     if (selectedPlan) {
       // 模拟价格波动
-      const basePrice = selectedPlan.plannedEntryPrice;
+      const basePrice = selectedPlan.positionLayers[0]?.targetPrice || 100;
       const volatility = 0.02; // 2%波动
       const randomChange = (Math.random() - 0.5) * volatility;
       setCurrentPrice(basePrice * (1 + randomChange));
@@ -74,9 +74,9 @@ export function TradeTracker({
       setEditForm({
         symbol: selectedPlan.symbol,
         symbolName: selectedPlan.symbolName,
-        plannedEntryPrice: selectedPlan.plannedEntryPrice,
-        stopLoss: selectedPlan.stopLoss,
-        takeProfit: selectedPlan.takeProfit,
+        positionLayers: selectedPlan.positionLayers,
+        globalStopLoss: selectedPlan.globalStopLoss,
+        takeProfitLayers: selectedPlan.takeProfitLayers,
         buyingLogic: selectedPlan.buyingLogic
       });
       setIsEditing(true);
@@ -151,7 +151,7 @@ export function TradeTracker({
       observation: journalText,
       emotion: journalEmotion,
       consideringAdjustment: false,
-      screenshot: journalScreenshot || undefined
+      adjustmentReason: journalScreenshot ? '附带截图' : undefined
     };
 
     onAddJournal(selectedPlan.id, journal);
@@ -161,16 +161,19 @@ export function TradeTracker({
   };
 
   const getLifecyclePosition = (plan: TradingPlan) => {
+    const entryPrice = plan.positionLayers[0]?.targetPrice || 0;
+    const takeProfitPrice = plan.takeProfitLayers[0]?.targetPrice || 0;
     return calculateLifecyclePosition(
-      currentPrice || plan.plannedEntryPrice,
-      plan.plannedEntryPrice,
-      plan.stopLoss,
-      plan.takeProfit
+      currentPrice || entryPrice,
+      entryPrice,
+      plan.globalStopLoss,
+      takeProfitPrice
     );
   };
 
   const getPnLPercent = (plan: TradingPlan) => {
-    return calculatePriceChangePercent(plan.plannedEntryPrice, currentPrice || plan.plannedEntryPrice);
+    const entryPrice = plan.positionLayers[0]?.targetPrice || 0;
+    return calculatePriceChangePercent(entryPrice, currentPrice || entryPrice);
   };
 
   // 获取当前交易的观察日志
@@ -185,10 +188,12 @@ export function TradeTracker({
   const getEmotionDisplay = (emotion: TradingEmotion) => {
     const emotionMap = {
       [TradingEmotion.CALM]: { text: '冷静', color: 'text-blue-600' },
-      [TradingEmotion.EXCITED]: { text: '兴奋', color: 'text-green-600' },
+      [TradingEmotion.CONFIDENT]: { text: '自信', color: 'text-green-600' },
       [TradingEmotion.FEAR]: { text: '恐惧', color: 'text-red-600' },
       [TradingEmotion.GREED]: { text: '贪婪', color: 'text-orange-600' },
-      [TradingEmotion.FOMO]: { text: 'FOMO', color: 'text-purple-600' }
+      [TradingEmotion.FOMO]: { text: 'FOMO', color: 'text-purple-600' },
+      [TradingEmotion.REVENGE]: { text: '报复', color: 'text-red-800' },
+      [TradingEmotion.UNCERTAIN]: { text: '不确定', color: 'text-gray-600' }
     };
     return emotionMap[emotion] || { text: '未知', color: 'text-gray-600' };
   };
@@ -266,7 +271,7 @@ export function TradeTracker({
                                 {pnlPercent >= 0 ? '+' : ''}{pnlPercent.toFixed(2)}%
                               </p>
                               <p className="text-xs text-gray-500">
-                                ¥{(currentPrice || plan.plannedEntryPrice).toFixed(2)}
+                                ¥{(currentPrice || plan.positionLayers[0]?.targetPrice || 0).toFixed(2)}
                               </p>
                             </div>
                           </div>
@@ -274,8 +279,8 @@ export function TradeTracker({
                           {/* 生命周期进度条 */}
                           <div className="mb-2">
                             <div className="flex justify-between text-xs text-gray-500 mb-1">
-                              <span>止损 ¥{plan.stopLoss.toFixed(2)}</span>
-                              <span>止盈 ¥{plan.takeProfit.toFixed(2)}</span>
+                              <span>止损 ¥{plan.globalStopLoss.toFixed(2)}</span>
+                              <span>止盈 ¥{(plan.takeProfitLayers[0]?.targetPrice || 0).toFixed(2)}</span>
                             </div>
                             <div className="w-full bg-gray-200 rounded-full h-2">
                               <div
@@ -287,7 +292,7 @@ export function TradeTracker({
                           
                           <div className="flex justify-between items-center text-xs">
                             <span className="text-gray-500">
-                              计划: ¥{plan.plannedEntryPrice.toFixed(2)}
+                              计划: ¥{(plan.positionLayers[0]?.targetPrice || 0).toFixed(2)}
                             </span>
                             {plan.disciplineLocked && (
                               <Lock className="w-3 h-3 text-red-500" />
@@ -329,20 +334,20 @@ export function TradeTracker({
                       <div className="text-center">
                         <p className="text-sm text-gray-500">当前价格</p>
                         <p className="text-lg font-semibold">
-                          ¥{(currentPrice || selectedPlan.plannedEntryPrice).toFixed(2)}
+                          ¥{(currentPrice || selectedPlan.positionLayers[0]?.targetPrice || 0).toFixed(2)}
                         </p>
                       </div>
                       <div className="text-center">
                         <p className="text-sm text-gray-500">计划价格</p>
-                        <p className="text-lg font-semibold">¥{selectedPlan.plannedEntryPrice.toFixed(2)}</p>
+                        <p className="text-lg font-semibold">¥{(selectedPlan.positionLayers[0]?.targetPrice || 0).toFixed(2)}</p>
                       </div>
                       <div className="text-center">
                         <p className="text-sm text-gray-500">止损价</p>
-                        <p className="text-lg font-semibold text-red-600">¥{selectedPlan.stopLoss.toFixed(2)}</p>
+                        <p className="text-lg font-semibold text-red-600">¥{selectedPlan.globalStopLoss.toFixed(2)}</p>
                       </div>
                       <div className="text-center">
                         <p className="text-sm text-gray-500">止盈价</p>
-                        <p className="text-lg font-semibold text-green-600">¥{selectedPlan.takeProfit.toFixed(2)}</p>
+                        <p className="text-lg font-semibold text-green-600">¥{(selectedPlan.takeProfitLayers[0]?.targetPrice || 0).toFixed(2)}</p>
                       </div>
                     </div>
 
@@ -363,9 +368,9 @@ export function TradeTracker({
                           />
                         </div>
                         <div className="flex justify-between text-xs text-gray-400 mt-1">
-                          <span>¥{selectedPlan.stopLoss.toFixed(2)}</span>
-                          <span>¥{selectedPlan.plannedEntryPrice.toFixed(2)}</span>
-                          <span>¥{selectedPlan.takeProfit.toFixed(2)}</span>
+                          <span>¥{selectedPlan.globalStopLoss.toFixed(2)}</span>
+                          <span>¥{(selectedPlan.positionLayers[0]?.targetPrice || 0).toFixed(2)}</span>
+                          <span>¥{(selectedPlan.takeProfitLayers[0]?.targetPrice || 0).toFixed(2)}</span>
                         </div>
                       </div>
                     </div>
@@ -378,7 +383,7 @@ export function TradeTracker({
                       </div>
                       <div className="bg-gray-50 p-3 rounded-lg text-center">
                         <p className="text-sm text-gray-500">仓位大小</p>
-                        <p className="text-lg font-semibold">{selectedPlan.positionSize}股</p>
+                        <p className="text-lg font-semibold">{selectedPlan.positionLayers[0]?.positionPercent || 0}%</p>
                       </div>
                       <div className="bg-gray-50 p-3 rounded-lg text-center">
                         <p className="text-sm text-gray-500">计划质量分</p>
@@ -447,8 +452,17 @@ export function TradeTracker({
                             <input
                               type="number"
                               step="0.01"
-                              value={editForm.plannedEntryPrice || ''}
-                              onChange={(e) => handleEditFormChange('plannedEntryPrice', parseFloat(e.target.value) || 0)}
+                              value={editForm.positionLayers?.[0]?.targetPrice || ''}
+                              onChange={(e) => {
+                                const price = parseFloat(e.target.value) || 0;
+                                setEditForm(prev => ({
+                                  ...prev,
+                                  positionLayers: [{
+                                    ...prev.positionLayers![0],
+                                    targetPrice: price
+                                  }]
+                                }));
+                              }}
                               className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                             />
                           </div>
@@ -457,8 +471,8 @@ export function TradeTracker({
                             <input
                               type="number"
                               step="0.01"
-                              value={editForm.stopLoss || ''}
-                              onChange={(e) => handleEditFormChange('stopLoss', parseFloat(e.target.value) || 0)}
+                              value={editForm.globalStopLoss || ''}
+                              onChange={(e) => handleEditFormChange('globalStopLoss', parseFloat(e.target.value) || 0)}
                               className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                             />
                           </div>
@@ -467,8 +481,17 @@ export function TradeTracker({
                             <input
                               type="number"
                               step="0.01"
-                              value={editForm.takeProfit || ''}
-                              onChange={(e) => handleEditFormChange('takeProfit', parseFloat(e.target.value) || 0)}
+                              value={editForm.takeProfitLayers?.[0]?.targetPrice || ''}
+                              onChange={(e) => {
+                                const price = parseFloat(e.target.value) || 0;
+                                setEditForm(prev => ({
+                                  ...prev,
+                                  takeProfitLayers: [{
+                                    ...prev.takeProfitLayers![0],
+                                    targetPrice: price
+                                  }]
+                                }));
+                              }}
                               className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                             />
                           </div>
@@ -596,17 +619,17 @@ export function TradeTracker({
                                   {journal.observation}
                                 </p>
                                 {/* 截图显示 */}
-                                {journal.screenshot && (
+                                {false && (
                                   <div className="mt-3">
                                     <div className="flex items-center mb-2">
                                       <Image className="w-4 h-4 mr-1 text-gray-500" />
                                       <span className="text-xs text-gray-500">K线图截图</span>
                                     </div>
                                     <img
-                                      src={journal.screenshot}
+                                      src=""
                                       alt="K线图截图"
                                       className="max-w-full h-auto max-h-48 rounded-lg border border-gray-300 shadow-sm cursor-pointer hover:shadow-md transition-shadow"
-                                      onClick={() => window.open(journal.screenshot, '_blank')}
+                                      onClick={() => {}}
                                       title="点击查看大图"
                                     />
                                   </div>

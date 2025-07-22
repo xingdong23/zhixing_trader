@@ -53,8 +53,9 @@ export function TradeReview({ plan, onSubmitReview, onCancel }: TradeReviewProps
   // 实时计算盈亏和纪律分影响
   useEffect(() => {
     if (formData.actualExitPrice > 0) {
-      const pnlPercent = calculatePriceChangePercent(plan.plannedEntryPrice, formData.actualExitPrice);
-      const pnlAmount = (formData.actualExitPrice - plan.plannedEntryPrice) * plan.positionSize;
+      const entryPrice = plan.positionLayers[0]?.targetPrice || 0;
+      const pnlPercent = calculatePriceChangePercent(entryPrice, formData.actualExitPrice);
+      const pnlAmount = (formData.actualExitPrice - entryPrice) * (plan.positionLayers[0]?.positionPercent || 0);
       
       // 计算纪律分影响
       let disciplineImpact = 0;
@@ -117,18 +118,38 @@ export function TradeReview({ plan, onSubmitReview, onCancel }: TradeReviewProps
       planId: plan.id,
       createdAt: new Date(),
       updatedAt: new Date(),
-      actualEntryPrice: plan.plannedEntryPrice,
-      actualExitPrice: formData.actualExitPrice,
-      actualPositionSize: plan.positionSize,
+      executions: [],
+      currentPosition: 0,
+      averageEntryPrice: plan.positionLayers[0]?.targetPrice || 0,
+      totalInvested: 0,
+      unrealizedPnL: 0,
       realizedPnL: calculatedResults.realizedPnL,
-      realizedPnLPercent: calculatedResults.realizedPnLPercent,
-      entryTime: plan.createdAt,
-      exitTime: new Date(),
+      totalPnL: calculatedResults.realizedPnL,
+      totalPnLPercent: calculatedResults.realizedPnLPercent,
+      firstEntryTime: plan.createdAt,
+      lastExitTime: new Date(),
       disciplineRating: formData.disciplineRating,
       disciplineNotes: formData.disciplineNotes,
       tradingSummary: formData.tradingSummary,
       lessonsLearned: formData.lessonsLearned,
-      status: TradeStatus.CLOSED
+      status: TradeStatus.CLOSED,
+      positionDetails: [],
+      plannedActions: [],
+      riskManagement: {
+        stopLoss: {
+          initialPrice: plan.globalStopLoss,
+          currentPrice: plan.globalStopLoss,
+          adjustmentHistory: []
+        },
+        takeProfits: [],
+        positionSizing: {
+          maxPosition: plan.maxTotalPosition,
+          currentPosition: 0,
+          riskPerTrade: plan.maxLossPercent,
+          portfolioRisk: 0
+        },
+        riskAlerts: []
+      }
     };
 
     onSubmitReview(record, formData.saveAsPlaybook);
@@ -201,11 +222,11 @@ export function TradeReview({ plan, onSubmitReview, onCancel }: TradeReviewProps
                   </div>
                   <div>
                     <p className="text-sm text-gray-500">仓位</p>
-                    <p className="font-semibold">{plan.positionSize}股</p>
+                    <p className="font-semibold">{plan.positionLayers[0]?.positionPercent || 0}%</p>
                   </div>
                   <div>
                     <p className="text-sm text-gray-500">计划买入价</p>
-                    <p className="font-semibold">¥{plan.plannedEntryPrice.toFixed(2)}</p>
+                    <p className="font-semibold">¥{(plan.positionLayers[0]?.targetPrice || 0).toFixed(2)}</p>
                   </div>
                   <div>
                     <p className="text-sm text-gray-500">风险收益比</p>
@@ -215,11 +236,11 @@ export function TradeReview({ plan, onSubmitReview, onCancel }: TradeReviewProps
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <p className="text-sm text-gray-500">止损价</p>
-                    <p className="font-semibold text-red-600">¥{plan.stopLoss.toFixed(2)}</p>
+                    <p className="font-semibold text-red-600">¥{plan.globalStopLoss.toFixed(2)}</p>
                   </div>
                   <div>
                     <p className="text-sm text-gray-500">止盈价</p>
-                    <p className="font-semibold text-green-600">¥{plan.takeProfit.toFixed(2)}</p>
+                    <p className="font-semibold text-green-600">¥{(plan.takeProfitLayers[0]?.targetPrice || 0).toFixed(2)}</p>
                   </div>
                 </div>
               </CardContent>

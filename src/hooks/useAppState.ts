@@ -4,7 +4,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { AppState, TradingStats, TradingPlan, TradingPlaybook, TradeRecord } from '@/types';
+import { AppState, TradingStats, TradingPlan, TradingPlaybook, TradeRecord, LiveJournal } from '@/types';
 import { generateDefaultPlaybooks } from '@/data/defaultPlaybooks';
 import { calculateTradingStats } from '@/utils/calculations';
 
@@ -129,8 +129,14 @@ export function useAppState() {
   };
 
   // 添加交易记录
-  const addTradeRecord = (record: TradeRecord) => {
-    const updatedRecords = [...appState.activeRecords, record];
+  const addTradeRecord = (record: Omit<TradeRecord, 'id' | 'createdAt' | 'updatedAt'>) => {
+    const fullRecord: TradeRecord = {
+      ...record,
+      id: Date.now().toString(),
+      createdAt: new Date(),
+      updatedAt: new Date()
+    };
+    const updatedRecords = [...appState.activeRecords, fullRecord];
     const newStats = calculateTradingStats(updatedRecords);
     
     updateAppState({
@@ -153,9 +159,15 @@ export function useAppState() {
   };
 
   // 添加剧本
-  const addPlaybook = (playbook: TradingPlaybook) => {
+  const addPlaybook = (playbook: Omit<TradingPlaybook, 'id' | 'createdAt' | 'updatedAt'>) => {
+    const fullPlaybook: TradingPlaybook = {
+      ...playbook,
+      id: Date.now().toString(),
+      createdAt: new Date(),
+      updatedAt: new Date()
+    };
     updateAppState({
-      playbooks: [...appState.playbooks, playbook]
+      playbooks: [...appState.playbooks, fullPlaybook]
     });
   };
 
@@ -214,7 +226,7 @@ export function useAppState() {
   };
 
   // 导入数据
-  const importData = (file: File) => {
+  const importData = (file: File): Promise<boolean> => {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
       reader.onload = (e) => {

@@ -71,15 +71,16 @@ export function NotificationSystem({
     const interval = setInterval(() => {
       activePlans.forEach(plan => {
         // 模拟价格检查
-        const currentPrice = plan.plannedEntryPrice * (1 + (Math.random() - 0.5) * 0.1);
-        
+        const entryPrice = plan.positionLayers[0]?.targetPrice || 100;
+        const currentPrice = entryPrice * (1 + (Math.random() - 0.5) * 0.1);
+
         // 接近止损警报
-        if (Math.abs(currentPrice - plan.stopLoss) / plan.plannedEntryPrice < 0.02) {
+        if (Math.abs(currentPrice - plan.globalStopLoss) / entryPrice < 0.02) {
           addNotification({
             id: `price_stop_${plan.id}_${Date.now()}`,
             type: 'price',
             title: '止损价格警报',
-            message: `${plan.symbolName} 当前价格 ¥${currentPrice.toFixed(2)} 接近止损价 ¥${plan.stopLoss.toFixed(2)}`,
+            message: `${plan.symbolName} 当前价格 ¥${currentPrice.toFixed(2)} 接近止损价 ¥${plan.globalStopLoss.toFixed(2)}`,
             severity: 'warning',
             timestamp: new Date(),
             isRead: false,
@@ -88,12 +89,13 @@ export function NotificationSystem({
         }
 
         // 接近止盈警报
-        if (Math.abs(currentPrice - plan.takeProfit) / plan.plannedEntryPrice < 0.02) {
+        const takeProfitPrice = plan.takeProfitLayers[0]?.targetPrice || entryPrice * 1.1;
+        if (Math.abs(currentPrice - takeProfitPrice) / entryPrice < 0.02) {
           addNotification({
             id: `price_profit_${plan.id}_${Date.now()}`,
             type: 'price',
             title: '止盈价格警报',
-            message: `${plan.symbolName} 当前价格 ¥${currentPrice.toFixed(2)} 接近止盈价 ¥${plan.takeProfit.toFixed(2)}`,
+            message: `${plan.symbolName} 当前价格 ¥${currentPrice.toFixed(2)} 接近止盈价 ¥${takeProfitPrice.toFixed(2)}`,
             severity: 'success',
             timestamp: new Date(),
             isRead: false,
@@ -342,7 +344,7 @@ function generateNotifications(
   const unReviewedRecords = activeRecords.filter(record => 
     record.status === 'closed' && 
     !record.tradingSummary && 
-    now.getTime() - record.exitTime!.getTime() > 24 * 60 * 60 * 1000 // 超过24小时未复盘
+    record.lastExitTime && now.getTime() - record.lastExitTime.getTime() > 24 * 60 * 60 * 1000 // 超过24小时未复盘
   );
 
   if (unReviewedRecords.length > 0) {

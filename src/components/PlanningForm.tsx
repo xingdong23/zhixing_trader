@@ -39,16 +39,35 @@ export function PlanningForm({ playbooks, onSubmit, onCancel }: PlanningFormProp
   const [formData, setFormData] = useState<Partial<TradingPlan>>({
     symbol: '',
     symbolName: '',
-    plannedEntryPrice: 0,
-    positionSize: 0,
+    strategyType: 'SINGLE_ENTRY' as const,
+    positionLayers: [{
+      id: '1',
+      layerIndex: 1,
+      targetPrice: 0,
+      positionPercent: 100,
+      executed: false,
+      executedAt: undefined,
+      actualPrice: undefined
+    }],
+    maxTotalPosition: 100,
+    takeProfitLayers: [{
+      id: '1',
+      layerIndex: 1,
+      targetPrice: 0,
+      sellPercent: 100,
+      executed: false,
+      executedAt: undefined,
+      actualPrice: undefined
+    }],
+    trailingStopEnabled: false,
     buyingLogic: {
-      technical: '', // 简化为单一买入理由
+      technical: '',
       fundamental: '',
       news: ''
     },
-    stopLoss: 0,
-    takeProfit: 0,
-    riskRewardRatio: 0,
+    globalStopLoss: 0,
+    maxLossPercent: 10,
+    riskRewardRatio: 2,
     emotion: TradingEmotion.CALM, // 默认冷静
     informationSource: InformationSource.SELF_ANALYSIS, // 默认自主分析
     disciplineLocked: false,
@@ -81,15 +100,15 @@ export function PlanningForm({ playbooks, onSubmit, onCancel }: PlanningFormProp
 
   // 实时计算风险收益比
   useEffect(() => {
-    if (formData.plannedEntryPrice && formData.stopLoss && formData.takeProfit) {
-      const ratio = calculateRiskRewardRatio(
-        formData.plannedEntryPrice,
-        formData.stopLoss,
-        formData.takeProfit
-      );
+    const entryPrice = formData.positionLayers?.[0]?.targetPrice;
+    const takeProfitPrice = formData.takeProfitLayers?.[0]?.targetPrice;
+    const stopLoss = formData.globalStopLoss;
+
+    if (entryPrice && stopLoss && takeProfitPrice) {
+      const ratio = calculateRiskRewardRatio(entryPrice, stopLoss, takeProfitPrice);
       setFormData(prev => ({ ...prev, riskRewardRatio: ratio }));
     }
-  }, [formData.plannedEntryPrice, formData.stopLoss, formData.takeProfit]);
+  }, [formData.positionLayers, formData.globalStopLoss, formData.takeProfitLayers]);
 
   // 全局粘贴事件监听器
   useEffect(() => {
@@ -155,41 +174,43 @@ export function PlanningForm({ playbooks, onSubmit, onCancel }: PlanningFormProp
         emotion: playbook.template.recommendedEmotion,
         informationSource: playbook.template.recommendedSource,
         // 根据剧本模板计算止损止盈
-        stopLoss: prev.plannedEntryPrice ? 
-          prev.plannedEntryPrice * (1 - playbook.template.riskManagementTemplate.stopLossRatio) : 0,
-        takeProfit: prev.plannedEntryPrice ? 
-          prev.plannedEntryPrice * (1 + playbook.template.riskManagementTemplate.takeProfitRatio) : 0
+        globalStopLoss: prev.positionLayers?.[0]?.targetPrice ?
+          prev.positionLayers[0].targetPrice * (1 - playbook.template.riskManagementTemplate.stopLossRatio) : 0,
+        takeProfitLayers: prev.positionLayers?.[0]?.targetPrice ?
+          [{
+            ...prev.takeProfitLayers![0],
+            targetPrice: prev.positionLayers[0].targetPrice * (1 + playbook.template.riskManagementTemplate.takeProfitRatio)
+          }] : prev.takeProfitLayers
       }));
     }
   };
 
   const handleSubmit = () => {
     // 简化验证 - 只检查必填字段
-    if (!formData.symbol || !formData.symbolName || !formData.plannedEntryPrice ||
-        !formData.stopLoss || !formData.takeProfit || !formData.buyingLogic?.technical) {
+    const entryPrice = formData.positionLayers?.[0]?.targetPrice;
+    const takeProfitPrice = formData.takeProfitLayers?.[0]?.targetPrice;
+
+    if (!formData.symbol || !formData.symbolName || !entryPrice ||
+        !formData.globalStopLoss || !takeProfitPrice || !formData.buyingLogic?.technical) {
       alert('请填写所有必填字段（股票信息、价格设置、买入理由）');
       return;
     }
 
     const plan: TradingPlan = {
+      ...formData as TradingPlan,
       id: `plan_${Date.now()}`,
       createdAt: new Date(),
       updatedAt: new Date(),
-      symbol: formData.symbol!,
-      symbolName: formData.symbolName!,
-      plannedEntryPrice: formData.plannedEntryPrice!,
-      positionSize: formData.positionSize || 100, // 默认100股
-      buyingLogic: formData.buyingLogic!,
-      stopLoss: formData.stopLoss!,
-      takeProfit: formData.takeProfit!,
-      riskRewardRatio: formData.riskRewardRatio!,
-      emotion: formData.emotion!,
-      informationSource: formData.informationSource!,
-      disciplineLocked: formData.disciplineLocked!,
       planQualityScore: qualityScore.score,
-      chartSnapshot: formData.chartSnapshot,
-      playbookId: formData.playbookId,
-      status: TradeStatus.PLANNING
+      status: TradeStatus.PLANNING,
+      disciplineStatus: {
+        overallScore: 100,
+        entryDiscipline: 100,
+        exitDiscipline: 100,
+        positionDiscipline: 100,
+        violations: [],
+        lastUpdated: new Date()
+      }
     };
 
     onSubmit(plan);
@@ -269,8 +290,17 @@ export function PlanningForm({ playbooks, onSubmit, onCancel }: PlanningFormProp
                     <input
                       type="number"
                       step="0.01"
-                      value={formData.plannedEntryPrice || ''}
-                      onChange={(e) => handleInputChange('plannedEntryPrice', parseFloat(e.target.value) || 0)}
+                      value={formData.positionLayers?.[0]?.targetPrice || ''}
+                      onChange={(e) => {
+                        const price = parseFloat(e.target.value) || 0;
+                        setFormData(prev => ({
+                          ...prev,
+                          positionLayers: [{
+                            ...prev.positionLayers![0],
+                            targetPrice: price
+                          }]
+                        }));
+                      }}
                       placeholder="0.00"
                       className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     />
@@ -280,8 +310,8 @@ export function PlanningForm({ playbooks, onSubmit, onCancel }: PlanningFormProp
                     <input
                       type="number"
                       step="0.01"
-                      value={formData.stopLoss || ''}
-                      onChange={(e) => handleInputChange('stopLoss', parseFloat(e.target.value) || 0)}
+                      value={formData.globalStopLoss || ''}
+                      onChange={(e) => handleInputChange('globalStopLoss', parseFloat(e.target.value) || 0)}
                       placeholder="0.00"
                       className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     />
@@ -293,8 +323,17 @@ export function PlanningForm({ playbooks, onSubmit, onCancel }: PlanningFormProp
                     <input
                       type="number"
                       step="0.01"
-                      value={formData.takeProfit || ''}
-                      onChange={(e) => handleInputChange('takeProfit', parseFloat(e.target.value) || 0)}
+                      value={formData.takeProfitLayers?.[0]?.targetPrice || ''}
+                      onChange={(e) => {
+                        const price = parseFloat(e.target.value) || 0;
+                        setFormData(prev => ({
+                          ...prev,
+                          takeProfitLayers: [{
+                            ...prev.takeProfitLayers![0],
+                            targetPrice: price
+                          }]
+                        }));
+                      }}
                       placeholder="0.00"
                       className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     />
@@ -315,14 +354,14 @@ export function PlanningForm({ playbooks, onSubmit, onCancel }: PlanningFormProp
                   </label>
                 </div>
 
-                {formData.riskRewardRatio > 0 && (
+                {(formData.riskRewardRatio || 0) > 0 && (
                   <div className="p-3 bg-gray-50 rounded-lg">
                     <p className="text-sm text-gray-600">
                       风险收益比: <span className={`font-semibold ${
-                        formData.riskRewardRatio >= 2 ? 'text-green-600' :
-                        formData.riskRewardRatio >= 1.5 ? 'text-yellow-600' : 'text-red-600'
+                        (formData.riskRewardRatio || 0) >= 2 ? 'text-green-600' :
+                        (formData.riskRewardRatio || 0) >= 1.5 ? 'text-yellow-600' : 'text-red-600'
                       }`}>
-                        {formData.riskRewardRatio.toFixed(2)}:1
+                        {(formData.riskRewardRatio || 0).toFixed(2)}:1
                       </span>
                     </p>
                   </div>
@@ -436,7 +475,7 @@ export function PlanningForm({ playbooks, onSubmit, onCancel }: PlanningFormProp
                               onClick={() => {
                                 navigator.clipboard.write([
                                   new ClipboardItem({
-                                    'image/png': fetch(formData.chartSnapshot).then(r => r.blob())
+                                    'image/png': fetch(formData.chartSnapshot!).then(r => r.blob())
                                   })
                                 ]).then(() => {
                                   alert('图片已复制到剪贴板');

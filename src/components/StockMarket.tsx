@@ -6,8 +6,11 @@
 import React, { useState, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { StockPool } from './StockPool';
+import { FutuStockPool } from './FutuStockPool';
+import { StockDetail } from './StockDetail';
 import { SelectionStrategies } from './SelectionStrategies';
-import { Stock, SelectionStrategy, DailySelection, SelectedStock } from '@/types';
+import { TradingRecommendations } from './TradingRecommendations';
+import { Stock, SelectionStrategy, DailySelection, SelectedStock, TradingRecommendation } from '@/types';
 import { generateSampleStocks } from '@/data/sampleStocks';
 import { generateDefaultStrategies } from '@/data/defaultStrategies';
 import {
@@ -26,7 +29,8 @@ interface StockMarketProps {
 }
 
 export function StockMarket({ onCreateTradingPlan }: StockMarketProps) {
-  const [currentTab, setCurrentTab] = useState<'pool' | 'strategies' | 'results'>('pool');
+  const [currentTab, setCurrentTab] = useState<'pool' | 'futu' | 'strategies' | 'results' | 'recommendations'>('pool');
+  const [selectedStock, setSelectedStock] = useState<Stock | null>(null);
   
   // 股票池数据
   const [stocks, setStocks] = useState<Stock[]>(() => generateSampleStocks());
@@ -37,6 +41,9 @@ export function StockMarket({ onCreateTradingPlan }: StockMarketProps) {
   // 选股结果
   const [dailySelections, setDailySelections] = useState<DailySelection[]>([]);
   const [todaySelection, setTodaySelection] = useState<DailySelection | null>(null);
+
+  // 操作建议数据
+  const [recommendations, setRecommendations] = useState<TradingRecommendation[]>([]);
 
   // 股票池操作
   const handleAddStock = (stockData: Omit<Stock, 'id' | 'addedAt' | 'updatedAt'>) => {
@@ -59,6 +66,34 @@ export function StockMarket({ onCreateTradingPlan }: StockMarketProps) {
 
   const handleDeleteStock = (id: string) => {
     setStocks(prev => prev.filter(stock => stock.id !== id));
+  };
+
+  // 操作建议操作
+  const handleAddRecommendation = (recommendationData: Omit<TradingRecommendation, 'id' | 'publishedAt'>) => {
+    const newRecommendation: TradingRecommendation = {
+      ...recommendationData,
+      id: `rec_${Date.now()}`,
+      publishedAt: new Date()
+    };
+    setRecommendations(prev => [newRecommendation, ...prev]);
+  };
+
+  const handleUpdateRecommendation = (id: string, updates: Partial<TradingRecommendation>) => {
+    setRecommendations(prev => prev.map(rec =>
+      rec.id === id ? { ...rec, ...updates } : rec
+    ));
+  };
+
+  const handleDeleteRecommendation = (id: string) => {
+    setRecommendations(prev => prev.filter(rec => rec.id !== id));
+  };
+
+  const handleViewStockDetail = (stock: Stock) => {
+    setSelectedStock(stock);
+  };
+
+  const handleBackToList = () => {
+    setSelectedStock(null);
   };
 
   // 策略操作
@@ -167,102 +202,81 @@ export function StockMarket({ onCreateTradingPlan }: StockMarketProps) {
 
   const tabs = [
     { id: 'pool', label: '股票池', icon: BarChart3 },
+    { id: 'futu', label: '富途自选股', icon: Star },
     { id: 'strategies', label: '选股策略', icon: Target },
-    { id: 'results', label: '选股结果', icon: TrendingUp }
+    { id: 'results', label: '选股结果', icon: TrendingUp },
+    { id: 'recommendations', label: '操作建议', icon: Zap }
   ];
+
+  // 如果选中了股票，显示股票详情页
+  if (selectedStock) {
+    return (
+      <StockDetail
+        stock={selectedStock}
+        onBack={handleBackToList}
+        onCreateTradingPlan={onCreateTradingPlan}
+        onUpdateStock={handleUpdateStock}
+      />
+    );
+  }
 
   return (
     <div className="max-w-7xl mx-auto p-6 space-y-6">
-      {/* 页面标题和统计 */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">股票市场</h1>
-          <p className="text-gray-600 mt-2">智能选股系统，发现投资机会</p>
-        </div>
-        <div className="flex space-x-3">
-          <button
-            onClick={handleRunAllStrategies}
-            disabled={strategies.filter(s => s.isActive).length === 0}
-            className="flex items-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
-          >
-            <Zap className="w-4 h-4 mr-2" />
-            运行所有策略
-          </button>
+
+      {/* 统计信息 */}
+      <div className="bg-white border border-gray-200 rounded p-4">
+        <div className="grid grid-cols-4 gap-8">
+          <div className="text-center">
+            <p className="text-2xl font-semibold text-gray-900">{stats.totalStocks}</p>
+            <p className="text-sm text-gray-600 mt-1">股票池</p>
+          </div>
+          <div className="text-center">
+            <p className="text-2xl font-semibold text-gray-900">{stats.totalStrategies}</p>
+            <p className="text-sm text-gray-600 mt-1">选股策略</p>
+          </div>
+          <div className="text-center">
+            <p className="text-2xl font-semibold text-gray-900">{stats.activeStrategies}</p>
+            <p className="text-sm text-gray-600 mt-1">启用策略</p>
+          </div>
+          <div className="text-center">
+            <p className="text-2xl font-semibold text-gray-900">{stats.todayOpportunities}</p>
+            <p className="text-sm text-gray-600 mt-1">今日机会</p>
+          </div>
         </div>
       </div>
 
-      {/* 统计卡片 */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600">股票池</p>
-                <p className="text-2xl font-bold text-blue-600">{stats.totalStocks}</p>
-              </div>
-              <BarChart3 className="w-8 h-8 text-blue-500" />
+      {/* 功能导航 */}
+      <div className="bg-white border border-gray-200 rounded">
+        <div className="px-4 py-3 border-b border-gray-200">
+          <div className="flex items-center justify-between">
+            <div className="flex space-x-2">
+              {tabs.map(tab => {
+                const isActive = currentTab === tab.id;
+                return (
+                  <button
+                    key={tab.id}
+                    onClick={() => setCurrentTab(tab.id as any)}
+                    className={`px-4 py-2 text-sm rounded border transition-colors flex items-center space-x-2 ${
+                      isActive
+                        ? 'bg-blue-600 text-white border-blue-600'
+                        : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50 hover:border-gray-400'
+                    }`}
+                  >
+                    <tab.icon className="w-4 h-4" />
+                    <span>{tab.label}</span>
+                  </button>
+                );
+              })}
             </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600">选股策略</p>
-                <p className="text-2xl font-bold text-purple-600">{stats.totalStrategies}</p>
-              </div>
-              <Target className="w-8 h-8 text-purple-500" />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600">启用策略</p>
-                <p className="text-2xl font-bold text-green-600">{stats.activeStrategies}</p>
-              </div>
-              <Filter className="w-8 h-8 text-green-500" />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600">今日机会</p>
-                <p className="text-2xl font-bold text-orange-600">{stats.todayOpportunities}</p>
-              </div>
-              <TrendingUp className="w-8 h-8 text-orange-500" />
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* 标签页导航 */}
-      <div className="border-b border-gray-200">
-        <nav className="flex space-x-8">
-          {tabs.map(tab => {
-            const Icon = tab.icon;
-            return (
-              <button
-                key={tab.id}
-                onClick={() => setCurrentTab(tab.id as any)}
-                className={`flex items-center py-2 px-1 border-b-2 font-medium text-sm transition-colors ${
-                  currentTab === tab.id
-                    ? 'border-blue-500 text-blue-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                }`}
-              >
-                <Icon className="w-4 h-4 mr-2" />
-                {tab.label}
-              </button>
-            );
-          })}
-        </nav>
+            <button
+              onClick={handleRunAllStrategies}
+              disabled={strategies.filter(s => s.isActive).length === 0}
+              className="px-3 py-1 bg-gray-800 text-white text-sm rounded hover:bg-gray-900 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
+            >
+              运行所有策略
+            </button>
+          </div>
+        </div>
       </div>
 
       {/* 标签页内容 */}
@@ -274,6 +288,13 @@ export function StockMarket({ onCreateTradingPlan }: StockMarketProps) {
             onUpdateStock={handleUpdateStock}
             onDeleteStock={handleDeleteStock}
             onSelectStock={onCreateTradingPlan}
+            onViewDetail={handleViewStockDetail}
+          />
+        )}
+
+        {currentTab === 'futu' && (
+          <FutuStockPool
+            onCreateTradingPlan={onCreateTradingPlan}
           />
         )}
 
@@ -293,6 +314,15 @@ export function StockMarket({ onCreateTradingPlan }: StockMarketProps) {
             todaySelection={todaySelection}
             historicalSelections={dailySelections}
             onCreateTradingPlan={onCreateTradingPlan}
+          />
+        )}
+
+        {currentTab === 'recommendations' && (
+          <TradingRecommendations
+            recommendations={recommendations}
+            onAddRecommendation={handleAddRecommendation}
+            onUpdateRecommendation={handleUpdateRecommendation}
+            onDeleteRecommendation={handleDeleteRecommendation}
           />
         )}
       </div>

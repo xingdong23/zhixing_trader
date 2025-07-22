@@ -29,14 +29,16 @@ interface StockPoolProps {
   onUpdateStock: (id: string, stock: Partial<Stock>) => void;
   onDeleteStock: (id: string) => void;
   onSelectStock: (stock: Stock) => void; // 选中股票用于制定交易计划
+  onViewDetail: (stock: Stock) => void; // 查看股票详情
 }
 
-export function StockPool({ 
-  stocks, 
-  onAddStock, 
-  onUpdateStock, 
+export function StockPool({
+  stocks,
+  onAddStock,
+  onUpdateStock,
   onDeleteStock,
-  onSelectStock 
+  onSelectStock,
+  onViewDetail
 }: StockPoolProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedIndustry, setSelectedIndustry] = useState<string>('');
@@ -61,7 +63,7 @@ export function StockPool({
     }, {} as Record<string, number>);
 
     const byWatchLevel = stocks.reduce((acc, stock) => {
-      acc[stock.watchLevel] = (acc[stock.watchLevel] || 0) + 1;
+      acc[stock.tags.watchLevel] = (acc[stock.tags.watchLevel] || 0) + 1;
       return acc;
     }, {} as Record<string, number>);
 
@@ -94,7 +96,7 @@ export function StockPool({
       const matchesMarket = !selectedMarket || stock.market === selectedMarket;
       
       const matchesWatchLevel = !selectedWatchLevel || 
-        stock.watchLevel === selectedWatchLevel;
+        stock.tags.watchLevel === selectedWatchLevel;
 
       return matchesSearch && matchesIndustry && matchesFundamental && 
              matchesMarket && matchesWatchLevel;
@@ -146,209 +148,138 @@ export function StockPool({
   };
 
   return (
-    <div className="max-w-7xl mx-auto p-6 space-y-6">
+    <div className="space-y-4">
       {/* 页面标题 */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">股票池管理</h1>
-          <p className="text-gray-600 mt-2">收集和管理您关注的股票，为选股策略提供基础</p>
+          <h2 className="text-lg font-medium text-gray-900">股票池</h2>
+          <p className="text-sm text-gray-600 mt-1">第1页股票列表 股票池总共{stats.totalStocks}只股票</p>
         </div>
-        <div className="flex space-x-3">
-          <button
-            onClick={() => setShowAddForm(true)}
-            className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+        <button
+          onClick={() => setShowAddForm(true)}
+          className="px-3 py-1 bg-gray-800 text-white text-sm rounded hover:bg-gray-900 transition-colors flex items-center space-x-1"
+        >
+          <Plus className="w-4 h-4" />
+          <span>添加股票</span>
+        </button>
+      </div>
+
+      {/* 搜索功能 */}
+      <div className="bg-white border border-gray-200 rounded p-3">
+        <div className="flex items-center space-x-4">
+          <button className="px-3 py-1 bg-blue-600 text-white text-sm rounded hover:bg-blue-700">
+            搜索 股票池
+          </button>
+          <button className="px-3 py-1 bg-orange-500 text-white text-sm rounded hover:bg-orange-600">
+            搜索 自选股
+          </button>
+          <div className="flex-1">
+            <div className="relative">
+              <Search className="absolute left-3 top-2 w-4 h-4 text-gray-400" />
+              <input
+                type="text"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full pl-10 pr-4 py-1 border border-gray-300 rounded text-sm focus:ring-1 focus:ring-gray-500 focus:border-gray-500"
+                placeholder="股票代码或名称，如sh000001 | 000001 美股代码，如：amzn,港股代码，如：hk3690 | 03690"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* 筛选条件 */}
+      <div className="bg-white border border-gray-200 rounded p-3">
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+          {/* 行业筛选 */}
+          <select
+            value={selectedIndustry}
+            onChange={(e) => setSelectedIndustry(e.target.value)}
+            className="p-2 border border-gray-300 rounded text-sm focus:ring-1 focus:ring-gray-500 focus:border-gray-500"
           >
-            <Plus className="w-4 h-4 mr-2" />
-            添加股票
+            <option value="">所有行业</option>
+            {usedIndustryTags.map(tag => (
+              <option key={tag} value={tag}>{tag}</option>
+            ))}
+          </select>
+
+          {/* 基本面筛选 */}
+          <select
+            value={selectedFundamental}
+            onChange={(e) => setSelectedFundamental(e.target.value)}
+            className="p-2 border border-gray-300 rounded text-sm focus:ring-1 focus:ring-gray-500 focus:border-gray-500"
+          >
+            <option value="">所有基本面</option>
+            {usedFundamentalTags.map(tag => (
+              <option key={tag} value={tag}>{tag}</option>
+            ))}
+          </select>
+
+          {/* 市场筛选 */}
+          <select
+            value={selectedMarket}
+            onChange={(e) => setSelectedMarket(e.target.value)}
+            className="p-2 border border-gray-300 rounded text-sm focus:ring-1 focus:ring-gray-500 focus:border-gray-500"
+          >
+            <option value="">所有市场</option>
+            <option value="US">美股</option>
+            <option value="HK">港股</option>
+            <option value="CN">A股</option>
+          </select>
+
+          {/* 关注程度筛选 */}
+          <select
+            value={selectedWatchLevel}
+            onChange={(e) => setSelectedWatchLevel(e.target.value)}
+            className="p-2 border border-gray-300 rounded text-sm focus:ring-1 focus:ring-gray-500 focus:border-gray-500"
+          >
+            <option value="">所有关注度</option>
+            <option value="high">重点关注</option>
+            <option value="medium">一般关注</option>
+            <option value="low">观察中</option>
+          </select>
+
+          {/* 清除筛选 */}
+          <button
+            onClick={clearFilters}
+            className="px-3 py-2 text-gray-600 border border-gray-300 rounded text-sm hover:bg-gray-50 transition-colors"
+          >
+            清除筛选
           </button>
         </div>
+
+        <div className="mt-2 text-sm text-gray-600">
+          显示 {filteredStocks.length} / {stats.totalStocks} 只股票
+        </div>
       </div>
 
-      {/* 统计卡片 */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600">总股票数</p>
-                <p className="text-2xl font-bold text-gray-900">{stats.totalStocks}</p>
-              </div>
-              <BarChart3 className="w-8 h-8 text-blue-500" />
-            </div>
-          </CardContent>
-        </Card>
 
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600">重点关注</p>
-                <p className="text-2xl font-bold text-orange-600">{stats.byWatchLevel.high || 0}</p>
-              </div>
-              <Star className="w-8 h-8 text-orange-500" />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600">美股</p>
-                <p className="text-2xl font-bold text-green-600">{stats.byMarket.US || 0}</p>
-              </div>
-              <TrendingUp className="w-8 h-8 text-green-500" />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600">最近添加</p>
-                <p className="text-2xl font-bold text-purple-600">{stats.recentlyAdded}</p>
-              </div>
-              <Plus className="w-8 h-8 text-purple-500" />
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* 搜索和筛选 */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center">
-            <Filter className="w-5 h-5 mr-2 text-gray-500" />
-            筛选条件
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-6 gap-4">
-            {/* 搜索框 */}
-            <div className="md:col-span-2">
-              <div className="relative">
-                <Search className="absolute left-3 top-3 w-4 h-4 text-gray-400" />
-                <input
-                  type="text"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="搜索股票代码或名称..."
-                />
-              </div>
-            </div>
-
-            {/* 行业筛选 */}
-            <div>
-              <select
-                value={selectedIndustry}
-                onChange={(e) => setSelectedIndustry(e.target.value)}
-                className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              >
-                <option value="">所有行业</option>
-                {usedIndustryTags.map(tag => (
-                  <option key={tag} value={tag}>{tag}</option>
-                ))}
-              </select>
-            </div>
-
-            {/* 基本面筛选 */}
-            <div>
-              <select
-                value={selectedFundamental}
-                onChange={(e) => setSelectedFundamental(e.target.value)}
-                className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              >
-                <option value="">所有基本面</option>
-                {usedFundamentalTags.map(tag => (
-                  <option key={tag} value={tag}>{tag}</option>
-                ))}
-              </select>
-            </div>
-
-            {/* 市场筛选 */}
-            <div>
-              <select
-                value={selectedMarket}
-                onChange={(e) => setSelectedMarket(e.target.value)}
-                className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              >
-                <option value="">所有市场</option>
-                <option value="US">美股</option>
-                <option value="HK">港股</option>
-                <option value="CN">A股</option>
-              </select>
-            </div>
-
-            {/* 关注程度筛选 */}
-            <div>
-              <select
-                value={selectedWatchLevel}
-                onChange={(e) => setSelectedWatchLevel(e.target.value)}
-                className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              >
-                <option value="">所有关注度</option>
-                <option value="high">重点关注</option>
-                <option value="medium">一般关注</option>
-                <option value="low">观察中</option>
-              </select>
-            </div>
-
-            {/* 清除筛选 */}
-            <div>
-              <button
-                onClick={clearFilters}
-                className="w-full px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
-              >
-                清除筛选
-              </button>
-            </div>
-          </div>
-
-          <div className="mt-4 text-sm text-gray-600">
-            显示 {filteredStocks.length} / {stats.totalStocks} 只股票
-          </div>
-        </CardContent>
-      </Card>
 
       {/* 股票列表 */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center justify-between">
-            <span>股票列表</span>
-            <div className="flex items-center space-x-2 text-sm text-gray-500">
-              <span>共 {filteredStocks.length} 只</span>
-            </div>
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-3">
-            {filteredStocks.length === 0 ? (
-              <div className="text-center py-12">
-                <BarChart3 className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                <p className="text-gray-500 mb-2">暂无股票数据</p>
-                <button
-                  onClick={() => setShowAddForm(true)}
-                  className="text-blue-600 hover:text-blue-700"
-                >
-                  添加第一只股票
-                </button>
-              </div>
-            ) : (
-              filteredStocks.map((stock) => (
-                <StockCard
-                  key={stock.id}
-                  stock={stock}
-                  onEdit={() => handleEditStock(stock)}
-                  onDelete={() => onDeleteStock(stock.id)}
-                  onSelect={() => onSelectStock(stock)}
-                />
-              ))
-            )}
+      <div className="space-y-4">
+        {filteredStocks.length === 0 ? (
+          <div className="text-center py-12 bg-white border border-gray-200 rounded">
+            <p className="text-gray-500 mb-2">暂无股票数据</p>
+            <button
+              onClick={() => setShowAddForm(true)}
+              className="text-gray-600 hover:text-gray-900"
+            >
+              添加第一只股票
+            </button>
           </div>
-        </CardContent>
-      </Card>
+        ) : (
+          filteredStocks.map((stock) => (
+            <StockCard
+              key={stock.id}
+              stock={stock}
+              onEdit={() => handleEditStock(stock)}
+              onDelete={() => onDeleteStock(stock.id)}
+              onSelect={() => onSelectStock(stock)}
+              onViewDetail={() => onViewDetail(stock)}
+            />
+          ))
+        )}
+      </div>
 
       {/* 添加/编辑股票表单 */}
       {showAddForm && (
@@ -370,12 +301,14 @@ function StockCard({
   stock,
   onEdit,
   onDelete,
-  onSelect
+  onSelect,
+  onViewDetail
 }: {
   stock: Stock;
   onEdit: () => void;
   onDelete: () => void;
   onSelect: () => void;
+  onViewDetail: () => void;
 }) {
   const getWatchLevelIcon = (level: string) => {
     switch (level) {
@@ -408,96 +341,43 @@ function StockCard({
   };
 
   return (
-    <div className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+    <div className="bg-white border border-gray-200 rounded p-4">
       <div className="flex items-start justify-between">
         {/* 左侧：股票信息 */}
         <div className="flex-1">
-          <div className="flex items-center space-x-3 mb-2">
-            <span className="text-lg">{getMarketFlag(stock.market)}</span>
-            <div>
-              <h3 className="text-lg font-semibold text-gray-900">
-                {stock.symbol}
-              </h3>
-              <p className="text-sm text-gray-600">{stock.name}</p>
-            </div>
-            {getWatchLevelIcon(stock.watchLevel)}
+          <h3 className="font-medium text-blue-600 text-lg">{stock.name}({stock.symbol})</h3>
+          <p className="text-sm text-gray-600 mt-1">
+            {stock.market === 'US' ? '🇺🇸' : stock.market === 'HK' ? '🇭🇰' : '🇨🇳'} {stock.market === 'US' ? '美股' : stock.market === 'HK' ? '港股' : 'A股'}公司成立于2003年7月1日在美国特拉华州注册，公司主要从事设计、开发、生产、销售高性能的纯电动汽车和能源存储系统，并提供相关服务。
+          </p>
+          <div className="flex space-x-4 mt-2">
+            <button
+              onClick={onViewDetail}
+              className="text-sm text-blue-600 hover:text-blue-800 font-medium"
+            >
+              📊 查看详情
+            </button>
+            <span className="text-gray-300">|</span>
+            <button
+              onClick={onSelect}
+              className="text-sm text-green-600 hover:text-green-800 font-medium"
+            >
+              📈 制定交易计划
+            </button>
           </div>
-
-          {/* 价格信息 */}
-          {stock.currentPrice && (
-            <div className="flex items-center space-x-4 mb-3">
-              <span className="text-xl font-bold text-gray-900">
-                ${stock.currentPrice.toFixed(2)}
-              </span>
-              {stock.priceChange && (
-                <div className={`flex items-center space-x-1 ${getPriceChangeColor(stock.priceChange)}`}>
-                  {getPriceChangeIcon(stock.priceChange)}
-                  <span className="font-medium">
-                    {stock.priceChange > 0 ? '+' : ''}{stock.priceChange.toFixed(2)}
-                  </span>
-                  {stock.priceChangePercent && (
-                    <span className="text-sm">
-                      ({stock.priceChangePercent > 0 ? '+' : ''}{stock.priceChangePercent.toFixed(2)}%)
-                    </span>
-                  )}
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* 标签 */}
-          <div className="space-y-2">
-            {/* 行业标签 */}
-            <div className="flex flex-wrap gap-1">
-              {stock.tags.industry.map((tag, index) => (
-                <span
-                  key={index}
-                  className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full"
-                >
-                  {tag}
-                </span>
-              ))}
-            </div>
-
-            {/* 基本面标签 */}
-            <div className="flex flex-wrap gap-1">
-              {stock.tags.fundamentals.map((tag, index) => (
-                <span
-                  key={index}
-                  className="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full"
-                >
-                  {tag}
-                </span>
-              ))}
-            </div>
-          </div>
-
-          {/* 备注 */}
-          {stock.notes && (
-            <p className="text-sm text-gray-600 mt-2 italic">
-              {stock.notes}
-            </p>
-          )}
         </div>
 
         {/* 右侧：操作按钮 */}
-        <div className="flex flex-col space-y-2 ml-4">
-          <button
-            onClick={onSelect}
-            className="px-3 py-1 bg-blue-600 text-white text-sm rounded hover:bg-blue-700 transition-colors"
-          >
-            制定计划
-          </button>
+        <div className="flex space-x-2 ml-4">
           <button
             onClick={onEdit}
-            className="p-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors"
+            className="p-1 text-gray-600 hover:text-gray-900"
             title="编辑"
           >
             <Edit3 className="w-4 h-4" />
           </button>
           <button
             onClick={onDelete}
-            className="p-2 text-gray-600 hover:text-red-600 hover:bg-red-50 rounded transition-colors"
+            className="p-1 text-gray-600 hover:text-gray-900"
             title="删除"
           >
             <Trash2 className="w-4 h-4" />
@@ -595,8 +475,8 @@ function StockForm({
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-        <h2 className="text-xl font-bold text-gray-900 mb-4">
+      <div className="bg-white rounded p-4 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+        <h2 className="text-lg font-medium text-gray-900 mb-4">
           {stock ? '编辑股票' : '添加股票'}
         </h2>
 
@@ -830,13 +710,13 @@ function StockForm({
             <button
               type="button"
               onClick={onCancel}
-              className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+              className="px-3 py-1 border border-gray-300 rounded text-sm hover:bg-gray-50 transition-colors"
             >
               取消
             </button>
             <button
               type="submit"
-              className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              className="px-4 py-1 bg-gray-800 text-white text-sm rounded hover:bg-gray-900 transition-colors"
             >
               {stock ? '更新' : '添加'}
             </button>

@@ -39,3 +39,28 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Python API Server
+api-server/venv/
+api-server/__pycache__/
+api-server/app/__pycache__/
+api-server/app/routers/__pycache__/
+api-server/data/
+api-server/logs/
+api-server/.env
+*.pyc
+*.pyo
+*.pyd
+__pycache__/
+.pytest_cache/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
