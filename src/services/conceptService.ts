@@ -12,6 +12,25 @@ export class ConceptService {
   // ==================== 概念管理 ====================
 
   /**
+   * 从本地存储获取概念（同步方法）
+   */
+  static getLocalConcepts(): Concept[] {
+    try {
+      const data = localStorage.getItem(this.CONCEPTS_KEY);
+      if (!data) return [];
+
+      return JSON.parse(data).map((concept: any) => ({
+        ...concept,
+        createdAt: new Date(concept.createdAt),
+        updatedAt: new Date(concept.updatedAt)
+      }));
+    } catch (error) {
+      console.error('获取本地概念数据失败:', error);
+      return [];
+    }
+  }
+
+  /**
    * 从数据库API获取所有概念
    */
   static async getConcepts(): Promise<Concept[]> {
@@ -30,12 +49,11 @@ export class ConceptService {
           id: String(apiConcept.id), // 确保ID是字符串类型
           name: apiConcept.name,
           description: apiConcept.description || '',
-          category: apiConcept.category || 'other',
+          color: ConceptService.generateColorForConcept(apiConcept.name),
+          stockIds: (apiConcept.stocks || []).map((stock: any) => String(stock.id)), // 从关联股票中提取ID
           stockCount: apiConcept.stock_count || 0,
-          isActive: apiConcept.is_active !== false,
           createdAt: new Date(apiConcept.created_at || Date.now()),
-          updatedAt: new Date(apiConcept.updated_at || Date.now()),
-          color: ConceptService.generateColorForConcept(apiConcept.name)
+          updatedAt: new Date(apiConcept.updated_at || Date.now())
         }));
 
         console.log(`✅ 从数据库获取到 ${concepts.length} 个概念`);
@@ -68,28 +86,53 @@ export class ConceptService {
   /**
    * 创建新概念
    */
-  static createConcept(name: string, description?: string, color?: string): Concept {
-    const concepts = this.getConcepts();
+  static async createConcept(name: string, description?: string, color?: string): Promise<Concept> {
+    try {
+      // 调用后端API创建概念
+      const response = await fetch('http://localhost:3001/api/v1/concepts/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name,
+          description,
+          category: 'other'
+        })
+      });
 
-    // 检查名称是否已存在
-    if (concepts.some(c => c.name === name)) {
-      throw new Error(`概念"${name}"已存在`);
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.detail || '创建概念失败');
+      }
+
+      const result = await response.json();
+      if (result.success && result.data) {
+        const apiConcept = result.data;
+        const newConcept: Concept = {
+          id: String(apiConcept.id),
+          name: apiConcept.name,
+          description: apiConcept.description || '',
+          color: color || this.generateColorForConcept(apiConcept.name),
+          stockIds: [], // 新创建的概念暂时没有关联股票
+          stockCount: apiConcept.stock_count || 0,
+          createdAt: new Date(apiConcept.created_at || Date.now()),
+          updatedAt: new Date(apiConcept.updated_at || Date.now())
+        };
+
+        // 同时保存到本地存储作为备份
+        const concepts = this.getLocalConcepts();
+        concepts.push(newConcept);
+        this.saveConcepts(concepts);
+
+        return newConcept;
+      }
+
+      throw new Error('API返回格式不正确');
+    } catch (error) {
+      console.error('创建概念失败:', error);
+      throw error;
     }
-
-    const newConcept: Concept = {
-      id: `concept_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-      name,
-      description,
-      color: color || this.generateRandomColor(),
-      stockIds: [],
-      stockCount: 0,
-      createdAt: new Date(),
-      updatedAt: new Date()
-    };
-
-    concepts.push(newConcept);
-    this.saveConcepts(concepts);
-    return newConcept;
   }
 
   /**

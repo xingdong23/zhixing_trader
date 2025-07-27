@@ -2,12 +2,16 @@
 概念管理API端点
 """
 from typing import Dict, Any, List
+from datetime import datetime
 from fastapi import APIRouter, HTTPException, Depends
 from loguru import logger
 from app.database import db_service
 from app.models import ConceptDB, ConceptStockRelationDB, StockDB
 
 router = APIRouter()
+
+# 内存中的概念列表（用于临时存储）
+sample_concepts = []
 
 
 @router.get("/")
@@ -117,21 +121,62 @@ async def create_concept(concept_data: Dict[str, Any]) -> Dict[str, Any]:
     """创建新概念"""
     try:
         logger.info(f"创建概念: {concept_data}")
-        
-        # 模拟创建概念
-        new_concept = {
-            "id": 999,
-            "name": concept_data.get("name", "新概念"),
-            "description": concept_data.get("description", ""),
-            "stock_count": 0,
-            "is_active": True
-        }
-        
-        return {
-            "success": True,
-            "data": new_concept,
-            "message": "概念创建成功"
-        }
+
+        # 验证必需字段
+        if not concept_data.get("name"):
+            raise HTTPException(status_code=400, detail="概念名称不能为空")
+
+        # 检查概念是否已存在
+        with db_service.get_session() as session:
+            existing_concept = session.query(ConceptDB).filter(
+                ConceptDB.name == concept_data["name"],
+                ConceptDB.is_active == True
+            ).first()
+
+            if existing_concept:
+                raise HTTPException(status_code=400, detail="概念已存在")
+
+            # 生成唯一的concept_id
+            concept_count = session.query(ConceptDB).count()
+            concept_id = f"concept_{concept_count + 1}_{int(datetime.now().timestamp())}"
+
+            # 创建新概念记录
+            new_concept_db = ConceptDB(
+                concept_id=concept_id,
+                name=concept_data.get("name"),
+                description=concept_data.get("description", ""),
+                category=concept_data.get("category", "other"),
+                stock_count=0,
+                is_active=True
+            )
+
+            session.add(new_concept_db)
+            session.commit()
+            session.refresh(new_concept_db)
+
+            # 返回创建的概念数据
+            new_concept = {
+                "id": new_concept_db.id,
+                "concept_id": new_concept_db.concept_id,
+                "name": new_concept_db.name,
+                "description": new_concept_db.description,
+                "category": new_concept_db.category,
+                "stock_count": new_concept_db.stock_count,
+                "is_active": new_concept_db.is_active,
+                "created_at": new_concept_db.created_at.isoformat(),
+                "updated_at": new_concept_db.updated_at.isoformat()
+            }
+
+            logger.info(f"概念创建成功: {new_concept['name']} (ID: {new_concept['id']})")
+
+            return {
+                "success": True,
+                "data": new_concept,
+                "message": "概念创建成功"
+            }
+
+    except HTTPException:
+        raise
     except Exception as e:
         logger.error(f"创建概念失败: {e}")
         raise HTTPException(status_code=500, detail="创建概念失败")

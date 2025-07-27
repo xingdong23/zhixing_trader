@@ -40,15 +40,11 @@ export function ConceptManager({ onConceptSelect }: ConceptManagerProps) {
 
   const loadData = async () => {
     try {
-      console.log('🔄 ConceptManager: 开始加载数据...');
       const loadedConcepts = await ConceptService.getConcepts();
-      console.log('📊 ConceptManager: 获取到概念数据:', loadedConcepts);
 
       const loadedStocks = StockPoolService.getAllStocks();
-      console.log('📊 ConceptManager: 获取到股票数据:', loadedStocks);
 
       const loadedStats = await ConceptService.getConceptStats();
-      console.log('📊 ConceptManager: 获取到统计数据:', loadedStats);
 
       setConcepts(loadedConcepts);
       setStocks(loadedStocks);
@@ -73,11 +69,11 @@ export function ConceptManager({ onConceptSelect }: ConceptManagerProps) {
   );
 
   // 创建概念
-  const handleCreateConcept = () => {
+  const handleCreateConcept = async () => {
     if (!newConceptName.trim()) return;
 
     try {
-      ConceptService.createConcept(newConceptName.trim(), newConceptDescription.trim() || undefined);
+      await ConceptService.createConcept(newConceptName.trim(), newConceptDescription.trim() || undefined);
       setNewConceptName('');
       setNewConceptDescription('');
       setShowCreateForm(false);
