@@ -53,7 +53,7 @@ class QuoteDB(Base):
 class KLineDB(Base):
     """K线数据表"""
     __tablename__ = "klines"
-    
+
     id = Column(Integer, primary_key=True, index=True)
     code = Column(String(20), index=True, nullable=False)
     period = Column(String(10), nullable=False)  # K_1M, K_5M, K_DAY, etc.
@@ -66,6 +66,45 @@ class KLineDB(Base):
     turnover = Column(Float)
     pe = Column(Float)
     change_rate = Column(Float)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+
+class StrategyDB(Base):
+    """选股策略表"""
+    __tablename__ = "strategies"
+
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String(100), nullable=False)
+    description = Column(Text)
+    category = Column(String(50), nullable=False)  # pattern, pullback, breakthrough
+    configuration = Column(Text)  # JSON格式的策略配置
+    timeframe = Column(String(10), nullable=False)  # 1d, 1h, 15m
+    enabled = Column(Boolean, default=True)
+    is_system_default = Column(Boolean, default=False)
+    execution_count = Column(Integer, default=0)
+    last_execution_time = Column(DateTime)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+
+class SelectionResultDB(Base):
+    """选股结果表"""
+    __tablename__ = "selection_results"
+
+    id = Column(Integer, primary_key=True, index=True)
+    strategy_id = Column(Integer, nullable=False)
+    stock_symbol = Column(String(20), nullable=False)
+    execution_time = Column(DateTime, nullable=False)
+    score = Column(Float, nullable=False)
+    confidence = Column(String(20), nullable=False)  # high, medium, low
+    reasons = Column(Text)  # 选中原因，分号分隔
+    suggested_action = Column(String(100))
+    target_price = Column(Float)
+    stop_loss = Column(Float)
+    current_price = Column(Float)
+    technical_details = Column(Text)  # 技术分析详情
+    risk_level = Column(Integer, default=3)  # 1-5，1最低，5最高
+    processed = Column(Boolean, default=False)  # 是否已处理
     created_at = Column(DateTime, default=datetime.utcnow)
 
 
@@ -135,6 +174,61 @@ class TechnicalIndicator(BaseModel):
     kdj_k: Optional[float] = None
     kdj_d: Optional[float] = None
     kdj_j: Optional[float] = None
+
+
+class StrategyCreate(BaseModel):
+    """创建策略请求"""
+    name: str
+    description: str
+    category: str
+    configuration: Dict[str, Any] = {}
+    timeframe: str = "1d"
+    enabled: bool = True
+
+
+class StrategyUpdate(BaseModel):
+    """更新策略请求"""
+    name: Optional[str] = None
+    description: Optional[str] = None
+    category: Optional[str] = None
+    configuration: Optional[Dict[str, Any]] = None
+    timeframe: Optional[str] = None
+    enabled: Optional[bool] = None
+
+
+class StrategyResponse(BaseModel):
+    """策略响应"""
+    id: int
+    name: str
+    description: str
+    category: str
+    configuration: Dict[str, Any]
+    timeframe: str
+    enabled: bool
+    is_system_default: bool
+    execution_count: int
+    last_execution_time: Optional[datetime] = None
+    created_at: datetime
+    updated_at: datetime
+
+
+class SelectionResultResponse(BaseModel):
+    """选股结果响应"""
+    id: int
+    strategy_id: int
+    strategy_name: Optional[str] = None
+    stock_symbol: str
+    execution_time: datetime
+    score: float
+    confidence: str
+    reasons: List[str]
+    suggested_action: str
+    target_price: Optional[float] = None
+    stop_loss: Optional[float] = None
+    current_price: Optional[float] = None
+    technical_details: Optional[str] = None
+    risk_level: int
+    processed: bool
 
 
 class ApiResponse(BaseModel):

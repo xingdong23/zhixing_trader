@@ -11,47 +11,25 @@ import uvicorn
 
 from .config import settings, validate_config, ensure_directories
 from .database import db_service
-from .futu_client import futu_client
 from .models import ApiResponse
-from .routers import watchlist, quotes
+from .api.v1.api import api_router
+from .core.container import container
 
 
-# 后台任务
+# 简化的后台任务
 async def background_tasks():
     """后台定时任务"""
     while True:
         try:
-            # 每5分钟更新一次行情数据
-            if futu_client.is_connected:
-                logger.info("🔄 Scheduled quote update started")
-                
-                # 获取所有自选股代码
-                stocks = db_service.get_all_stocks()
-                codes = [stock.code for stock in stocks]
-                
-                if codes:
-                    # 分批获取行情数据
-                    batch_size = settings.max_quote_batch_size
-                    for i in range(0, len(codes), batch_size):
-                        batch = codes[i:i + batch_size]
-                        try:
-                            quotes_data = await futu_client.get_quotes(batch)
-                            
-                            # 保存到数据库
-                            for quote in quotes_data:
-                                db_service.save_quote(quote)
-                                
-                        except Exception as e:
-                            logger.error(f"Failed to update quotes for batch: {e}")
-                    
-                    logger.info(f"✅ Updated quotes for {len(codes)} stocks")
-            
-            # 等待下次更新
-            await asyncio.sleep(settings.quote_update_interval * 60)  # 转换为秒
-            
+            # 每小时检查一次系统状态
+            logger.debug("🔄 系统状态检查")
+
+            # 等待下次检查
+            await asyncio.sleep(3600)  # 1小时
+
         except Exception as e:
-            logger.error(f"❌ Background task error: {e}")
-            await asyncio.sleep(60)  # 出错时等待1分钟再重试
+            logger.error(f"后台任务错误: {e}")
+            await asyncio.sleep(300)  # 出错时等待5分钟再重试
 
 
 # 应用生命周期管理
@@ -67,13 +45,13 @@ async def lifespan(app: FastAPI):
         
         # 确保目录存在
         ensure_directories()
-        
-        # 跳过富途API连接，稍后手动连接
-        logger.info("⚠️ Skipping Futu API connection during startup. Use /api/status to check connection.")
-        
+
+        # 初始化依赖注入容器
+        container.initialize()
+
         # 启动后台任务
         task = asyncio.create_task(background_tasks())
-        
+
         logger.info("✅ API Server started successfully")
         
         yield
@@ -89,10 +67,7 @@ async def lifespan(app: FastAPI):
         # 取消后台任务
         if 'task' in locals():
             task.cancel()
-        
-        # 断开富途API连接
-        await futu_client.disconnect()
-        
+
         # 关闭数据库连接
         db_service.close()
         
@@ -117,8 +92,7 @@ app.add_middleware(
 )
 
 # 注册路由
-app.include_router(watchlist.router)
-app.include_router(quotes.router)
+app.include_router(api_router, prefix="/api/v1")
 
 
 # 健康检查

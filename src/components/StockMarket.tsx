@@ -3,13 +3,20 @@
 
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { StockPool } from './StockPool';
-import { FutuStockPool } from './FutuStockPool';
+import { WatchlistImporter } from './WatchlistImporter';
+import { IndustryManager } from './IndustryManager';
+import { ConceptManager } from './ConceptManager';
+import { StockPoolService } from '@/services/stockPoolService';
+import { ConceptService } from '@/services/conceptService';
 import { StockDetail } from './StockDetail';
+import { runConceptTests } from '@/utils/testConceptSystem';
 import { SelectionStrategies } from './SelectionStrategies';
 import { TradingRecommendations } from './TradingRecommendations';
+import DataSyncManager from './DataSyncManager';
+import DatabaseAdmin from './DatabaseAdmin';
 import { Stock, SelectionStrategy, DailySelection, SelectedStock, TradingRecommendation } from '@/types';
 import { generateSampleStocks } from '@/data/sampleStocks';
 import { generateDefaultStrategies } from '@/data/defaultStrategies';
@@ -21,7 +28,9 @@ import {
   Star,
   ArrowRight,
   Zap,
-  Filter
+  Filter,
+  Tag,
+  Database
 } from 'lucide-react';
 
 interface StockMarketProps {
@@ -29,11 +38,28 @@ interface StockMarketProps {
 }
 
 export function StockMarket({ onCreateTradingPlan }: StockMarketProps) {
-  const [currentTab, setCurrentTab] = useState<'pool' | 'futu' | 'strategies' | 'results' | 'recommendations'>('pool');
+  const [currentTab, setCurrentTab] = useState<'pool' | 'import' | 'concepts' | 'strategies' | 'results' | 'recommendations' | 'sync' | 'database'>('pool');
   const [selectedStock, setSelectedStock] = useState<Stock | null>(null);
   
   // 股票池数据
-  const [stocks, setStocks] = useState<Stock[]>(() => generateSampleStocks());
+  const [stocks, setStocks] = useState<Stock[]>([]);
+
+  // 初始化股票数据
+  useEffect(() => {
+    // 初始化概念数据
+    ConceptService.initializeSampleData();
+
+    // 使用统一的数据服务获取所有股票（包括富途导入的）
+    const allStocks = StockPoolService.getAllStocks();
+    if (allStocks.length === 0) {
+      // 如果没有数据，使用示例数据并保存到localStorage
+      const sampleStocks = generateSampleStocks();
+      StockPoolService.saveStockPool(sampleStocks);
+      setStocks(sampleStocks);
+    } else {
+      setStocks(allStocks);
+    }
+  }, []);
   
   // 策略数据
   const [strategies, setStrategies] = useState<SelectionStrategy[]>(() => generateDefaultStrategies());
@@ -47,25 +73,18 @@ export function StockMarket({ onCreateTradingPlan }: StockMarketProps) {
 
   // 股票池操作
   const handleAddStock = (stockData: Omit<Stock, 'id' | 'addedAt' | 'updatedAt'>) => {
-    const newStock: Stock = {
-      ...stockData,
-      id: `stock_${Date.now()}`,
-      addedAt: new Date(),
-      updatedAt: new Date()
-    };
-    setStocks(prev => [...prev, newStock]);
+    const updatedStocks = StockPoolService.addStock(stockData);
+    setStocks(updatedStocks);
   };
 
   const handleUpdateStock = (id: string, stockData: Partial<Stock>) => {
-    setStocks(prev => prev.map(stock => 
-      stock.id === id 
-        ? { ...stock, ...stockData, updatedAt: new Date() }
-        : stock
-    ));
+    const updatedStocks = StockPoolService.updateStock(id, stockData);
+    setStocks(updatedStocks);
   };
 
   const handleDeleteStock = (id: string) => {
-    setStocks(prev => prev.filter(stock => stock.id !== id));
+    const updatedStocks = StockPoolService.deleteStock(id);
+    setStocks(updatedStocks);
   };
 
   // 操作建议操作
@@ -119,48 +138,88 @@ export function StockMarket({ onCreateTradingPlan }: StockMarketProps) {
     setStrategies(prev => prev.filter(strategy => strategy.id !== id));
   };
 
-  // 运行策略（模拟选股）
-  const handleRunStrategy = (strategyId: string): SelectedStock[] => {
-    const strategy = strategies.find(s => s.id === strategyId);
-    if (!strategy) return [];
+  // 运行策略（调用真实后端API）
+  const handleRunStrategy = async (strategyId: string): Promise<SelectedStock[]> => {
+    try {
+      const response = await fetch(`http://localhost:8000/strategies/${strategyId}/execute`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
 
-    // 模拟选股算法 - 随机选择一些股票作为结果
-    const selectedStocks: SelectedStock[] = stocks
-      .filter(() => Math.random() > 0.7) // 随机选择30%的股票
-      .slice(0, 10) // 最多10只
-      .map(stock => ({
-        stock,
-        score: Math.floor(Math.random() * 40) + 60, // 60-100分
-        reasons: [
-          '符合技术突破条件',
-          '成交量放大明显',
-          '基本面良好'
-        ].slice(0, Math.floor(Math.random() * 3) + 1),
-        suggestedAction: '建议关注，等待更好买点',
-        targetPrice: stock.currentPrice ? stock.currentPrice * (1 + Math.random() * 0.2) : undefined,
-        stopLoss: stock.currentPrice ? stock.currentPrice * (1 - Math.random() * 0.1) : undefined,
-        confidence: ['high', 'medium', 'low'][Math.floor(Math.random() * 3)] as any
-      }))
-      .sort((a, b) => b.score - a.score);
+      if (!response.ok) {
+        throw new Error(`策略执行失败: ${response.status}`);
+      }
 
-    return selectedStocks;
+      const results = await response.json();
+
+      // 转换后端返回的数据格式为前端需要的格式
+      const selectedStocks: SelectedStock[] = results.map((result: any) => {
+        // 从stocks数组中找到对应的股票信息
+        const stock = stocks.find(s => s.symbol === result.stock_symbol);
+
+        if (!stock) {
+          // 如果找不到股票，创建一个基本的股票对象
+          return {
+            stock: {
+              id: result.stock_symbol,
+              symbol: result.stock_symbol,
+              name: result.stock_symbol,
+              currentPrice: result.current_price || 0,
+              change: 0,
+              changePercent: 0,
+              volume: 0,
+              marketCap: 0,
+              industry: '',
+              conceptTags: []
+            },
+            score: result.score,
+            reasons: result.reasons || [],
+            suggestedAction: result.suggested_action || '建议观察',
+            targetPrice: result.target_price,
+            stopLoss: result.stop_loss,
+            confidence: result.confidence as 'high' | 'medium' | 'low'
+          };
+        }
+
+        return {
+          stock,
+          score: result.score,
+          reasons: result.reasons || [],
+          suggestedAction: result.suggested_action || '建议观察',
+          targetPrice: result.target_price,
+          stopLoss: result.stop_loss,
+          confidence: result.confidence as 'high' | 'medium' | 'low'
+        };
+      });
+
+      return selectedStocks;
+
+    } catch (error) {
+      console.error('执行策略失败:', error);
+      // 如果API调用失败，返回空数组
+      return [];
+    }
   };
 
   // 运行所有启用的策略
-  const handleRunAllStrategies = () => {
+  const handleRunAllStrategies = async () => {
     const activeStrategies = strategies.filter(s => s.isActive);
-    const strategyResults = activeStrategies.map(strategy => ({
-      strategyId: strategy.id,
-      strategyName: strategy.name,
-      category: strategy.category,
-      selectedStocks: handleRunStrategy(strategy.id),
-      totalCount: 0
-    }));
 
-    // 计算总数
-    strategyResults.forEach(result => {
-      result.totalCount = result.selectedStocks.length;
+    // 并行执行所有策略
+    const strategyPromises = activeStrategies.map(async strategy => {
+      const selectedStocks = await handleRunStrategy(strategy.id);
+      return {
+        strategyId: strategy.id,
+        strategyName: strategy.name,
+        category: strategy.category,
+        selectedStocks,
+        totalCount: selectedStocks.length
+      };
     });
+
+    const strategyResults = await Promise.all(strategyPromises);
 
     // 获取跨策略的最佳机会
     const allSelectedStocks = strategyResults.flatMap(result => result.selectedStocks);
@@ -202,10 +261,13 @@ export function StockMarket({ onCreateTradingPlan }: StockMarketProps) {
 
   const tabs = [
     { id: 'pool', label: '股票池', icon: BarChart3 },
-    { id: 'futu', label: '富途自选股', icon: Star },
-    { id: 'strategies', label: '选股策略', icon: Target },
+    { id: 'import', label: '导入自选股', icon: Calendar },
+    { id: 'concepts', label: '概念管理', icon: Tag },
+    { id: 'strategies', label: '选股策略', icon: Filter },
     { id: 'results', label: '选股结果', icon: TrendingUp },
-    { id: 'recommendations', label: '操作建议', icon: Zap }
+    { id: 'recommendations', label: '操作建议', icon: Zap },
+    { id: 'sync', label: '数据同步', icon: Target },
+    { id: 'database', label: '数据库管理', icon: Database }
   ];
 
   // 如果选中了股票，显示股票详情页
@@ -292,11 +354,29 @@ export function StockMarket({ onCreateTradingPlan }: StockMarketProps) {
           />
         )}
 
-        {currentTab === 'futu' && (
-          <FutuStockPool
-            onCreateTradingPlan={onCreateTradingPlan}
+        {currentTab === 'import' && (
+          <WatchlistImporter
+            onImportComplete={(importedStocks) => {
+              // 导入完成后，重新加载所有股票数据
+              const allStocks = StockPoolService.getAllStocks();
+              setStocks(allStocks);
+
+              // 切换到股票池标签页查看结果
+              setCurrentTab('pool');
+            }}
           />
         )}
+
+        {currentTab === 'concepts' && (
+          <ConceptManager
+            onConceptSelect={(conceptId) => {
+              // 可以在这里处理概念选择，比如筛选股票池
+              setCurrentTab('pool');
+            }}
+          />
+        )}
+
+
 
         {currentTab === 'strategies' && (
           <SelectionStrategies
@@ -324,6 +404,14 @@ export function StockMarket({ onCreateTradingPlan }: StockMarketProps) {
             onUpdateRecommendation={handleUpdateRecommendation}
             onDeleteRecommendation={handleDeleteRecommendation}
           />
+        )}
+
+        {currentTab === 'sync' && (
+          <DataSyncManager />
+        )}
+
+        {currentTab === 'database' && (
+          <DatabaseAdmin />
         )}
       </div>
     </div>

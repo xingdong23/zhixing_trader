@@ -456,11 +456,14 @@ export interface Stock {
 
   // 固有属性标签
   tags: {
-    industry: string[];        // 行业标签：量子计算、核能、新能源汽车等
+    industry: string[];        // 行业标签：量子计算、核能、新能源汽车等（保留用于兼容）
     fundamentals: string[];    // 基本面标签：基本面优秀、财务健康、高成长等
     marketCap: 'large' | 'mid' | 'small';  // 市值规模
     watchLevel: 'high' | 'medium' | 'low'; // 关注程度
   };
+
+  // 概念标签系统
+  conceptIds: string[];        // 关联的概念ID列表
 
   // 实时数据（可选，用于显示）
   currentPrice?: number;
@@ -604,9 +607,24 @@ export interface SelectionStrategy {
 
   // 策略参数
   parameters: {
-    timeframe: string;         // 时间周期，如 '1d', '1w'
+    timeframe: string;         // 时间周期，如 '1d', '1h', '1w'
     volumeThreshold: number;   // 成交量阈值
     priceChangeThreshold: number; // 价格变化阈值
+
+    // 均线缠绕策略参数
+    entanglementDays?: number; // 均线缠绕天数
+    pullbackDays?: number;     // 回踩确认天数
+
+    // EMA回踩策略参数
+    stabilizationHours?: number; // 企稳确认小时数
+    emaLength?: number;        // EMA周期长度
+
+    // 趋势线突破策略参数
+    trendlineDays?: number;    // 趋势线形成天数
+
+    // 通用技术分析参数
+    confirmationPeriods?: number; // 确认周期数
+    tolerancePercent?: number;    // 容错百分比
   };
 
   // 策略状态
@@ -770,3 +788,128 @@ export interface PlanQualityResponse {
   };
   suggestions: string[];
 }
+
+// ==================== 概念标签系统接口 ====================
+
+// 概念标签接口
+export interface Concept {
+  id: string;
+  name: string;                // 概念名称，如"新能源汽车"、"人工智能"
+  description?: string;        // 概念描述
+  color?: string;              // 概念标签颜色
+  stockIds: string[];          // 关联的股票ID列表
+  stockCount: number;          // 该概念下的股票数量
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+// 概念-股票关联接口
+export interface ConceptStockRelation {
+  conceptId: string;
+  stockId: string;
+  addedAt: Date;
+}
+
+// 行业分类接口（保留用于富途导入）
+export interface Industry {
+  id: string;
+  name: string;                // 行业名称，如"半导体"、"生物技术"
+  description?: string;        // 行业描述
+  stockCount: number;          // 该行业股票数量
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+// 富途导入的原始数据接口
+export interface FutuStockData {
+  代码: string;
+  名称: string;
+  最新价: string;
+  涨跌额: string;
+  涨跌幅: string;
+  成交量: string;
+  成交额: string;
+  今开: string;
+  昨收: string;
+  最高: string;
+  最低: string;
+  总市值: string;
+  市盈率TTM: string;
+  市净率: string;
+  股息率TTM: string;
+  所属行业: string;
+  [key: string]: string; // 允许其他字段
+}
+
+// 导入的股票数据（处理后的格式）
+export interface ImportedStock {
+  id: string;
+  symbol: string;
+  name: string;
+  market: 'US' | 'HK' | 'CN';
+  industryId?: string;
+  industry?: Industry;
+  price: number;
+  change: number;
+  changePercent: number;
+  volume: number;
+  turnover: number;
+  high: number;
+  low: number;
+  open: number;
+  preClose: number;
+  marketCap?: number;
+  peRatio?: number;
+  pbRatio?: number;
+  dividendYield?: number;
+  addedAt: Date;
+  updatedAt: Date;
+  tags: string[];
+  notes: string;
+}
+
+// ==================== 导出所有类型 ====================
+export type {
+  // 基础类型
+  TradingEmotion,
+  InformationSource,
+  TradeStatus,
+  DisciplineRating,
+
+  // 交易计划相关
+  TradingPlan,
+  PositionLayer,
+  TakeProfitLayer,
+  DisciplineStatus,
+  DisciplineViolation,
+
+  // 交易执行相关
+  TradeExecution,
+  TradeReview,
+
+  // 股票相关
+  Stock,
+  StockOpinion,
+  StockPoolStats,
+
+  // 选股策略相关
+  SelectionStrategy,
+  StrategyCondition,
+  DailySelection,
+  SelectedStock,
+
+  // 推荐系统相关
+  TradingRecommendation,
+
+  // 系统配置相关
+  SystemSettings,
+
+  // 富途导入相关
+  Industry,
+  FutuStockData,
+  ImportedStock,
+
+  // 概念标签系统
+  Concept,
+  ConceptStockRelation
+};

@@ -9,7 +9,7 @@ from sqlalchemy.exc import SQLAlchemyError
 from loguru import logger
 
 from .config import settings
-from .models import Base, StockDB, QuoteDB, KLineDB, StockInfo, QuoteData
+from .models import Base, StockDB, QuoteDB, KLineDB, StrategyDB, SelectionResultDB, StockInfo, QuoteData
 
 
 class DatabaseService:
@@ -251,7 +251,266 @@ class DatabaseService:
         except SQLAlchemyError as e:
             logger.error(f"Failed to get database stats: {e}")
             return {"stocks": 0, "quotes": 0, "klines": 0}
+
+    def get_kline_data(self, symbol: str, timeframe: str, start_date, end_date) -> List[KLineDB]:
+        """获取K线数据"""
+        try:
+            with self.get_session() as session:
+                # 将timeframe转换为period格式
+                period_map = {
+                    "1d": "K_DAY",
+                    "1h": "K_60M",
+                    "15m": "K_15M",
+                    "5m": "K_5M",
+                    "1m": "K_1M"
+                }
+                period = period_map.get(timeframe, "K_DAY")
+
+                return (session.query(KLineDB)
+                       .filter(
+                           and_(
+                               KLineDB.code == symbol,
+                               KLineDB.period == period,
+                               KLineDB.time_key >= start_date.strftime("%Y-%m-%d %H:%M:%S"),
+                               KLineDB.time_key <= end_date.strftime("%Y-%m-%d %H:%M:%S")
+                           )
+                       )
+                       .order_by(KLineDB.time_key.asc())
+                       .all())
+
+        except SQLAlchemyError as e:
+            logger.error(f"Failed to get kline data for {symbol}: {e}")
+            return []
+
+    def save_kline_data(self, kline_data: dict) -> bool:
+        """保存K线数据"""
+        try:
+            with self.get_session() as session:
+                # 检查是否已存在
+                existing = (session.query(KLineDB)
+                          .filter(
+                              and_(
+                                  KLineDB.code == kline_data['symbol'],
+                                  KLineDB.period == kline_data['timeframe'],
+                                  KLineDB.time_key == kline_data['datetime'].strftime("%Y-%m-%d %H:%M:%S")
+                              )
+                          )
+                          .first())
+
+                if not existing:
+                    # 转换数据格式
+                    period_map = {
+                        "1d": "K_DAY",
+                        "1h": "K_60M",
+                        "15m": "K_15M",
+                        "5m": "K_5M",
+                        "1m": "K_1M"
+                    }
+
+                    kline = KLineDB(
+                        code=kline_data['symbol'],
+                        period=period_map.get(kline_data['timeframe'], "K_DAY"),
+                        time_key=kline_data['datetime'].strftime("%Y-%m-%d %H:%M:%S"),
+                        open_price=kline_data['open'],
+                        close_price=kline_data['close'],
+                        high_price=kline_data['high'],
+                        low_price=kline_data['low'],
+                        volume=kline_data['volume']
+                    )
+
+                    session.add(kline)
+                    session.commit()
+                    return True
+
+                return False  # 已存在
+
+        except SQLAlchemyError as e:
+            logger.error(f"Failed to save kline data: {e}")
+            return False
+
+    def cleanup_old_kline_data(self, cutoff_date) -> int:
+        """清理过期K线数据"""
+        try:
+            with self.get_session() as session:
+                deleted_count = (session.query(KLineDB)
+                               .filter(KLineDB.time_key < cutoff_date.strftime("%Y-%m-%d %H:%M:%S"))
+                               .delete())
+                session.commit()
+                logger.info(f"Cleaned up {deleted_count} old kline records")
+                return deleted_count
+
+        except SQLAlchemyError as e:
+            logger.error(f"Failed to cleanup old kline data: {e}")
+            return 0
     
+    # ==================== 策略相关方法 ====================
+
+    def create_strategy(self, strategy_data: dict) -> Optional[int]:
+        """创建新策略"""
+        try:
+            with self.get_session() as session:
+                strategy = StrategyDB(**strategy_data)
+                session.add(strategy)
+                session.commit()
+                session.refresh(strategy)
+                logger.info(f"Created strategy: {strategy.name}")
+                return strategy.id
+
+        except SQLAlchemyError as e:
+            logger.error(f"Failed to create strategy: {e}")
+            return None
+
+    def get_strategy(self, strategy_id: int) -> Optional[StrategyDB]:
+        """获取策略"""
+        try:
+            with self.get_session() as session:
+                return session.query(StrategyDB).filter(StrategyDB.id == strategy_id).first()
+
+        except SQLAlchemyError as e:
+            logger.error(f"Failed to get strategy {strategy_id}: {e}")
+            return None
+
+    def get_all_strategies(self) -> List[StrategyDB]:
+        """获取所有策略"""
+        try:
+            with self.get_session() as session:
+                return session.query(StrategyDB).order_by(StrategyDB.created_at.desc()).all()
+
+        except SQLAlchemyError as e:
+            logger.error(f"Failed to get all strategies: {e}")
+            return []
+
+    def get_enabled_strategies(self) -> List[StrategyDB]:
+        """获取所有启用的策略"""
+        try:
+            with self.get_session() as session:
+                return session.query(StrategyDB).filter(StrategyDB.enabled == True).all()
+
+        except SQLAlchemyError as e:
+            logger.error(f"Failed to get enabled strategies: {e}")
+            return []
+
+    def update_strategy(self, strategy_id: int, strategy_data: dict) -> bool:
+        """更新策略"""
+        try:
+            with self.get_session() as session:
+                strategy = session.query(StrategyDB).filter(StrategyDB.id == strategy_id).first()
+                if strategy:
+                    for key, value in strategy_data.items():
+                        if hasattr(strategy, key):
+                            setattr(strategy, key, value)
+                    session.commit()
+                    logger.info(f"Updated strategy: {strategy_id}")
+                    return True
+                return False
+
+        except SQLAlchemyError as e:
+            logger.error(f"Failed to update strategy {strategy_id}: {e}")
+            return False
+
+    def update_strategy_execution(self, strategy_id: int, execution_time) -> bool:
+        """更新策略执行记录"""
+        try:
+            with self.get_session() as session:
+                strategy = session.query(StrategyDB).filter(StrategyDB.id == strategy_id).first()
+                if strategy:
+                    strategy.last_execution_time = execution_time
+                    strategy.execution_count += 1
+                    session.commit()
+                    return True
+                return False
+
+        except SQLAlchemyError as e:
+            logger.error(f"Failed to update strategy execution {strategy_id}: {e}")
+            return False
+
+    def delete_strategy(self, strategy_id: int) -> bool:
+        """删除策略"""
+        try:
+            with self.get_session() as session:
+                strategy = session.query(StrategyDB).filter(StrategyDB.id == strategy_id).first()
+                if strategy and not strategy.is_system_default:
+                    session.delete(strategy)
+                    session.commit()
+                    logger.info(f"Deleted strategy: {strategy_id}")
+                    return True
+                return False
+
+        except SQLAlchemyError as e:
+            logger.error(f"Failed to delete strategy {strategy_id}: {e}")
+            return False
+
+    # ==================== 选股结果相关方法 ====================
+
+    def save_selection_result(self, result_data: dict) -> Optional[int]:
+        """保存选股结果"""
+        try:
+            with self.get_session() as session:
+                result = SelectionResultDB(**result_data)
+                session.add(result)
+                session.commit()
+                session.refresh(result)
+                return result.id
+
+        except SQLAlchemyError as e:
+            logger.error(f"Failed to save selection result: {e}")
+            return None
+
+    def get_strategy_results(self, strategy_id: int, limit: int = 20) -> List[SelectionResultDB]:
+        """获取策略的执行结果"""
+        try:
+            with self.get_session() as session:
+                return (session.query(SelectionResultDB)
+                       .filter(SelectionResultDB.strategy_id == strategy_id)
+                       .order_by(SelectionResultDB.execution_time.desc())
+                       .limit(limit)
+                       .all())
+
+        except SQLAlchemyError as e:
+            logger.error(f"Failed to get strategy results for {strategy_id}: {e}")
+            return []
+
+    def get_latest_selection_results(self, strategy_id: Optional[int] = None) -> List[SelectionResultDB]:
+        """获取最新的选股结果"""
+        try:
+            with self.get_session() as session:
+                query = session.query(SelectionResultDB)
+
+                if strategy_id:
+                    query = query.filter(SelectionResultDB.strategy_id == strategy_id)
+
+                # 获取最新执行时间
+                latest_time_subquery = (session.query(SelectionResultDB.execution_time)
+                                       .order_by(SelectionResultDB.execution_time.desc())
+                                       .limit(1)
+                                       .subquery())
+
+                return (query.filter(SelectionResultDB.execution_time == latest_time_subquery.c.execution_time)
+                       .order_by(SelectionResultDB.score.desc())
+                       .all())
+
+        except SQLAlchemyError as e:
+            logger.error(f"Failed to get latest selection results: {e}")
+            return []
+
+    def cleanup_old_selection_results(self, days_to_keep: int = 30) -> int:
+        """清理过期的选股结果"""
+        try:
+            from datetime import datetime, timedelta
+            cutoff_date = datetime.now() - timedelta(days=days_to_keep)
+
+            with self.get_session() as session:
+                deleted_count = (session.query(SelectionResultDB)
+                               .filter(SelectionResultDB.execution_time < cutoff_date)
+                               .delete())
+                session.commit()
+                logger.info(f"Cleaned up {deleted_count} old selection results")
+                return deleted_count
+
+        except SQLAlchemyError as e:
+            logger.error(f"Failed to cleanup old selection results: {e}")
+            return 0
+
     def close(self):
         """关闭数据库连接"""
         if self.engine:

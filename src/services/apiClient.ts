@@ -129,48 +129,65 @@ class ApiClient {
   }
 
   /**
-   * 获取自选股分组
+   * 获取自选股分组（模拟数据）
    */
   async getWatchlistGroups(): Promise<ApiResponse<WatchlistGroup[]>> {
-    return this.get<WatchlistGroup[]>('/api/watchlist/groups');
+    // 返回模拟数据
+    const mockGroups = [
+      { id: 'all', name: '全部自选', count: 0, description: '所有自选股票' },
+      { id: 'tech', name: '科技股', count: 0, description: '科技类股票' },
+      { id: 'finance', name: '金融股', count: 0, description: '金融类股票' }
+    ];
+    return { success: true, data: mockGroups };
   }
 
   /**
-   * 获取指定分组的股票
-   */
-  async getGroupStocks(groupId: string): Promise<ApiResponse<WatchlistGroup>> {
-    return this.get<WatchlistGroup>(`/api/watchlist/groups/${groupId}`);
-  }
-
-  /**
-   * 刷新自选股数据
-   */
-  async refreshWatchlist(): Promise<ApiResponse<WatchlistGroup[]>> {
-    return this.post<WatchlistGroup[]>('/api/watchlist/refresh');
-  }
-
-  /**
-   * 获取自选股统计信息
+   * 获取自选股统计信息（基于本地数据）
    */
   async getWatchlistStats(): Promise<ApiResponse> {
-    return this.get('/api/watchlist/stats');
+    // 返回模拟统计数据
+    const stats = {
+      totalStocks: 0,
+      gainers: 0,
+      losers: 0,
+      unchanged: 0,
+      totalValue: 0,
+      avgChange: 0
+    };
+    return { success: true, data: stats };
   }
 
   // ==================== 行情相关 ====================
 
   /**
-   * 获取行情数据
+   * 获取股票行情数据（模拟数据）
    */
-  async getQuotes(codes?: string[]): Promise<ApiResponse<QuoteData[]>> {
-    const query = codes ? `?codes=${codes.join(',')}` : '';
-    return this.get<QuoteData[]>(`/api/quotes${query}`);
+  async getQuotes(securities?: string[]): Promise<ApiResponse<QuoteData[]>> {
+    // 返回模拟行情数据
+    const mockQuotes: QuoteData[] = [];
+    return { success: true, data: mockQuotes };
   }
 
   /**
-   * 获取单个股票的详细行情
+   * 获取单个股票的详细行情（模拟数据）
    */
-  async getQuoteDetail(code: string): Promise<ApiResponse<QuoteData>> {
-    return this.get<QuoteData>(`/api/quotes/${code}`);
+  async getQuoteDetail(symbol: string): Promise<ApiResponse<QuoteData>> {
+    // 返回模拟股票详情
+    const mockQuote: QuoteData = {
+      symbol,
+      name: '模拟股票',
+      price: 100,
+      change: 0,
+      changePercent: 0,
+      volume: 0,
+      turnover: 0,
+      high: 100,
+      low: 100,
+      open: 100,
+      preClose: 100,
+      updateTime: new Date().toISOString()
+    };
+    return { success: true, data: mockQuote };
   }
 
   /**

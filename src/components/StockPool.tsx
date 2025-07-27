@@ -3,10 +3,12 @@
 
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
-import { Stock, StockPoolStats } from '@/types';
+import { Stock, StockPoolStats, Concept } from '@/types';
 import { industryTags, fundamentalTags } from '@/data/sampleStocks';
+import { ConceptService } from '@/services/conceptService';
+import { StockPoolService } from '@/services/stockPoolService';
 import {
   Plus,
   Search,
@@ -41,12 +43,25 @@ export function StockPool({
   onViewDetail
 }: StockPoolProps) {
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedIndustry, setSelectedIndustry] = useState<string>('');
   const [selectedFundamental, setSelectedFundamental] = useState<string>('');
   const [selectedMarket, setSelectedMarket] = useState<string>('');
   const [selectedWatchLevel, setSelectedWatchLevel] = useState<string>('');
+  const [selectedConcept, setSelectedConcept] = useState<string>('');
   const [showAddForm, setShowAddForm] = useState(false);
   const [editingStock, setEditingStock] = useState<Stock | null>(null);
+
+  // 获取最新的股票数据（包含概念关联）
+  const [updatedStocks, setUpdatedStocks] = useState<Stock[]>(stocks);
+
+  // 自动建立概念关联
+  useEffect(() => {
+    if (stocks.length > 0) {
+      StockPoolService.autoEstablishConceptRelations();
+      // 获取更新后的股票数据
+      const latestStocks = StockPoolService.getAllStocks();
+      setUpdatedStocks(latestStocks);
+    }
+  }, [stocks]);
 
   // 计算统计数据
   const stats: StockPoolStats = useMemo(() => {
@@ -82,44 +97,48 @@ export function StockPool({
 
   // 筛选股票
   const filteredStocks = useMemo(() => {
-    return stocks.filter(stock => {
-      const matchesSearch = !searchTerm || 
+    return updatedStocks.filter(stock => {
+      const matchesSearch = !searchTerm ||
         stock.symbol.toLowerCase().includes(searchTerm.toLowerCase()) ||
         stock.name.toLowerCase().includes(searchTerm.toLowerCase());
-      
-      const matchesIndustry = !selectedIndustry || 
-        stock.tags.industry.includes(selectedIndustry);
-      
-      const matchesFundamental = !selectedFundamental || 
+
+      const matchesFundamental = !selectedFundamental ||
         stock.tags.fundamentals.includes(selectedFundamental);
-      
+
       const matchesMarket = !selectedMarket || stock.market === selectedMarket;
-      
-      const matchesWatchLevel = !selectedWatchLevel || 
+
+      const matchesWatchLevel = !selectedWatchLevel ||
         stock.tags.watchLevel === selectedWatchLevel;
 
-      return matchesSearch && matchesIndustry && matchesFundamental && 
-             matchesMarket && matchesWatchLevel;
-    });
-  }, [stocks, searchTerm, selectedIndustry, selectedFundamental, selectedMarket, selectedWatchLevel]);
+      const matchesConcept = !selectedConcept ||
+        (stock.conceptIds && stock.conceptIds.includes(selectedConcept));
 
-  // 获取所有已使用的行业标签
-  const usedIndustryTags = useMemo(() => {
-    const tags = new Set<string>();
-    stocks.forEach(stock => {
-      stock.tags.industry.forEach(tag => tags.add(tag));
+      return matchesSearch && matchesFundamental &&
+             matchesMarket && matchesWatchLevel && matchesConcept;
     });
-    return Array.from(tags).sort();
-  }, [stocks]);
+  }, [updatedStocks, searchTerm, selectedFundamental, selectedMarket, selectedWatchLevel, selectedConcept]);
 
   // 获取所有已使用的基本面标签
   const usedFundamentalTags = useMemo(() => {
     const tags = new Set<string>();
-    stocks.forEach(stock => {
+    updatedStocks.forEach(stock => {
       stock.tags.fundamentals.forEach(tag => tags.add(tag));
     });
     return Array.from(tags).sort();
-  }, [stocks]);
+  }, [updatedStocks]);
+
+  // 获取所有概念标签
+  const availableConcepts = useMemo(() => {
+    const concepts = ConceptService.getConcepts();
+    return concepts.map(concept => {
+      // 计算实际的股票数量
+      const stockCount = updatedStocks.filter(stock => stock.conceptIds && stock.conceptIds.includes(concept.id)).length;
+      return {
+        ...concept,
+        stockCount
+      };
+    }); // 显示所有概念，包括没有关联股票的概念
+  }, [updatedStocks]);
 
   const handleAddStock = (stockData: Omit<Stock, 'id' | 'addedAt' | 'updatedAt'>) => {
     onAddStock(stockData);
@@ -141,10 +160,10 @@ export function StockPool({
 
   const clearFilters = () => {
     setSearchTerm('');
-    setSelectedIndustry('');
     setSelectedFundamental('');
     setSelectedMarket('');
     setSelectedWatchLevel('');
+    setSelectedConcept('');
   };
 
   return (
@@ -188,21 +207,9 @@ export function StockPool({
         </div>
       </div>
 
-      {/* 筛选条件 */}
+      {/* 基础筛选条件 */}
       <div className="bg-white border border-gray-200 rounded p-3">
         <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
-          {/* 行业筛选 */}
-          <select
-            value={selectedIndustry}
-            onChange={(e) => setSelectedIndustry(e.target.value)}
-            className="p-2 border border-gray-300 rounded text-sm focus:ring-1 focus:ring-gray-500 focus:border-gray-500"
-          >
-            <option value="">所有行业</option>
-            {usedIndustryTags.map(tag => (
-              <option key={tag} value={tag}>{tag}</option>
-            ))}
-          </select>
-
           {/* 基本面筛选 */}
           <select
             value={selectedFundamental}
@@ -246,6 +253,48 @@ export function StockPool({
           >
             清除筛选
           </button>
+        </div>
+      </div>
+
+      {/* 概念标签筛选 */}
+      <div className="bg-white border border-gray-200 rounded p-3">
+        <div className="mb-2">
+          <span className="text-sm font-medium text-gray-700">概念筛选：</span>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          {/* 全部概念按钮 */}
+          <button
+            onClick={() => setSelectedConcept('')}
+            className={`px-3 py-1 rounded-full text-sm transition-colors ${
+              selectedConcept === ''
+                ? 'bg-blue-500 text-white'
+                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+            }`}
+          >
+            全部 ({updatedStocks.length})
+          </button>
+
+          {/* 概念标签按钮 */}
+          {availableConcepts.map(concept => (
+            <button
+              key={concept.id}
+              onClick={() => setSelectedConcept(concept.id === selectedConcept ? '' : concept.id)}
+              className={`px-3 py-1 rounded-full text-sm transition-colors ${
+                selectedConcept === concept.id
+                  ? 'text-white'
+                  : 'text-gray-700 hover:opacity-80'
+              }`}
+              style={{
+                backgroundColor: selectedConcept === concept.id
+                  ? concept.color
+                  : `${concept.color}20`,
+                borderColor: concept.color,
+                borderWidth: '1px'
+              }}
+            >
+              {concept.name} ({concept.stockCount})
+            </button>
+          ))}
         </div>
 
         <div className="mt-2 text-sm text-gray-600">
@@ -345,10 +394,63 @@ function StockCard({
       <div className="flex items-start justify-between">
         {/* 左侧：股票信息 */}
         <div className="flex-1">
-          <h3 className="font-medium text-blue-600 text-lg">{stock.name}({stock.symbol})</h3>
-          <p className="text-sm text-gray-600 mt-1">
-            {stock.market === 'US' ? '🇺🇸' : stock.market === 'HK' ? '🇭🇰' : '🇨🇳'} {stock.market === 'US' ? '美股' : stock.market === 'HK' ? '港股' : 'A股'}公司成立于2003年7月1日在美国特拉华州注册，公司主要从事设计、开发、生产、销售高性能的纯电动汽车和能源存储系统，并提供相关服务。
-          </p>
+          <div className="flex items-center gap-2 mb-2">
+            <h3 className="font-medium text-blue-600 text-lg">{stock.name}({stock.symbol})</h3>
+            <span className={`px-2 py-1 rounded text-xs ${
+              stock.market === 'US' ? 'bg-blue-100 text-blue-800' :
+              stock.market === 'HK' ? 'bg-green-100 text-green-800' :
+              'bg-red-100 text-red-800'
+            }`}>
+              {stock.market}
+            </span>
+          </div>
+
+          {/* 概念标签 */}
+          {stock.conceptIds && stock.conceptIds.length > 0 && (
+            <div className="flex flex-wrap gap-1 mb-2">
+              {stock.conceptIds.map(conceptId => {
+                const concept = ConceptService.getConceptById(conceptId);
+                return concept ? (
+                  <span
+                    key={conceptId}
+                    className="px-2 py-1 rounded text-xs text-white"
+                    style={{ backgroundColor: concept.color }}
+                  >
+                    {concept.name}
+                  </span>
+                ) : null;
+              })}
+            </div>
+          )}
+
+          {/* 行业标签 */}
+          {stock.tags.industry.length > 0 && (
+            <div className="flex flex-wrap gap-1 mb-2">
+              {stock.tags.industry.map(industry => (
+                <span
+                  key={industry}
+                  className="px-2 py-1 bg-purple-100 text-purple-800 rounded text-xs"
+                >
+                  {industry}
+                </span>
+              ))}
+            </div>
+          )}
+
+          {/* 价格信息 */}
+          {stock.currentPrice && (
+            <div className="flex items-center gap-2 mb-2">
+              <span className="text-lg font-semibold">${stock.currentPrice.toFixed(2)}</span>
+              {stock.priceChange && (
+                <span className={`flex items-center gap-1 text-sm ${getPriceChangeColor(stock.priceChange)}`}>
+                  {getPriceChangeIcon(stock.priceChange)}
+                  {stock.priceChange >= 0 ? '+' : ''}{stock.priceChange.toFixed(2)}
+                  {stock.priceChangePercent && ` (${stock.priceChangePercent >= 0 ? '+' : ''}${stock.priceChangePercent.toFixed(2)}%)`}
+                </span>
+              )}
+            </div>
+          )}
+
           <div className="flex space-x-4 mt-2">
             <button
               onClick={onViewDetail}
@@ -408,6 +510,7 @@ function StockForm({
       marketCap: stock?.tags.marketCap || 'mid' as const,
       watchLevel: stock?.tags.watchLevel || 'medium' as const
     },
+    conceptIds: stock?.conceptIds || [],
     currentPrice: stock?.currentPrice || 0,
     notes: stock?.notes || ''
   });
@@ -424,6 +527,7 @@ function StockForm({
       name: formData.name,
       market: formData.market,
       tags: formData.tags,
+      conceptIds: formData.conceptIds,
       currentPrice: formData.currentPrice || undefined,
       notes: formData.notes || undefined
     });
@@ -472,6 +576,26 @@ function StockForm({
       }
     });
   };
+
+  // 概念标签管理
+  const addConceptToStock = (conceptId: string) => {
+    if (conceptId && !formData.conceptIds.includes(conceptId)) {
+      setFormData({
+        ...formData,
+        conceptIds: [...formData.conceptIds, conceptId]
+      });
+    }
+  };
+
+  const removeConceptFromStock = (conceptId: string) => {
+    setFormData({
+      ...formData,
+      conceptIds: formData.conceptIds.filter(id => id !== conceptId)
+    });
+  };
+
+  // 获取可用的概念
+  const availableConceptsForForm = ConceptService.getConcepts();
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
@@ -687,6 +811,55 @@ function StockForm({
                     </button>
                   </span>
                 ))}
+              </div>
+            </div>
+          </div>
+
+          {/* 概念标签 */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              概念标签
+            </label>
+            <div className="space-y-2">
+              <select
+                value=""
+                onChange={(e) => {
+                  if (e.target.value) {
+                    addConceptToStock(e.target.value);
+                    e.target.value = '';
+                  }
+                }}
+                className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              >
+                <option value="">选择概念标签...</option>
+                {availableConceptsForForm
+                  .filter(concept => !formData.conceptIds.includes(concept.id))
+                  .map(concept => (
+                    <option key={concept.id} value={concept.id}>
+                      {concept.name} ({concept.stockCount} 只股票)
+                    </option>
+                  ))}
+              </select>
+              <div className="flex flex-wrap gap-2">
+                {formData.conceptIds.map((conceptId) => {
+                  const concept = availableConceptsForForm.find(c => c.id === conceptId);
+                  return concept ? (
+                    <span
+                      key={conceptId}
+                      className="px-3 py-1 text-white text-sm rounded-full flex items-center"
+                      style={{ backgroundColor: concept.color }}
+                    >
+                      {concept.name}
+                      <button
+                        type="button"
+                        onClick={() => removeConceptFromStock(conceptId)}
+                        className="ml-2 text-white hover:text-gray-200"
+                      >
+                        ×
+                      </button>
+                    </span>
+                  ) : null;
+                })}
               </div>
             </div>
           </div>

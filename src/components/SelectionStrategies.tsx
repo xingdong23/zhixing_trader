@@ -6,6 +6,7 @@
 import React, { useState, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { SelectionStrategy, Stock, SelectedStock } from '@/types';
+import { StrategyForm } from './StrategyForm';
 import {
   Target,
   TrendingUp,
@@ -30,7 +31,7 @@ interface SelectionStrategiesProps {
   onCreateStrategy: (strategy: Omit<SelectionStrategy, 'id' | 'createdAt' | 'updatedAt'>) => void;
   onUpdateStrategy: (id: string, strategy: Partial<SelectionStrategy>) => void;
   onDeleteStrategy: (id: string) => void;
-  onRunStrategy: (strategyId: string) => SelectedStock[];
+  onRunStrategy: (strategyId: string) => Promise<SelectedStock[]>;
 }
 
 export function SelectionStrategies({
@@ -97,9 +98,8 @@ export function SelectionStrategies({
   const handleRunStrategy = async (strategy: SelectionStrategy) => {
     setRunningStrategy(strategy.id);
     try {
-      // 模拟策略运行（实际应用中这里会调用真实的选股算法）
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      const results = onRunStrategy(strategy.id);
+      // 调用真实的策略运行API
+      const results = await onRunStrategy(strategy.id);
       setStrategyResults(prev => ({
         ...prev,
         [strategy.id]: results
@@ -128,6 +128,21 @@ export function SelectionStrategies({
     delete (copy as any).createdAt;
     delete (copy as any).updatedAt;
     onCreateStrategy(copy);
+  };
+
+  const handleSaveStrategy = (strategyData: Omit<SelectionStrategy, 'id' | 'createdAt' | 'updatedAt'>) => {
+    if (editingStrategy) {
+      onUpdateStrategy(editingStrategy.id, strategyData);
+    } else {
+      onCreateStrategy(strategyData);
+    }
+    setShowCreateForm(false);
+    setEditingStrategy(null);
+  };
+
+  const handleCancelForm = () => {
+    setShowCreateForm(false);
+    setEditingStrategy(null);
   };
 
   return (
@@ -304,6 +319,15 @@ export function SelectionStrategies({
           })
         )}
       </div>
+
+      {/* 策略表单弹窗 */}
+      {showCreateForm && (
+        <StrategyForm
+          strategy={editingStrategy || undefined}
+          onSave={handleSaveStrategy}
+          onCancel={handleCancelForm}
+        />
+      )}
     </div>
   );
 }

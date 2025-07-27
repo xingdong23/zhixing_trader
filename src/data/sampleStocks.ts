@@ -15,6 +15,7 @@ export const sampleStocks: Omit<Stock, 'id' | 'addedAt' | 'updatedAt'>[] = [
       marketCap: 'large',
       watchLevel: 'high'
     },
+    conceptIds: [], // 将在运行时自动关联
     currentPrice: 185.25,
     priceChange: 2.15,
     priceChangePercent: 1.17,
@@ -32,6 +33,7 @@ export const sampleStocks: Omit<Stock, 'id' | 'addedAt' | 'updatedAt'>[] = [
       marketCap: 'large',
       watchLevel: 'high'
     },
+    conceptIds: [], // 将在运行时自动关联
     currentPrice: 248.50,
     priceChange: -3.20,
     priceChangePercent: -1.27,
@@ -49,6 +51,7 @@ export const sampleStocks: Omit<Stock, 'id' | 'addedAt' | 'updatedAt'>[] = [
       marketCap: 'large',
       watchLevel: 'high'
     },
+    conceptIds: [], // 将在运行时自动关联
     currentPrice: 875.30,
     priceChange: 15.80,
     priceChangePercent: 1.84,
