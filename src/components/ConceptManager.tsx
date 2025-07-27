@@ -40,9 +40,15 @@ export function ConceptManager({ onConceptSelect }: ConceptManagerProps) {
 
   const loadData = async () => {
     try {
+      console.log('🔄 ConceptManager: 开始加载数据...');
       const loadedConcepts = await ConceptService.getConcepts();
+      console.log('📊 ConceptManager: 获取到概念数据:', loadedConcepts);
+
       const loadedStocks = StockPoolService.getAllStocks();
+      console.log('📊 ConceptManager: 获取到股票数据:', loadedStocks);
+
       const loadedStats = await ConceptService.getConceptStats();
+      console.log('📊 ConceptManager: 获取到统计数据:', loadedStats);
 
       setConcepts(loadedConcepts);
       setStocks(loadedStocks);

@@ -27,7 +27,7 @@ export class ConceptService {
       const result = await response.json();
       if (result.success && result.data.concepts) {
         const concepts = result.data.concepts.map((apiConcept: any) => ({
-          id: apiConcept.id,
+          id: String(apiConcept.id), // 确保ID是字符串类型
           name: apiConcept.name,
           description: apiConcept.description || '',
           category: apiConcept.category || 'other',
@@ -503,5 +503,23 @@ export class ConceptService {
         this.addStockToConcept(concept.id, stockId);
       }
     }
+  }
+
+  /**
+   * 为概念生成颜色
+   */
+  private static generateColorForConcept(conceptName: string): string {
+    const colors = [
+      '#3B82F6', '#EF4444', '#10B981', '#F59E0B', '#8B5CF6',
+      '#06B6D4', '#F97316', '#84CC16', '#EC4899', '#6366F1'
+    ];
+
+    // 基于概念名称生成一致的颜色
+    let hash = 0;
+    for (let i = 0; i < conceptName.length; i++) {
+      hash = conceptName.charCodeAt(i) + ((hash << 5) - hash);
+    }
+
+    return colors[Math.abs(hash) % colors.length];
   }
 }
