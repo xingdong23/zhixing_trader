@@ -40,21 +40,36 @@ export function ConceptManager({ onConceptSelect }: ConceptManagerProps) {
 
   const loadData = async () => {
     try {
+      // 只从后端数据库获取数据
       const loadedConcepts = await ConceptService.getConcepts();
-
-      const loadedStocks = StockPoolService.getAllStocks();
-
-      const loadedStats = await ConceptService.getConceptStats();
+      const loadedStocks = await StockPoolService.getStocksFromAPI(); // 从API获取股票数据
 
       setConcepts(loadedConcepts);
       setStocks(loadedStocks);
-      setStats(loadedStats);
 
-      // 加载每个概念的股票
+      // 基于已加载的数据计算统计信息，避免重复API调用
+      const totalConcepts = loadedConcepts.length;
+      const totalRelations = loadedConcepts.reduce((sum, concept) => sum + concept.stockCount, 0);
+      const avgStocksPerConcept = totalConcepts > 0 ? totalRelations / totalConcepts : 0;
+      const topConcepts = loadedConcepts
+        .sort((a, b) => b.stockCount - a.stockCount)
+        .slice(0, 5)
+        .map(c => ({ name: c.name, stockCount: c.stockCount }));
+
+      setStats({
+        totalConcepts,
+        totalRelations,
+        avgStocksPerConcept: Math.round(avgStocksPerConcept * 10) / 10,
+        topConcepts
+      });
+
+      // 概念的股票关联关系已经在概念数据中包含了stockIds
       const conceptStocksMap: Record<string, Stock[]> = {};
       for (const concept of loadedConcepts) {
-        const stockIds = await ConceptService.getStockIdsByConcept(concept.id);
-        conceptStocksMap[concept.id] = loadedStocks.filter(stock => stockIds.includes(stock.id));
+        // 直接使用概念中的stockIds，不需要额外API调用
+        conceptStocksMap[concept.id] = loadedStocks.filter(stock =>
+          concept.stockIds.includes(stock.id)
+        );
       }
       setConceptStocks(conceptStocksMap);
     } catch (error) {
@@ -73,33 +88,46 @@ export function ConceptManager({ onConceptSelect }: ConceptManagerProps) {
     if (!newConceptName.trim()) return;
 
     try {
-      await ConceptService.createConcept(newConceptName.trim(), newConceptDescription.trim() || undefined);
+      const newConcept = await ConceptService.createConcept(newConceptName.trim(), newConceptDescription.trim() || undefined);
       setNewConceptName('');
       setNewConceptDescription('');
       setShowCreateForm(false);
-      loadData();
+
+      // 只更新概念列表，不重新加载所有数据
+      setConcepts(prev => [...prev, newConcept]);
     } catch (error) {
       alert(error instanceof Error ? error.message : '创建概念失败');
     }
   };
 
   // 更新概念
-  const handleUpdateConcept = (id: string, name: string, description?: string) => {
+  const handleUpdateConcept = async (id: string, name: string, description?: string) => {
     try {
-      ConceptService.updateConcept(id, { name: name.trim(), description: description?.trim() });
+      const updatedConcept = await ConceptService.updateConceptAPI(id, { name: name.trim(), description: description?.trim() });
       setEditingConcept(null);
-      loadData();
+
+      // 只更新对应的概念，不重新加载所有数据
+      setConcepts(prev => prev.map(concept =>
+        concept.id === id ? updatedConcept : concept
+      ));
     } catch (error) {
       alert(error instanceof Error ? error.message : '更新概念失败');
     }
   };
 
   // 删除概念
-  const handleDeleteConcept = (id: string, name: string) => {
+  const handleDeleteConcept = async (id: string, name: string) => {
     if (confirm(`确定要删除概念"${name}"吗？这将同时移除所有相关的股票关联。`)) {
       try {
-        ConceptService.deleteConcept(id);
-        loadData();
+        await ConceptService.deleteConceptAPI(id);
+
+        // 只从列表中移除对应概念，不重新加载所有数据
+        setConcepts(prev => prev.filter(concept => concept.id !== id));
+        setConceptStocks(prev => {
+          const newMap = { ...prev };
+          delete newMap[id];
+          return newMap;
+        });
       } catch (error) {
         alert(error instanceof Error ? error.message : '删除概念失败');
       }
@@ -133,20 +161,45 @@ export function ConceptManager({ onConceptSelect }: ConceptManagerProps) {
     if (selectedStocks.size === 0) return;
 
     try {
-      ConceptService.addStocksToConcept(conceptId, Array.from(selectedStocks));
+      await ConceptService.addStocksToConceptAPI(conceptId, Array.from(selectedStocks));
       setSelectedStocks(new Set());
       setShowStockSelector(null);
-      loadData();
+
+      // 更新概念的股票关联，不重新加载所有数据
+      const updatedStocks = stocks.filter(stock => selectedStocks.has(stock.id));
+      setConceptStocks(prev => ({
+        ...prev,
+        [conceptId]: [...(prev[conceptId] || []), ...updatedStocks]
+      }));
+
+      // 更新概念的stockCount
+      setConcepts(prev => prev.map(concept =>
+        concept.id === conceptId
+          ? { ...concept, stockCount: concept.stockCount + selectedStocks.size }
+          : concept
+      ));
     } catch (error) {
       alert(error instanceof Error ? error.message : '添加股票失败');
     }
   };
 
   // 从概念中移除股票
-  const handleRemoveStockFromConcept = (conceptId: string, stockId: string) => {
+  const handleRemoveStockFromConcept = async (conceptId: string, stockId: string) => {
     try {
-      ConceptService.removeStockFromConcept(conceptId, stockId);
-      loadData();
+      await ConceptService.removeStockFromConceptAPI(conceptId, stockId);
+
+      // 从概念股票映射中移除股票，不重新加载所有数据
+      setConceptStocks(prev => ({
+        ...prev,
+        [conceptId]: prev[conceptId]?.filter(stock => stock.id !== stockId) || []
+      }));
+
+      // 更新概念的stockCount
+      setConcepts(prev => prev.map(concept =>
+        concept.id === conceptId
+          ? { ...concept, stockCount: Math.max(0, concept.stockCount - 1) }
+          : concept
+      ));
     } catch (error) {
       alert(error instanceof Error ? error.message : '移除股票失败');
     }

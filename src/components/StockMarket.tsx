@@ -51,7 +51,6 @@ export function StockMarket({ onCreateTradingPlan }: StockMarketProps) {
   // 初始化数据库概念数据
   const initDatabaseConcepts = async () => {
     try {
-      console.log('🔄 初始化数据库概念数据...');
       const response = await fetch('http://localhost:3001/api/v1/concepts/init-sample-data', {
         method: 'POST'
       });

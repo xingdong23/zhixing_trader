@@ -35,7 +35,6 @@ export class ConceptService {
    */
   static async getConcepts(): Promise<Concept[]> {
     try {
-      console.log('🔄 从数据库API获取概念数据...');
       const response = await fetch('http://localhost:3001/api/v1/concepts/');
 
       if (!response.ok) {
@@ -55,8 +54,6 @@ export class ConceptService {
           createdAt: new Date(apiConcept.created_at || Date.now()),
           updatedAt: new Date(apiConcept.updated_at || Date.now())
         }));
-
-        console.log(`✅ 从数据库获取到 ${concepts.length} 个概念`);
         return concepts;
       }
 
@@ -299,7 +296,61 @@ export class ConceptService {
   }
 
   /**
-   * 批量添加股票到概念
+   * 添加股票到概念 (API版本)
+   */
+  static async addStocksToConceptAPI(conceptId: string, stockIds: string[]): Promise<void> {
+    try {
+      const response = await fetch(`http://localhost:3001/api/v1/concepts/${conceptId}/stocks`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          stock_ids: stockIds
+        })
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.detail || '添加股票到概念失败');
+      }
+
+      const result = await response.json();
+      if (!result.success) {
+        throw new Error(result.message || '添加股票到概念失败');
+      }
+    } catch (error) {
+      console.error('添加股票到概念失败:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * 从概念中移除股票 (API版本)
+   */
+  static async removeStockFromConceptAPI(conceptId: string, stockId: string): Promise<void> {
+    try {
+      const response = await fetch(`http://localhost:3001/api/v1/concepts/${conceptId}/stocks/${stockId}`, {
+        method: 'DELETE'
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.detail || '移除股票关联失败');
+      }
+
+      const result = await response.json();
+      if (!result.success) {
+        throw new Error(result.message || '移除股票关联失败');
+      }
+    } catch (error) {
+      console.error('移除股票关联失败:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * 批量添加股票到概念 (本地版本 - 已废弃)
    */
   static addStocksToConcept(conceptId: string, stockIds: string[]): void {
     const relations = this.getConceptRelations();
@@ -582,5 +633,61 @@ export class ConceptService {
 
     const colorIndex = Math.abs(hash) % colors.length;
     return colors[colorIndex];
+  }
+
+  // ==================== 新增API方法 ====================
+
+  /**
+   * 添加股票到概念 (API版本)
+   */
+  static async addStocksToConceptAPI(conceptId: string, stockIds: string[]): Promise<void> {
+    try {
+      const response = await fetch(`http://localhost:3001/api/v1/concepts/${conceptId}/stocks`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          stock_ids: stockIds
+        })
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.detail || '添加股票到概念失败');
+      }
+
+      const result = await response.json();
+      if (!result.success) {
+        throw new Error(result.message || '添加股票到概念失败');
+      }
+    } catch (error) {
+      console.error('添加股票到概念失败:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * 从概念中移除股票 (API版本)
+   */
+  static async removeStockFromConceptAPI(conceptId: string, stockId: string): Promise<void> {
+    try {
+      const response = await fetch(`http://localhost:3001/api/v1/concepts/${conceptId}/stocks/${stockId}`, {
+        method: 'DELETE'
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.detail || '移除股票关联失败');
+      }
+
+      const result = await response.json();
+      if (!result.success) {
+        throw new Error(result.message || '移除股票关联失败');
+      }
+    } catch (error) {
+      console.error('移除股票关联失败:', error);
+      throw error;
+    }
   }
 }

@@ -267,3 +267,119 @@ async def get_concept_stocks(concept_id: int) -> Dict[str, Any]:
     except Exception as e:
         logger.error(f"获取概念股票列表失败: {e}")
         raise HTTPException(status_code=500, detail="获取概念股票列表失败")
+
+
+@router.post("/{concept_id}/stocks")
+async def add_stocks_to_concept(concept_id: int, stock_data: Dict[str, Any]) -> Dict[str, Any]:
+    """添加股票到概念"""
+    try:
+        logger.info(f"添加股票到概念 {concept_id}: {stock_data}")
+
+        stock_ids = stock_data.get("stock_ids", [])
+        if not stock_ids:
+            raise HTTPException(status_code=400, detail="股票ID列表不能为空")
+
+        with db_service.get_session() as session:
+            # 检查概念是否存在
+            concept_db = session.query(ConceptDB).filter(
+                ConceptDB.id == concept_id,
+                ConceptDB.is_active == True
+            ).first()
+
+            if not concept_db:
+                raise HTTPException(status_code=404, detail="概念不存在")
+
+            # 添加股票关联关系
+            added_count = 0
+            for stock_id in stock_ids:
+                # 检查关联是否已存在
+                existing_relation = session.query(ConceptStockRelationDB).filter(
+                    ConceptStockRelationDB.concept_id == concept_db.concept_id,
+                    ConceptStockRelationDB.stock_code == stock_id
+                ).first()
+
+                if not existing_relation:
+                    new_relation = ConceptStockRelationDB(
+                        concept_id=concept_db.concept_id,
+                        stock_code=stock_id,
+                        weight=1.0,
+                        is_primary=False
+                    )
+                    session.add(new_relation)
+                    added_count += 1
+
+            # 更新概念的股票数量
+            total_relations = session.query(ConceptStockRelationDB).filter(
+                ConceptStockRelationDB.concept_id == concept_db.concept_id
+            ).count()
+            concept_db.stock_count = total_relations + added_count
+
+            session.commit()
+
+            return {
+                "success": True,
+                "data": {
+                    "concept_id": concept_id,
+                    "added_stocks": added_count,
+                    "total_stocks": concept_db.stock_count
+                },
+                "message": f"成功添加 {added_count} 只股票到概念"
+            }
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"添加股票到概念失败: {e}")
+        raise HTTPException(status_code=500, detail="添加股票到概念失败")
+
+
+@router.delete("/{concept_id}/stocks/{stock_id}")
+async def remove_stock_from_concept(concept_id: int, stock_id: str) -> Dict[str, Any]:
+    """从概念中移除股票"""
+    try:
+        logger.info(f"从概念 {concept_id} 移除股票 {stock_id}")
+
+        with db_service.get_session() as session:
+            # 检查概念是否存在
+            concept_db = session.query(ConceptDB).filter(
+                ConceptDB.id == concept_id,
+                ConceptDB.is_active == True
+            ).first()
+
+            if not concept_db:
+                raise HTTPException(status_code=404, detail="概念不存在")
+
+            # 删除关联关系
+            relation = session.query(ConceptStockRelationDB).filter(
+                ConceptStockRelationDB.concept_id == concept_db.concept_id,
+                ConceptStockRelationDB.stock_code == stock_id
+            ).first()
+
+            if not relation:
+                raise HTTPException(status_code=404, detail="股票关联不存在")
+
+            session.delete(relation)
+
+            # 更新概念的股票数量
+            remaining_relations = session.query(ConceptStockRelationDB).filter(
+                ConceptStockRelationDB.concept_id == concept_db.concept_id
+            ).count() - 1
+            concept_db.stock_count = max(0, remaining_relations)
+
+            session.commit()
+
+            return {
+                "success": True,
+                "data": {
+                    "concept_id": concept_id,
+                    "removed_stock": stock_id,
+                    "remaining_stocks": concept_db.stock_count
+                },
+                "message": "成功移除股票关联"
+            }
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"移除股票关联失败: {e}")
+        raise HTTPException(status_code=500, detail="移除股票关联失败")
