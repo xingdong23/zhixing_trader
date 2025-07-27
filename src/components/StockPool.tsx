@@ -6,9 +6,20 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { Stock, StockPoolStats, Concept } from '@/types';
-import { industryTags, fundamentalTags } from '@/data/sampleStocks';
+
 import { ConceptService } from '@/services/conceptService';
 import { StockPoolService } from '@/services/stockPoolService';
+
+// 常用标签常量
+const industryTags = [
+  '科技', '金融', '医疗', '消费', '制造', '能源', '房地产', '通信', '材料', '公用事业',
+  '互联网', '电商', '游戏', '教育', '汽车', '航空', '银行', '保险', '证券', '基金'
+];
+
+const fundamentalTags = [
+  '高成长', '价值股', '蓝筹股', '小盘股', '中盘股', '大盘股', '高分红', '低估值',
+  '高ROE', '低负债', '现金充裕', '业绩稳定', '业绩增长', '转型升级', '行业龙头'
+];
 import {
   Plus,
   Search,

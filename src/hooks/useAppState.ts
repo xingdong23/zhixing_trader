@@ -33,7 +33,7 @@ const initialAppState: AppState = {
   activePlans: [],
   activeRecords: [],
   liveJournals: [],
-  playbooks: generateDefaultPlaybooks(),
+  playbooks: [], // 现在从数据库加载
   insights: [],
   currentView: 'dashboard',
   settings: {
@@ -55,8 +55,8 @@ export function useAppState() {
         setAppState(prev => ({
           ...prev,
           ...parsed,
-          // 确保playbooks包含默认剧本
-          playbooks: parsed.playbooks?.length > 0 ? parsed.playbooks : generateDefaultPlaybooks()
+          // 现在从数据库加载剧本
+          playbooks: parsed.playbooks || []
         }));
       } catch (error) {
         console.error('Failed to load saved state:', error);
@@ -196,7 +196,7 @@ export function useAppState() {
   const clearAllData = () => {
     const resetState = {
       ...initialAppState,
-      playbooks: generateDefaultPlaybooks() // 保留默认剧本
+      playbooks: [] // 现在从数据库加载
     };
     setAppState(resetState);
     saveState(resetState);
@@ -241,11 +241,8 @@ export function useAppState() {
           const mergedState = {
             ...appState,
             ...importedData,
-            // 确保默认剧本存在
-            playbooks: [
-              ...generateDefaultPlaybooks(),
-              ...importedData.playbooks.filter((p: any) => !p.isSystemDefault)
-            ]
+            // 现在从数据库加载剧本
+            playbooks: importedData.playbooks || []
           };
 
           setAppState(mergedState);

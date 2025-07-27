@@ -1,7 +1,6 @@
 import { Stock } from '@/types';
 import { StockDataService } from './stockDataService';
 import { ConceptService } from './conceptService';
-import { conceptStockMappings } from '@/data/sampleConcepts';
 
 /**
  * 股票池统一数据管理服务
@@ -346,44 +345,10 @@ export class StockPoolService {
   }
 
   /**
-   * 自动建立股票和概念的关联关系
+   * 自动建立股票和概念的关联关系（已废弃 - 现在使用数据库API）
    */
   static autoEstablishConceptRelations(): void {
-    try {
-      // 确保概念数据已初始化
-      ConceptService.initializeSampleData();
-
-      const stocks = this.getAllStocks();
-      const concepts = ConceptService.getConcepts();
-
-      let relationsCreated = 0;
-
-      for (const stock of stocks) {
-        // 根据股票代码查找匹配的概念
-        for (const concept of concepts) {
-          const mappedSymbols = conceptStockMappings[concept.name] || [];
-          if (mappedSymbols.includes(stock.symbol)) {
-            // 建立关联
-            ConceptService.addStockToConcept(concept.id, stock.id);
-            relationsCreated++;
-          }
-        }
-
-        // 更新股票的conceptIds
-        const conceptIds = ConceptService.getConceptIdsByStock(stock.id);
-        if (conceptIds.length > 0) {
-          stock.conceptIds = conceptIds;
-        }
-      }
-
-      // 保存更新后的股票数据
-      const poolStocks = stocks.filter(s => !StockDataService.getImportedStocks().some(imported => imported.id === s.id));
-      localStorage.setItem(this.STOCK_POOL_KEY, JSON.stringify(poolStocks));
-
-      console.log(`已建立 ${relationsCreated} 个概念-股票关联关系`);
-    } catch (error) {
-      console.error('自动建立概念关联失败:', error);
-    }
+    console.warn('autoEstablishConceptRelations 方法已废弃，请使用数据库API');
   }
 
   /**

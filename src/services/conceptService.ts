@@ -1,8 +1,6 @@
 import { Concept, ConceptStockRelation, Stock } from '@/types';
-import { sampleConcepts, conceptStockMappings } from '@/data/sampleConcepts';
 
 /**
- * 概念标签管理服务
  * 支持自定义概念的创建、编辑、删除和股票关联管理
  */
 export class ConceptService {
@@ -586,18 +584,10 @@ export class ConceptService {
   }
 
   /**
-   * 自动为股票添加推荐的概念标签
+   * 自动为股票添加推荐的概念标签（已废弃 - 现在使用数据库API）
    */
   static autoAssignConceptsToStock(stockId: string, symbol: string): void {
-    const recommendedConceptNames = this.getRecommendedConceptsForStock(symbol);
-    const concepts = this.getConcepts();
-
-    for (const conceptName of recommendedConceptNames) {
-      const concept = concepts.find(c => c.name === conceptName);
-      if (concept) {
-        this.addStockToConcept(concept.id, stockId);
-      }
-    }
+    console.warn('autoAssignConceptsToStock 方法已废弃，请使用数据库API');
   }
   /**
    * 为概念生成颜色

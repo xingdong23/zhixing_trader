@@ -6,7 +6,6 @@
 import React, { useState, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { Expert, ExpertOpinion, Stock, PriceGuidance, PriceGuidanceType } from '@/types';
-import { generateSampleExperts, generateSampleExpertOpinions, expertSpecialtyTags, opinionTags } from '@/data/sampleExperts';
 import {
   User,
   MessageSquare,
@@ -45,8 +44,8 @@ interface ExpertOpinionsProps {
 
 export function ExpertOpinions({
   stock,
-  experts = generateSampleExperts(),
-  opinions = generateSampleExpertOpinions().filter(op => op.stockId === stock.id),
+  experts = [], // 现在从数据库加载
+  opinions = [], // 现在从数据库加载
   onAddOpinion,
   onUpdateOpinion,
   onDeleteOpinion

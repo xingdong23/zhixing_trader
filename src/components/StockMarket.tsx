@@ -127,7 +127,7 @@ export function StockMarket({ onCreateTradingPlan }: StockMarketProps) {
   };
   
   // 策略数据
-  const [strategies, setStrategies] = useState<SelectionStrategy[]>(() => generateDefaultStrategies());
+  const [strategies, setStrategies] = useState<SelectionStrategy[]>([]);
   
 
 
