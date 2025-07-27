@@ -55,13 +55,56 @@ class DatabaseService:
     
     # ==================== 股票信息操作 ====================
     
+    def add_stock(self, stock_data: dict) -> Optional[int]:
+        """添加股票"""
+        try:
+            import json
+            with self.get_session() as session:
+                # 检查是否已存在
+                existing = session.query(StockDB).filter(
+                    StockDB.code == stock_data.get('code')
+                ).first()
+
+                if existing:
+                    logger.warning(f"Stock {stock_data.get('code')} already exists")
+                    return existing.id
+
+                # 创建新股票记录
+                stock = StockDB(
+                    code=stock_data.get('code'),
+                    name=stock_data.get('name'),
+                    market=stock_data.get('market', 'US'),
+                    group_id=stock_data.get('group_id'),
+                    group_name=stock_data.get('group_name'),
+                    lot_size=stock_data.get('lot_size', 100),
+                    sec_type=stock_data.get('sec_type', 'STOCK'),
+                    # 处理标签数据
+                    industry_tags=json.dumps(stock_data.get('industry_tags', [])) if stock_data.get('industry_tags') else None,
+                    fundamental_tags=json.dumps(stock_data.get('fundamental_tags', [])) if stock_data.get('fundamental_tags') else None,
+                    market_cap=stock_data.get('market_cap'),
+                    watch_level=stock_data.get('watch_level'),
+                    concept_ids=json.dumps(stock_data.get('concept_ids', [])) if stock_data.get('concept_ids') else None,
+                    notes=stock_data.get('notes')
+                )
+
+                session.add(stock)
+                session.commit()
+                session.refresh(stock)
+
+                logger.info(f"Added stock: {stock.code} - {stock.name}")
+                return stock.id
+
+        except SQLAlchemyError as e:
+            logger.error(f"Failed to add stock: {e}")
+            return None
+
     def upsert_stock(self, stock_info: StockInfo, group_id: str = None, group_name: str = None) -> bool:
         """插入或更新股票信息"""
         try:
             with self.get_session() as session:
                 # 查找现有记录
                 existing = session.query(StockDB).filter(StockDB.code == stock_info.code).first()
-                
+
                 if existing:
                     # 更新现有记录
                     existing.name = stock_info.name
@@ -84,10 +127,10 @@ class DatabaseService:
                         is_active=True
                     )
                     session.add(new_stock)
-                
+
                 session.commit()
                 return True
-                
+
         except SQLAlchemyError as e:
             logger.error(f"Failed to upsert stock {stock_info.code}: {e}")
             return False

@@ -22,11 +22,12 @@ async def get_all_stocks(
 ) -> Dict[str, Any]:
     """获取所有股票"""
     try:
+        import json
         stocks = await stock_repository.get_all_stocks()
-        
+
         stock_list = []
         for stock in stocks:
-            stock_list.append({
+            stock_data = {
                 "id": stock.id,
                 "symbol": stock.code,
                 "name": stock.name,
@@ -38,8 +39,24 @@ async def get_all_stocks(
                 "is_active": stock.is_active,
                 "added_at": stock.added_at.isoformat() if stock.added_at else None,
                 "updated_at": stock.updated_at.isoformat() if stock.updated_at else None
-            })
-        
+            }
+
+            # 添加标签信息
+            try:
+                stock_data["industry_tags"] = json.loads(stock.industry_tags) if stock.industry_tags else []
+                stock_data["fundamental_tags"] = json.loads(stock.fundamental_tags) if stock.fundamental_tags else []
+                stock_data["concept_ids"] = json.loads(stock.concept_ids) if stock.concept_ids else []
+            except (json.JSONDecodeError, TypeError):
+                stock_data["industry_tags"] = []
+                stock_data["fundamental_tags"] = []
+                stock_data["concept_ids"] = []
+
+            stock_data["market_cap"] = stock.market_cap
+            stock_data["watch_level"] = stock.watch_level
+            stock_data["notes"] = stock.notes
+
+            stock_list.append(stock_data)
+
         return {
             "success": True,
             "data": {
@@ -157,6 +174,62 @@ async def search_stocks(
         raise HTTPException(status_code=500, detail="搜索股票失败")
 
 
+@router.put("/{symbol}")
+async def update_stock(
+    symbol: str,
+    stock_data: Dict[str, Any],
+    stock_repository: StockRepository = Depends(get_stock_repository)
+) -> Dict[str, Any]:
+    """更新股票信息"""
+    try:
+        # 检查股票是否存在
+        existing_stock = await stock_repository.get_stock_by_symbol(symbol)
+        if not existing_stock:
+            raise HTTPException(status_code=404, detail="股票不存在")
+
+        # 更新股票信息
+        success = await stock_repository.update_stock(symbol, stock_data)
+        if success:
+            # 获取更新后的股票信息
+            updated_stock = await stock_repository.get_stock_by_symbol(symbol)
+
+            # 处理标签数据
+            import json
+            try:
+                industry_tags = json.loads(updated_stock.industry_tags) if updated_stock.industry_tags else []
+                fundamental_tags = json.loads(updated_stock.fundamental_tags) if updated_stock.fundamental_tags else []
+                concept_ids = json.loads(updated_stock.concept_ids) if updated_stock.concept_ids else []
+            except (json.JSONDecodeError, TypeError):
+                industry_tags = []
+                fundamental_tags = []
+                concept_ids = []
+
+            return {
+                "success": True,
+                "data": {
+                    "id": updated_stock.id,
+                    "symbol": updated_stock.code,
+                    "name": updated_stock.name,
+                    "industry_tags": industry_tags,
+                    "fundamental_tags": fundamental_tags,
+                    "concept_ids": concept_ids,
+                    "market_cap": updated_stock.market_cap,
+                    "watch_level": updated_stock.watch_level,
+                    "notes": updated_stock.notes,
+                    "updated_at": updated_stock.updated_at.isoformat() if updated_stock.updated_at else None
+                },
+                "message": "股票信息更新成功"
+            }
+        else:
+            raise HTTPException(status_code=500, detail="股票信息更新失败")
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"更新股票信息失败: {e}")
+        raise HTTPException(status_code=500, detail="更新股票信息失败")
+
+
 @router.get("/{symbol}")
 async def get_stock_detail(
     symbol: str,
@@ -167,11 +240,11 @@ async def get_stock_detail(
         stock = await stock_repository.get_stock_by_symbol(symbol)
         if not stock:
             raise HTTPException(status_code=404, detail="股票不存在")
-        
+
         # 获取最新市场数据
         market_data_service = container.get_market_data_service()
         stock_info = await market_data_service.get_stock_info(symbol)
-        
+
         stock_detail = {
             "id": stock.id,
             "symbol": stock.code,
@@ -180,20 +253,20 @@ async def get_stock_detail(
             "market_cap": stock.market_cap,
             "created_at": stock.created_at.isoformat() if stock.created_at else None
         }
-        
+
         if stock_info:
             stock_detail.update({
                 "current_price": stock_info.get("current_price", 0),
                 "currency": stock_info.get("currency", "USD"),
                 "exchange": stock_info.get("exchange", "")
             })
-        
+
         return {
             "success": True,
             "data": stock_detail,
             "message": "获取股票详情成功"
         }
-        
+
     except HTTPException:
         raise
     except Exception as e:

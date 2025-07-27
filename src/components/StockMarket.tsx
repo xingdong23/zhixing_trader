@@ -41,15 +41,10 @@ export function StockMarket({ onCreateTradingPlan }: StockMarketProps) {
 
   // 初始化股票数据
   useEffect(() => {
-    // 清除所有本地存储数据，确保只使用数据库数据
-    localStorage.removeItem('stockPool');
-    localStorage.removeItem('concepts');
-    localStorage.removeItem('conceptStockRelations');
-
     // 初始化数据库中的概念数据
     initDatabaseConcepts();
 
-    // 只从后端API获取真实的股票数据，不使用任何示例数据
+    // 从后端API获取股票数据
     fetchStocksFromAPI();
   }, []);
 
@@ -90,19 +85,19 @@ export function StockMarket({ onCreateTradingPlan }: StockMarketProps) {
             name: apiStock.name,
             market: apiStock.market,
             tags: {
-              industry: [apiStock.group_name || '未分类'],
-              fundamentals: [],
-              technical: []
+              industry: apiStock.industry_tags || [apiStock.group_name || '未分类'],
+              fundamentals: apiStock.fundamental_tags || [],
+              marketCap: apiStock.market_cap || 'mid' as const,
+              watchLevel: apiStock.watch_level || 'medium' as const
             },
-            conceptIds: [],
-            watchLevel: 'normal' as const,
+            conceptIds: apiStock.concept_ids || [],
             currentPrice: 0,
             priceChange: 0,
             priceChangePercent: 0,
             volume: 0,
             addedAt: new Date(apiStock.added_at),
             updatedAt: new Date(apiStock.updated_at),
-            notes: '从数据库加载',
+            notes: apiStock.notes || '从数据库加载',
             opinions: []
           }));
 
@@ -145,9 +140,50 @@ export function StockMarket({ onCreateTradingPlan }: StockMarketProps) {
     setStocks(updatedStocks);
   };
 
-  const handleUpdateStock = (id: string, stockData: Partial<Stock>) => {
-    const updatedStocks = StockPoolService.updateStock(id, stockData);
-    setStocks(updatedStocks);
+  const handleUpdateStock = async (id: string, stockData: Partial<Stock>) => {
+    try {
+      // 找到要更新的股票
+      const stockToUpdate = stocks.find(s => s.id === id);
+      if (!stockToUpdate) {
+        console.error('未找到要更新的股票:', id);
+        return;
+      }
+
+      // 准备API数据格式
+      const apiData = {
+        industry_tags: stockData.tags?.industry || stockToUpdate.tags.industry,
+        fundamental_tags: stockData.tags?.fundamentals || stockToUpdate.tags.fundamentals,
+        market_cap: stockData.tags?.marketCap || stockToUpdate.tags.marketCap,
+        watch_level: stockData.tags?.watchLevel || stockToUpdate.tags.watchLevel,
+        concept_ids: stockData.conceptIds || stockToUpdate.conceptIds,
+        notes: stockData.notes || stockToUpdate.notes
+      };
+
+      // 调用后端API更新股票
+      const response = await fetch(`http://localhost:3001/api/v1/stocks/${stockToUpdate.symbol}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(apiData)
+      });
+
+      if (response.ok) {
+        // API更新成功，重新获取股票数据
+        await fetchStocksFromAPI();
+        console.log('✅ 股票信息更新成功');
+      } else {
+        console.error('❌ 股票信息更新失败:', response.status);
+        // 如果API失败，回退到本地更新
+        const updatedStocks = StockPoolService.updateStock(id, stockData);
+        setStocks(updatedStocks);
+      }
+    } catch (error) {
+      console.error('❌ 更新股票信息时发生错误:', error);
+      // 如果API失败，回退到本地更新
+      const updatedStocks = StockPoolService.updateStock(id, stockData);
+      setStocks(updatedStocks);
+    }
   };
 
   const handleDeleteStock = (id: string) => {

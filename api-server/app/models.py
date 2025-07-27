@@ -16,7 +16,7 @@ Base = declarative_base()
 class StockDB(Base):
     """股票信息表"""
     __tablename__ = "stocks"
-    
+
     id = Column(Integer, primary_key=True, index=True)
     code = Column(String(20), unique=True, index=True, nullable=False)
     name = Column(String(100), nullable=False)
@@ -25,6 +25,15 @@ class StockDB(Base):
     group_name = Column(String(100))
     lot_size = Column(Integer, default=100)
     sec_type = Column(String(20), default="STOCK")
+
+    # 用户自定义标签和属性（JSON格式存储）
+    industry_tags = Column(Text)  # JSON数组：["消费电子", "科技硬件"]
+    fundamental_tags = Column(Text)  # JSON数组：["基本面优秀", "财务健康"]
+    market_cap = Column(String(20))  # large, mid, small
+    watch_level = Column(String(20))  # high, medium, low
+    concept_ids = Column(Text)  # JSON数组：关联的概念ID列表
+    notes = Column(Text)  # 用户备注
+
     added_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     is_active = Column(Boolean, default=True)

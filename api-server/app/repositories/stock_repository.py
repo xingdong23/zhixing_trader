@@ -46,19 +46,36 @@ class StockRepository(IStockRepository):
     async def update_stock(self, symbol: str, stock_data: Dict[str, Any]) -> bool:
         """更新股票信息"""
         try:
-            # 先获取股票
-            stock = await self.get_stock_by_symbol(symbol)
-            if not stock:
-                return False
-            
+            import json
+
             # 更新字段
             with db_service.get_session() as session:
+                # 重新查询股票以确保在当前session中
+                from ..models import StockDB
+                stock = session.query(StockDB).filter(
+                    StockDB.code == symbol,
+                    StockDB.is_active == True
+                ).first()
+
+                if not stock:
+                    return False
+
                 for key, value in stock_data.items():
                     if hasattr(stock, key):
-                        setattr(stock, key, value)
+                        # 处理JSON字段
+                        if key in ['industry_tags', 'fundamental_tags', 'concept_ids'] and isinstance(value, list):
+                            setattr(stock, key, json.dumps(value))
+                        else:
+                            setattr(stock, key, value)
+
+                # 更新时间戳
+                from datetime import datetime
+                stock.updated_at = datetime.utcnow()
+
                 session.commit()
+                logger.info(f"股票 {symbol} 更新成功")
                 return True
-                
+
         except Exception as e:
             logger.error(f"更新股票 {symbol} 失败: {e}")
             return False
