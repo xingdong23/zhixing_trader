@@ -4,19 +4,15 @@
 'use client';
 
 import React, { useState, useMemo, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { StockPool } from './StockPool';
 import { WatchlistImporter } from './WatchlistImporter';
-import { IndustryManager } from './IndustryManager';
 import { ConceptManager } from './ConceptManager';
 import { StockPoolService } from '@/services/stockPoolService';
-import { ConceptService } from '@/services/conceptService';
 import { StockDetail } from './StockDetail';
-import { runConceptTests } from '@/utils/testConceptSystem';
 import { SelectionStrategies } from './SelectionStrategies';
 import DataSyncManager from './DataSyncManager';
 import DatabaseAdmin from './DatabaseAdmin';
-import { Stock, SelectionStrategy } from '@/types';
+import { Stock, SelectionStrategy, SelectedStock } from '@/types';
 import {
   BarChart3,
   Target,
@@ -222,7 +218,7 @@ export function StockMarket({ onCreateTradingPlan }: StockMarketProps) {
   };
 
   // 运行策略（调用真实后端API）
-  const handleRunStrategy = async (strategyId: string): Promise<void> => {
+  const handleRunStrategy = async (strategyId: string): Promise<SelectedStock[]> => {
     try {
       // 将字符串ID转换为整数ID（简单映射）
       const numericId = strategyId.includes('ema55_strategy') ? 1 :
@@ -242,8 +238,13 @@ export function StockMarket({ onCreateTradingPlan }: StockMarketProps) {
       const results = await response.json();
       console.log(`策略 ${strategyId} 执行完成，选中 ${results.data?.length || 0} 只股票`);
 
+      // 返回选中的股票结果
+      return results.data || [];
+
     } catch (error) {
       console.error('执行策略失败:', error);
+      // 发生错误时返回空数组
+      return [];
     }
   };
 

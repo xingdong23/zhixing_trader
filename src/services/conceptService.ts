@@ -133,8 +133,8 @@ export class ConceptService {
   /**
    * 更新概念
    */
-  static updateConcept(id: string, updates: Partial<Omit<Concept, 'id' | 'createdAt'>>): Concept {
-    const concepts = this.getConcepts();
+  static async updateConcept(id: string, updates: Partial<Omit<Concept, 'id' | 'createdAt'>>): Promise<Concept> {
+    const concepts = await this.getConcepts();
     const index = concepts.findIndex(c => c.id === id);
 
     if (index === -1) {
@@ -161,8 +161,8 @@ export class ConceptService {
   /**
    * 删除概念
    */
-  static deleteConcept(id: string): void {
-    const concepts = this.getConcepts();
+  static async deleteConcept(id: string): Promise<void> {
+    const concepts = await this.getConcepts();
     const filteredConcepts = concepts.filter(c => c.id !== id);
 
     if (filteredConcepts.length === concepts.length) {
@@ -178,15 +178,16 @@ export class ConceptService {
   /**
    * 根据ID获取概念
    */
-  static getConceptById(id: string): Concept | undefined {
-    return this.getConcepts().find(c => c.id === id);
+  static async getConceptById(id: string): Promise<Concept | undefined> {
+    const concepts = await this.getConcepts();
+    return concepts.find(c => c.id === id);
   }
 
   /**
    * 根据名称搜索概念
    */
-  static searchConcepts(query: string): Concept[] {
-    const concepts = this.getConcepts();
+  static async searchConcepts(query: string): Promise<Concept[]> {
+    const concepts = await this.getConcepts();
     const lowerQuery = query.toLowerCase();
 
     return concepts.filter(concept =>
@@ -253,36 +254,11 @@ export class ConceptService {
       throw new Error('保存关联关系失败');
     }
   }
-
-  /**
-   * 添加股票到概念
-   */
-  static addStockToConcept(conceptId: string, stockId: string): void {
-    const relations = this.getConceptRelations();
-
-    // 检查关联是否已存在
-    if (relations.some(r => r.conceptId === conceptId && r.stockId === stockId)) {
-      return; // 已存在，不重复添加
-    }
-
-    const newRelation: ConceptStockRelation = {
-      conceptId,
-      stockId,
-      addedAt: new Date()
-    };
-
-    relations.push(newRelation);
-    this.saveConceptRelations(relations);
-
-    // 更新概念的股票数量
-    this.updateConceptStockCount(conceptId);
-  }
-
   /**
    * 从概念中移除股票
    */
-  static removeStockFromConcept(conceptId: string, stockId: string): void {
-    const relations = this.getConceptRelations();
+  static async removeStockFromConcept(conceptId: string, stockId: string): Promise<void> {
+    const relations = await this.getConceptRelations();
     const filteredRelations = relations.filter(
       r => !(r.conceptId === conceptId && r.stockId === stockId)
     );
@@ -350,8 +326,8 @@ export class ConceptService {
   /**
    * 批量添加股票到概念 (本地版本 - 已废弃)
    */
-  static addStocksToConcept(conceptId: string, stockIds: string[]): void {
-    const relations = this.getConceptRelations();
+  static async addStocksToConcept(conceptId: string, stockIds: string[]): Promise<void> {
+    const relations = await this.getConceptRelations();
     const existingPairs = new Set(
       relations.map(r => `${r.conceptId}-${r.stockId}`)
     );
@@ -374,8 +350,8 @@ export class ConceptService {
   /**
    * 移除概念的所有股票
    */
-  static removeAllStocksFromConcept(conceptId: string): void {
-    const relations = this.getConceptRelations();
+  static async removeAllStocksFromConcept(conceptId: string): Promise<void> {
+    const relations = await this.getConceptRelations();
     const filteredRelations = relations.filter(r => r.conceptId !== conceptId);
     this.saveConceptRelations(filteredRelations);
     this.updateConceptStockCount(conceptId);
@@ -404,12 +380,12 @@ export class ConceptService {
   /**
    * 更新概念的股票数量
    */
-  private static updateConceptStockCount(conceptId: string): void {
-    const concepts = this.getConcepts();
+  private static async updateConceptStockCount(conceptId: string): Promise<void> {
+    const concepts = await this.getConcepts();
     const concept = concepts.find(c => c.id === conceptId);
 
     if (concept) {
-      const stockIds = this.getStockIdsByConcept(conceptId);
+      const stockIds = await this.getStockIdsByConcept(conceptId);
       concept.stockCount = stockIds.length;
       concept.stockIds = stockIds;
       concept.updatedAt = new Date();
@@ -476,14 +452,14 @@ export class ConceptService {
   /**
    * 导出概念数据
    */
-  static exportData(): {
+  static async exportData(): Promise<{
     concepts: Concept[];
     relations: ConceptStockRelation[];
     exportedAt: Date;
-  } {
+  }> {
     return {
-      concepts: this.getConcepts(),
-      relations: this.getConceptRelations(),
+      concepts: await this.getConcepts(),
+      relations: await this.getConceptRelations(),
       exportedAt: new Date()
     };
   }
@@ -503,11 +479,11 @@ export class ConceptService {
    * 初始化示例概念数据
    * 如果没有概念数据，则创建示例数据
    */
-  static initializeSampleData(): void {
+  static async initializeSampleData(): Promise<void> {
     // 检查是否在浏览器环境
     if (typeof window === 'undefined') return;
 
-    const existingConcepts = this.getConcepts();
+    const existingConcepts = await this.getConcepts();
     if (existingConcepts.length > 0) {
       return; // 已有数据，不需要初始化
     }
@@ -516,8 +492,13 @@ export class ConceptService {
       // 创建示例概念
       const createdConcepts: Concept[] = [];
 
-      for (const sampleConcept of sampleConcepts) {
-        const concept = this.createConcept(
+      
+      const sampleConcepts = [
+        { name: "新能源汽车", description: "电动汽车、混合动力汽车等新能源汽车相关概念", color: "#4CAF50" },
+        { name: "人工智能", description: "AI技术、机器学习、深度学习相关概念", color: "#2196F3" },
+        { name: "5G通信", description: "5G网络建设、通信设备相关概念", color: "#FF9800" }
+      ];      for (const sampleConcept of sampleConcepts) {
+        const concept = await this.createConcept(
           sampleConcept.name,
           sampleConcept.description,
           sampleConcept.color
@@ -539,13 +520,20 @@ export class ConceptService {
    * 根据股票代码建立概念关联
    * 需要在股票池有数据后调用
    */
-  static establishStockConceptRelations(availableStockSymbols: string[]): void {
+  static async establishStockConceptRelations(availableStockSymbols: string[]): Promise<void> {
     // 检查是否在浏览器环境
     if (typeof window === 'undefined') return;
 
     try {
-      const concepts = this.getConcepts();
+      const concepts = await this.getConcepts();
       let relationsCreated = 0;
+
+      // 定义概念与股票的映射关系
+      const conceptStockMappings: Record<string, string[]> = {
+        '新能源汽车': ['BYD', 'TSLA', 'NIO'],
+        '人工智能': ['NVDA', 'GOOGL', 'MSFT'],
+        '5G通信': ['AAPL', 'QCOM', 'NOK']
+      };
 
       for (const concept of concepts) {
         const mappedSymbols = conceptStockMappings[concept.name] || [];
@@ -574,8 +562,15 @@ export class ConceptService {
   static getRecommendedConceptsForStock(symbol: string): string[] {
     const recommendedConcepts: string[] = [];
 
+    // 定义概念与股票的映射关系
+    const conceptStockMappings: Record<string, string[]> = {
+      '新能源汽车': ['BYD', 'TSLA', 'NIO'],
+      '人工智能': ['NVDA', 'GOOGL', 'MSFT'],
+      '5G通信': ['AAPL', 'QCOM', 'NOK']
+    };
+
     for (const [conceptName, stockSymbols] of Object.entries(conceptStockMappings)) {
-      if (stockSymbols.includes(symbol)) {
+      if ((stockSymbols as string[]).includes(symbol)) {
         recommendedConcepts.push(conceptName);
       }
     }
@@ -623,61 +618,5 @@ export class ConceptService {
 
     const colorIndex = Math.abs(hash) % colors.length;
     return colors[colorIndex];
-  }
-
-  // ==================== 新增API方法 ====================
-
-  /**
-   * 添加股票到概念 (API版本)
-   */
-  static async addStocksToConceptAPI(conceptId: string, stockIds: string[]): Promise<void> {
-    try {
-      const response = await fetch(`http://localhost:3001/api/v1/concepts/${conceptId}/stocks`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          stock_ids: stockIds
-        })
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.detail || '添加股票到概念失败');
-      }
-
-      const result = await response.json();
-      if (!result.success) {
-        throw new Error(result.message || '添加股票到概念失败');
-      }
-    } catch (error) {
-      console.error('添加股票到概念失败:', error);
-      throw error;
-    }
-  }
-
-  /**
-   * 从概念中移除股票 (API版本)
-   */
-  static async removeStockFromConceptAPI(conceptId: string, stockId: string): Promise<void> {
-    try {
-      const response = await fetch(`http://localhost:3001/api/v1/concepts/${conceptId}/stocks/${stockId}`, {
-        method: 'DELETE'
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.detail || '移除股票关联失败');
-      }
-
-      const result = await response.json();
-      if (!result.success) {
-        throw new Error(result.message || '移除股票关联失败');
-      }
-    } catch (error) {
-      console.error('移除股票关联失败:', error);
-      throw error;
-    }
   }
 }

@@ -67,7 +67,7 @@ export class StockPoolService {
       const poolData = localStorage.getItem(this.STOCK_POOL_KEY);
       const poolStocks: Stock[] = poolData ? JSON.parse(poolData).map((stock: any) => ({
         ...stock,
-        conceptIds: stock.conceptIds || ConceptService.getConceptIdsByStock(stock.id),
+        conceptIds: stock.conceptIds || [],
         addedAt: new Date(stock.addedAt),
         updatedAt: new Date(stock.updatedAt)
       })) : [];
@@ -88,7 +88,7 @@ export class StockPoolService {
             marketCap: this.determineMarketCapSize(importedStock.marketCap),
             watchLevel: 'medium' as const
           },
-          conceptIds: ConceptService.getConceptIdsByStock(importedStock.id),
+          conceptIds: [],
           currentPrice: importedStock.price,
           priceChange: importedStock.change,
           priceChangePercent: importedStock.changePercent,
@@ -268,9 +268,9 @@ export class StockPoolService {
   /**
    * 获取所有概念标签
    */
-  static getAllConcepts(): Array<{ id: string; name: string; stockCount: number }> {
-    const concepts = ConceptService.getConcepts();
-    return concepts.map(concept => ({
+  static async getAllConcepts(): Promise<Array<{ id: string; name: string; stockCount: number }>> {
+    const concepts = await ConceptService.getConcepts();
+    return concepts.map((concept: any) => ({
       id: concept.id,
       name: concept.name,
       stockCount: concept.stockCount
