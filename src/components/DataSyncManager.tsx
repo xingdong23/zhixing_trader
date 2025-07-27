@@ -24,6 +24,7 @@ interface DataStatistics {
 }
 
 export default function DataSyncManager() {
+  const [mounted, setMounted] = useState(false);
   const [syncStatus, setSyncStatus] = useState<SyncStatus | null>(null);
   const [dataStats, setDataStats] = useState<DataStatistics | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -33,9 +34,9 @@ export default function DataSyncManager() {
   // 获取同步状态
   const fetchSyncStatus = async () => {
     try {
-      const response = await fetch('/api/sync/status');
+      const response = await fetch('http://localhost:3001/api/v1/data/sync/status');
       const data = await response.json();
-      
+
       if (data.success) {
         setSyncStatus(data.sync_status);
         setDataStats(data.data_statistics);
@@ -50,13 +51,13 @@ export default function DataSyncManager() {
   const triggerSync = async (forceFullSync: boolean = false) => {
     setIsLoading(true);
     try {
-      const response = await fetch(`/api/sync/trigger?force_full=${forceFullSync}`, {
+      const response = await fetch(`http://localhost:3001/api/v1/data/sync/trigger?force_full=${forceFullSync}`, {
         method: 'POST'
       });
       const result = await response.json();
-      
+
       setLastSyncResult(result);
-      
+
       if (result.success) {
         // 同步开始后，定期检查状态
         setTimeout(() => {
@@ -76,11 +77,12 @@ export default function DataSyncManager() {
 
   // 组件加载时获取状态
   useEffect(() => {
+    setMounted(true);
     fetchSyncStatus();
-    
+
     // 定期刷新状态
     const interval = setInterval(fetchSyncStatus, 30000); // 30秒刷新一次
-    
+
     return () => clearInterval(interval);
   }, []);
 
@@ -102,6 +104,28 @@ export default function DataSyncManager() {
     if (lastSyncResult?.success === false) return '同步失败';
     return '待同步';
   };
+
+  // 避免hydration错误
+  if (!mounted) {
+    return (
+      <div className="bg-white rounded-lg shadow-sm border p-6">
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-xl font-semibold text-gray-900">数据同步管理</h2>
+          <div className="text-sm font-medium text-gray-600">加载中...</div>
+        </div>
+        <div className="animate-pulse">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+            {[1, 2, 3, 4].map(i => (
+              <div key={i} className="bg-gray-50 rounded-lg p-4">
+                <div className="h-4 bg-gray-200 rounded mb-2"></div>
+                <div className="h-8 bg-gray-200 rounded"></div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-white rounded-lg shadow-sm border p-6">

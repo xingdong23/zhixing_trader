@@ -14,20 +14,15 @@ import { ConceptService } from '@/services/conceptService';
 import { StockDetail } from './StockDetail';
 import { runConceptTests } from '@/utils/testConceptSystem';
 import { SelectionStrategies } from './SelectionStrategies';
-import { TradingRecommendations } from './TradingRecommendations';
 import DataSyncManager from './DataSyncManager';
 import DatabaseAdmin from './DatabaseAdmin';
-import { Stock, SelectionStrategy, DailySelection, SelectedStock, TradingRecommendation } from '@/types';
+import { Stock, SelectionStrategy } from '@/types';
 import { generateSampleStocks } from '@/data/sampleStocks';
 import { generateDefaultStrategies } from '@/data/defaultStrategies';
 import {
   BarChart3,
   Target,
-  TrendingUp,
   Calendar,
-  Star,
-  ArrowRight,
-  Zap,
   Filter,
   Tag,
   Database
@@ -38,7 +33,7 @@ interface StockMarketProps {
 }
 
 export function StockMarket({ onCreateTradingPlan }: StockMarketProps) {
-  const [currentTab, setCurrentTab] = useState<'pool' | 'import' | 'concepts' | 'strategies' | 'results' | 'recommendations' | 'sync' | 'database'>('pool');
+  const [currentTab, setCurrentTab] = useState<'pool' | 'import' | 'concepts' | 'strategies' | 'sync' | 'database'>('pool');
   const [selectedStock, setSelectedStock] = useState<Stock | null>(null);
   
   // 股票池数据
@@ -46,30 +41,102 @@ export function StockMarket({ onCreateTradingPlan }: StockMarketProps) {
 
   // 初始化股票数据
   useEffect(() => {
-    // 初始化概念数据
-    ConceptService.initializeSampleData();
+    // 清除所有本地存储数据，确保只使用数据库数据
+    localStorage.removeItem('stockPool');
+    localStorage.removeItem('concepts');
+    localStorage.removeItem('conceptStockRelations');
 
-    // 使用统一的数据服务获取所有股票（包括富途导入的）
-    const allStocks = StockPoolService.getAllStocks();
-    if (allStocks.length === 0) {
-      // 如果没有数据，使用示例数据并保存到localStorage
-      const sampleStocks = generateSampleStocks();
-      StockPoolService.saveStockPool(sampleStocks);
-      setStocks(sampleStocks);
-    } else {
-      setStocks(allStocks);
-    }
+    // 初始化数据库中的概念数据
+    initDatabaseConcepts();
+
+    // 只从后端API获取真实的股票数据，不使用任何示例数据
+    fetchStocksFromAPI();
   }, []);
+
+  // 初始化数据库概念数据
+  const initDatabaseConcepts = async () => {
+    try {
+      console.log('🔄 初始化数据库概念数据...');
+      const response = await fetch('http://localhost:3001/api/v1/concepts/init-sample-data', {
+        method: 'POST'
+      });
+      const result = await response.json();
+      if (result.success) {
+        console.log('✅ 概念数据初始化成功:', result.message);
+      } else {
+        console.warn('⚠️ 概念数据初始化失败:', result.error);
+      }
+    } catch (error) {
+      console.error('❌ 初始化概念数据失败:', error);
+    }
+  };
+
+  // 从后端API获取股票数据
+  const fetchStocksFromAPI = async () => {
+    console.log('🔄 开始从API获取股票数据...');
+    try {
+      const response = await fetch('http://localhost:3001/api/v1/stocks/');
+      console.log('📡 API响应状态:', response.status, response.statusText);
+
+      if (response.ok) {
+        const result = await response.json();
+        console.log('📊 API返回数据:', result);
+
+        if (result.success && result.data.stocks) {
+          // 转换后端数据格式为前端格式
+          const apiStocks = result.data.stocks.map((apiStock: any) => ({
+            id: `api_${apiStock.id}`,
+            symbol: apiStock.symbol,
+            name: apiStock.name,
+            market: apiStock.market,
+            tags: {
+              industry: [apiStock.group_name || '未分类'],
+              fundamentals: [],
+              technical: []
+            },
+            conceptIds: [],
+            watchLevel: 'normal' as const,
+            currentPrice: 0,
+            priceChange: 0,
+            priceChangePercent: 0,
+            volume: 0,
+            addedAt: new Date(apiStock.added_at),
+            updatedAt: new Date(apiStock.added_at),
+            notes: '从数据库加载',
+            opinions: []
+          }));
+
+          console.log(`✅ 从API获取到 ${apiStocks.length} 只股票，设置到状态中...`);
+          setStocks(apiStocks);
+          console.log('✅ 股票状态已更新');
+          return;
+        } else {
+          console.warn('⚠️ API返回格式不正确:', result);
+        }
+      } else {
+        console.warn('⚠️ API请求失败:', response.status, response.statusText);
+      }
+
+      // API获取失败，回退到本地数据
+      console.warn('⚠️ API获取股票失败，使用本地数据');
+      fallbackToLocalData();
+
+    } catch (error) {
+      console.error('❌ 获取股票数据失败:', error);
+      fallbackToLocalData();
+    }
+  };
+
+  // 回退到本地数据（仅在API完全失败时使用）
+  const fallbackToLocalData = () => {
+    console.warn('⚠️ API完全失败，回退到空数据状态');
+    setStocks([]); // 不使用本地存储数据，保持数据一致性
+  };
   
   // 策略数据
   const [strategies, setStrategies] = useState<SelectionStrategy[]>(() => generateDefaultStrategies());
   
-  // 选股结果
-  const [dailySelections, setDailySelections] = useState<DailySelection[]>([]);
-  const [todaySelection, setTodaySelection] = useState<DailySelection | null>(null);
 
-  // 操作建议数据
-  const [recommendations, setRecommendations] = useState<TradingRecommendation[]>([]);
 
   // 股票池操作
   const handleAddStock = (stockData: Omit<Stock, 'id' | 'addedAt' | 'updatedAt'>) => {
@@ -87,25 +154,7 @@ export function StockMarket({ onCreateTradingPlan }: StockMarketProps) {
     setStocks(updatedStocks);
   };
 
-  // 操作建议操作
-  const handleAddRecommendation = (recommendationData: Omit<TradingRecommendation, 'id' | 'publishedAt'>) => {
-    const newRecommendation: TradingRecommendation = {
-      ...recommendationData,
-      id: `rec_${Date.now()}`,
-      publishedAt: new Date()
-    };
-    setRecommendations(prev => [newRecommendation, ...prev]);
-  };
 
-  const handleUpdateRecommendation = (id: string, updates: Partial<TradingRecommendation>) => {
-    setRecommendations(prev => prev.map(rec =>
-      rec.id === id ? { ...rec, ...updates } : rec
-    ));
-  };
-
-  const handleDeleteRecommendation = (id: string) => {
-    setRecommendations(prev => prev.filter(rec => rec.id !== id));
-  };
 
   const handleViewStockDetail = (stock: Stock) => {
     setSelectedStock(stock);
@@ -139,9 +188,13 @@ export function StockMarket({ onCreateTradingPlan }: StockMarketProps) {
   };
 
   // 运行策略（调用真实后端API）
-  const handleRunStrategy = async (strategyId: string): Promise<SelectedStock[]> => {
+  const handleRunStrategy = async (strategyId: string): Promise<void> => {
     try {
-      const response = await fetch(`http://localhost:8000/strategies/${strategyId}/execute`, {
+      // 将字符串ID转换为整数ID（简单映射）
+      const numericId = strategyId.includes('ema55_strategy') ? 1 :
+                       strategyId.includes('strategy_') ? parseInt(strategyId.split('_').pop() || '1') : 1;
+
+      const response = await fetch(`http://localhost:3001/api/v1/strategies/${numericId}/execute`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -153,53 +206,10 @@ export function StockMarket({ onCreateTradingPlan }: StockMarketProps) {
       }
 
       const results = await response.json();
-
-      // 转换后端返回的数据格式为前端需要的格式
-      const selectedStocks: SelectedStock[] = results.map((result: any) => {
-        // 从stocks数组中找到对应的股票信息
-        const stock = stocks.find(s => s.symbol === result.stock_symbol);
-
-        if (!stock) {
-          // 如果找不到股票，创建一个基本的股票对象
-          return {
-            stock: {
-              id: result.stock_symbol,
-              symbol: result.stock_symbol,
-              name: result.stock_symbol,
-              currentPrice: result.current_price || 0,
-              change: 0,
-              changePercent: 0,
-              volume: 0,
-              marketCap: 0,
-              industry: '',
-              conceptTags: []
-            },
-            score: result.score,
-            reasons: result.reasons || [],
-            suggestedAction: result.suggested_action || '建议观察',
-            targetPrice: result.target_price,
-            stopLoss: result.stop_loss,
-            confidence: result.confidence as 'high' | 'medium' | 'low'
-          };
-        }
-
-        return {
-          stock,
-          score: result.score,
-          reasons: result.reasons || [],
-          suggestedAction: result.suggested_action || '建议观察',
-          targetPrice: result.target_price,
-          stopLoss: result.stop_loss,
-          confidence: result.confidence as 'high' | 'medium' | 'low'
-        };
-      });
-
-      return selectedStocks;
+      console.log(`策略 ${strategyId} 执行完成，选中 ${results.data?.length || 0} 只股票`);
 
     } catch (error) {
       console.error('执行策略失败:', error);
-      // 如果API调用失败，返回空数组
-      return [];
     }
   };
 
@@ -209,39 +219,13 @@ export function StockMarket({ onCreateTradingPlan }: StockMarketProps) {
 
     // 并行执行所有策略
     const strategyPromises = activeStrategies.map(async strategy => {
-      const selectedStocks = await handleRunStrategy(strategy.id);
-      return {
-        strategyId: strategy.id,
-        strategyName: strategy.name,
-        category: strategy.category,
-        selectedStocks,
-        totalCount: selectedStocks.length
-      };
+      await handleRunStrategy(strategy.id);
     });
 
-    const strategyResults = await Promise.all(strategyPromises);
+    await Promise.all(strategyPromises);
 
-    // 获取跨策略的最佳机会
-    const allSelectedStocks = strategyResults.flatMap(result => result.selectedStocks);
-    const topOpportunities = allSelectedStocks
-      .sort((a, b) => b.score - a.score)
-      .slice(0, 5);
-
-    const newSelection: DailySelection = {
-      id: `selection_${Date.now()}`,
-      date: new Date(),
-      strategyResults,
-      summary: {
-        totalStocks: allSelectedStocks.length,
-        totalStrategies: activeStrategies.length,
-        topOpportunities
-      },
-      createdAt: new Date()
-    };
-
-    setTodaySelection(newSelection);
-    setDailySelections(prev => [newSelection, ...prev.slice(0, 9)]); // 保留最近10次
-    setCurrentTab('results');
+    // 运行完成后，可以在选股策略页面查看结果
+    setCurrentTab('strategies');
   };
 
   // 统计数据
@@ -249,7 +233,7 @@ export function StockMarket({ onCreateTradingPlan }: StockMarketProps) {
     const totalStocks = stocks.length;
     const totalStrategies = strategies.length;
     const activeStrategies = strategies.filter(s => s.isActive).length;
-    const todayOpportunities = todaySelection?.summary.totalStocks || 0;
+    const todayOpportunities = 0; // 移除选股结果功能
 
     return {
       totalStocks,
@@ -257,15 +241,13 @@ export function StockMarket({ onCreateTradingPlan }: StockMarketProps) {
       activeStrategies,
       todayOpportunities
     };
-  }, [stocks, strategies, todaySelection]);
+  }, [stocks, strategies]);
 
   const tabs = [
     { id: 'pool', label: '股票池', icon: BarChart3 },
     { id: 'import', label: '导入自选股', icon: Calendar },
     { id: 'concepts', label: '概念管理', icon: Tag },
     { id: 'strategies', label: '选股策略', icon: Filter },
-    { id: 'results', label: '选股结果', icon: TrendingUp },
-    { id: 'recommendations', label: '操作建议', icon: Zap },
     { id: 'sync', label: '数据同步', icon: Target },
     { id: 'database', label: '数据库管理', icon: Database }
   ];
@@ -389,22 +371,7 @@ export function StockMarket({ onCreateTradingPlan }: StockMarketProps) {
           />
         )}
 
-        {currentTab === 'results' && (
-          <SelectionResults
-            todaySelection={todaySelection}
-            historicalSelections={dailySelections}
-            onCreateTradingPlan={onCreateTradingPlan}
-          />
-        )}
 
-        {currentTab === 'recommendations' && (
-          <TradingRecommendations
-            recommendations={recommendations}
-            onAddRecommendation={handleAddRecommendation}
-            onUpdateRecommendation={handleUpdateRecommendation}
-            onDeleteRecommendation={handleDeleteRecommendation}
-          />
-        )}
 
         {currentTab === 'sync' && (
           <DataSyncManager />
@@ -418,202 +385,5 @@ export function StockMarket({ onCreateTradingPlan }: StockMarketProps) {
   );
 }
 
-// 选股结果展示组件
-function SelectionResults({
-  todaySelection,
-  historicalSelections,
-  onCreateTradingPlan
-}: {
-  todaySelection: DailySelection | null;
-  historicalSelections: DailySelection[];
-  onCreateTradingPlan: (stock: Stock) => void;
-}) {
-  const [selectedDate, setSelectedDate] = useState<string>('');
 
-  const displaySelection = selectedDate
-    ? historicalSelections.find(s => s.date.toDateString() === new Date(selectedDate).toDateString())
-    : todaySelection;
 
-  if (!displaySelection) {
-    return (
-      <Card>
-        <CardContent className="p-12 text-center">
-          <Calendar className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-          <p className="text-gray-500 mb-2">暂无选股结果</p>
-          <p className="text-sm text-gray-400">运行策略后查看选股机会</p>
-        </CardContent>
-      </Card>
-    );
-  }
-
-  return (
-    <div className="space-y-6">
-      {/* 日期选择和汇总 */}
-      <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <CardTitle className="flex items-center">
-              <Calendar className="w-5 h-5 mr-2 text-blue-500" />
-              选股结果
-            </CardTitle>
-            <div className="flex items-center space-x-4">
-              <select
-                value={selectedDate}
-                onChange={(e) => setSelectedDate(e.target.value)}
-                className="p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              >
-                <option value="">今日结果</option>
-                {historicalSelections.map(selection => (
-                  <option key={selection.id} value={selection.date.toISOString()}>
-                    {selection.date.toLocaleDateString()}
-                  </option>
-                ))}
-              </select>
-            </div>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="text-center">
-              <p className="text-2xl font-bold text-blue-600">{displaySelection.summary.totalStocks}</p>
-              <p className="text-sm text-gray-600">选中股票</p>
-            </div>
-            <div className="text-center">
-              <p className="text-2xl font-bold text-green-600">{displaySelection.summary.totalStrategies}</p>
-              <p className="text-sm text-gray-600">运行策略</p>
-            </div>
-            <div className="text-center">
-              <p className="text-2xl font-bold text-orange-600">{displaySelection.summary.topOpportunities.length}</p>
-              <p className="text-sm text-gray-600">重点机会</p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* 最佳机会 */}
-      {displaySelection.summary.topOpportunities.length > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center">
-              <Star className="w-5 h-5 mr-2 text-orange-500" />
-              今日最佳机会
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              {displaySelection.summary.topOpportunities.map((opportunity, index) => (
-                <div key={index} className="flex items-center justify-between p-3 bg-orange-50 rounded-lg">
-                  <div className="flex items-center space-x-4">
-                    <div className="flex items-center justify-center w-8 h-8 bg-orange-100 text-orange-600 rounded-full font-bold">
-                      {index + 1}
-                    </div>
-                    <div>
-                      <h4 className="font-semibold text-gray-900">
-                        {opportunity.stock.symbol} - {opportunity.stock.name}
-                      </h4>
-                      <p className="text-sm text-gray-600">{opportunity.suggestedAction}</p>
-                      <div className="flex items-center space-x-2 mt-1">
-                        {opportunity.reasons.slice(0, 2).map((reason, idx) => (
-                          <span key={idx} className="text-xs bg-orange-100 text-orange-800 px-2 py-1 rounded">
-                            {reason}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                  <div className="flex items-center space-x-4">
-                    <div className="text-right">
-                      <p className="text-lg font-bold text-gray-900">{opportunity.score}/100</p>
-                      <p className={`text-sm ${
-                        opportunity.confidence === 'high' ? 'text-green-600' :
-                        opportunity.confidence === 'medium' ? 'text-yellow-600' :
-                        'text-gray-600'
-                      }`}>
-                        {opportunity.confidence === 'high' ? '高信心' :
-                         opportunity.confidence === 'medium' ? '中信心' : '低信心'}
-                      </p>
-                    </div>
-                    <button
-                      onClick={() => onCreateTradingPlan(opportunity.stock)}
-                      className="flex items-center px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-                    >
-                      制定计划
-                      <ArrowRight className="w-4 h-4 ml-1" />
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* 按策略分组的结果 */}
-      <div className="space-y-4">
-        {displaySelection.strategyResults.map(result => (
-          <Card key={result.strategyId}>
-            <CardHeader>
-              <CardTitle className="flex items-center justify-between">
-                <span>{result.strategyName}</span>
-                <span className="text-sm text-gray-500">
-                  {result.selectedStocks.length} 只股票
-                </span>
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              {result.selectedStocks.length === 0 ? (
-                <p className="text-gray-500 text-center py-4">暂无符合条件的股票</p>
-              ) : (
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
-                  {result.selectedStocks.map((selected, index) => (
-                    <div key={index} className="border border-gray-200 rounded-lg p-3">
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1">
-                          <h4 className="font-semibold text-gray-900">
-                            {selected.stock.symbol} - {selected.stock.name}
-                          </h4>
-                          <p className="text-sm text-gray-600 mt-1">{selected.suggestedAction}</p>
-                          <div className="flex flex-wrap gap-1 mt-2">
-                            {selected.reasons.map((reason, idx) => (
-                              <span key={idx} className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">
-                                {reason}
-                              </span>
-                            ))}
-                          </div>
-                          {selected.targetPrice && (
-                            <p className="text-sm text-gray-600 mt-2">
-                              目标价: ${selected.targetPrice.toFixed(2)}
-                            </p>
-                          )}
-                        </div>
-                        <div className="flex flex-col items-end space-y-2 ml-4">
-                          <div className="text-right">
-                            <p className="font-bold text-gray-900">{selected.score}/100</p>
-                            <p className={`text-xs ${
-                              selected.confidence === 'high' ? 'text-green-600' :
-                              selected.confidence === 'medium' ? 'text-yellow-600' :
-                              'text-gray-600'
-                            }`}>
-                              {selected.confidence === 'high' ? '高' :
-                               selected.confidence === 'medium' ? '中' : '低'}
-                            </p>
-                          </div>
-                          <button
-                            onClick={() => onCreateTradingPlan(selected.stock)}
-                            className="px-2 py-1 bg-blue-600 text-white text-sm rounded hover:bg-blue-700 transition-colors"
-                          >
-                            制定计划
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-    </div>
-  );
-}

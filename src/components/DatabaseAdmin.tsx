@@ -51,6 +51,7 @@ interface QualityReport {
 }
 
 export default function DatabaseAdmin() {
+  const [mounted, setMounted] = useState(false);
   const [overview, setOverview] = useState<DatabaseOverview | null>(null);
   const [stocks, setStocks] = useState<StockDataSummary[]>([]);
   const [qualityReport, setQualityReport] = useState<QualityReport | null>(null);
@@ -61,7 +62,7 @@ export default function DatabaseAdmin() {
   // 获取数据库概览
   const fetchOverview = async () => {
     try {
-      const response = await fetch('/api/v1/data/database/overview');
+      const response = await fetch('http://localhost:3001/api/v1/data/database/overview');
       const data = await response.json();
       if (data.success) {
         setOverview(data.overview);
@@ -74,7 +75,7 @@ export default function DatabaseAdmin() {
   // 获取股票数据汇总
   const fetchStocks = async () => {
     try {
-      const response = await fetch('/api/v1/data/database/stocks');
+      const response = await fetch('http://localhost:3001/api/v1/data/database/stocks');
       const data = await response.json();
       if (data.success) {
         setStocks(data.stocks);
@@ -87,7 +88,7 @@ export default function DatabaseAdmin() {
   // 获取数据质量报告
   const fetchQualityReport = async () => {
     try {
-      const response = await fetch('/api/v1/data/database/quality');
+      const response = await fetch('http://localhost:3001/api/v1/data/database/quality');
       const data = await response.json();
       if (data.success) {
         setQualityReport(data.quality_report);
@@ -104,10 +105,10 @@ export default function DatabaseAdmin() {
     }
 
     try {
-      const url = timeframe 
-        ? `/api/v1/data/database/stock/${symbol}?timeframe=${timeframe}`
-        : `/api/v1/data/database/stock/${symbol}`;
-      
+      const url = timeframe
+        ? `http://localhost:3001/api/v1/data/database/stock/${symbol}?timeframe=${timeframe}`
+        : `http://localhost:3001/api/v1/data/database/stock/${symbol}`;
+
       const response = await fetch(url, { method: 'DELETE' });
       const data = await response.json();
       
@@ -126,6 +127,7 @@ export default function DatabaseAdmin() {
 
   // 组件加载时获取数据
   useEffect(() => {
+    setMounted(true);
     fetchOverview();
     fetchStocks();
     fetchQualityReport();
@@ -151,6 +153,28 @@ export default function DatabaseAdmin() {
   const getFreshnessIcon = (isFresh: boolean) => {
     return isFresh ? '🟢' : '🔴';
   };
+
+  // 避免hydration错误
+  if (!mounted) {
+    return (
+      <div className="bg-white rounded-lg shadow-sm border p-6">
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-xl font-semibold text-gray-900">数据库管理后台</h2>
+          <div className="text-sm font-medium text-gray-600">加载中...</div>
+        </div>
+        <div className="animate-pulse">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            {[1, 2, 3, 4].map(i => (
+              <div key={i} className="bg-gray-50 rounded-lg p-4">
+                <div className="h-4 bg-gray-200 rounded mb-2"></div>
+                <div className="h-8 bg-gray-200 rounded"></div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-white rounded-lg shadow-sm border p-6">

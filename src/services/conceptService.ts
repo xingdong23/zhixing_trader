@@ -12,24 +12,39 @@ export class ConceptService {
   // ==================== 概念管理 ====================
 
   /**
-   * 获取所有概念
+   * 从数据库API获取所有概念
    */
-  static getConcepts(): Concept[] {
+  static async getConcepts(): Promise<Concept[]> {
     try {
-      // 检查是否在浏览器环境
-      if (typeof window === 'undefined') return [];
+      console.log('🔄 从数据库API获取概念数据...');
+      const response = await fetch('http://localhost:3001/api/v1/concepts/');
 
-      const data = localStorage.getItem(this.CONCEPTS_KEY);
-      if (!data) return [];
+      if (!response.ok) {
+        console.warn('⚠️ 概念API请求失败，返回空数组');
+        return [];
+      }
 
-      const concepts = JSON.parse(data);
-      return concepts.map((concept: any) => ({
-        ...concept,
-        createdAt: new Date(concept.createdAt),
-        updatedAt: new Date(concept.updatedAt)
-      }));
+      const result = await response.json();
+      if (result.success && result.data.concepts) {
+        const concepts = result.data.concepts.map((apiConcept: any) => ({
+          id: apiConcept.id,
+          name: apiConcept.name,
+          description: apiConcept.description || '',
+          category: apiConcept.category || 'other',
+          stockCount: apiConcept.stock_count || 0,
+          isActive: apiConcept.is_active !== false,
+          createdAt: new Date(),
+          updatedAt: new Date()
+        }));
+
+        console.log(`✅ 从数据库获取到 ${concepts.length} 个概念`);
+        return concepts;
+      }
+
+      console.warn('⚠️ 概念API返回格式不正确，返回空数组');
+      return [];
     } catch (error) {
-      console.error('获取概念数据失败:', error);
+      console.error('❌ 获取概念数据失败:', error);
       return [];
     }
   }
@@ -144,23 +159,43 @@ export class ConceptService {
   // ==================== 股票-概念关联管理 ====================
 
   /**
-   * 获取所有关联关系
+   * 从数据库API获取所有关联关系
    */
-  static getConceptRelations(): ConceptStockRelation[] {
+  static async getConceptRelations(): Promise<ConceptStockRelation[]> {
     try {
-      // 检查是否在浏览器环境
-      if (typeof window === 'undefined') return [];
+      console.log('🔄 从数据库API获取概念关联关系...');
+      const response = await fetch('http://localhost:3001/api/v1/concepts/');
 
-      const data = localStorage.getItem(this.CONCEPT_RELATIONS_KEY);
-      if (!data) return [];
+      if (!response.ok) {
+        console.warn('⚠️ 概念关联API请求失败，返回空数组');
+        return [];
+      }
 
-      const relations = JSON.parse(data);
-      return relations.map((relation: any) => ({
-        ...relation,
-        addedAt: new Date(relation.addedAt)
-      }));
+      const result = await response.json();
+      if (result.success && result.data.concepts) {
+        const relations: ConceptStockRelation[] = [];
+
+        // 从概念数据中提取关联关系
+        for (const concept of result.data.concepts) {
+          if (concept.stocks && concept.stocks.length > 0) {
+            for (const stock of concept.stocks) {
+              relations.push({
+                conceptId: concept.id,
+                stockId: stock.stock_code,
+                addedAt: new Date()
+              });
+            }
+          }
+        }
+
+        console.log(`✅ 从数据库获取到 ${relations.length} 个概念关联关系`);
+        return relations;
+      }
+
+      console.warn('⚠️ 概念关联API返回格式不正确，返回空数组');
+      return [];
     } catch (error) {
-      console.error('获取关联关系失败:', error);
+      console.error('❌ 获取概念关联关系失败:', error);
       return [];
     }
   }
@@ -256,8 +291,8 @@ export class ConceptService {
   /**
    * 获取概念下的所有股票ID
    */
-  static getStockIdsByConcept(conceptId: string): string[] {
-    const relations = this.getConceptRelations();
+  static async getStockIdsByConcept(conceptId: string): Promise<string[]> {
+    const relations = await this.getConceptRelations();
     return relations
       .filter(r => r.conceptId === conceptId)
       .map(r => r.stockId);
@@ -266,8 +301,8 @@ export class ConceptService {
   /**
    * 获取股票关联的所有概念ID
    */
-  static getConceptIdsByStock(stockId: string): string[] {
-    const relations = this.getConceptRelations();
+  static async getConceptIdsByStock(stockId: string): Promise<string[]> {
+    const relations = await this.getConceptRelations();
     return relations
       .filter(r => r.stockId === stockId)
       .map(r => r.conceptId);
@@ -303,19 +338,19 @@ export class ConceptService {
   /**
    * 获取概念统计信息
    */
-  static getConceptStats(): {
+  static async getConceptStats(): Promise<{
     totalConcepts: number;
     totalRelations: number;
     avgStocksPerConcept: number;
     topConcepts: Array<{ name: string; stockCount: number }>;
-  } {
-    const concepts = this.getConcepts();
-    const relations = this.getConceptRelations();
-    
+  }> {
+    const concepts = await this.getConcepts();
+    const relations = await this.getConceptRelations();
+
     const totalConcepts = concepts.length;
     const totalRelations = relations.length;
     const avgStocksPerConcept = totalConcepts > 0 ? totalRelations / totalConcepts : 0;
-    
+
     const topConcepts = concepts
       .sort((a, b) => b.stockCount - a.stockCount)
       .slice(0, 5)

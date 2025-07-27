@@ -50,18 +50,10 @@ export function StockPool({
   const [showAddForm, setShowAddForm] = useState(false);
   const [editingStock, setEditingStock] = useState<Stock | null>(null);
 
-  // 获取最新的股票数据（包含概念关联）
-  const [updatedStocks, setUpdatedStocks] = useState<Stock[]>(stocks);
+  // 直接使用传入的股票数据，不依赖本地存储
+  const updatedStocks = stocks;
 
-  // 自动建立概念关联
-  useEffect(() => {
-    if (stocks.length > 0) {
-      StockPoolService.autoEstablishConceptRelations();
-      // 获取更新后的股票数据
-      const latestStocks = StockPoolService.getAllStocks();
-      setUpdatedStocks(latestStocks);
-    }
-  }, [stocks]);
+
 
   // 计算统计数据
   const stats: StockPoolStats = useMemo(() => {
@@ -95,6 +87,24 @@ export function StockPool({
     };
   }, [stocks]);
 
+  // 概念关联关系状态
+  const [conceptRelations, setConceptRelations] = useState<ConceptStockRelation[]>([]);
+
+  // 获取概念关联关系
+  useEffect(() => {
+    const fetchRelations = async () => {
+      try {
+        const relations = await ConceptService.getConceptRelations();
+        setConceptRelations(relations);
+      } catch (error) {
+        console.error('获取概念关联关系失败:', error);
+        setConceptRelations([]);
+      }
+    };
+
+    fetchRelations();
+  }, []);
+
   // 筛选股票
   const filteredStocks = useMemo(() => {
     return updatedStocks.filter(stock => {
@@ -110,13 +120,16 @@ export function StockPool({
       const matchesWatchLevel = !selectedWatchLevel ||
         stock.tags.watchLevel === selectedWatchLevel;
 
+      // 使用关联关系检查概念匹配
       const matchesConcept = !selectedConcept ||
-        (stock.conceptIds && stock.conceptIds.includes(selectedConcept));
+        conceptRelations.some(rel =>
+          rel.conceptId === selectedConcept && rel.stockId === stock.symbol
+        );
 
       return matchesSearch && matchesFundamental &&
              matchesMarket && matchesWatchLevel && matchesConcept;
     });
-  }, [updatedStocks, searchTerm, selectedFundamental, selectedMarket, selectedWatchLevel, selectedConcept]);
+  }, [updatedStocks, searchTerm, selectedFundamental, selectedMarket, selectedWatchLevel, selectedConcept, conceptRelations]);
 
   // 获取所有已使用的基本面标签
   const usedFundamentalTags = useMemo(() => {
@@ -127,17 +140,42 @@ export function StockPool({
     return Array.from(tags).sort();
   }, [updatedStocks]);
 
-  // 获取所有概念标签
-  const availableConcepts = useMemo(() => {
-    const concepts = ConceptService.getConcepts();
-    return concepts.map(concept => {
-      // 计算实际的股票数量
-      const stockCount = updatedStocks.filter(stock => stock.conceptIds && stock.conceptIds.includes(concept.id)).length;
-      return {
-        ...concept,
-        stockCount
-      };
-    }); // 显示所有概念，包括没有关联股票的概念
+  // 概念数据状态
+  const [availableConcepts, setAvailableConcepts] = useState<Array<Concept & { stockCount: number }>>([]);
+
+  // 异步获取概念数据和关联关系
+  useEffect(() => {
+    const fetchConceptsAndRelations = async () => {
+      try {
+        const concepts = await ConceptService.getConcepts();
+        const relations = await ConceptService.getConceptRelations();
+
+        const conceptsWithCount = concepts.map(concept => {
+          // 从关联关系中计算实际的股票数量
+          const relatedStockCodes = relations
+            .filter(rel => rel.conceptId === concept.id)
+            .map(rel => rel.stockId);
+
+          // 匹配当前股票池中的股票（使用symbol字段匹配stock_code）
+          const stockCount = updatedStocks.filter(stock =>
+            relatedStockCodes.includes(stock.symbol)
+          ).length;
+
+          return {
+            ...concept,
+            stockCount
+          };
+        });
+
+        setAvailableConcepts(conceptsWithCount);
+        console.log('✅ 概念数据更新完成:', conceptsWithCount.length, '个概念');
+      } catch (error) {
+        console.error('获取概念数据失败:', error);
+        setAvailableConcepts([]);
+      }
+    };
+
+    fetchConceptsAndRelations();
   }, [updatedStocks]);
 
   const handleAddStock = (stockData: Omit<Stock, 'id' | 'addedAt' | 'updatedAt'>) => {
@@ -279,17 +317,17 @@ export function StockPool({
             <button
               key={concept.id}
               onClick={() => setSelectedConcept(concept.id === selectedConcept ? '' : concept.id)}
-              className={`px-3 py-1 rounded-full text-sm transition-colors ${
+              className={`px-3 py-1 rounded-full text-sm transition-all duration-200 border ${
                 selectedConcept === concept.id
-                  ? 'text-white'
-                  : 'text-gray-700 hover:opacity-80'
+                  ? 'text-white font-medium shadow-md'
+                  : 'text-gray-700 hover:text-gray-900 hover:shadow-sm'
               }`}
               style={{
                 backgroundColor: selectedConcept === concept.id
                   ? concept.color
-                  : `${concept.color}20`,
+                  : `${concept.color}15`,
                 borderColor: concept.color,
-                borderWidth: '1px'
+                borderWidth: selectedConcept === concept.id ? '2px' : '1px'
               }}
             >
               {concept.name} ({concept.stockCount})
@@ -594,8 +632,23 @@ function StockForm({
     });
   };
 
-  // 获取可用的概念
-  const availableConceptsForForm = ConceptService.getConcepts();
+  // 表单中可用的概念数据
+  const [availableConceptsForForm, setAvailableConceptsForForm] = useState<Concept[]>([]);
+
+  // 异步获取表单概念数据
+  useEffect(() => {
+    const fetchFormConcepts = async () => {
+      try {
+        const concepts = await ConceptService.getConcepts();
+        setAvailableConceptsForForm(concepts);
+      } catch (error) {
+        console.error('获取表单概念数据失败:', error);
+        setAvailableConceptsForForm([]);
+      }
+    };
+
+    fetchFormConcepts();
+  }, []);
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">

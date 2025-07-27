@@ -25,17 +25,39 @@ export function ConceptManager({ onConceptSelect }: ConceptManagerProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedStocks, setSelectedStocks] = useState<Set<string>>(new Set());
   const [showStockSelector, setShowStockSelector] = useState<string | null>(null);
+  const [stats, setStats] = useState<{
+    totalConcepts: number;
+    totalRelations: number;
+    avgStocksPerConcept: number;
+    topConcepts: Array<{ name: string; stockCount: number }>;
+  } | null>(null);
+  const [conceptStocks, setConceptStocks] = useState<Record<string, Stock[]>>({});
 
   // 加载数据
   useEffect(() => {
     loadData();
   }, []);
 
-  const loadData = () => {
-    const loadedConcepts = ConceptService.getConcepts();
-    const loadedStocks = StockPoolService.getAllStocks();
-    setConcepts(loadedConcepts);
-    setStocks(loadedStocks);
+  const loadData = async () => {
+    try {
+      const loadedConcepts = await ConceptService.getConcepts();
+      const loadedStocks = StockPoolService.getAllStocks();
+      const loadedStats = await ConceptService.getConceptStats();
+
+      setConcepts(loadedConcepts);
+      setStocks(loadedStocks);
+      setStats(loadedStats);
+
+      // 加载每个概念的股票
+      const conceptStocksMap: Record<string, Stock[]> = {};
+      for (const concept of loadedConcepts) {
+        const stockIds = await ConceptService.getStockIdsByConcept(concept.id);
+        conceptStocksMap[concept.id] = loadedStocks.filter(stock => stockIds.includes(stock.id));
+      }
+      setConceptStocks(conceptStocksMap);
+    } catch (error) {
+      console.error('加载概念数据失败:', error);
+    }
   };
 
   // 筛选概念
@@ -43,9 +65,6 @@ export function ConceptManager({ onConceptSelect }: ConceptManagerProps) {
     concept.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     (concept.description && concept.description.toLowerCase().includes(searchQuery.toLowerCase()))
   );
-
-  // 获取概念统计
-  const stats = ConceptService.getConceptStats();
 
   // 创建概念
   const handleCreateConcept = () => {
@@ -98,13 +117,12 @@ export function ConceptManager({ onConceptSelect }: ConceptManagerProps) {
 
   // 获取概念下的股票
   const getConceptStocks = (conceptId: string): Stock[] => {
-    const stockIds = ConceptService.getStockIdsByConcept(conceptId);
-    return stocks.filter(stock => stockIds.includes(stock.id));
+    return conceptStocks[conceptId] || [];
   };
 
   // 获取未关联到指定概念的股票
   const getAvailableStocks = (conceptId: string): Stock[] => {
-    const conceptStockIds = ConceptService.getStockIdsByConcept(conceptId);
+    const conceptStockIds = (conceptStocks[conceptId] || []).map(stock => stock.id);
     return stocks.filter(stock => !conceptStockIds.includes(stock.id));
   };
 
@@ -145,20 +163,20 @@ export function ConceptManager({ onConceptSelect }: ConceptManagerProps) {
         <CardContent>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div className="text-center p-4 bg-blue-50 rounded-lg">
-              <div className="text-2xl font-bold text-blue-600">{stats.totalConcepts}</div>
+              <div className="text-2xl font-bold text-blue-600">{stats?.totalConcepts || 0}</div>
               <div className="text-sm text-blue-700">概念数量</div>
             </div>
             <div className="text-center p-4 bg-green-50 rounded-lg">
-              <div className="text-2xl font-bold text-green-600">{stats.totalRelations}</div>
+              <div className="text-2xl font-bold text-green-600">{stats?.totalRelations || 0}</div>
               <div className="text-sm text-green-700">关联关系</div>
             </div>
             <div className="text-center p-4 bg-purple-50 rounded-lg">
-              <div className="text-2xl font-bold text-purple-600">{stats.avgStocksPerConcept}</div>
+              <div className="text-2xl font-bold text-purple-600">{stats?.avgStocksPerConcept || 0}</div>
               <div className="text-sm text-purple-700">平均股票数</div>
             </div>
             <div className="text-center p-4 bg-orange-50 rounded-lg">
               <div className="text-lg font-bold text-orange-600">
-                {stats.topConcepts[0]?.name || '无'}
+                {stats?.topConcepts?.[0]?.name || '无'}
               </div>
               <div className="text-sm text-orange-700">最大概念</div>
             </div>

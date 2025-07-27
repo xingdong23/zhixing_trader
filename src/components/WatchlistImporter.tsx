@@ -154,26 +154,80 @@ export function WatchlistImporter({ onImportComplete }: WatchlistImporterProps) 
         throw new Error('没有找到有效的股票数据');
       }
 
-      // 保存到数据库
-      const existingStocks = StockDataService.getImportedStocks();
-      const existingSymbols = new Set(existingStocks.map(s => s.symbol));
-      const newStocks = stocks.filter(stock => !existingSymbols.has(stock.symbol));
+      // 保存到后端数据库
+      setIsLoading(true);
+      setError('');
 
-      // 添加新股票
-      const updatedStocks = StockDataService.addStocks(stocks);
+      try {
+        // 发送到后端API保存到数据库
+        const response = await fetch('http://localhost:3001/api/v1/stocks/import', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            stocks: stocks.map(stock => ({
+              code: stock.symbol,
+              name: stock.name,
+              market: stock.market || 'US',
+              group_id: stock.industry?.id || 'default',
+              group_name: stock.industry?.name || '未分类'
+            }))
+          })
+        });
 
-      // 更新状态
-      setImportedStocks(stocks);
-      setImportStats({
-        totalStocks: stocks.length,
-        newStocks: newStocks.length,
-        industries: industries.length
-      });
+        if (!response.ok) {
+          throw new Error(`导入失败: ${response.status}`);
+        }
 
-      setSuccess(`成功解析 ${stocks.length} 只股票，其中 ${newStocks.length} 只为新股票，涉及 ${industries.length} 个行业。导入的股票已添加到股票池中，可通过行业筛选查看。`);
+        const result = await response.json();
 
-      if (onImportComplete) {
-        onImportComplete(updatedStocks);
+        if (!result.success) {
+          throw new Error(result.error || '导入失败');
+        }
+
+        // 同时保存到本地存储作为备份
+        const existingStocks = StockDataService.getImportedStocks();
+        const existingSymbols = new Set(existingStocks.map(s => s.symbol));
+        const newStocks = stocks.filter(stock => !existingSymbols.has(stock.symbol));
+        const updatedStocks = StockDataService.addStocks(stocks);
+
+        // 更新状态
+        setImportedStocks(stocks);
+        setImportStats({
+          totalStocks: stocks.length,
+          newStocks: result.data.added_count || newStocks.length,
+          industries: industries.length
+        });
+
+        setSuccess(`成功导入 ${result.data.added_count || stocks.length} 只股票到数据库，其中 ${result.data.new_count || newStocks.length} 只为新股票，涉及 ${industries.length} 个行业。`);
+
+        if (onImportComplete) {
+          onImportComplete(updatedStocks);
+        }
+
+      } catch (importError) {
+        console.error('导入到数据库失败:', importError);
+        setError(`导入到数据库失败: ${importError instanceof Error ? importError.message : '未知错误'}`);
+
+        // 如果数据库导入失败，至少保存到本地存储
+        const existingStocks = StockDataService.getImportedStocks();
+        const existingSymbols = new Set(existingStocks.map(s => s.symbol));
+        const newStocks = stocks.filter(stock => !existingSymbols.has(stock.symbol));
+        const updatedStocks = StockDataService.addStocks(stocks);
+
+        setImportedStocks(stocks);
+        setImportStats({
+          totalStocks: stocks.length,
+          newStocks: newStocks.length,
+          industries: industries.length
+        });
+
+        if (onImportComplete) {
+          onImportComplete(updatedStocks);
+        }
+      } finally {
+        setIsLoading(false);
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : '导入失败');

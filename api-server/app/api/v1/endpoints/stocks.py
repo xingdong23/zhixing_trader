@@ -30,9 +30,14 @@ async def get_all_stocks(
                 "id": stock.id,
                 "symbol": stock.code,
                 "name": stock.name,
-                "industry": stock.industry,
-                "market_cap": stock.market_cap,
-                "created_at": stock.created_at.isoformat() if stock.created_at else None
+                "market": stock.market,
+                "group_id": stock.group_id,
+                "group_name": stock.group_name,
+                "lot_size": stock.lot_size,
+                "sec_type": stock.sec_type,
+                "is_active": stock.is_active,
+                "added_at": stock.added_at.isoformat() if stock.added_at else None,
+                "updated_at": stock.updated_at.isoformat() if stock.updated_at else None
             })
         
         return {

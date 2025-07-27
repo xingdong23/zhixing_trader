@@ -9,11 +9,9 @@ from fastapi.middleware.cors import CORSMiddleware
 from loguru import logger
 import uvicorn
 
-from .config import settings, validate_config, ensure_directories
+from .config import settings
 from .database import db_service
-from .models import ApiResponse
 from .api.v1.api import api_router
-from .core.container import container
 
 
 # 简化的后台任务
@@ -38,39 +36,35 @@ async def lifespan(app: FastAPI):
     """应用启动和关闭时的处理"""
     # 启动时
     logger.info("🚀 Starting Zhixing Trader API Server...")
-    
-    try:
-        # 验证配置
-        validate_config()
-        
-        # 确保目录存在
-        ensure_directories()
 
-        # 初始化依赖注入容器
-        container.initialize()
+    try:
+        # 确保目录存在
+        import os
+        os.makedirs("data", exist_ok=True)
+        os.makedirs("logs", exist_ok=True)
 
         # 启动后台任务
         task = asyncio.create_task(background_tasks())
 
         logger.info("✅ API Server started successfully")
-        
+
         yield
-        
+
     except Exception as e:
         logger.error(f"❌ Failed to start server: {e}")
         raise
-    
+
     finally:
         # 关闭时
         logger.info("🛑 Shutting down API Server...")
-        
+
         # 取消后台任务
         if 'task' in locals():
             task.cancel()
 
         # 关闭数据库连接
         db_service.close()
-        
+
         logger.info("✅ API Server shutdown completed")
 
 
@@ -96,44 +90,42 @@ app.include_router(api_router, prefix="/api/v1")
 
 
 # 健康检查
-@app.get("/api/health", response_model=ApiResponse)
+@app.get("/api/health")
 async def health_check():
     """健康检查"""
-    return ApiResponse(
-        success=True,
-        data={
+    return {
+        "success": True,
+        "data": {
             "status": "healthy",
             "timestamp": datetime.utcnow().isoformat(),
-            "futu_connected": futu_client.is_connected,
+            "server_version": "1.0.0"
         },
-        message="API server is healthy",
-        timestamp=datetime.utcnow().isoformat()
-    )
+        "message": "API server is healthy",
+        "timestamp": datetime.utcnow().isoformat()
+    }
 
 
 # API状态
-@app.get("/api/status", response_model=ApiResponse)
+@app.get("/api/status")
 async def get_status():
     """获取API状态"""
     try:
         db_stats = db_service.get_stats()
-        futu_status = futu_client.get_status()
-        
+
         status_data = {
             "server": {
                 "version": "1.0.0",
                 "debug": settings.debug,
             },
-            "futu": futu_status,
             "database": db_stats,
         }
-        
-        return ApiResponse(
-            success=True,
-            data=status_data,
-            message="API status retrieved successfully",
-            timestamp=datetime.utcnow().isoformat()
-        )
+
+        return {
+            "success": True,
+            "data": status_data,
+            "message": "API status retrieved successfully",
+            "timestamp": datetime.utcnow().isoformat()
+        }
         
     except Exception as e:
         logger.error(f"Failed to get API status: {e}")
