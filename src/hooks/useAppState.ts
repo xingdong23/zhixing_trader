@@ -5,7 +5,6 @@
 
 import { useState, useEffect } from 'react';
 import { AppState, TradingStats, TradingPlan, TradingPlaybook, TradeRecord, LiveJournal } from '@/types';
-import { generateDefaultPlaybooks } from '@/data/defaultPlaybooks';
 import { calculateTradingStats } from '@/utils/calculations';
 
 // 初始化默认统计数据

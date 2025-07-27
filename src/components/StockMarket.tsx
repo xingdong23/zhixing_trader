@@ -17,8 +17,6 @@ import { SelectionStrategies } from './SelectionStrategies';
 import DataSyncManager from './DataSyncManager';
 import DatabaseAdmin from './DatabaseAdmin';
 import { Stock, SelectionStrategy } from '@/types';
-import { generateSampleStocks } from '@/data/sampleStocks';
-import { generateDefaultStrategies } from '@/data/defaultStrategies';
 import {
   BarChart3,
   Target,
