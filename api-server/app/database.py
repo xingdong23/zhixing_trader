@@ -9,7 +9,11 @@ from sqlalchemy.exc import SQLAlchemyError
 from loguru import logger
 
 from .config import settings
-from .models import Base, StockDB, QuoteDB, KLineDB, StrategyDB, SelectionResultDB, StockInfo, QuoteData
+from .models import (
+    Base, StockDB, QuoteDB, KLineDB, StrategyDB, SelectionResultDB,
+    ConceptDB, ConceptStockRelationDB, ExpertDB, ExpertOpinionDB,
+    TradingPlaybookDB, SelectionStrategyDB, StockInfo, QuoteData
+)
 
 
 class DatabaseService:
@@ -52,6 +56,15 @@ class DatabaseService:
     def get_session(self) -> Session:
         """获取数据库会话"""
         return self.SessionLocal()
+
+    def create_tables(self):
+        """创建所有数据库表"""
+        try:
+            Base.metadata.create_all(bind=self.engine)
+            logger.info("All database tables created successfully")
+        except Exception as e:
+            logger.error(f"Failed to create database tables: {e}")
+            raise
     
     # ==================== 股票信息操作 ====================
     

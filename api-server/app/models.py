@@ -145,6 +145,83 @@ class ConceptStockRelationDB(Base):
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
 
+class ExpertDB(Base):
+    """专家表"""
+    __tablename__ = "experts"
+
+    id = Column(Integer, primary_key=True, index=True)
+    expert_id = Column(String(50), unique=True, index=True, nullable=False)  # 专家唯一标识
+    name = Column(String(100), nullable=False)  # 专家姓名
+    title = Column(String(200))  # 专家头衔
+    credibility = Column(Integer, default=50)  # 可信度评分 0-100
+    specialties = Column(Text)  # JSON数组：专长领域
+    description = Column(Text)  # 专家描述
+    is_verified = Column(Boolean, default=False)  # 是否认证
+    is_active = Column(Boolean, default=True)  # 是否启用
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+
+class ExpertOpinionDB(Base):
+    """专家意见表"""
+    __tablename__ = "expert_opinions"
+
+    id = Column(Integer, primary_key=True, index=True)
+    opinion_id = Column(String(50), unique=True, index=True, nullable=False)  # 意见唯一标识
+    stock_code = Column(String(20), nullable=False)  # 股票代码
+    expert_id = Column(String(50), nullable=False)  # 专家ID
+    title = Column(String(200), nullable=False)  # 意见标题
+    content = Column(Text, nullable=False)  # 意见内容
+    sentiment = Column(String(20), nullable=False)  # bullish, bearish, neutral
+    price_guidances = Column(Text)  # JSON数组：价格指导
+    chart_images = Column(Text)  # JSON数组：图表图片URL
+    published_at = Column(DateTime, nullable=False)  # 发布时间
+    source = Column(String(200))  # 来源
+    tags = Column(Text)  # JSON数组：标签
+    is_active = Column(Boolean, default=True)  # 是否启用
+    priority = Column(String(20), default='medium')  # high, medium, low
+    is_bookmarked = Column(Boolean, default=False)  # 是否收藏
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+
+class TradingPlaybookDB(Base):
+    """交易剧本表"""
+    __tablename__ = "trading_playbooks"
+
+    id = Column(Integer, primary_key=True, index=True)
+    playbook_id = Column(String(50), unique=True, index=True, nullable=False)  # 剧本唯一标识
+    name = Column(String(100), nullable=False)  # 剧本名称
+    description = Column(Text)  # 剧本描述
+    template = Column(Text, nullable=False)  # JSON格式：剧本模板
+    tags = Column(Text)  # JSON数组：标签
+    is_system_default = Column(Boolean, default=False)  # 是否系统默认
+    is_active = Column(Boolean, default=True)  # 是否启用
+    usage_count = Column(Integer, default=0)  # 使用次数
+    performance = Column(Text)  # JSON格式：绩效统计
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+
+class SelectionStrategyDB(Base):
+    """选股策略表（重命名以避免与StrategyDB冲突）"""
+    __tablename__ = "selection_strategies"
+
+    id = Column(Integer, primary_key=True, index=True)
+    strategy_id = Column(String(50), unique=True, index=True, nullable=False)  # 策略唯一标识
+    name = Column(String(100), nullable=False)  # 策略名称
+    description = Column(Text)  # 策略描述
+    category = Column(String(50), nullable=False)  # 策略分类：pullback, breakthrough, pattern等
+    conditions = Column(Text, nullable=False)  # JSON格式：策略条件
+    parameters = Column(Text)  # JSON格式：策略参数
+    is_active = Column(Boolean, default=True)  # 是否启用
+    is_system_default = Column(Boolean, default=False)  # 是否系统默认
+    usage_count = Column(Integer, default=0)  # 使用次数
+    success_rate = Column(Float, default=0.0)  # 成功率
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+
 # ==================== Pydantic 响应模型 ====================
 
 class StockInfo(BaseModel):
