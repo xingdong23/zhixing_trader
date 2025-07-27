@@ -33,8 +33,9 @@ export class ConceptService {
           category: apiConcept.category || 'other',
           stockCount: apiConcept.stock_count || 0,
           isActive: apiConcept.is_active !== false,
-          createdAt: new Date(),
-          updatedAt: new Date()
+          createdAt: new Date(apiConcept.created_at || Date.now()),
+          updatedAt: new Date(apiConcept.updated_at || Date.now()),
+          color: ConceptService.generateColorForConcept(apiConcept.name)
         }));
 
         console.log(`✅ 从数据库获取到 ${concepts.length} 个概念`);
@@ -69,7 +70,7 @@ export class ConceptService {
    */
   static createConcept(name: string, description?: string, color?: string): Concept {
     const concepts = this.getConcepts();
-    
+
     // 检查名称是否已存在
     if (concepts.some(c => c.name === name)) {
       throw new Error(`概念"${name}"已存在`);
@@ -97,7 +98,7 @@ export class ConceptService {
   static updateConcept(id: string, updates: Partial<Omit<Concept, 'id' | 'createdAt'>>): Concept {
     const concepts = this.getConcepts();
     const index = concepts.findIndex(c => c.id === id);
-    
+
     if (index === -1) {
       throw new Error('概念不存在');
     }
@@ -125,13 +126,13 @@ export class ConceptService {
   static deleteConcept(id: string): void {
     const concepts = this.getConcepts();
     const filteredConcepts = concepts.filter(c => c.id !== id);
-    
+
     if (filteredConcepts.length === concepts.length) {
       throw new Error('概念不存在');
     }
 
     this.saveConcepts(filteredConcepts);
-    
+
     // 同时删除相关的关联关系
     this.removeAllStocksFromConcept(id);
   }
@@ -149,8 +150,8 @@ export class ConceptService {
   static searchConcepts(query: string): Concept[] {
     const concepts = this.getConcepts();
     const lowerQuery = query.toLowerCase();
-    
-    return concepts.filter(concept => 
+
+    return concepts.filter(concept =>
       concept.name.toLowerCase().includes(lowerQuery) ||
       (concept.description && concept.description.toLowerCase().includes(lowerQuery))
     );
@@ -220,7 +221,7 @@ export class ConceptService {
    */
   static addStockToConcept(conceptId: string, stockId: string): void {
     const relations = this.getConceptRelations();
-    
+
     // 检查关联是否已存在
     if (relations.some(r => r.conceptId === conceptId && r.stockId === stockId)) {
       return; // 已存在，不重复添加
@@ -234,7 +235,7 @@ export class ConceptService {
 
     relations.push(newRelation);
     this.saveConceptRelations(relations);
-    
+
     // 更新概念的股票数量
     this.updateConceptStockCount(conceptId);
   }
@@ -247,9 +248,9 @@ export class ConceptService {
     const filteredRelations = relations.filter(
       r => !(r.conceptId === conceptId && r.stockId === stockId)
     );
-    
+
     this.saveConceptRelations(filteredRelations);
-    
+
     // 更新概念的股票数量
     this.updateConceptStockCount(conceptId);
   }
@@ -314,7 +315,7 @@ export class ConceptService {
   private static updateConceptStockCount(conceptId: string): void {
     const concepts = this.getConcepts();
     const concept = concepts.find(c => c.id === conceptId);
-    
+
     if (concept) {
       const stockIds = this.getStockIdsByConcept(conceptId);
       concept.stockCount = stockIds.length;
@@ -504,22 +505,39 @@ export class ConceptService {
       }
     }
   }
-
   /**
    * 为概念生成颜色
    */
   private static generateColorForConcept(conceptName: string): string {
+    // 预定义的颜色列表
     const colors = [
-      '#3B82F6', '#EF4444', '#10B981', '#F59E0B', '#8B5CF6',
-      '#06B6D4', '#F97316', '#84CC16', '#EC4899', '#6366F1'
+      '#3B82F6', // blue-500
+      '#10B981', // emerald-500
+      '#F59E0B', // amber-500
+      '#EF4444', // red-500
+      '#8B5CF6', // violet-500
+      '#06B6D4', // cyan-500
+      '#84CC16', // lime-500
+      '#F97316', // orange-500
+      '#EC4899', // pink-500
+      '#6366F1', // indigo-500
+      '#14B8A6', // teal-500
+      '#A855F7', // purple-500
+      '#22C55E', // green-500
+      '#F43F5E', // rose-500
+      '#8B5A2B', // brown
+      '#6B7280'  // gray-500
     ];
 
-    // 基于概念名称生成一致的颜色
+    // 使用概念名称的哈希值来选择颜色，确保相同名称总是得到相同颜色
     let hash = 0;
     for (let i = 0; i < conceptName.length; i++) {
-      hash = conceptName.charCodeAt(i) + ((hash << 5) - hash);
+      const char = conceptName.charCodeAt(i);
+      hash = ((hash << 5) - hash) + char;
+      hash = hash & hash; // 转换为32位整数
     }
 
-    return colors[Math.abs(hash) % colors.length];
+    const colorIndex = Math.abs(hash) % colors.length;
+    return colors[colorIndex];
   }
 }

@@ -42,6 +42,9 @@ export function StockPool({
   onSelectStock,
   onViewDetail
 }: StockPoolProps) {
+  // 调试信息
+  console.log('🔍 StockPool: 接收到的stocks数据:', stocks);
+  console.log('🔍 StockPool: stocks数量:', stocks.length);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedFundamental, setSelectedFundamental] = useState<string>('');
   const [selectedMarket, setSelectedMarket] = useState<string>('');

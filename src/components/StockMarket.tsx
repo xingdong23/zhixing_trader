@@ -101,14 +101,15 @@ export function StockMarket({ onCreateTradingPlan }: StockMarketProps) {
             priceChangePercent: 0,
             volume: 0,
             addedAt: new Date(apiStock.added_at),
-            updatedAt: new Date(apiStock.added_at),
+            updatedAt: new Date(apiStock.updated_at),
             notes: '从数据库加载',
             opinions: []
           }));
 
           console.log(`✅ 从API获取到 ${apiStocks.length} 只股票，设置到状态中...`);
+          console.log('📊 转换后的股票数据:', apiStocks);
           setStocks(apiStocks);
-          console.log('✅ 股票状态已更新');
+          console.log('✅ 股票状态已更新，当前stocks长度:', apiStocks.length);
           return;
         } else {
           console.warn('⚠️ API返回格式不正确:', result);

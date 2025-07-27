@@ -71,7 +71,7 @@ export function NotificationSystem({
     const interval = setInterval(() => {
       activePlans.forEach(plan => {
         // 模拟价格检查
-        const entryPrice = plan.positionLayers[0]?.targetPrice || 100;
+        const entryPrice = plan.positionLayers?.[0]?.targetPrice || 100;
         const currentPrice = entryPrice * (1 + (Math.random() - 0.5) * 0.1);
 
         // 接近止损警报
@@ -89,7 +89,7 @@ export function NotificationSystem({
         }
 
         // 接近止盈警报
-        const takeProfitPrice = plan.takeProfitLayers[0]?.targetPrice || entryPrice * 1.1;
+        const takeProfitPrice = plan.takeProfitLayers?.[0]?.targetPrice || entryPrice * 1.1;
         if (Math.abs(currentPrice - takeProfitPrice) / entryPrice < 0.02) {
           addNotification({
             id: `price_profit_${plan.id}_${Date.now()}`,
