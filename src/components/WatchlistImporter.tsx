@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { Upload, Download, FileText, AlertCircle, CheckCircle, X, BarChart3 } from 'lucide-react';
 import { FutuCsvParser } from '@/utils/futuCsvParser';
 import { ImportedStock, Industry } from '@/types';
+import { apiPost, API_ENDPOINTS } from '../utils/api';
 
 interface WatchlistImporterProps {
   onImportComplete?: (stocks: ImportedStock[]) => void;
@@ -159,31 +160,25 @@ export function WatchlistImporter({ onImportComplete }: WatchlistImporterProps) 
 
       try {
         // 发送到后端API保存到数据库
-        const response = await fetch('http://localhost:8000/api/v1/stocks/import', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            stocks: stocks.map(stock => ({
-              code: stock.symbol,
-              name: stock.name,
-              market: stock.market || 'US',
-              group_id: stock.industry?.id || 'default',
-              group_name: stock.industry?.name || '未分类'
-            }))
-          })
-        });
+        const response = await apiPost('/stocks/import', {
+           stocks: stocks.map(stock => ({
+             code: stock.symbol,
+             name: stock.name,
+             market: stock.market || 'US',
+             group_id: stock.industry?.id || 'default',
+             group_name: stock.industry?.name || '未分类'
+           }))
+         });
 
-        if (!response.ok) {
-          throw new Error(`导入失败: ${response.status}`);
-        }
+         if (!response.ok) {
+           throw new Error(`导入失败: ${response.status}`);
+         }
 
-        const result = await response.json();
+         const result = await response.json();
 
-        if (!result.success) {
-          throw new Error(result.error || '导入失败');
-        }
+         if (!result.success) {
+           throw new Error(result.error || '导入失败');
+         }
 
         // 注意：本地存储功能已废弃，数据现在通过API管理
         console.warn('本地存储功能已废弃，股票数据现在通过API管理');

@@ -1,6 +1,8 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { RefreshCw, Database, AlertCircle, CheckCircle, Clock, TrendingUp } from 'lucide-react';
+import { apiGet, apiPost, API_ENDPOINTS } from '../utils/api';
 
 interface SyncStatus {
   is_syncing: boolean;
@@ -34,7 +36,7 @@ export default function DataSyncManager() {
   // 获取同步状态
   const fetchSyncStatus = async () => {
     try {
-      const response = await fetch('http://localhost:8000/api/v1/data/sync/status');
+      const response = await apiGet(API_ENDPOINTS.SYNC_STATUS);
       const data = await response.json();
 
       if (data.success) {
@@ -51,9 +53,7 @@ export default function DataSyncManager() {
   const triggerSync = async (forceFullSync: boolean = false) => {
     setIsLoading(true);
     try {
-      const response = await fetch(`http://localhost:8000/api/v1/data/sync/trigger?force_full=${forceFullSync}`, {
-        method: 'POST'
-      });
+      const response = await apiPost(API_ENDPOINTS.SYNC_TRIGGER(forceFullSync));
       const result = await response.json();
 
       setLastSyncResult(result);

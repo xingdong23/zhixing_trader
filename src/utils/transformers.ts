@@ -71,24 +71,24 @@ export class DataTransformer {
     try {
       return {
         id: data.id || '',
-        code: String(data.code || '').trim().toUpperCase(),
+        symbol: String(data.code || data.symbol || '').trim().toUpperCase(),
         name: String(data.name || '').trim(),
-        market: data.market || 'A',
-        industry: data.industry || '',
-        sector: data.sector || '',
-        currentPrice: Number(data.currentPrice || data.current_price || 0),
-        previousClose: Number(data.previousClose || data.previous_close || 0),
-        change: Number(data.change || 0),
-        changePercent: Number(data.changePercent || data.change_percent || 0),
-        volume: Number(data.volume || 0),
-        turnover: Number(data.turnover || 0),
-        marketCap: Number(data.marketCap || data.market_cap || 0),
-        pe: data.pe ? Number(data.pe) : undefined,
-        pb: data.pb ? Number(data.pb) : undefined,
-        dividend: data.dividend ? Number(data.dividend) : undefined,
-        isActive: Boolean(data.isActive ?? data.is_active ?? true),
-        createdAt: data.createdAt || data.created_at || new Date().toISOString(),
-        updatedAt: data.updatedAt || data.updated_at || new Date().toISOString()
+        market: data.market || 'CN',
+        tags: {
+          industry: data.industry ? [data.industry] : [],
+          fundamentals: [],
+          marketCap: data.marketCap > 100000000000 ? 'large' : data.marketCap > 10000000000 ? 'mid' : 'small',
+          watchLevel: 'medium'
+        },
+        conceptIds: data.conceptIds || [],
+        currentPrice: data.currentPrice || data.current_price,
+        priceChange: data.change,
+        priceChangePercent: data.changePercent || data.change_percent,
+        volume: data.volume,
+        addedAt: data.addedAt ? new Date(data.addedAt) : new Date(),
+        updatedAt: data.updatedAt ? new Date(data.updatedAt) : new Date(),
+        notes: data.notes,
+        opinions: data.opinions || []
       };
     } catch (error) {
       console.error('Error transforming stock data:', error);
@@ -112,12 +112,8 @@ export class DataTransformer {
         stocks: Array.isArray(data.stocks) 
           ? data.stocks.map(this.transformStock).filter(Boolean)
           : [],
-        totalCount: Number(data.totalCount || data.total_count || 0),
-        totalValue: Number(data.totalValue || data.total_value || 0),
-        avgChange: Number(data.avgChange || data.avg_change || 0),
-        isActive: Boolean(data.isActive ?? data.is_active ?? true),
-        createdAt: data.createdAt || data.created_at || new Date().toISOString(),
-        updatedAt: data.updatedAt || data.updated_at || new Date().toISOString()
+        createdAt: data.createdAt ? new Date(data.createdAt) : new Date(),
+        updatedAt: data.updatedAt ? new Date(data.updatedAt) : new Date()
       };
     } catch (error) {
       console.error('Error transforming stock pool data:', error);
@@ -138,17 +134,11 @@ export class DataTransformer {
         id: data.id || '',
         name: String(data.name || '').trim(),
         description: data.description || '',
-        category: data.category || '',
-        stocks: Array.isArray(data.stocks)
-          ? data.stocks.map(this.transformStock).filter(Boolean)
-          : [],
+        color: data.color || '',
+        stockIds: Array.isArray(data.stockIds) ? data.stockIds : [],
         stockCount: Number(data.stockCount || data.stock_count || 0),
-        avgChange: Number(data.avgChange || data.avg_change || 0),
-        totalMarketCap: Number(data.totalMarketCap || data.total_market_cap || 0),
-        isHot: Boolean(data.isHot ?? data.is_hot ?? false),
-        isActive: Boolean(data.isActive ?? data.is_active ?? true),
-        createdAt: data.createdAt || data.created_at || new Date().toISOString(),
-        updatedAt: data.updatedAt || data.updated_at || new Date().toISOString()
+        createdAt: data.createdAt ? new Date(data.createdAt) : new Date(),
+        updatedAt: data.updatedAt ? new Date(data.updatedAt) : new Date()
       };
     } catch (error) {
       console.error('Error transforming concept data:', error);
@@ -171,14 +161,8 @@ export class DataTransformer {
         description: data.description || '',
         type: data.type || 'TECHNICAL',
         parameters: data.parameters || {},
-        conditions: Array.isArray(data.conditions) ? data.conditions : [],
-        isActive: Boolean(data.isActive ?? data.is_active ?? true),
-        successRate: Number(data.successRate || data.success_rate || 0),
-        avgReturn: Number(data.avgReturn || data.avg_return || 0),
-        totalRuns: Number(data.totalRuns || data.total_runs || 0),
-        lastRunAt: data.lastRunAt || data.last_run_at,
-        createdAt: data.createdAt || data.created_at || new Date().toISOString(),
-        updatedAt: data.updatedAt || data.updated_at || new Date().toISOString()
+        createdAt: data.createdAt ? new Date(data.createdAt) : new Date(),
+        updatedAt: data.updatedAt ? new Date(data.updatedAt) : new Date()
       };
     } catch (error) {
       console.error('Error transforming strategy data:', error);
@@ -198,16 +182,11 @@ export class DataTransformer {
       return {
         id: data.id || '',
         strategyId: data.strategyId || data.strategy_id || '',
-        strategyName: data.strategyName || data.strategy_name || '',
-        stock: this.transformStock(data.stock),
+        stocks: Array.isArray(data.stocks) 
+          ? data.stocks.map(this.transformStock).filter(Boolean)
+          : [],
         score: Number(data.score || 0),
-        confidence: Number(data.confidence || 0),
-        reason: data.reason || '',
-        signals: Array.isArray(data.signals) ? data.signals : [],
-        targetPrice: data.targetPrice ? Number(data.targetPrice) : undefined,
-        stopLoss: data.stopLoss ? Number(data.stopLoss) : undefined,
-        timeframe: data.timeframe || 'SHORT_TERM',
-        createdAt: data.createdAt || data.created_at || new Date().toISOString()
+        createdAt: data.createdAt ? new Date(data.createdAt) : new Date()
       };
     } catch (error) {
       console.error('Error transforming selection result data:', error);
@@ -226,20 +205,24 @@ export class DataTransformer {
     try {
       return {
         id: data.id || '',
-        stock: this.transformStock(data.stock),
-        action: data.action || 'BUY',
-        price: Number(data.price || 0),
-        targetPrice: data.targetPrice ? Number(data.targetPrice) : undefined,
-        stopLoss: data.stopLoss ? Number(data.stopLoss) : undefined,
-        quantity: Number(data.quantity || 0),
-        confidence: Number(data.confidence || 0),
+        stockId: data.stockId || data.stock_id || '',
+        stockSymbol: data.stockSymbol || data.stock_symbol || '',
+        stockName: data.stockName || data.stock_name || '',
+        type: data.type || 'daily',
+        action: data.action || 'buy',
+        currentPrice: Number(data.currentPrice || data.price || 0),
+        entryPrice: Number(data.entryPrice || data.price || 0),
+        stopLoss: Number(data.stopLoss || 0),
+        takeProfit: Array.isArray(data.takeProfit) ? data.takeProfit.map(Number) : [Number(data.targetPrice || 0)],
         reason: data.reason || '',
-        timeframe: data.timeframe || 'SHORT_TERM',
-        priority: data.priority || 'MEDIUM',
-        status: data.status || 'PENDING',
-        validUntil: data.validUntil || data.valid_until,
-        createdAt: data.createdAt || data.created_at || new Date().toISOString(),
-        updatedAt: data.updatedAt || data.updated_at || new Date().toISOString()
+        technicalAnalysis: data.technicalAnalysis || data.technical_analysis || '',
+        riskLevel: data.riskLevel || data.risk_level || 'medium',
+        positionSize: data.positionSize || data.position_size || '',
+        timeframe: data.timeframe || '',
+        publishedAt: data.publishedAt ? new Date(data.publishedAt) : new Date(),
+        expiresAt: data.expiresAt ? new Date(data.expiresAt) : new Date(Date.now() + 24 * 60 * 60 * 1000),
+        status: data.status || 'active',
+        confidence: Number(data.confidence || 5)
       };
     } catch (error) {
       console.error('Error transforming trading recommendation data:', error);
@@ -258,21 +241,39 @@ export class DataTransformer {
     try {
       return {
         id: data.id || '',
-        stock: this.transformStock(data.stock),
-        action: data.action || 'BUY',
-        quantity: Number(data.quantity || 0),
-        targetPrice: Number(data.targetPrice || data.target_price || 0),
-        stopLoss: data.stopLoss ? Number(data.stopLoss) : undefined,
-        takeProfit: data.takeProfit ? Number(data.takeProfit) : undefined,
-        status: data.status || 'PENDING',
-        priority: data.priority || 'MEDIUM',
-        notes: data.notes || '',
-        strategyId: data.strategyId || data.strategy_id,
-        expectedReturn: data.expectedReturn ? Number(data.expectedReturn) : undefined,
-        riskLevel: data.riskLevel || data.risk_level || 'MEDIUM',
-        validUntil: data.validUntil || data.valid_until,
-        createdAt: data.createdAt || data.created_at || new Date().toISOString(),
-        updatedAt: data.updatedAt || data.updated_at || new Date().toISOString()
+        createdAt: new Date(data.createdAt || data.created_at || Date.now()),
+        updatedAt: new Date(data.updatedAt || data.updated_at || Date.now()),
+        symbol: data.symbol || '',
+        symbolName: data.symbolName || data.symbol_name || '',
+        strategyType: data.strategyType || data.strategy_type || 'SINGLE_ENTRY',
+        positionLayers: data.positionLayers || [],
+        maxTotalPosition: Number(data.maxTotalPosition || data.max_total_position || 0),
+        takeProfitLayers: data.takeProfitLayers || [],
+        trailingStopEnabled: Boolean(data.trailingStopEnabled || data.trailing_stop_enabled),
+        trailingStopPercent: data.trailingStopPercent ? Number(data.trailingStopPercent) : undefined,
+        globalStopLoss: Number(data.globalStopLoss || data.global_stop_loss || 0),
+        maxLossPercent: Number(data.maxLossPercent || data.max_loss_percent || 0),
+        riskRewardRatio: Number(data.riskRewardRatio || data.risk_reward_ratio || 0),
+        buyingLogic: {
+          technical: data.buyingLogic?.technical || data.buying_logic?.technical || '',
+          fundamental: data.buyingLogic?.fundamental || data.buying_logic?.fundamental || '',
+          news: data.buyingLogic?.news || data.buying_logic?.news || ''
+        },
+        emotion: data.emotion || 'CALM',
+        informationSource: data.informationSource || data.information_source || 'SELF_ANALYSIS',
+        disciplineLocked: Boolean(data.disciplineLocked || data.discipline_locked),
+        disciplineStatus: data.disciplineStatus || {
+          overallScore: 0,
+          entryDiscipline: 0,
+          exitDiscipline: 0,
+          positionDiscipline: 0,
+          violations: [],
+          lastUpdated: new Date()
+        },
+        planQualityScore: Number(data.planQualityScore || data.plan_quality_score || 0),
+        chartSnapshot: data.chartSnapshot || data.chart_snapshot,
+        playbookId: data.playbookId || data.playbook_id,
+        status: data.status || 'PLANNING'
       };
     } catch (error) {
       console.error('Error transforming trading plan data:', error);
@@ -292,21 +293,23 @@ export class DataTransformer {
       return {
         id: data.id || '',
         planId: data.planId || data.plan_id || '',
-        stock: this.transformStock(data.stock),
-        action: data.action || 'BUY',
-        quantity: Number(data.quantity || 0),
-        price: Number(data.price || 0),
-        amount: Number(data.amount || 0),
-        commission: Number(data.commission || 0),
-        tax: Number(data.tax || 0),
-        netAmount: Number(data.netAmount || data.net_amount || 0),
-        status: data.status || 'PENDING',
-        executedAt: data.executedAt || data.executed_at,
-        notes: data.notes || '',
-        emotion: data.emotion,
-        disciplineRating: data.disciplineRating || data.discipline_rating,
-        createdAt: data.createdAt || data.created_at || new Date().toISOString(),
-        updatedAt: data.updatedAt || data.updated_at || new Date().toISOString()
+        createdAt: new Date(data.createdAt || data.created_at || Date.now()),
+        updatedAt: new Date(data.updatedAt || data.updated_at || Date.now()),
+        executions: data.executions || [],
+        currentPosition: Number(data.currentPosition || data.current_position || 0),
+        averageEntryPrice: Number(data.averageEntryPrice || data.average_entry_price || 0),
+        totalInvested: Number(data.totalInvested || data.total_invested || 0),
+        unrealizedPnL: Number(data.unrealizedPnL || data.unrealized_pnl || 0),
+        realizedPnL: Number(data.realizedPnL || data.realized_pnl || 0),
+        totalPnL: Number(data.totalPnL || data.total_pnl || 0),
+        totalPnLPercent: Number(data.totalPnLPercent || data.total_pnl_percent || 0),
+        firstEntryTime: data.firstEntryTime ? new Date(data.firstEntryTime) : undefined,
+        lastExitTime: data.lastExitTime ? new Date(data.lastExitTime) : undefined,
+        disciplineRating: data.disciplineRating || data.discipline_rating || 'GOOD',
+        disciplineNotes: data.disciplineNotes || data.discipline_notes || '',
+        tradingSummary: data.tradingSummary || data.trading_summary || '',
+        lessonsLearned: data.lessonsLearned || data.lessons_learned || '',
+        status: data.status || 'PLANNING'
       };
     } catch (error) {
       console.error('Error transforming trade record data:', error);
@@ -325,15 +328,14 @@ export class DataTransformer {
     try {
       return {
         id: data.id || '',
-        tradeId: data.tradeId || data.trade_id || '',
-        executionPrice: Number(data.executionPrice || data.execution_price || 0),
-        executionQuantity: Number(data.executionQuantity || data.execution_quantity || 0),
-        executionTime: data.executionTime || data.execution_time || new Date().toISOString(),
-        commission: Number(data.commission || 0),
-        tax: Number(data.tax || 0),
-        slippage: Number(data.slippage || 0),
-        notes: data.notes || '',
-        createdAt: data.createdAt || data.created_at || new Date().toISOString()
+        type: data.type || 'BUY',
+        layerId: data.layerId || data.layer_id,
+        price: Number(data.price || data.execution_price || 0),
+        quantity: Number(data.quantity || data.execution_quantity || 0),
+        amount: Number(data.amount || 0),
+        timestamp: new Date(data.timestamp || data.execution_time || Date.now()),
+        deviation: Number(data.deviation || 0),
+        notes: data.notes || ''
       };
     } catch (error) {
       console.error('Error transforming execution record data:', error);

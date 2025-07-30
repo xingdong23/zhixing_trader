@@ -1,6 +1,8 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { Database, RefreshCw, Trash2, Download, Upload, AlertCircle, CheckCircle, Info } from 'lucide-react';
+import { apiGet, apiPost, apiDelete, API_ENDPOINTS } from '../utils/api';
 
 interface DatabaseOverview {
   total_stocks: number;
@@ -62,7 +64,7 @@ export default function DatabaseAdmin() {
   // 获取数据库概览
   const fetchOverview = async () => {
     try {
-      const response = await fetch('http://localhost:8000/api/v1/data/database/overview');
+      const response = await apiGet(API_ENDPOINTS.DATABASE_OVERVIEW);
       const data = await response.json();
       if (data.success) {
         setOverview(data.overview);
@@ -75,7 +77,7 @@ export default function DatabaseAdmin() {
   // 获取股票数据汇总
   const fetchStocks = async () => {
     try {
-      const response = await fetch('http://localhost:8000/api/v1/data/database/stocks');
+      const response = await apiGet(API_ENDPOINTS.DATABASE_STOCKS);
       const data = await response.json();
       if (data.success) {
         setStocks(data.stocks);
@@ -88,7 +90,7 @@ export default function DatabaseAdmin() {
   // 获取数据质量报告
   const fetchQualityReport = async () => {
     try {
-      const response = await fetch('http://localhost:8000/api/v1/data/database/quality');
+      const response = await apiGet(API_ENDPOINTS.DATABASE_QUALITY);
       const data = await response.json();
       if (data.success) {
         setQualityReport(data.quality_report);
@@ -106,10 +108,10 @@ export default function DatabaseAdmin() {
 
     try {
       const url = timeframe
-        ? `http://localhost:8000/api/v1/data/database/stock/${symbol}?timeframe=${timeframe}`
-        : `http://localhost:8000/api/v1/data/database/stock/${symbol}`;
+        ? `${API_ENDPOINTS.DATABASE_STOCK}/${symbol}?timeframe=${timeframe}`
+        : `${API_ENDPOINTS.DATABASE_STOCK}/${symbol}`;
 
-      const response = await fetch(url, { method: 'DELETE' });
+      const response = await apiDelete(url);
       const data = await response.json();
       
       if (data.success) {

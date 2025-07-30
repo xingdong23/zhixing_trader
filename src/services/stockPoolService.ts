@@ -1,4 +1,5 @@
 import { Stock } from '@/types';
+import { apiGet, API_ENDPOINTS } from '@/utils/api';
 
 /**
  * 股票池统一数据管理服务
@@ -11,7 +12,7 @@ export class StockPoolService {
   static async getStocksFromAPI(): Promise<Stock[]> {
     try {
       console.log('🔄 从后端API获取股票数据...');
-      const response = await fetch('http://localhost:8000/api/v1/stocks/');
+      const response = await apiGet(API_ENDPOINTS.STOCKS);
 
       if (!response.ok) {
         console.warn('⚠️ 股票API请求失败，返回空数组');

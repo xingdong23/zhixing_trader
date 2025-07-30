@@ -179,7 +179,7 @@ export class ObjectUtils {
       if (!this.isObject(current[key])) {
         current[key] = {};
       }
-      current = current[key];
+      current = (current as any)[key];
     }
     
     current[lastKey] = value;
@@ -233,7 +233,7 @@ export class ObjectUtils {
       if (!this.isObject(current) || !this.hasKey(current, key)) {
         return false;
       }
-      current = current[key];
+      current = (current as any)[key];
     }
     
     return true;
@@ -481,8 +481,8 @@ export class ObjectUtils {
     
     const result: Record<string, U> = {};
     
-    for (const [key, value] of this.entries(obj)) {
-      result[key] = mapper(value, key);
+    for (const [key, value] of this.entries(obj as Record<string, unknown>)) {
+      result[key] = mapper(value as T, key);
     }
     
     return result;
@@ -501,9 +501,9 @@ export class ObjectUtils {
     
     const result: Record<string, T> = {};
     
-    for (const [key, value] of this.entries(obj)) {
-      const newKey = mapper(key, value);
-      result[newKey] = value;
+    for (const [key, value] of this.entries(obj as Record<string, unknown>)) {
+      const newKey = mapper(key, value as T);
+      result[newKey] = value as T;
     }
     
     return result;
@@ -522,9 +522,9 @@ export class ObjectUtils {
     
     const result: Record<string, T> = {};
     
-    for (const [key, value] of this.entries(obj)) {
-      if (predicate(value, key)) {
-        result[key] = value;
+    for (const [key, value] of this.entries(obj as Record<string, unknown>)) {
+      if (predicate(value as T, key)) {
+        result[key] = value as T;
       }
     }
     
@@ -542,9 +542,9 @@ export class ObjectUtils {
       return undefined;
     }
     
-    for (const [key, value] of this.entries(obj)) {
-      if (predicate(value, key)) {
-        return value;
+    for (const [key, value] of this.entries(obj as Record<string, unknown>)) {
+      if (predicate(value as T, key)) {
+        return value as T;
       }
     }
     
@@ -562,8 +562,8 @@ export class ObjectUtils {
       return undefined;
     }
     
-    for (const [key, value] of this.entries(obj)) {
-      if (predicate(value, key)) {
+    for (const [key, value] of this.entries(obj as Record<string, unknown>)) {
+      if (predicate(value as T, key)) {
         return key;
       }
     }
@@ -582,8 +582,8 @@ export class ObjectUtils {
       return false;
     }
     
-    for (const [key, value] of this.entries(obj)) {
-      if (predicate(value, key)) {
+    for (const [key, value] of this.entries(obj as Record<string, unknown>)) {
+      if (predicate(value as T, key)) {
         return true;
       }
     }
@@ -602,8 +602,8 @@ export class ObjectUtils {
       return true;
     }
     
-    for (const [key, value] of this.entries(obj)) {
-      if (!predicate(value, key)) {
+    for (const [key, value] of this.entries(obj as Record<string, unknown>)) {
+      if (!predicate(value as T, key)) {
         return false;
       }
     }
@@ -625,8 +625,8 @@ export class ObjectUtils {
     
     let result = initialValue;
     
-    for (const [key, value] of this.entries(obj)) {
-      result = reducer(result, value, key);
+    for (const [key, value] of this.entries(obj as Record<string, unknown>)) {
+      result = reducer(result, value as T, key);
     }
     
     return result;
@@ -644,8 +644,8 @@ export class ObjectUtils {
     
     const result: Record<string, string> = {};
     
-    for (const [key, value] of this.entries(obj)) {
-      result[String(value)] = key;
+    for (const [key, value] of this.entries(obj as Record<string, unknown>)) {
+      result[String(value as T)] = key;
     }
     
     return result;
@@ -664,14 +664,14 @@ export class ObjectUtils {
     
     const result: Record<string, Record<string, T>> = {};
     
-    for (const [key, value] of this.entries(obj)) {
-      const groupKey = keyFn(value, key);
+    for (const [key, value] of this.entries(obj as Record<string, unknown>)) {
+      const groupKey = keyFn(value as T, key);
       
       if (!result[groupKey]) {
         result[groupKey] = {};
       }
       
-      result[groupKey][key] = value;
+      result[groupKey][key] = value as T;
     }
     
     return result;
@@ -691,7 +691,7 @@ export class ObjectUtils {
     
     const result: Record<string, any> = {};
     
-    for (const [key, value] of this.entries(obj)) {
+    for (const [key, value] of this.entries(obj as Record<string, unknown>)) {
       const newKey = prefix ? `${prefix}${separator}${key}` : key;
       
       if (this.isPlainObject(value)) {
@@ -717,7 +717,7 @@ export class ObjectUtils {
     
     const result: any = {};
     
-    for (const [key, value] of this.entries(obj)) {
+    for (const [key, value] of this.entries(obj as Record<string, unknown>)) {
       this.set(result, key.split(separator), value);
     }
     
@@ -786,7 +786,7 @@ export class ObjectUtils {
         
         // 自定义比较器
         if (customComparer) {
-          const customResult = customComparer(obj1[key], obj2[key], key);
+          const customResult = customComparer((obj1 as any)[key], (obj2 as any)[key], key);
           if (customResult !== undefined) {
             if (!customResult) {
               return false;
@@ -796,11 +796,11 @@ export class ObjectUtils {
         }
         
         if (deep) {
-          if (!this.equals(obj1[key], obj2[key], options)) {
+          if (!this.equals((obj1 as any)[key], (obj2 as any)[key], options)) {
             return false;
           }
         } else {
-          if (obj1[key] !== obj2[key]) {
+          if ((obj1 as any)[key] !== (obj2 as any)[key]) {
             return false;
           }
         }
@@ -843,14 +843,14 @@ export class ObjectUtils {
       const hasKey2 = this.hasKey(obj2, key);
       
       if (!hasKey1 && hasKey2) {
-        result.added[key] = obj2[key];
+        result.added[key] = (obj2 as any)[key];
       } else if (hasKey1 && !hasKey2) {
-        result.removed[key] = obj1[key];
+        result.removed[key] = (obj1 as any)[key];
       } else if (hasKey1 && hasKey2) {
-        if (!this.equals(obj1[key], obj2[key])) {
+        if (!this.equals((obj1 as any)[key], (obj2 as any)[key])) {
           result.changed[key] = {
-            from: obj1[key],
-            to: obj2[key]
+            from: (obj1 as any)[key],
+            to: (obj2 as any)[key]
           };
         }
       }

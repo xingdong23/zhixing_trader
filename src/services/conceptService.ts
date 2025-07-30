@@ -1,4 +1,5 @@
 import { Concept, ConceptStockRelation } from '@/types';
+import { apiGet, apiPost, apiPut, apiDelete, API_ENDPOINTS } from '@/utils/api';
 
 /**
  * 支持自定义概念的创建、编辑、删除和股票关联管理
@@ -11,7 +12,7 @@ export class ConceptService {
    */
   static async getConcepts(): Promise<Concept[]> {
     try {
-      const response = await fetch('http://localhost:8000/api/v1/concepts/');
+      const response = await apiGet(API_ENDPOINTS.CONCEPTS);
 
       if (!response.ok) {
         console.warn('⚠️ 概念API请求失败，返回空数组');
@@ -49,16 +50,10 @@ export class ConceptService {
   static async createConcept(name: string, description?: string, color?: string): Promise<Concept> {
     try {
       // 调用后端API创建概念
-      const response = await fetch('http://localhost:8000/api/v1/concepts/', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          name,
-          description,
-          category: 'other'
-        })
+      const response = await apiPost(API_ENDPOINTS.CONCEPTS, {
+        name,
+        description,
+        category: 'other'
       });
 
       if (!response.ok) {
@@ -96,15 +91,9 @@ export class ConceptService {
    */
   static async updateConcept(id: string, updates: Partial<Omit<Concept, 'id' | 'createdAt'>>): Promise<Concept> {
     try {
-      const response = await fetch(`http://localhost:8000/api/v1/concepts/${id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          name: updates.name,
-          description: updates.description
-        })
+      const response = await apiPut(`${API_ENDPOINTS.CONCEPTS}/${id}`, {
+        name: updates.name,
+        description: updates.description
       });
 
       if (!response.ok) {
@@ -139,9 +128,7 @@ export class ConceptService {
    */
   static async deleteConcept(id: string): Promise<void> {
     try {
-      const response = await fetch(`http://localhost:8000/api/v1/concepts/${id}`, {
-        method: 'DELETE'
-      });
+      const response = await apiDelete(`${API_ENDPOINTS.CONCEPTS}/${id}`);
 
       if (!response.ok) {
         const errorData = await response.json();
@@ -162,7 +149,7 @@ export class ConceptService {
   static async getConceptRelations(): Promise<ConceptStockRelation[]> {
     try {
       console.log('🔄 从数据库API获取概念关联关系...');
-      const response = await fetch('http://localhost:8000/api/v1/concepts/');
+      const response = await apiGet(API_ENDPOINTS.CONCEPTS);
 
       if (!response.ok) {
         console.warn('⚠️ 概念关联API请求失败，返回空数组');
@@ -212,14 +199,8 @@ export class ConceptService {
    */
   static async addStocksToConceptAPI(conceptId: string, stockIds: string[]): Promise<void> {
     try {
-      const response = await fetch(`http://localhost:8000/api/v1/concepts/${conceptId}/stocks`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          stock_ids: stockIds
-        })
+      const response = await apiPost(`${API_ENDPOINTS.CONCEPTS}/${conceptId}/stocks`, {
+        stock_ids: stockIds
       });
 
       if (!response.ok) {
@@ -242,9 +223,7 @@ export class ConceptService {
    */
   static async removeStockFromConceptAPI(conceptId: string, stockId: string): Promise<void> {
     try {
-      const response = await fetch(`http://localhost:8000/api/v1/concepts/${conceptId}/stocks/${stockId}`, {
-        method: 'DELETE'
-      });
+      const response = await apiDelete(`${API_ENDPOINTS.CONCEPTS}/${conceptId}/stocks/${stockId}`);
 
       if (!response.ok) {
         const errorData = await response.json();

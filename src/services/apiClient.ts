@@ -1,4 +1,5 @@
 // 前端API客户端 - 与后端API服务通信
+import { API_CONFIG } from '../constants';
 
 export interface ApiResponse<T = any> {
   success: boolean;
@@ -11,7 +12,7 @@ class ApiClient {
   private baseURL: string;
   private timeout: number;
 
-  constructor(baseURL: string = 'http://localhost:8000', timeout: number = 10000) {
+  constructor(baseURL: string = API_CONFIG.BASE_URL, timeout: number = 10000) {
     this.baseURL = baseURL;
     this.timeout = timeout;
   }

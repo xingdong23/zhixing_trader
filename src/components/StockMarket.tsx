@@ -13,6 +13,7 @@ import { SelectionStrategies } from './SelectionStrategies';
 import DataSyncManager from './DataSyncManager';
 import DatabaseAdmin from './DatabaseAdmin';
 import { Stock, SelectionStrategy, SelectedStock } from '@/types';
+import { apiPost, apiGet, apiPut, API_ENDPOINTS, buildApiUrl } from '@/utils/api';
 import {
   BarChart3,
   Target,
@@ -45,9 +46,7 @@ export function StockMarket({ onCreateTradingPlan }: StockMarketProps) {
   // 初始化数据库概念数据
   const initDatabaseConcepts = async () => {
     try {
-      const response = await fetch('http://localhost:8000/api/v1/concepts/init-sample-data', {
-        method: 'POST'
-      });
+      const response = await apiPost(API_ENDPOINTS.CONCEPTS_INIT_SAMPLE);
       const result = await response.json();
       if (result.success) {
         console.log('✅ 概念数据初始化成功:', result.message);
@@ -63,7 +62,7 @@ export function StockMarket({ onCreateTradingPlan }: StockMarketProps) {
   const fetchStocksFromAPI = async () => {
     console.log('🔄 开始从API获取股票数据...');
     try {
-      const response = await fetch('http://localhost:8000/api/v1/stocks/');
+      const response = await apiGet(API_ENDPOINTS.STOCKS);
       console.log('📡 API响应状态:', response.status, response.statusText);
 
       if (response.ok) {
@@ -174,13 +173,7 @@ export function StockMarket({ onCreateTradingPlan }: StockMarketProps) {
       };
 
       // 调用后端API更新股票
-      const response = await fetch(`http://localhost:8000/api/v1/stocks/${stockToUpdate.symbol}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(apiData)
-      });
+      const response = await apiPut(API_ENDPOINTS.STOCK_DETAIL(stockToUpdate.symbol), apiData);
 
       if (response.ok) {
         // API更新成功，重新获取股票数据
@@ -244,11 +237,17 @@ export function StockMarket({ onCreateTradingPlan }: StockMarketProps) {
       const numericId = strategyId.includes('ema55_strategy') ? 1 :
                        strategyId.includes('strategy_') ? parseInt(strategyId.split('_').pop() || '1') : 1;
 
-      const response = await fetch(`http://localhost:8000/api/v1/strategies/${numericId}/execute`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+      const response = await apiPost(API_ENDPOINTS.STRATEGY_EXECUTE(numericId.toString()), {
+        stocks: stocks.map(stock => ({
+          symbol: stock.symbol,
+          name: stock.name,
+          currentPrice: stock.currentPrice,
+          priceChange: stock.priceChange,
+          priceChangePercent: stock.priceChangePercent,
+          volume: stock.volume,
+          tags: stock.tags,
+          conceptIds: stock.conceptIds || []
+        }))
       });
 
       if (!response.ok) {
