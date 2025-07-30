@@ -93,18 +93,6 @@ export function PositionTracker({
       default: return type;
     }
   };
-
-  const getStatusIcon = (status: PlannedActionStatus) => {
-    switch (status) {
-      case PlannedActionStatus.PENDING: return <Clock className="w-4 h-4 text-yellow-500" />;
-      case PlannedActionStatus.TRIGGERED: return <Bell className="w-4 h-4 text-orange-500" />;
-      case PlannedActionStatus.EXECUTED: return <CheckCircle className="w-4 h-4 text-green-500" />;
-      case PlannedActionStatus.CANCELLED: return <XCircle className="w-4 h-4 text-gray-500" />;
-      case PlannedActionStatus.EXPIRED: return <XCircle className="w-4 h-4 text-red-500" />;
-      default: return <Activity className="w-4 h-4 text-gray-500" />;
-    }
-  };
-
   const getStatusLabel = (status: PlannedActionStatus) => {
     switch (status) {
       case PlannedActionStatus.PENDING: return '待执行';

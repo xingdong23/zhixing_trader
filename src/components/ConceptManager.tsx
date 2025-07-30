@@ -6,12 +6,7 @@ import { Plus, Edit2, Trash2, Tag, Search, BarChart3, X, Check, ChevronDown, Che
 import { ConceptService } from '@/services/conceptService';
 import { StockPoolService } from '@/services/stockPoolService';
 import { Concept, Stock } from '@/types';
-
-interface ConceptManagerProps {
-  onConceptSelect?: (conceptId: string) => void;
-}
-
-export function ConceptManager({ onConceptSelect }: ConceptManagerProps) {
+export function ConceptManager() {
   // 简化状态管理
   const [concepts, setConcepts] = useState<Concept[]>([]);
   const [stocks, setStocks] = useState<Stock[]>([]);

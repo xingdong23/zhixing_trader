@@ -53,8 +53,8 @@ export function ExpertOpinions({
   const [selectedSentiment, setSelectedSentiment] = useState<string>('');
   const [selectedExpert, setSelectedExpert] = useState<string>('');
   const [searchTerm, setSearchTerm] = useState('');
-  const [showAddForm, setShowAddForm] = useState(false);
-  const [editingOpinion, setEditingOpinion] = useState<ExpertOpinion | null>(null);
+  const [, setShowAddForm] = useState(false);
+  const [, setEditingOpinion] = useState<ExpertOpinion | null>(null);
 
   // 筛选意见
   const filteredOpinions = useMemo(() => {
@@ -80,51 +80,6 @@ export function ExpertOpinions({
 
     return { total, bullish, bearish, neutral, bookmarked };
   }, [opinions]);
-
-  const getSentimentIcon = (sentiment: string) => {
-    switch (sentiment) {
-      case 'bullish': return <TrendingUp className="w-4 h-4 text-green-500" />;
-      case 'bearish': return <TrendingDown className="w-4 h-4 text-red-500" />;
-      case 'neutral': return <Minus className="w-4 h-4 text-gray-500" />;
-      default: return null;
-    }
-  };
-
-  const getSentimentColor = (sentiment: string) => {
-    switch (sentiment) {
-      case 'bullish': return 'text-green-600 bg-green-50 border-green-200';
-      case 'bearish': return 'text-red-600 bg-red-50 border-red-200';
-      case 'neutral': return 'text-gray-600 bg-gray-50 border-gray-200';
-      default: return 'text-gray-600 bg-gray-50 border-gray-200';
-    }
-  };
-
-  const getPriceGuidanceIcon = (type: PriceGuidanceType) => {
-    switch (type) {
-      case PriceGuidanceType.BUY_POINT: return <TrendingUp className="w-4 h-4 text-green-500" />;
-      case PriceGuidanceType.SELL_POINT: return <TrendingDown className="w-4 h-4 text-red-500" />;
-      case PriceGuidanceType.STOP_LOSS: return <Shield className="w-4 h-4 text-red-500" />;
-      case PriceGuidanceType.TAKE_PROFIT: return <Target className="w-4 h-4 text-green-500" />;
-      case PriceGuidanceType.SUPPORT_LEVEL: return <TrendingUp className="w-4 h-4 text-blue-500" />;
-      case PriceGuidanceType.RESISTANCE_LEVEL: return <TrendingDown className="w-4 h-4 text-orange-500" />;
-      case PriceGuidanceType.TARGET_PRICE: return <DollarSign className="w-4 h-4 text-purple-500" />;
-      default: return <DollarSign className="w-4 h-4 text-gray-500" />;
-    }
-  };
-
-  const getPriceGuidanceLabel = (type: PriceGuidanceType) => {
-    switch (type) {
-      case PriceGuidanceType.BUY_POINT: return '买入点';
-      case PriceGuidanceType.SELL_POINT: return '卖出点';
-      case PriceGuidanceType.STOP_LOSS: return '止损位';
-      case PriceGuidanceType.TAKE_PROFIT: return '止盈位';
-      case PriceGuidanceType.SUPPORT_LEVEL: return '支撑位';
-      case PriceGuidanceType.RESISTANCE_LEVEL: return '阻力位';
-      case PriceGuidanceType.TARGET_PRICE: return '目标价';
-      default: return '价格指导';
-    }
-  };
-
   const getExpertById = (expertId: string) => {
     return experts.find(expert => expert.id === expertId);
   };

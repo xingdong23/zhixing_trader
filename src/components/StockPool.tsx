@@ -63,9 +63,25 @@ export function StockPool({
   const [selectedConcept, setSelectedConcept] = useState<string>('');
   const [showAddForm, setShowAddForm] = useState(false);
   const [editingStock, setEditingStock] = useState<Stock | null>(null);
+  const [concepts, setConcepts] = useState<Concept[]>([]);
 
   // 直接使用传入的股票数据，不依赖本地存储
   const updatedStocks = stocks;
+
+  // 获取概念数据
+  useEffect(() => {
+    const fetchConcepts = async () => {
+      try {
+        const conceptsData = await ConceptService.getConcepts();
+        setConcepts(conceptsData);
+      } catch (error) {
+        console.error('获取概念数据失败:', error);
+        setConcepts([]);
+      }
+    };
+
+    fetchConcepts();
+  }, []);
 
 
 
@@ -373,6 +389,7 @@ export function StockPool({
             <StockCard
               key={stock.id}
               stock={stock}
+              concepts={concepts}
               onEdit={() => handleEditStock(stock)}
               onDelete={() => onDeleteStock(stock.id)}
               onSelect={() => onSelectStock(stock)}
@@ -400,12 +417,14 @@ export function StockPool({
 // 股票卡片组件
 function StockCard({
   stock,
+  concepts,
   onEdit,
   onDelete,
   onSelect,
   onViewDetail
 }: {
   stock: Stock;
+  concepts: Concept[];
   onEdit: () => void;
   onDelete: () => void;
   onSelect: () => void;
