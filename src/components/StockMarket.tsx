@@ -27,25 +27,25 @@ interface StockMarketProps {
 }
 
 export function StockMarket({ onCreateTradingPlan }: StockMarketProps) {
+  console.log('🎯 StockMarket 组件正在渲染... [v4.0]');
+  console.log('🔧 测试：组件函数体执行中...');
+  
   const [currentTab, setCurrentTab] = useState<'pool' | 'import' | 'concepts' | 'strategies' | 'sync' | 'database'>('pool');
   const [selectedStock, setSelectedStock] = useState<Stock | null>(null);
   
   // 股票池数据
   const [stocks, setStocks] = useState<Stock[]>([]);
+  const [isInitialized, setIsInitialized] = useState(false);
 
-  // 初始化股票数据
-  useEffect(() => {
-    // 初始化数据库中的概念数据
-    initDatabaseConcepts();
+  // 数据初始化状态
+  const [isDataInitialized, setIsDataInitialized] = useState(false);
 
-    // 从后端API获取股票数据
-    fetchStocksFromAPI();
-  }, []);
+  console.log('🔍 准备执行useEffect，当前isDataInitialized:', isDataInitialized);
 
   // 初始化数据库概念数据
   const initDatabaseConcepts = async () => {
     try {
-      const response = await fetch('http://localhost:3001/api/v1/concepts/init-sample-data', {
+      const response = await fetch('http://localhost:8000/api/v1/concepts/init-sample-data', {
         method: 'POST'
       });
       const result = await response.json();
@@ -63,7 +63,7 @@ export function StockMarket({ onCreateTradingPlan }: StockMarketProps) {
   const fetchStocksFromAPI = async () => {
     console.log('🔄 开始从API获取股票数据...');
     try {
-      const response = await fetch('http://localhost:3001/api/v1/stocks/');
+      const response = await fetch('http://localhost:8000/api/v1/stocks/');
       console.log('📡 API响应状态:', response.status, response.statusText);
 
       if (response.ok) {
@@ -125,7 +125,27 @@ export function StockMarket({ onCreateTradingPlan }: StockMarketProps) {
   // 策略数据
   const [strategies, setStrategies] = useState<SelectionStrategy[]>([]);
   
-
+  // 直接在组件中初始化数据（绕过useEffect问题）
+  if (!isDataInitialized) {
+    console.log('🚀🚀🚀 开始直接初始化数据!!! 🚀🚀🚀');
+    
+    const initData = async () => {
+      try {
+        console.log('🔄 开始初始化数据库概念...');
+        await initDatabaseConcepts();
+        console.log('🔄 开始获取股票数据...');
+        await fetchStocksFromAPI();
+        setIsDataInitialized(true);
+        console.log('✅ 数据初始化完成');
+      } catch (error) {
+        console.error('❌ 数据初始化失败:', error);
+      }
+    };
+    
+    initData();
+  } else {
+    console.log('⏭️ 数据已经初始化，跳过');
+  }
 
   // 股票池操作
   const handleAddStock = (stockData: Omit<Stock, 'id' | 'addedAt' | 'updatedAt'>) => {
@@ -153,7 +173,7 @@ export function StockMarket({ onCreateTradingPlan }: StockMarketProps) {
       };
 
       // 调用后端API更新股票
-      const response = await fetch(`http://localhost:3001/api/v1/stocks/${stockToUpdate.symbol}`, {
+      const response = await fetch(`http://localhost:8000/api/v1/stocks/${stockToUpdate.symbol}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -224,7 +244,7 @@ export function StockMarket({ onCreateTradingPlan }: StockMarketProps) {
       const numericId = strategyId.includes('ema55_strategy') ? 1 :
                        strategyId.includes('strategy_') ? parseInt(strategyId.split('_').pop() || '1') : 1;
 
-      const response = await fetch(`http://localhost:3001/api/v1/strategies/${numericId}/execute`, {
+      const response = await fetch(`http://localhost:8000/api/v1/strategies/${numericId}/execute`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -347,13 +367,21 @@ export function StockMarket({ onCreateTradingPlan }: StockMarketProps) {
                 );
               })}
             </div>
-            <button
-              onClick={handleRunAllStrategies}
-              disabled={strategies.filter(s => s.isActive).length === 0}
-              className="px-3 py-1 bg-gray-800 text-white text-sm rounded hover:bg-gray-900 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
-            >
-              运行所有策略
-            </button>
+            <div className="flex space-x-2">
+              <button 
+                onClick={fetchStocksFromAPI}
+                className="px-3 py-1 bg-blue-500 text-white text-sm rounded hover:bg-blue-600"
+              >
+                手动刷新股票数据
+              </button>
+              <button
+                onClick={handleRunAllStrategies}
+                disabled={strategies.filter(s => s.isActive).length === 0}
+                className="px-3 py-1 bg-gray-800 text-white text-sm rounded hover:bg-gray-900 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
+              >
+                运行所有策略
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -373,10 +401,9 @@ export function StockMarket({ onCreateTradingPlan }: StockMarketProps) {
 
         {currentTab === 'import' && (
           <WatchlistImporter
-            onImportComplete={(importedStocks) => {
-              // 导入完成后，重新加载所有股票数据
-              const allStocks = StockPoolService.getAllStocks();
-              setStocks(allStocks);
+            onImportComplete={async (importedStocks) => {
+              // 导入完成后，重新从API获取股票数据
+              await fetchStocksFromAPI();
 
               // 切换到股票池标签页查看结果
               setCurrentTab('pool');

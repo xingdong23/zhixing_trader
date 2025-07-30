@@ -40,7 +40,7 @@ export interface PlaybookPerformance {
   totalPnL: number;
 }
 
-const API_BASE_URL = 'http://localhost:3001/api/v1';
+const API_BASE_URL = 'http://localhost:8000/api/v1';
 
 export class PlaybookService {
   /**

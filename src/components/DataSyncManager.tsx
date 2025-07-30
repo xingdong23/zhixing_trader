@@ -34,7 +34,7 @@ export default function DataSyncManager() {
   // 获取同步状态
   const fetchSyncStatus = async () => {
     try {
-      const response = await fetch('http://localhost:3001/api/v1/data/sync/status');
+      const response = await fetch('http://localhost:8000/api/v1/data/sync/status');
       const data = await response.json();
 
       if (data.success) {
@@ -51,7 +51,7 @@ export default function DataSyncManager() {
   const triggerSync = async (forceFullSync: boolean = false) => {
     setIsLoading(true);
     try {
-      const response = await fetch(`http://localhost:3001/api/v1/data/sync/trigger?force_full=${forceFullSync}`, {
+      const response = await fetch(`http://localhost:8000/api/v1/data/sync/trigger?force_full=${forceFullSync}`, {
         method: 'POST'
       });
       const result = await response.json();

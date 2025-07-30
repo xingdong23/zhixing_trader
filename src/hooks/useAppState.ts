@@ -46,31 +46,14 @@ const initialAppState: AppState = {
 export function useAppState() {
   const [appState, setAppState] = useState<AppState>(initialAppState);
 
-  // 从localStorage加载数据
+  // 从localStorage加载数据（已废弃，应用状态现在通过API管理）
   useEffect(() => {
-    const savedState = localStorage.getItem('zhixing-trader-state');
-    if (savedState) {
-      try {
-        const parsed = JSON.parse(savedState);
-        setAppState(prev => ({
-          ...prev,
-          ...parsed,
-          // 现在从数据库加载剧本
-          playbooks: parsed.playbooks || []
-        }));
-      } catch (error) {
-        console.error('Failed to load saved state:', error);
-      }
-    }
+    console.warn('⚠️ localStorage状态加载已废弃，应用状态现在通过API管理');
   }, []);
 
-  // 保存状态到localStorage
+  // 保存状态到localStorage（已废弃，应用状态现在通过API管理）
   const saveState = (newState: AppState) => {
-    try {
-      localStorage.setItem('zhixing-trader-state', JSON.stringify(newState));
-    } catch (error) {
-      console.error('Failed to save state:', error);
-    }
+    console.warn('⚠️ localStorage状态保存已废弃，应用状态现在通过API管理');
   };
 
   // 更新应用状态

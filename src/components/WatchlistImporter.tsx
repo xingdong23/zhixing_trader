@@ -160,7 +160,7 @@ export function WatchlistImporter({ onImportComplete }: WatchlistImporterProps) 
 
       try {
         // 发送到后端API保存到数据库
-        const response = await fetch('http://localhost:3001/api/v1/stocks/import', {
+        const response = await fetch('http://localhost:8000/api/v1/stocks/import', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

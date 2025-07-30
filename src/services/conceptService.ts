@@ -10,22 +10,11 @@ export class ConceptService {
   // ==================== 概念管理 ====================
 
   /**
-   * 从本地存储获取概念（同步方法）
+   * 从本地存储获取概念（已废弃，请使用getConcepts）
    */
   static getLocalConcepts(): Concept[] {
-    try {
-      const data = localStorage.getItem(this.CONCEPTS_KEY);
-      if (!data) return [];
-
-      return JSON.parse(data).map((concept: any) => ({
-        ...concept,
-        createdAt: new Date(concept.createdAt),
-        updatedAt: new Date(concept.updatedAt)
-      }));
-    } catch (error) {
-      console.error('获取本地概念数据失败:', error);
-      return [];
-    }
+    console.warn('⚠️ getLocalConcepts已废弃，请使用getConcepts从API获取数据');
+    return [];
   }
 
   /**
@@ -33,7 +22,7 @@ export class ConceptService {
    */
   static async getConcepts(): Promise<Concept[]> {
     try {
-      const response = await fetch('http://localhost:3001/api/v1/concepts/');
+      const response = await fetch('http://localhost:8000/api/v1/concepts/');
 
       if (!response.ok) {
         console.warn('⚠️ 概念API请求失败，返回空数组');
@@ -64,18 +53,10 @@ export class ConceptService {
   }
 
   /**
-   * 保存概念数据
+   * 保存概念数据（已废弃，数据现在通过API自动同步）
    */
   static saveConcepts(concepts: Concept[]): void {
-    try {
-      // 检查是否在浏览器环境
-      if (typeof window === 'undefined') return;
-
-      localStorage.setItem(this.CONCEPTS_KEY, JSON.stringify(concepts));
-    } catch (error) {
-      console.error('保存概念数据失败:', error);
-      throw new Error('保存概念数据失败');
-    }
+    console.warn('⚠️ saveConcepts已废弃，数据现在通过API自动同步');
   }
 
   /**
@@ -84,7 +65,7 @@ export class ConceptService {
   static async createConcept(name: string, description?: string, color?: string): Promise<Concept> {
     try {
       // 调用后端API创建概念
-      const response = await fetch('http://localhost:3001/api/v1/concepts/', {
+      const response = await fetch('http://localhost:8000/api/v1/concepts/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -116,7 +97,7 @@ export class ConceptService {
         };
 
         // 同时保存到本地存储作为备份
-        const concepts = this.getLocalConcepts();
+        const concepts = await this.getConcepts();
         concepts.push(newConcept);
         this.saveConcepts(concepts);
 
@@ -204,7 +185,7 @@ export class ConceptService {
   static async getConceptRelations(): Promise<ConceptStockRelation[]> {
     try {
       console.log('🔄 从数据库API获取概念关联关系...');
-      const response = await fetch('http://localhost:3001/api/v1/concepts/');
+      const response = await fetch('http://localhost:8000/api/v1/concepts/');
 
       if (!response.ok) {
         console.warn('⚠️ 概念关联API请求失败，返回空数组');
@@ -244,15 +225,7 @@ export class ConceptService {
    * 保存关联关系
    */
   static saveConceptRelations(relations: ConceptStockRelation[]): void {
-    try {
-      // 检查是否在浏览器环境
-      if (typeof window === 'undefined') return;
-
-      localStorage.setItem(this.CONCEPT_RELATIONS_KEY, JSON.stringify(relations));
-    } catch (error) {
-      console.error('保存关联关系失败:', error);
-      throw new Error('保存关联关系失败');
-    }
+    console.warn('⚠️ saveConceptRelations已废弃，数据现在通过API自动同步');
   }
   /**
    * 从概念中移除股票
@@ -274,7 +247,7 @@ export class ConceptService {
    */
   static async addStocksToConceptAPI(conceptId: string, stockIds: string[]): Promise<void> {
     try {
-      const response = await fetch(`http://localhost:3001/api/v1/concepts/${conceptId}/stocks`, {
+      const response = await fetch(`http://localhost:8000/api/v1/concepts/${conceptId}/stocks`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -304,7 +277,7 @@ export class ConceptService {
    */
   static async removeStockFromConceptAPI(conceptId: string, stockId: string): Promise<void> {
     try {
-      const response = await fetch(`http://localhost:3001/api/v1/concepts/${conceptId}/stocks/${stockId}`, {
+      const response = await fetch(`http://localhost:8000/api/v1/concepts/${conceptId}/stocks/${stockId}`, {
         method: 'DELETE'
       });
 
@@ -437,16 +410,7 @@ export class ConceptService {
    * 清空所有概念数据
    */
   static clearAllData(): void {
-    try {
-      // 检查是否在浏览器环境
-      if (typeof window === 'undefined') return;
-
-      localStorage.removeItem(this.CONCEPTS_KEY);
-      localStorage.removeItem(this.CONCEPT_RELATIONS_KEY);
-    } catch (error) {
-      console.error('清空概念数据失败:', error);
-      throw new Error('清空概念数据失败');
-    }
+    console.warn('⚠️ clearAllData已废弃，请使用API清空数据');
   }
 
   /**
@@ -471,8 +435,7 @@ export class ConceptService {
     concepts: Concept[];
     relations: ConceptStockRelation[];
   }): void {
-    this.saveConcepts(data.concepts);
-    this.saveConceptRelations(data.relations);
+    console.warn('⚠️ importData已废弃，请使用API导入概念数据');
   }
 
   /**
@@ -515,69 +478,6 @@ export class ConceptService {
       console.error('初始化示例概念数据失败:', error);
     }
   }
-
-  /**
-   * 根据股票代码建立概念关联
-   * 需要在股票池有数据后调用
-   */
-  static async establishStockConceptRelations(availableStockSymbols: string[]): Promise<void> {
-    // 检查是否在浏览器环境
-    if (typeof window === 'undefined') return;
-
-    try {
-      const concepts = await this.getConcepts();
-      let relationsCreated = 0;
-
-      // 定义概念与股票的映射关系
-      const conceptStockMappings: Record<string, string[]> = {
-        '新能源汽车': ['BYD', 'TSLA', 'NIO'],
-        '人工智能': ['NVDA', 'GOOGL', 'MSFT'],
-        '5G通信': ['AAPL', 'QCOM', 'NOK']
-      };
-
-      for (const concept of concepts) {
-        const mappedSymbols = conceptStockMappings[concept.name] || [];
-        const validSymbols = mappedSymbols.filter(symbol =>
-          availableStockSymbols.includes(symbol)
-        );
-
-        if (validSymbols.length > 0) {
-          // 这里需要根据symbol找到对应的stockId
-          // 暂时跳过，等StockPoolService集成时再实现
-          console.log(`概念"${concept.name}"可关联股票:`, validSymbols);
-        }
-      }
-
-      if (relationsCreated > 0) {
-        console.log(`已建立 ${relationsCreated} 个概念-股票关联关系`);
-      }
-    } catch (error) {
-      console.error('建立概念-股票关联失败:', error);
-    }
-  }
-
-  /**
-   * 根据股票代码获取推荐概念
-   */
-  static getRecommendedConceptsForStock(symbol: string): string[] {
-    const recommendedConcepts: string[] = [];
-
-    // 定义概念与股票的映射关系
-    const conceptStockMappings: Record<string, string[]> = {
-      '新能源汽车': ['BYD', 'TSLA', 'NIO'],
-      '人工智能': ['NVDA', 'GOOGL', 'MSFT'],
-      '5G通信': ['AAPL', 'QCOM', 'NOK']
-    };
-
-    for (const [conceptName, stockSymbols] of Object.entries(conceptStockMappings)) {
-      if ((stockSymbols as string[]).includes(symbol)) {
-        recommendedConcepts.push(conceptName);
-      }
-    }
-
-    return recommendedConcepts;
-  }
-
   /**
    * 自动为股票添加推荐的概念标签（已废弃 - 现在使用数据库API）
    */

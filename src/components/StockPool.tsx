@@ -567,8 +567,22 @@ function StockForm({
     notes: stock?.notes || ''
   });
 
-  const [newIndustryTag, setNewIndustryTag] = useState('');
   const [newFundamentalTag, setNewFundamentalTag] = useState('');
+  const [concepts, setConcepts] = useState<Concept[]>([]);
+  const [newConceptName, setNewConceptName] = useState('');
+
+  // 加载概念数据
+  useEffect(() => {
+    const loadConcepts = async () => {
+      try {
+        const conceptsData = await ConceptService.getConcepts();
+        setConcepts(conceptsData);
+      } catch (error) {
+        console.error('加载概念数据失败:', error);
+      }
+    };
+    loadConcepts();
+  }, []);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -585,26 +599,43 @@ function StockForm({
     });
   };
 
-  const addIndustryTag = (tag: string) => {
-    if (tag && !formData.tags.industry.includes(tag)) {
+  // 概念管理函数
+  const addConceptToStock = async (conceptId: string) => {
+    if (conceptId && !formData.conceptIds.includes(conceptId)) {
       setFormData({
         ...formData,
-        tags: {
-          ...formData.tags,
-          industry: [...formData.tags.industry, tag]
-        }
+        conceptIds: [...formData.conceptIds, conceptId]
       });
     }
   };
 
-  const removeIndustryTag = (tag: string) => {
+  const removeConceptFromStock = (conceptId: string) => {
     setFormData({
       ...formData,
-      tags: {
-        ...formData.tags,
-        industry: formData.tags.industry.filter(t => t !== tag)
-      }
+      conceptIds: formData.conceptIds.filter(id => id !== conceptId)
     });
+  };
+
+  const createAndAddConcept = async (conceptName: string) => {
+    if (!conceptName.trim()) return;
+
+    try {
+      // 检查概念是否已存在
+      const existingConcept = concepts.find(c => c.name.toLowerCase() === conceptName.toLowerCase());
+      if (existingConcept) {
+        await addConceptToStock(existingConcept.id);
+        setNewConceptName('');
+        return;
+      }
+
+      // 创建新概念
+      const newConcept = await ConceptService.createConcept(conceptName.trim());
+      setConcepts(prev => [...prev, newConcept]);
+      await addConceptToStock(newConcept.id);
+      setNewConceptName('');
+    } catch (error) {
+      console.error('创建概念失败:', error);
+    }
   };
 
   const addFundamentalTag = (tag: string) => {
@@ -628,41 +659,6 @@ function StockForm({
       }
     });
   };
-
-  // 概念标签管理
-  const addConceptToStock = (conceptId: string) => {
-    if (conceptId && !formData.conceptIds.includes(conceptId)) {
-      setFormData({
-        ...formData,
-        conceptIds: [...formData.conceptIds, conceptId]
-      });
-    }
-  };
-
-  const removeConceptFromStock = (conceptId: string) => {
-    setFormData({
-      ...formData,
-      conceptIds: formData.conceptIds.filter(id => id !== conceptId)
-    });
-  };
-
-  // 表单中可用的概念数据
-  const [availableConceptsForForm, setAvailableConceptsForForm] = useState<Concept[]>([]);
-
-  // 异步获取表单概念数据
-  useEffect(() => {
-    const fetchFormConcepts = async () => {
-      try {
-        const concepts = await ConceptService.getConcepts();
-        setAvailableConceptsForForm(concepts);
-      } catch (error) {
-        console.error('获取表单概念数据失败:', error);
-        setAvailableConceptsForForm([]);
-      }
-    };
-
-    fetchFormConcepts();
-  }, []);
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
@@ -768,10 +764,10 @@ function StockForm({
             />
           </div>
 
-          {/* 行业标签 */}
+          {/* 概念管理 */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              行业标签
+              概念管理
             </label>
             <div className="space-y-2">
               <div className="flex space-x-2">
@@ -779,48 +775,50 @@ function StockForm({
                   value=""
                   onChange={(e) => {
                     if (e.target.value) {
-                      addIndustryTag(e.target.value);
+                      addConceptToStock(e.target.value);
                       e.target.value = '';
                     }
                   }}
                   className="flex-1 p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 >
-                  <option value="">选择行业标签...</option>
-                  {industryTags.map(tag => (
-                    <option key={tag} value={tag}>{tag}</option>
+                  <option value="">选择概念...</option>
+                  {concepts.map(concept => (
+                    <option key={concept.id} value={concept.id}>{concept.name}</option>
                   ))}
                 </select>
                 <input
                   type="text"
-                  value={newIndustryTag}
-                  onChange={(e) => setNewIndustryTag(e.target.value)}
+                  value={newConceptName}
+                  onChange={(e) => setNewConceptName(e.target.value)}
                   onKeyPress={(e) => {
                     if (e.key === 'Enter') {
                       e.preventDefault();
-                      addIndustryTag(newIndustryTag);
-                      setNewIndustryTag('');
+                      createAndAddConcept(newConceptName);
                     }
                   }}
                   className="flex-1 p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="或输入自定义标签..."
+                  placeholder="或输入自定义概念..."
                 />
               </div>
               <div className="flex flex-wrap gap-2">
-                {formData.tags.industry.map((tag, index) => (
-                  <span
-                    key={index}
-                    className="px-3 py-1 bg-blue-100 text-blue-800 text-sm rounded-full flex items-center"
-                  >
-                    {tag}
-                    <button
-                      type="button"
-                      onClick={() => removeIndustryTag(tag)}
-                      className="ml-2 text-blue-600 hover:text-blue-800"
+                {formData.conceptIds.map((conceptId) => {
+                  const concept = concepts.find(c => c.id === conceptId);
+                  return concept ? (
+                    <span
+                      key={conceptId}
+                      className="px-3 py-1 bg-purple-100 text-purple-800 text-sm rounded-full flex items-center"
                     >
-                      ×
-                    </button>
-                  </span>
-                ))}
+                      {concept.name}
+                      <button
+                        type="button"
+                        onClick={() => removeConceptFromStock(conceptId)}
+                        className="ml-2 text-purple-600 hover:text-purple-800"
+                      >
+                        ×
+                      </button>
+                    </span>
+                  ) : null;
+                })}
               </div>
             </div>
           </div>
@@ -882,54 +880,7 @@ function StockForm({
             </div>
           </div>
 
-          {/* 概念标签 */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              概念标签
-            </label>
-            <div className="space-y-2">
-              <select
-                value=""
-                onChange={(e) => {
-                  if (e.target.value) {
-                    addConceptToStock(e.target.value);
-                    e.target.value = '';
-                  }
-                }}
-                className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              >
-                <option value="">选择概念标签...</option>
-                {availableConceptsForForm
-                  .filter(concept => !formData.conceptIds.includes(concept.id))
-                  .map(concept => (
-                    <option key={concept.id} value={concept.id}>
-                      {concept.name} ({concept.stockCount} 只股票)
-                    </option>
-                  ))}
-              </select>
-              <div className="flex flex-wrap gap-2">
-                {formData.conceptIds.map((conceptId) => {
-                  const concept = availableConceptsForForm.find(c => c.id === conceptId);
-                  return concept ? (
-                    <span
-                      key={conceptId}
-                      className="px-3 py-1 text-white text-sm rounded-full flex items-center"
-                      style={{ backgroundColor: concept.color }}
-                    >
-                      {concept.name}
-                      <button
-                        type="button"
-                        onClick={() => removeConceptFromStock(conceptId)}
-                        className="ml-2 text-white hover:text-gray-200"
-                      >
-                        ×
-                      </button>
-                    </span>
-                  ) : null;
-                })}
-              </div>
-            </div>
-          </div>
+
 
           {/* 备注 */}
           <div>

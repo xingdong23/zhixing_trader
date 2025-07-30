@@ -28,7 +28,7 @@ class Settings(BaseSettings):
     log_file: str = "./logs/api.log"
     
     # CORS配置
-    cors_origins: List[str] = ["http://localhost:3000"]
+    cors_origins: List[str] = ["*"]
     
     # 数据更新配置
     quote_update_interval: int = 5
