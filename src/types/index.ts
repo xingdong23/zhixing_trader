@@ -1,9 +1,21 @@
-// 【知行交易】核心数据模型定义
-// 这些类型定义体现了从工具到交易教练的核心哲学
+// 【知行交易】核心类型定义 - 统一导出
 
-// ==================== 基础枚举类型 ====================
+// 重新导出所有类型模块
+export * from './stock';
+export * from './trading';
+export * from './strategy';
+export * from './api';
 
-// 交易情绪类型 - 帮助用户识别和管理交易心理
+// 保持向后兼容的类型别名
+export type { Stock as StockType } from './stock';
+export type { TradingPlan as TradingPlanType } from './trading';
+export type { SelectionStrategy as StrategyType } from './strategy';
+export type { ApiResponse as ApiResponseType } from './api';
+
+// ==================== 遗留类型定义（待迁移） ====================
+// 注意：以下类型定义将逐步迁移到对应的模块文件中
+
+// 基础枚举
 export enum TradingEmotion {
   CALM = 'calm',           // 冷静分析
   FOMO = 'fomo',           // 害怕错过
@@ -14,7 +26,6 @@ export enum TradingEmotion {
   UNCERTAIN = 'uncertain'  // 不确定
 }
 
-// 信息来源类型 - 追踪决策依据的质量
 export enum InformationSource {
   SELF_ANALYSIS = 'self_analysis',     // 自己分析
   FRIEND_RECOMMEND = 'friend_recommend', // 朋友推荐
@@ -24,7 +35,6 @@ export enum InformationSource {
   TECHNICAL_SIGNAL = 'technical_signal' // 技术信号
 }
 
-// 交易状态
 export enum TradeStatus {
   PLANNING = 'planning',     // 计划中
   ACTIVE = 'active',         // 执行中
@@ -32,7 +42,6 @@ export enum TradeStatus {
   CANCELLED = 'cancelled'    // 已取消
 }
 
-// 纪律执行评级
 export enum DisciplineRating {
   PERFECT = 'perfect',       // 完美执行
   GOOD = 'good',            // 基本执行
@@ -40,20 +49,16 @@ export enum DisciplineRating {
   POOR = 'poor'             // 未执行
 }
 
-// ==================== 核心数据结构 ====================
-
-// ==================== 高级交易策略数据结构 ====================
-
-// 加仓层级 - 金字塔式加仓的单个层级
+// 加仓层级 - 分批建仓的单个层级
 export interface PositionLayer {
   id: string;
   layerIndex: number;         // 层级序号 (1, 2, 3...)
   targetPrice: number;        // 目标加仓价格
-  positionPercent: number;    // 该层级仓位占总资金比例 (如20%)
+  positionPercent: number;    // 该层级仓位占总资金比例
   executed: boolean;          // 是否已执行
   actualPrice?: number;       // 实际执行价格
   executedAt?: Date;          // 执行时间
-  deviation?: number;         // 执行偏差 (实际价格 vs 计划价格)
+  deviation?: number;         // 执行偏差
 }
 
 // 止盈层级 - 滚动止盈的单个层级
