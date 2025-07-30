@@ -15,7 +15,7 @@ export const API_CONFIG = {
 // API端点配置
 export const API_ENDPOINTS = {
   // 概念相关
-  CONCEPTS: '/concepts',
+  CONCEPTS: '/concepts/',
   CONCEPTS_INIT_SAMPLE: '/concepts/init-sample-data',
   CONCEPT_RELATIONS: '/concepts/relations',
   CONCEPT_STOCKS: (conceptId: string) => `/concepts/${conceptId}/stocks`,
