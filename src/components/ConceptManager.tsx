@@ -2,10 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
-import { 
-  Plus, Edit2, Trash2, Tag, Search, Users, BarChart3, 
-  X, Check, AlertCircle, ChevronDown, ChevronRight 
-} from 'lucide-react';
+import { Plus, Edit2, Trash2, Tag, Search, BarChart3, X, Check, ChevronDown, ChevronRight } from 'lucide-react';
 import { ConceptService } from '@/services/conceptService';
 import { StockPoolService } from '@/services/stockPoolService';
 import { Concept, Stock } from '@/types';
@@ -15,116 +12,113 @@ interface ConceptManagerProps {
 }
 
 export function ConceptManager({ onConceptSelect }: ConceptManagerProps) {
+  // 简化状态管理
   const [concepts, setConcepts] = useState<Concept[]>([]);
   const [stocks, setStocks] = useState<Stock[]>([]);
   const [expandedConcepts, setExpandedConcepts] = useState<Set<string>>(new Set());
   const [editingConcept, setEditingConcept] = useState<string | null>(null);
-  const [newConceptName, setNewConceptName] = useState('');
-  const [newConceptDescription, setNewConceptDescription] = useState('');
-  const [showCreateForm, setShowCreateForm] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [showCreateForm, setShowCreateForm] = useState(false);
+  const [newConceptName, setNewConceptName] = useState('');
   const [selectedStocks, setSelectedStocks] = useState<Set<string>>(new Set());
   const [showStockSelector, setShowStockSelector] = useState<string | null>(null);
-  const [stats, setStats] = useState<{
-    totalConcepts: number;
-    totalRelations: number;
-    avgStocksPerConcept: number;
-    topConcepts: Array<{ name: string; stockCount: number }>;
-  } | null>(null);
-  const [conceptStocks, setConceptStocks] = useState<Record<string, Stock[]>>({});
 
-  // 加载数据
+  // 数据加载
   useEffect(() => {
     loadData();
   }, []);
 
   const loadData = async () => {
     try {
-      // 只从后端数据库获取数据
-      const loadedConcepts = await ConceptService.getConcepts();
-      const loadedStocks = await StockPoolService.getStocksFromAPI(); // 从API获取股票数据
-
+      const [loadedConcepts, loadedStocks] = await Promise.all([
+        ConceptService.getConcepts(),
+        StockPoolService.getStocksFromAPI()
+      ]);
       setConcepts(loadedConcepts);
       setStocks(loadedStocks);
-
-      // 基于已加载的数据计算统计信息，避免重复API调用
-      const totalConcepts = loadedConcepts.length;
-      const totalRelations = loadedConcepts.reduce((sum, concept) => sum + concept.stockCount, 0);
-      const avgStocksPerConcept = totalConcepts > 0 ? totalRelations / totalConcepts : 0;
-      const topConcepts = loadedConcepts
-        .sort((a, b) => b.stockCount - a.stockCount)
-        .slice(0, 5)
-        .map(c => ({ name: c.name, stockCount: c.stockCount }));
-
-      setStats({
-        totalConcepts,
-        totalRelations,
-        avgStocksPerConcept: Math.round(avgStocksPerConcept * 10) / 10,
-        topConcepts
-      });
-
-      // 概念的股票关联关系已经在概念数据中包含了stockIds
-      const conceptStocksMap: Record<string, Stock[]> = {};
-      for (const concept of loadedConcepts) {
-        // 直接使用概念中的stockIds，不需要额外API调用
-        conceptStocksMap[concept.id] = loadedStocks.filter(stock =>
-          concept.stockIds.includes(stock.id)
-        );
-      }
-      setConceptStocks(conceptStocksMap);
     } catch (error) {
-      console.error('加载概念数据失败:', error);
+      console.error('加载数据失败:', error);
     }
   };
 
   // 筛选概念
   const filteredConcepts = concepts.filter(concept =>
-    concept.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    (concept.description && concept.description.toLowerCase().includes(searchQuery.toLowerCase()))
+    concept.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  // 获取概念下的股票
+  const getConceptStocks = (conceptId: string): Stock[] => {
+    const concept = concepts.find(c => c.id === conceptId);
+    if (!concept) return [];
+    return stocks.filter(stock => concept.stockIds.includes(stock.id));
+  };
+
+  // 获取可添加的股票
+  const getAvailableStocks = (conceptId: string): Stock[] => {
+    const conceptStockIds = getConceptStocks(conceptId).map(stock => stock.id);
+    return stocks.filter(stock => !conceptStockIds.includes(stock.id));
+  };
 
   // 创建概念
   const handleCreateConcept = async () => {
     if (!newConceptName.trim()) return;
-
     try {
-      const newConcept = await ConceptService.createConcept(newConceptName.trim(), newConceptDescription.trim() || undefined);
-      setNewConceptName('');
-      setNewConceptDescription('');
-      setShowCreateForm(false);
-
-      // 只更新概念列表，不重新加载所有数据
+      const newConcept = await ConceptService.createConcept(newConceptName.trim());
       setConcepts(prev => [...prev, newConcept]);
+      setNewConceptName('');
+      setShowCreateForm(false);
     } catch (error) {
-      alert(error instanceof Error ? error.message : '创建概念失败');
+      alert('创建概念失败');
     }
   };
 
   // 更新概念
-  const handleUpdateConcept = (id: string, name: string, description?: string) => {
+  const handleUpdateConcept = async (id: string, name: string) => {
     try {
-      ConceptService.updateConcept(id, { name: name.trim(), description: description?.trim() });
+      await ConceptService.updateConcept(id, { name: name.trim() });
       setEditingConcept(null);
       loadData();
     } catch (error) {
-      alert(error instanceof Error ? error.message : '更新概念失败');
+      alert('更新概念失败');
     }
   };
 
   // 删除概念
-  const handleDeleteConcept = (id: string, name: string) => {
-    if (confirm(`确定要删除概念"${name}"吗？这将同时移除所有相关的股票关联。`)) {
-      try {
-        ConceptService.deleteConcept(id);
-        loadData();
-      } catch (error) {
-        alert(error instanceof Error ? error.message : '删除概念失败');
-      }
+  const handleDeleteConcept = async (id: string, name: string) => {
+    if (!confirm(`确定要删除概念"${name}"吗？`)) return;
+    try {
+      await ConceptService.deleteConcept(id);
+      loadData();
+    } catch (error) {
+      alert('删除概念失败');
     }
   };
 
-  // 切换概念展开状态
-  const toggleConceptExpansion = (conceptId: string) => {
+  // 添加股票到概念
+  const handleAddStocksToConcept = async (conceptId: string) => {
+    if (selectedStocks.size === 0) return;
+    try {
+      await ConceptService.addStocksToConceptAPI(conceptId, Array.from(selectedStocks));
+      setSelectedStocks(new Set());
+      setShowStockSelector(null);
+      loadData();
+    } catch (error) {
+      alert('添加股票失败');
+    }
+  };
+
+  // 移除股票
+  const handleRemoveStock = async (conceptId: string, stockId: string) => {
+    try {
+      await ConceptService.removeStockFromConcept(conceptId, stockId);
+      loadData();
+    } catch (error) {
+      alert('移除股票失败');
+    }
+  };
+
+  // 切换展开状态
+  const toggleExpansion = (conceptId: string) => {
     const newExpanded = new Set(expandedConcepts);
     if (newExpanded.has(conceptId)) {
       newExpanded.delete(conceptId);
@@ -134,41 +128,6 @@ export function ConceptManager({ onConceptSelect }: ConceptManagerProps) {
     setExpandedConcepts(newExpanded);
   };
 
-  // 获取概念下的股票
-  const getConceptStocks = (conceptId: string): Stock[] => {
-    return conceptStocks[conceptId] || [];
-  };
-
-  // 获取未关联到指定概念的股票
-  const getAvailableStocks = (conceptId: string): Stock[] => {
-    const conceptStockIds = (conceptStocks[conceptId] || []).map(stock => stock.id);
-    return stocks.filter(stock => !conceptStockIds.includes(stock.id));
-  };
-
-  // 添加股票到概念
-  const handleAddStocksToConcept = async (conceptId: string) => {
-    if (selectedStocks.size === 0) return;
-
-    try {
-      await ConceptService.addStocksToConceptAPI(conceptId, Array.from(selectedStocks));
-      setSelectedStocks(new Set());
-      setShowStockSelector(null);
-      loadData();
-    } catch (error) {
-      alert(error instanceof Error ? error.message : '添加股票失败');
-    }
-  };
-
-  // 从概念中移除股票
-  const handleRemoveStockFromConcept = (conceptId: string, stockId: string) => {
-    try {
-      ConceptService.removeStockFromConcept(conceptId, stockId);
-      loadData();
-    } catch (error) {
-      alert(error instanceof Error ? error.message : '移除股票失败');
-    }
-  };
-
   return (
     <div className="space-y-6">
       {/* 统计概览 */}
@@ -176,28 +135,26 @@ export function ConceptManager({ onConceptSelect }: ConceptManagerProps) {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <BarChart3 className="w-5 h-5" />
-            概念标签统计
+            概念统计
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-3 gap-4">
             <div className="text-center p-4 bg-blue-50 rounded-lg">
-              <div className="text-2xl font-bold text-blue-600">{stats?.totalConcepts || 0}</div>
+              <div className="text-2xl font-bold text-blue-600">{concepts.length}</div>
               <div className="text-sm text-blue-700">概念数量</div>
             </div>
             <div className="text-center p-4 bg-green-50 rounded-lg">
-              <div className="text-2xl font-bold text-green-600">{stats?.totalRelations || 0}</div>
-              <div className="text-sm text-green-700">关联关系</div>
+              <div className="text-2xl font-bold text-green-600">
+                {concepts.reduce((sum, c) => sum + c.stockCount, 0)}
+              </div>
+              <div className="text-sm text-green-700">关联股票</div>
             </div>
             <div className="text-center p-4 bg-purple-50 rounded-lg">
-              <div className="text-2xl font-bold text-purple-600">{stats?.avgStocksPerConcept || 0}</div>
-              <div className="text-sm text-purple-700">平均股票数</div>
-            </div>
-            <div className="text-center p-4 bg-orange-50 rounded-lg">
-              <div className="text-lg font-bold text-orange-600">
-                {stats?.topConcepts?.[0]?.name || '无'}
+              <div className="text-2xl font-bold text-purple-600">
+                {concepts.length > 0 ? Math.round(concepts.reduce((sum, c) => sum + c.stockCount, 0) / concepts.length * 10) / 10 : 0}
               </div>
-              <div className="text-sm text-orange-700">最大概念</div>
+              <div className="text-sm text-purple-700">平均股票数</div>
             </div>
           </div>
         </CardContent>
@@ -211,7 +168,6 @@ export function ConceptManager({ onConceptSelect }: ConceptManagerProps) {
             概念管理
           </CardTitle>
           <div className="flex gap-2">
-            {/* 搜索框 */}
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
               <input
@@ -219,10 +175,9 @@ export function ConceptManager({ onConceptSelect }: ConceptManagerProps) {
                 placeholder="搜索概念..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
               />
             </div>
-            {/* 创建按钮 */}
             <button
               onClick={() => setShowCreateForm(true)}
               className="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
@@ -233,46 +188,35 @@ export function ConceptManager({ onConceptSelect }: ConceptManagerProps) {
           </div>
         </CardHeader>
         <CardContent>
-          {/* 创建概念表单 */}
+          {/* 创建表单 */}
           {showCreateForm && (
             <div className="mb-6 p-4 border border-gray-200 rounded-lg bg-gray-50">
               <h4 className="font-semibold mb-3">创建新概念</h4>
-              <div className="space-y-3">
+              <div className="flex gap-2">
                 <input
                   type="text"
-                  placeholder="概念名称（必填）"
+                  placeholder="概念名称"
                   value={newConceptName}
                   onChange={(e) => setNewConceptName(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500"
+                  className="flex-1 px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500"
+                  onKeyDown={(e) => e.key === 'Enter' && handleCreateConcept()}
                 />
-                <input
-                  type="text"
-                  placeholder="概念描述（可选）"
-                  value={newConceptDescription}
-                  onChange={(e) => setNewConceptDescription(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500"
-                />
-                <div className="flex gap-2">
-                  <button
-                    onClick={handleCreateConcept}
-                    disabled={!newConceptName.trim()}
-                    className="flex items-center gap-2 px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 disabled:bg-gray-300"
-                  >
-                    <Check className="w-4 h-4" />
-                    创建
-                  </button>
-                  <button
-                    onClick={() => {
-                      setShowCreateForm(false);
-                      setNewConceptName('');
-                      setNewConceptDescription('');
-                    }}
-                    className="flex items-center gap-2 px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
-                  >
-                    <X className="w-4 h-4" />
-                    取消
-                  </button>
-                </div>
+                <button
+                  onClick={handleCreateConcept}
+                  disabled={!newConceptName.trim()}
+                  className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 disabled:bg-gray-300"
+                >
+                  <Check className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={() => {
+                    setShowCreateForm(false);
+                    setNewConceptName('');
+                  }}
+                  className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
+                >
+                  <X className="w-4 h-4" />
+                </button>
               </div>
             </div>
           )}
@@ -282,7 +226,6 @@ export function ConceptManager({ onConceptSelect }: ConceptManagerProps) {
             <div className="text-center py-8 text-gray-500">
               <Tag className="w-12 h-12 mx-auto mb-4 opacity-50" />
               <p>{searchQuery ? '没有找到匹配的概念' : '暂无概念标签'}</p>
-              <p className="text-sm">点击"创建概念"开始添加</p>
             </div>
           ) : (
             <div className="space-y-3">
@@ -292,76 +235,47 @@ export function ConceptManager({ onConceptSelect }: ConceptManagerProps) {
                 const isEditing = editingConcept === concept.id;
 
                 return (
-                  <div key={concept.id} className="border border-gray-200 rounded-lg overflow-hidden">
+                  <div key={concept.id} className="border border-gray-200 rounded-lg">
                     {/* 概念标题 */}
                     <div className="p-4 bg-gray-50 flex items-center justify-between">
                       <div className="flex items-center gap-3 flex-1">
                         <button
-                          onClick={() => toggleConceptExpansion(concept.id)}
+                          onClick={() => toggleExpansion(concept.id)}
                           className="text-gray-400 hover:text-gray-600"
                         >
-                          {isExpanded ? (
-                            <ChevronDown className="w-4 h-4" />
-                          ) : (
-                            <ChevronRight className="w-4 h-4" />
-                          )}
+                          {isExpanded ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
                         </button>
                         
-                        <div 
-                          className="w-4 h-4 rounded-full" 
-                          style={{ backgroundColor: concept.color }}
-                        ></div>
+                        <div className="w-4 h-4 rounded-full" style={{ backgroundColor: concept.color }}></div>
 
                         {isEditing ? (
-                          <div className="flex-1 flex gap-2">
-                            <input
-                              type="text"
-                              defaultValue={concept.name}
-                              onKeyDown={(e) => {
-                                if (e.key === 'Enter') {
-                                  const target = e.target as HTMLInputElement;
-                                  const descInput = target.nextElementSibling as HTMLInputElement;
-                                  handleUpdateConcept(concept.id, target.value, descInput?.value);
-                                }
-                              }}
-                              className="flex-1 px-2 py-1 border border-gray-300 rounded text-sm"
-                            />
-                            <input
-                              type="text"
-                              defaultValue={concept.description || ''}
-                              placeholder="描述"
-                              onKeyDown={(e) => {
-                                if (e.key === 'Enter') {
-                                  const target = e.target as HTMLInputElement;
-                                  const nameInput = target.previousElementSibling as HTMLInputElement;
-                                  handleUpdateConcept(concept.id, nameInput.value, target.value);
-                                }
-                              }}
-                              className="flex-1 px-2 py-1 border border-gray-300 rounded text-sm"
-                            />
-                          </div>
+                          <input
+                            type="text"
+                            defaultValue={concept.name}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter') {
+                                handleUpdateConcept(concept.id, (e.target as HTMLInputElement).value);
+                              }
+                            }}
+                            className="flex-1 px-2 py-1 border border-gray-300 rounded"
+                            autoFocus
+                          />
                         ) : (
                           <div className="flex-1">
                             <h3 className="font-semibold text-gray-800">{concept.name}</h3>
-                            {concept.description && (
-                              <p className="text-sm text-gray-600">{concept.description}</p>
-                            )}
                           </div>
                         )}
                       </div>
 
                       <div className="flex items-center gap-2">
-                        <span className="text-sm text-gray-500">
-                          {concept.stockCount} 只股票
-                        </span>
+                        <span className="text-sm text-gray-500">{concept.stockCount} 只股票</span>
                         
                         {isEditing ? (
                           <div className="flex gap-1">
                             <button
                               onClick={() => {
-                                const nameInput = document.querySelector(`input[defaultValue="${concept.name}"]`) as HTMLInputElement;
-                                const descInput = nameInput?.nextElementSibling as HTMLInputElement;
-                                handleUpdateConcept(concept.id, nameInput?.value || concept.name, descInput?.value);
+                                const input = document.querySelector(`input[defaultValue="${concept.name}"]`) as HTMLInputElement;
+                                handleUpdateConcept(concept.id, input?.value || concept.name);
                               }}
                               className="p-1 text-green-600 hover:bg-green-100 rounded"
                             >
@@ -396,7 +310,7 @@ export function ConceptManager({ onConceptSelect }: ConceptManagerProps) {
                     {/* 展开的股票列表 */}
                     {isExpanded && (
                       <div className="border-t">
-                        {/* 添加股票按钮 */}
+                        {/* 添加股票 */}
                         <div className="p-3 border-b bg-white">
                           <button
                             onClick={() => setShowStockSelector(concept.id)}
@@ -410,7 +324,7 @@ export function ConceptManager({ onConceptSelect }: ConceptManagerProps) {
                         {/* 股票选择器 */}
                         {showStockSelector === concept.id && (
                           <div className="p-3 border-b bg-blue-50">
-                            <h5 className="font-medium mb-2">选择要添加的股票：</h5>
+                            <h5 className="font-medium mb-2">选择股票：</h5>
                             <div className="max-h-40 overflow-y-auto space-y-1">
                               {getAvailableStocks(concept.id).map(stock => (
                                 <label key={stock.id} className="flex items-center gap-2 text-sm">
@@ -457,7 +371,7 @@ export function ConceptManager({ onConceptSelect }: ConceptManagerProps) {
                         <div className="max-h-60 overflow-y-auto">
                           {conceptStocks.length === 0 ? (
                             <div className="p-4 text-center text-gray-500 text-sm">
-                              暂无股票，点击"添加股票"开始添加
+                              暂无股票
                             </div>
                           ) : (
                             <div className="divide-y">
@@ -475,9 +389,8 @@ export function ConceptManager({ onConceptSelect }: ConceptManagerProps) {
                                     </span>
                                   </div>
                                   <button
-                                    onClick={() => handleRemoveStockFromConcept(concept.id, stock.id)}
+                                    onClick={() => handleRemoveStock(concept.id, stock.id)}
                                     className="p-1 text-red-600 hover:bg-red-100 rounded"
-                                    title="移除"
                                   >
                                     <X className="w-3 h-3" />
                                   </button>
