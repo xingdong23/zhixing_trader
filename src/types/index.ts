@@ -868,48 +868,5 @@ export interface ImportedStock {
   notes: string;
 }
 
-// ==================== 导出所有类型 ====================
-export type {
-  // 基础类型
-  TradingEmotion,
-  InformationSource,
-  TradeStatus,
-  DisciplineRating,
-
-  // 交易计划相关
-  TradingPlan,
-  PositionLayer,
-  TakeProfitLayer,
-  DisciplineStatus,
-  DisciplineViolation,
-
-  // 交易执行相关
-  TradeExecution,
-  TradeReview,
-
-  // 股票相关
-  Stock,
-  StockOpinion,
-  StockPoolStats,
-
-  // 选股策略相关
-  SelectionStrategy,
-  StrategyCondition,
-  DailySelection,
-  SelectedStock,
-
-  // 推荐系统相关
-  TradingRecommendation,
-
-  // 系统配置相关
-  SystemSettings,
-
-  // 富途导入相关
-  Industry,
-  FutuStockData,
-  ImportedStock,
-
-  // 概念标签系统
-  Concept,
-  ConceptStockRelation
-};
+// 枚举类型已经通过 export enum 导出，不需要重复导出
+// 接口类型通过 export interface 导出，也不需要重复导出

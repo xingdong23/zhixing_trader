@@ -68,7 +68,7 @@ export default function DataSyncManager() {
       console.error('触发同步失败:', error);
       setLastSyncResult({
         success: false,
-        message: `触发同步失败: ${error}`
+        message: `触发同步失败: ${error instanceof Error ? error.message : String(error)}`
       });
     } finally {
       setIsLoading(false);
@@ -160,7 +160,7 @@ export default function DataSyncManager() {
         <div className="bg-gray-50 rounded-lg p-4">
           <div className="text-sm text-gray-600">最后同步</div>
           <div className="text-sm font-medium text-gray-900">
-            {formatDateTime(syncStatus?.last_sync_time)}
+            {formatDateTime(syncStatus?.last_sync_time || null)}
           </div>
         </div>
       </div>

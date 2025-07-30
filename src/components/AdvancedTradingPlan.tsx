@@ -14,7 +14,7 @@ import {
   DisciplineStatus,
   DisciplineViolation,
   TradeStatus
-} from '@/types';
+} from '@/types/index';
 import { 
   Plus, 
   Minus, 

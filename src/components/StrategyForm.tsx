@@ -26,14 +26,37 @@ interface StrategyFormProps {
 }
 
 export function StrategyForm({ strategy, onSave, onCancel }: StrategyFormProps) {
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<{
+    name: string;
+    description: string;
+    category: 'breakthrough' | 'pullback' | 'pattern' | 'indicator' | 'fundamental';
+    conditions: {
+      technical: TechnicalCondition[];
+      fundamental: FundamentalCondition[];
+      price: PriceCondition[];
+    };
+    parameters: {
+      timeframe: string;
+      volumeThreshold: number;
+      priceChangeThreshold: number;
+      entanglementDays: number;
+      pullbackDays: number;
+      stabilizationHours: number;
+      emaLength: number;
+      trendlineDays: number;
+      confirmationPeriods: number;
+      tolerancePercent: number;
+    };
+    isActive: boolean;
+    isSystemDefault?: boolean;
+  }>({
     name: '',
     description: '',
-    category: 'pattern' as const,
+    category: 'pattern',
     conditions: {
-      technical: [] as TechnicalCondition[],
-      fundamental: [] as FundamentalCondition[],
-      price: [] as PriceCondition[]
+      technical: [],
+      fundamental: [],
+      price: []
     },
     parameters: {
       timeframe: '1d',
@@ -154,7 +177,18 @@ export function StrategyForm({ strategy, onSave, onCancel }: StrategyFormProps) 
         description: strategy.description,
         category: strategy.category,
         conditions: strategy.conditions,
-        parameters: strategy.parameters,
+        parameters: {
+          timeframe: strategy.parameters.timeframe,
+          volumeThreshold: strategy.parameters.volumeThreshold,
+          priceChangeThreshold: strategy.parameters.priceChangeThreshold,
+          entanglementDays: strategy.parameters.entanglementDays || 5,
+          pullbackDays: strategy.parameters.pullbackDays || 3,
+          stabilizationHours: strategy.parameters.stabilizationHours || 2,
+          emaLength: strategy.parameters.emaLength || 20,
+          trendlineDays: strategy.parameters.trendlineDays || 10,
+          confirmationPeriods: strategy.parameters.confirmationPeriods || 2,
+          tolerancePercent: strategy.parameters.tolerancePercent || 2
+        },
         isActive: strategy.isActive,
         isSystemDefault: strategy.isSystemDefault
       });
@@ -166,7 +200,7 @@ export function StrategyForm({ strategy, onSave, onCancel }: StrategyFormProps) 
       ...prev,
       name: pattern.name + '策略',
       description: pattern.description,
-      category: 'pattern',
+      category: 'pattern' as const,
       conditions: {
         ...prev.conditions,
         technical: pattern.conditions
@@ -176,7 +210,10 @@ export function StrategyForm({ strategy, onSave, onCancel }: StrategyFormProps) 
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSave(formData);
+    onSave({
+      ...formData,
+      isSystemDefault: formData.isSystemDefault || false
+    });
   };
 
   return (
