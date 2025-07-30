@@ -5,10 +5,10 @@
 
 import React, { useState, useMemo, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
-import { Stock, StockPoolStats, Concept } from '@/types';
+import { Stock, StockPoolStats, Concept, ConceptStockRelation } from '@/types';
 
 import { ConceptService } from '@/services/conceptService';
-import { StockPoolService } from '@/services/stockPoolService';
+// import { StockPoolService } from '@/services/stockPoolService'; // 已移除，股票数据通过API管理
 
 // 常用标签常量
 const industryTags = [
@@ -461,7 +461,7 @@ function StockCard({
           {stock.conceptIds && stock.conceptIds.length > 0 && (
             <div className="flex flex-wrap gap-1 mb-2">
               {stock.conceptIds.map(conceptId => {
-                const concept = ConceptService.getConceptById(conceptId);
+                const concept = concepts.find(c => c.id === conceptId);
                 return concept ? (
                   <span
                     key={conceptId}

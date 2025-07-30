@@ -7,7 +7,7 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { StockPool } from './StockPool';
 import { WatchlistImporter } from './WatchlistImporter';
 import { ConceptManager } from './ConceptManager';
-import { StockPoolService } from '@/services/stockPoolService';
+// import { StockPoolService } from '@/services/stockPoolService'; // 已废弃，使用API管理
 import { StockDetail } from './StockDetail';
 import { SelectionStrategies } from './SelectionStrategies';
 import DataSyncManager from './DataSyncManager';
@@ -149,8 +149,9 @@ export function StockMarket({ onCreateTradingPlan }: StockMarketProps) {
 
   // 股票池操作
   const handleAddStock = (stockData: Omit<Stock, 'id' | 'addedAt' | 'updatedAt'>) => {
-    const updatedStocks = StockPoolService.addStock(stockData);
-    setStocks(updatedStocks);
+    // 注意：本地存储功能已废弃，股票数据现在通过API管理
+    console.warn('本地存储功能已废弃，添加股票功能需要通过API实现');
+    // TODO: 实现通过API添加股票的功能
   };
 
   const handleUpdateStock = async (id: string, stockData: Partial<Stock>) => {
@@ -187,21 +188,20 @@ export function StockMarket({ onCreateTradingPlan }: StockMarketProps) {
         console.log('✅ 股票信息更新成功');
       } else {
         console.error('❌ 股票信息更新失败:', response.status);
-        // 如果API失败，回退到本地更新
-        const updatedStocks = StockPoolService.updateStock(id, stockData);
-        setStocks(updatedStocks);
+        // 注意：本地存储功能已废弃，无法回退到本地更新
+        console.warn('本地存储功能已废弃，无法回退到本地更新');
       }
     } catch (error) {
       console.error('❌ 更新股票信息时发生错误:', error);
-      // 如果API失败，回退到本地更新
-      const updatedStocks = StockPoolService.updateStock(id, stockData);
-      setStocks(updatedStocks);
+      // 注意：本地存储功能已废弃，无法回退到本地更新
+      console.warn('本地存储功能已废弃，无法回退到本地更新');
     }
   };
 
   const handleDeleteStock = (id: string) => {
-    const updatedStocks = StockPoolService.deleteStock(id);
-    setStocks(updatedStocks);
+    // 注意：本地存储功能已废弃，删除股票功能需要通过API实现
+    console.warn('本地存储功能已废弃，删除股票功能需要通过API实现');
+    // TODO: 实现通过API删除股票的功能
   };
 
 

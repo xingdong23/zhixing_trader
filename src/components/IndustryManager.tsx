@@ -3,7 +3,6 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { BarChart3, TrendingUp, Building2, Users, Eye, EyeOff } from 'lucide-react';
-import { StockDataService } from '@/services/stockDataService';
 import { Industry, ImportedStock } from '@/types';
 
 export function IndustryManager() {
@@ -18,17 +17,12 @@ export function IndustryManager() {
   }, []);
 
   const loadData = () => {
-    const loadedIndustries = StockDataService.getIndustries();
-    const loadedStocks = StockDataService.getImportedStocks();
+    // 行业数据现在通过API管理
+    console.warn('⚠️ 行业数据管理已迁移到API，请使用后端接口获取数据');
     
-    // 更新行业股票数量
-    const updatedIndustries = loadedIndustries.map(industry => ({
-      ...industry,
-      stockCount: loadedStocks.filter(stock => stock.industryId === industry.id).length
-    }));
-    
-    setIndustries(updatedIndustries);
-    setStocks(loadedStocks);
+    // 设置空数据，提示用户使用API
+    setIndustries([]);
+    setStocks([]);
   };
 
   // 获取行业统计

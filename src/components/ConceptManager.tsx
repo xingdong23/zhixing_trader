@@ -146,11 +146,11 @@ export function ConceptManager({ onConceptSelect }: ConceptManagerProps) {
   };
 
   // 添加股票到概念
-  const handleAddStocksToConcept = (conceptId: string) => {
+  const handleAddStocksToConcept = async (conceptId: string) => {
     if (selectedStocks.size === 0) return;
 
     try {
-      ConceptService.addStocksToConcept(conceptId, Array.from(selectedStocks));
+      await ConceptService.addStocksToConceptAPI(conceptId, Array.from(selectedStocks));
       setSelectedStocks(new Set());
       setShowStockSelector(null);
       loadData();

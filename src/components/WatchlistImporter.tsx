@@ -4,7 +4,6 @@ import React, { useState, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { Upload, Download, FileText, AlertCircle, CheckCircle, X, BarChart3 } from 'lucide-react';
 import { FutuCsvParser } from '@/utils/futuCsvParser';
-import { StockDataService } from '@/services/stockDataService';
 import { ImportedStock, Industry } from '@/types';
 
 interface WatchlistImporterProps {
@@ -33,13 +32,13 @@ export function WatchlistImporter({ onImportComplete }: WatchlistImporterProps) 
       // 提取行业信息
       const extractedIndustries = FutuCsvParser.extractIndustries(futuStocks);
 
-      // 更新行业数据
-      const updatedIndustries = StockDataService.upsertIndustries(extractedIndustries);
-      setIndustries(updatedIndustries);
+      // 行业数据现在通过API管理
+      console.warn('⚠️ 行业数据管理已迁移到API');
+      setIndustries(extractedIndustries);
 
       // 转换为导入格式
       const importedStocks = futuStocks.map(futuStock => {
-        const industry = FutuCsvParser.findIndustryByName(updatedIndustries, futuStock.所属行业);
+        const industry = FutuCsvParser.findIndustryByName(extractedIndustries, futuStock.所属行业);
         return FutuCsvParser.convertToImportedStock(futuStock, industry);
       });
 
@@ -186,11 +185,10 @@ export function WatchlistImporter({ onImportComplete }: WatchlistImporterProps) 
           throw new Error(result.error || '导入失败');
         }
 
-        // 同时保存到本地存储作为备份
-        const existingStocks = StockDataService.getImportedStocks();
-        const existingSymbols = new Set(existingStocks.map(s => s.symbol));
-        const newStocks = stocks.filter(stock => !existingSymbols.has(stock.symbol));
-        const updatedStocks = StockDataService.addStocks(stocks);
+        // 注意：本地存储功能已废弃，数据现在通过API管理
+        console.warn('本地存储功能已废弃，股票数据现在通过API管理');
+        const newStocks = stocks; // 假设所有股票都是新的
+        const updatedStocks = stocks;
 
         // 更新状态
         setImportedStocks(stocks);
@@ -210,11 +208,10 @@ export function WatchlistImporter({ onImportComplete }: WatchlistImporterProps) 
         console.error('导入到数据库失败:', importError);
         setError(`导入到数据库失败: ${importError instanceof Error ? importError.message : '未知错误'}`);
 
-        // 如果数据库导入失败，至少保存到本地存储
-        const existingStocks = StockDataService.getImportedStocks();
-        const existingSymbols = new Set(existingStocks.map(s => s.symbol));
-        const newStocks = stocks.filter(stock => !existingSymbols.has(stock.symbol));
-        const updatedStocks = StockDataService.addStocks(stocks);
+        // 注意：本地存储功能已废弃，数据现在通过API管理
+        console.warn('本地存储功能已废弃，无法保存到本地存储');
+        const newStocks = stocks; // 假设所有股票都是新的
+        const updatedStocks = stocks;
 
         setImportedStocks(stocks);
         setImportStats({
@@ -266,13 +263,13 @@ export function WatchlistImporter({ onImportComplete }: WatchlistImporterProps) 
     setImportStats(null);
   };
 
-  // 清空所有数据（包括数据库）
+  // 清空所有数据（通过API）
   const clearAllData = () => {
     if (confirm('确定要清空所有导入的股票和行业数据吗？此操作不可恢复！')) {
       try {
-        StockDataService.clearAllData();
+        // 数据清空现在通过API管理
         clearImportedData();
-        setSuccess('所有数据已清空');
+        setSuccess('本地数据已清空，数据库清空请使用API');
       } catch (error) {
         setError('清空数据失败');
       }

@@ -46,14 +46,14 @@ const initialAppState: AppState = {
 export function useAppState() {
   const [appState, setAppState] = useState<AppState>(initialAppState);
 
-  // 从localStorage加载数据（已废弃，应用状态现在通过API管理）
+  // 应用状态现在通过API管理，不再使用localStorage
   useEffect(() => {
-    console.warn('⚠️ localStorage状态加载已废弃，应用状态现在通过API管理');
+    // 初始化时可以从API加载状态
   }, []);
 
-  // 保存状态到localStorage（已废弃，应用状态现在通过API管理）
+  // 状态保存现在通过API管理
   const saveState = (newState: AppState) => {
-    console.warn('⚠️ localStorage状态保存已废弃，应用状态现在通过API管理');
+    // 状态变更可以通过API同步到后端
   };
 
   // 更新应用状态

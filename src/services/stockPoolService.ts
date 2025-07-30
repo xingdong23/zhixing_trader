@@ -1,6 +1,4 @@
 import { Stock } from '@/types';
-import { StockDataService } from './stockDataService';
-import { ConceptService } from './conceptService';
 
 /**
  * 股票池统一数据管理服务
@@ -54,54 +52,5 @@ export class StockPoolService {
       console.error('❌ 获取股票数据失败:', error);
       return [];
     }
-  }
-  /**
-   * 保存股票池数据（已废弃，数据现在通过API自动同步）
-   */
-  static saveStockPool(stocks: Stock[]): void {
-    console.warn('⚠️ saveStockPool已废弃，数据现在通过API自动同步');
-  }
-
-  /**
-   * 添加股票到股票池
-   */
-  static addStock(stock: Omit<Stock, 'id' | 'addedAt' | 'updatedAt'>): Stock[] {
-    console.warn('⚠️ addStock已废弃，请使用API添加股票');
-    const stocks: Stock[] = [];
-    const newStock: Stock = {
-      ...stock,
-      conceptIds: stock.conceptIds || [],
-      id: `pool_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-      addedAt: new Date(),
-      updatedAt: new Date()
-    };
-
-    const updatedStocks = [...stocks, newStock];
-    this.saveStockPool(updatedStocks);
-
-    // 自动为股票分配推荐的概念标签
-    try {
-      ConceptService.autoAssignConceptsToStock(newStock.id, newStock.symbol);
-    } catch (error) {
-      console.warn('自动分配概念标签失败:', error);
-    }
-
-    return updatedStocks;
-  }
-
-  /**
-   * 更新股票信息
-   */
-  static updateStock(id: string, updates: Partial<Stock>): Stock[] {
-    console.warn('⚠️ updateStock已废弃，请使用API更新股票');
-    return [];
-  }
-
-  /**
-   * 删除股票
-   */
-  static deleteStock(id: string): Stock[] {
-    console.warn('⚠️ deleteStock已废弃，请使用API删除股票');
-    return [];
   }
 }
