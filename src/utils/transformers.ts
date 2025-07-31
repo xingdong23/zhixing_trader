@@ -4,8 +4,9 @@
  */
 
 import { Stock, Concept } from '../types/stock';
-import { TradingRecommendation } from '../types/strategy';
-import { TradingPlan, TradeRecord, ExecutionRecord } from '../types/trading';
+import { TradingRecommendation } from '../types/analysis';
+import { TradingPlan, TradeRecord, ExecutionRecord, TradingType } from '../types/trading';
+import { MarketCap, WatchLevel, TradingEmotion, TradeStatus } from '../types/core';
 
 // 临时接口定义
 interface StockPool {
@@ -77,8 +78,8 @@ export class DataTransformer {
         tags: {
           industry: data.industry ? [data.industry] : [],
           fundamentals: [],
-          marketCap: data.marketCap > 100000000000 ? 'large' : data.marketCap > 10000000000 ? 'mid' : 'small',
-          watchLevel: 'medium'
+          marketCap: data.marketCap > 100000000000 ? MarketCap.LARGE : data.marketCap > 10000000000 ? MarketCap.MID : MarketCap.SMALL,
+          watchLevel: WatchLevel.MEDIUM
         },
         conceptIds: data.conceptIds || [],
         currentPrice: data.currentPrice || data.current_price,
@@ -243,37 +244,32 @@ export class DataTransformer {
         id: data.id || '',
         createdAt: new Date(data.createdAt || data.created_at || Date.now()),
         updatedAt: new Date(data.updatedAt || data.updated_at || Date.now()),
-        symbol: data.symbol || '',
-        symbolName: data.symbolName || data.symbol_name || '',
-        strategyType: data.strategyType || data.strategy_type || 'SINGLE_ENTRY',
-        positionLayers: data.positionLayers || [],
-        maxTotalPosition: Number(data.maxTotalPosition || data.max_total_position || 0),
-        takeProfitLayers: data.takeProfitLayers || [],
-        trailingStopEnabled: Boolean(data.trailingStopEnabled || data.trailing_stop_enabled),
-        trailingStopPercent: data.trailingStopPercent ? Number(data.trailingStopPercent) : undefined,
-        globalStopLoss: Number(data.globalStopLoss || data.global_stop_loss || 0),
-        maxLossPercent: Number(data.maxLossPercent || data.max_loss_percent || 0),
-        riskRewardRatio: Number(data.riskRewardRatio || data.risk_reward_ratio || 0),
-        buyingLogic: {
-          technical: data.buyingLogic?.technical || data.buying_logic?.technical || '',
-          fundamental: data.buyingLogic?.fundamental || data.buying_logic?.fundamental || '',
-          news: data.buyingLogic?.news || data.buying_logic?.news || ''
-        },
-        emotion: data.emotion || 'CALM',
-        informationSource: data.informationSource || data.information_source || 'SELF_ANALYSIS',
-        disciplineLocked: Boolean(data.disciplineLocked || data.discipline_locked),
-        disciplineStatus: data.disciplineStatus || {
-          overallScore: 0,
-          entryDiscipline: 0,
-          exitDiscipline: 0,
-          positionDiscipline: 0,
-          violations: [],
-          lastUpdated: new Date()
-        },
-        planQualityScore: Number(data.planQualityScore || data.plan_quality_score || 0),
-        chartSnapshot: data.chartSnapshot || data.chart_snapshot,
-        playbookId: data.playbookId || data.playbook_id,
-        status: data.status || 'PLANNING'
+        tags: data.tags || [],
+        notes: data.notes || '',
+        stockId: data.symbol || data.stockId || '',
+        strategyId: data.strategyId,
+        tradingType: data.tradingType || TradingType.SHORT_TERM,
+        title: data.title || '',
+        description: data.description || '',
+        entryPrice: Number(data.entryPrice || 0),
+        stopLoss: Number(data.stopLoss || 0),
+        takeProfit: Number(data.takeProfit || 0),
+        plannedQuantity: Number(data.plannedQuantity || 0),
+        maxInvestment: Number(data.maxInvestment || 0),
+        addPositionLevels: data.addPositionLevels || [],
+        takeProfitLevels: data.takeProfitLevels || [],
+        entryConditions: data.entryConditions || [],
+        exitConditions: data.exitConditions || [],
+        status: data.status || TradeStatus.PLANNING,
+        isActive: Boolean(data.isActive !== false),
+        executedAt: data.executedAt ? new Date(data.executedAt) : undefined,
+        actualEntryPrice: data.actualEntryPrice ? Number(data.actualEntryPrice) : undefined,
+        actualQuantity: data.actualQuantity ? Number(data.actualQuantity) : undefined,
+        maxLossAmount: Number(data.maxLossAmount || 0),
+        riskLevel: data.riskLevel || 'medium',
+        emotion: data.emotion || TradingEmotion.CALM,
+        disciplineScore: data.disciplineScore ? Number(data.disciplineScore) : undefined,
+        tradingRecords: data.tradingRecords || []
       };
     } catch (error) {
       console.error('Error transforming trading plan data:', error);

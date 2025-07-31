@@ -5,7 +5,7 @@
 
 import React, { useState, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
-import { SelectionStrategy, Stock, SelectedStock } from '@/types';
+import { StockSelectionStrategy, Stock, StockSelectionResult } from '@/types';
 import { StrategyForm } from './StrategyForm';
 import {
   Target,
@@ -26,12 +26,12 @@ import {
 } from 'lucide-react';
 
 interface SelectionStrategiesProps {
-  strategies: SelectionStrategy[];
+  strategies: StockSelectionStrategy[];
   stocks: Stock[];
-  onCreateStrategy: (strategy: Omit<SelectionStrategy, 'id' | 'createdAt' | 'updatedAt'>) => void;
-  onUpdateStrategy: (id: string, strategy: Partial<SelectionStrategy>) => void;
+  onCreateStrategy: (strategy: Omit<StockSelectionStrategy, 'id' | 'createdAt' | 'updatedAt'>) => void;
+  onUpdateStrategy: (id: string, strategy: Partial<StockSelectionStrategy>) => void;
   onDeleteStrategy: (id: string) => void;
-  onRunStrategy: (strategyId: string) => Promise<SelectedStock[]>;
+  onRunStrategy: (strategyId: string) => Promise<StockSelectionResult[]>;
 }
 
 export function SelectionStrategies({
@@ -45,9 +45,9 @@ export function SelectionStrategies({
   const [selectedCategory, setSelectedCategory] = useState<string>('');
   const [searchTerm, setSearchTerm] = useState('');
   const [showCreateForm, setShowCreateForm] = useState(false);
-  const [editingStrategy, setEditingStrategy] = useState<SelectionStrategy | null>(null);
+  const [editingStrategy, setEditingStrategy] = useState<StockSelectionStrategy | null>(null);
   const [runningStrategy, setRunningStrategy] = useState<string | null>(null);
-  const [strategyResults, setStrategyResults] = useState<Record<string, SelectedStock[]>>({});
+  const [strategyResults, setStrategyResults] = useState<Record<string, StockSelectionResult[]>>({});
 
   // 按类别分组策略
   const strategiesByCategory = useMemo(() => {
@@ -343,9 +343,9 @@ function StrategyCard({
   onCopy,
   onDelete
 }: {
-  strategy: SelectionStrategy;
+  strategy: StockSelectionStrategy;
   isRunning: boolean;
-  results?: SelectedStock[];
+  results?: StockSelectionResult[];
   onRun: () => void;
   onToggle: () => void;
   onEdit: () => void;

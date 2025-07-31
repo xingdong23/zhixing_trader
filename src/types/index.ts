@@ -1,53 +1,215 @@
-// 【知行交易】核心类型定义 - 统一导出
+// 【知行交易】类型定义统一入口
+// 重构后的模块化类型系统，提供清晰的类型组织和导出
 
-// 重新导出所有类型模块
+// ==================== 核心类型导出 ====================
+export * from './core';
 export * from './stock';
 export * from './trading';
-export * from './strategy';
-export * from './api';
+export * from './analysis';
+export * from './app';
 
-// 保持向后兼容的类型别名
-export type { Stock as StockType } from './stock';
-export type { TradingPlan as TradingPlanType } from './trading';
-export type { SelectionStrategy as StrategyType } from './strategy';
-export type { ApiResponse as ApiResponseType } from './api';
+// ==================== 工具类型 ====================
+
+/** 实体ID类型 */
+export type EntityId = string;
+
+/** 时间戳类型 */
+export type Timestamp = Date | string;
+
+/** 价格类型 */
+export type Price = number;
+
+/** 百分比类型 */
+export type Percentage = number;
+
+/** 评分类型 (1-10) */
+export type Score = number;
+
+/** 颜色类型 */
+export type Color = string;
+
+/** 可选字段工具类型 */
+export type Optional<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
+
+/** 必需字段工具类型 */
+export type Required<T, K extends keyof T> = T & Required<Pick<T, K>>;
+
+/** 深度部分类型 */
+export type DeepPartial<T> = {
+  [P in keyof T]?: T[P] extends object ? DeepPartial<T[P]> : T[P];
+};
+
+/** 深度只读类型 */
+export type DeepReadonly<T> = {
+  readonly [P in keyof T]: T[P] extends object ? DeepReadonly<T[P]> : T[P];
+};
+
+// ==================== 联合类型 ====================
+
+/** 所有实体类型 */
+export type AnyEntity = 
+  | Stock 
+  | TradingStrategy 
+  | TradingPlan 
+  | TradingRecord 
+  | StockSelectionStrategy 
+  | TradingRecommendation 
+  | InsightCard 
+  | Expert 
+  | Concept 
+  | Industry;
+
+/** 所有统计类型 */
+export type AnyStats = 
+  | TradingStats 
+  | StockPoolStats 
+  | SelectionStats 
+  | RecommendationStats 
+  | AppStats;
+
+/** 所有配置类型 */
+export type AnyConfig = 
+  | UserSettings 
+  | ThemeSettings 
+  | TradingSettings 
+  | NotificationSettings 
+  | DataSettings 
+  | TradingTypeConfig;
+
+/** 所有状态类型 */
+export type AnyState = 
+  | AppState 
+  | UIState 
+  | DisciplineStatus;
+
+// ==================== 类型守卫 ====================
+
+/** 检查是否为有效实体 */
+export function isValidEntity(entity: any): entity is AnyEntity {
+  return entity && typeof entity === 'object' && typeof entity.id === 'string';
+}
+
+/** 检查是否为股票类型 */
+export function isStock(entity: any): entity is Stock {
+  return isValidEntity(entity) && 'symbol' in entity && 'name' in entity;
+}
+
+/** 检查是否为交易计划 */
+export function isTradingPlan(entity: any): entity is TradingPlan {
+  return isValidEntity(entity) && 'stockId' in entity && 'strategyId' in entity;
+}
+
+/** 检查是否为交易记录 */
+export function isTradingRecord(entity: any): entity is TradingRecord {
+  return isValidEntity(entity) && 'planId' in entity && 'price' in entity;
+}
+
+// ==================== 默认值 ====================
+
+/** 默认分页参数 */
+export const DEFAULT_PAGINATION: PaginationParams = {
+  page: 1,
+  pageSize: 20
+};
+
+/** 默认排序参数 */
+export const DEFAULT_SORT: SortParams = {
+  field: 'createdAt',
+  order: 'desc'
+};
+
+/** 默认用户设置 */
+export const DEFAULT_USER_SETTINGS: Partial<UserSettings> = {
+  theme: {
+    mode: 'auto',
+    primaryColor: '#1890ff',
+    fontSize: 'medium',
+    compactMode: false,
+    animations: true
+  },
+  trading: {
+    defaultTradingType: 'swing',
+    defaultRiskLevel: 'medium',
+    defaultStopLoss: 0.05,
+    defaultTakeProfit: 0.15,
+    maxDailyLoss: 0.02,
+    maxPositionSize: 0.1,
+    requireConfirmation: true,
+    enableDisciplineCheck: true,
+    enableEmotionCheck: true,
+    cooldownPeriod: 300,
+    autoSaveEnabled: true,
+    autoBackupEnabled: true,
+    autoSyncInterval: 5
+  },
+  notifications: {
+    enabled: true,
+    soundEnabled: true,
+    desktopEnabled: true,
+    priceAlerts: true,
+    tradeAlerts: true,
+    systemAlerts: true,
+    marketAlerts: true,
+    quietHours: {
+      enabled: false,
+      start: '22:00',
+      end: '08:00'
+    },
+    maxNotificationsPerHour: 10,
+    groupSimilarNotifications: true
+  }
+};
+
+// ==================== 常量 ====================
+
+/** 支持的市场 */
+export const SUPPORTED_MARKETS = ['SH', 'SZ', 'BJ'] as const;
+
+/** 交易类型 */
+export const TRADING_TYPES = ['short_term', 'swing', 'value'] as const;
+
+/** 风险等级 */
+export const RISK_LEVELS = ['low', 'medium', 'high'] as const;
+
+/** 应用模块 */
+export const APP_MODULES = [
+  'dashboard',
+  'stock_market', 
+  'trading_management',
+  'review_center',
+  'research_lab',
+  'script_manager',
+  'settings',
+  'database_admin'
+] as const;
+
+// ==================== 版本信息 ====================
+
+/** 类型系统版本 */
+export const TYPE_SYSTEM_VERSION = '2.0.0';
+
+/** 最后更新时间 */
+export const LAST_UPDATED = '2024-12-19';
+
+/** 重构说明 */
+export const REFACTOR_NOTES = {
+  version: '2.0.0',
+  changes: [
+    '模块化类型定义，按功能领域分离',
+    '统一的基础类型和工具类型',
+    '清晰的导出结构和类型集合',
+    '完善的类型守卫和默认值',
+    '支持交易类型分类管理系统'
+  ],
+  migration: {
+    from: '1.x',
+    breaking: false,
+    notes: '向后兼容，建议逐步迁移到新的模块化导入'
+  }
+};
 
 // ==================== 遗留类型定义（待迁移） ====================
 // 注意：以下类型定义将逐步迁移到对应的模块文件中
-
-// 基础枚举
-export enum TradingEmotion {
-  CALM = 'calm',           // 冷静分析
-  FOMO = 'fomo',           // 害怕错过
-  FEAR = 'fear',           // 恐惧
-  GREED = 'greed',         // 贪婪
-  REVENGE = 'revenge',     // 报复性交易
-  CONFIDENT = 'confident', // 自信
-  UNCERTAIN = 'uncertain'  // 不确定
-}
-
-export enum InformationSource {
-  SELF_ANALYSIS = 'self_analysis',     // 自己分析
-  FRIEND_RECOMMEND = 'friend_recommend', // 朋友推荐
-  NEWS_MEDIA = 'news_media',           // 新闻媒体
-  SOCIAL_MEDIA = 'social_media',       // 社交媒体
-  PROFESSIONAL_REPORT = 'professional_report', // 专业报告
-  TECHNICAL_SIGNAL = 'technical_signal' // 技术信号
-}
-
-export enum TradeStatus {
-  PLANNING = 'planning',     // 计划中
-  ACTIVE = 'active',         // 执行中
-  CLOSED = 'closed',         // 已平仓
-  CANCELLED = 'cancelled'    // 已取消
-}
-
-export enum DisciplineRating {
-  PERFECT = 'perfect',       // 完美执行
-  GOOD = 'good',            // 基本执行
-  PARTIAL = 'partial',      // 部分执行
-  POOR = 'poor'             // 未执行
-}
 
 // 加仓层级 - 分批建仓的单个层级
 export interface PositionLayer {
@@ -529,152 +691,15 @@ export interface StockOpinion {
 
 // ==================== 操作建议模块 ====================
 
-// 操作建议
-export interface TradingRecommendation {
-  id: string;
-  stockId: string;
-  stockSymbol: string;
-  stockName: string;
+// 注意：TradingRecommendation 已在 analysis.ts 中定义
 
-  // 建议类型
-  type: 'daily' | 'weekly';
-  action: 'buy' | 'sell' | 'hold';
+// 注意：TechnicalCondition, FundamentalCondition, PriceCondition 已在 analysis.ts 中定义
 
-  // 价格信息
-  currentPrice: number;
-  entryPrice: number;          // 建议买入价
-  stopLoss: number;           // 止损价
-  takeProfit: number[];       // 止盈价格（可多个）
+// 注意：SelectionStrategy 对应 analysis.ts 中的 StockSelectionStrategy
 
-  // 分析依据
-  reason: string;             // 操作理由
-  technicalAnalysis: string;  // 技术面分析
-  riskLevel: 'low' | 'medium' | 'high';  // 风险等级
+// 注意：SelectedStock 对应 analysis.ts 中的 StockSelectionResult
 
-  // 仓位管理
-  positionSize: string;       // 建议仓位大小
-  timeframe: string;          // 持有时间框架
-
-  // 元数据
-  publishedAt: Date;
-  expiresAt: Date;           // 建议过期时间
-  status: 'active' | 'expired' | 'executed' | 'cancelled';
-  confidence: number;        // 信心度 1-10
-
-  // 跟踪信息
-  performance?: {
-    entryExecuted: boolean;
-    entryPrice?: number;
-    currentReturn?: number;
-    maxReturn?: number;
-    maxDrawdown?: number;
-  };
-}
-
-// 技术条件
-export interface TechnicalCondition {
-  type: 'price_breakthrough' | 'moving_average' | 'volume' | 'indicator' | 'pattern';
-  parameter: string;           // 参数名称，如 'ma20', 'rsi', 'volume_ratio'
-  operator: '>' | '<' | '>=' | '<=' | '=' | 'cross_above' | 'cross_below';
-  value: number;
-  description: string;         // 条件描述
-}
-
-// 基本面条件
-export interface FundamentalCondition {
-  type: 'pe_ratio' | 'pb_ratio' | 'roe' | 'revenue_growth' | 'profit_growth';
-  operator: '>' | '<' | '>=' | '<=' | '=';
-  value: number;
-  description: string;
-}
-
-// 价格条件
-export interface PriceCondition {
-  type: 'price_range' | 'price_change' | 'price_level';
-  minValue?: number;
-  maxValue?: number;
-  description: string;
-}
-
-// 选股策略
-export interface SelectionStrategy {
-  id: string;
-  name: string;                // 策略名称，如 "平台突破策略"
-  description: string;         // 策略描述
-  category: 'breakthrough' | 'pullback' | 'pattern' | 'indicator' | 'fundamental';
-
-  // 策略条件
-  conditions: {
-    technical: TechnicalCondition[];
-    fundamental: FundamentalCondition[];
-    price: PriceCondition[];
-  };
-
-  // 策略参数
-  parameters: {
-    timeframe: string;         // 时间周期，如 '1d', '1h', '1w'
-    volumeThreshold: number;   // 成交量阈值
-    priceChangeThreshold: number; // 价格变化阈值
-
-    // 均线缠绕策略参数
-    entanglementDays?: number; // 均线缠绕天数
-    pullbackDays?: number;     // 回踩确认天数
-
-    // EMA回踩策略参数
-    stabilizationHours?: number; // 企稳确认小时数
-    emaLength?: number;        // EMA周期长度
-
-    // 趋势线突破策略参数
-    trendlineDays?: number;    // 趋势线形成天数
-
-    // 通用技术分析参数
-    confirmationPeriods?: number; // 确认周期数
-    tolerancePercent?: number;    // 容错百分比
-  };
-
-  // 策略状态
-  isActive: boolean;           // 是否启用
-  isSystemDefault: boolean;    // 是否为系统预设
-
-  // 元数据
-  createdAt: Date;
-  updatedAt: Date;
-}
-
-// 选股结果中的单个股票
-export interface SelectedStock {
-  stock: Stock;
-  score: number;               // 匹配分数 (0-100)
-  reasons: string[];           // 选中原因
-  suggestedAction: string;     // 建议操作
-  targetPrice?: number;        // 目标价格
-  stopLoss?: number;          // 建议止损价
-  confidence: 'high' | 'medium' | 'low'; // 信心度
-}
-
-// 每日选股结果
-export interface DailySelection {
-  id: string;
-  date: Date;
-
-  // 按策略分组的结果
-  strategyResults: {
-    strategyId: string;
-    strategyName: string;
-    category: string;
-    selectedStocks: SelectedStock[];
-    totalCount: number;
-  }[];
-
-  // 汇总信息
-  summary: {
-    totalStocks: number;
-    totalStrategies: number;
-    topOpportunities: SelectedStock[]; // 最佳机会（跨策略）
-  };
-
-  createdAt: Date;
-}
+// 注意：DailySelection 对应 analysis.ts 中的 DailyStockSelection
 
 // 股票池统计
 export interface StockPoolStats {
@@ -873,5 +898,5 @@ export interface ImportedStock {
   notes: string;
 }
 
-// 枚举类型已经通过 export enum 导出，不需要重复导出
-// 接口类型通过 export interface 导出，也不需要重复导出
+// 注意：以上遗留类型定义保持不变，确保向后兼容性
+// 新的开发应使用模块化的类型定义
