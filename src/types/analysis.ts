@@ -40,10 +40,31 @@ export interface StockSelectionStrategy extends BaseEntity, TaggedEntity, NotedE
   description: string;
   tradingType: TradingType;      // 适用的交易类型
   
-  // 筛选条件
+  // 筛选条件 - 兼容旧版本结构
   technicalConditions: TechnicalCondition[];
   fundamentalConditions: FundamentalCondition[];
   priceConditions: PriceCondition[];
+  
+  // 条件结构 - 新版本结构
+  conditions: {
+    technical: TechnicalCondition[];
+    fundamental: FundamentalCondition[];
+    price: PriceCondition[];
+  };
+  
+  // 策略参数
+  parameters: {
+    timeframe: string;
+    volumeThreshold: number;
+    priceChangeThreshold: number;
+    entanglementDays?: number;
+    pullbackDays?: number;
+    stabilizationHours?: number;
+    emaLength?: number;
+    trendlineDays?: number;
+    confirmationPeriods?: number;
+    tolerancePercent?: number;
+  };
   
   // 市场筛选
   markets: string[];             // 适用市场
@@ -62,6 +83,7 @@ export interface StockSelectionStrategy extends BaseEntity, TaggedEntity, NotedE
   
   isActive: boolean;
   isDefault: boolean;
+  isSystemDefault: boolean;      // 是否为系统默认策略
 }
 
 // ==================== 每日选股 ====================

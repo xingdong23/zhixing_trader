@@ -56,19 +56,19 @@ export function SelectionStrategies({
         strategy.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         strategy.description.toLowerCase().includes(searchTerm.toLowerCase());
       
-      const matchesCategory = !selectedCategory || strategy.category === selectedCategory;
+      const matchesCategory = !selectedCategory || strategy.tradingType === selectedCategory;
       
       return matchesSearch && matchesCategory;
     });
 
     return filtered.reduce((acc, strategy) => {
-      const category = strategy.category;
+      const category = strategy.tradingType;
       if (!acc[category]) {
         acc[category] = [];
       }
       acc[category].push(strategy);
       return acc;
-    }, {} as Record<string, SelectionStrategy[]>);
+    }, {} as Record<string, StockSelectionStrategy[]>);
   }, [strategies, searchTerm, selectedCategory]);
 
   // 策略统计
@@ -81,21 +81,19 @@ export function SelectionStrategies({
     return { total, active, systemDefault, custom };
   }, [strategies]);
 
-  // 类别选项
-  const categoryOptions = [
-    { value: 'breakthrough', label: '技术突破', icon: TrendingUp, color: 'blue' },
-    { value: 'pullback', label: '回调买入', icon: Target, color: 'green' },
-    { value: 'pattern', label: '形态策略', icon: BarChart3, color: 'purple' },
-    { value: 'indicator', label: '指标策略', icon: Zap, color: 'orange' },
-    { value: 'fundamental', label: '基本面策略', icon: Award, color: 'indigo' }
+  // 交易类型选项
+  const tradingTypeOptions = [
+    { value: 'short_term', label: '短期投机', icon: TrendingUp, color: 'blue' },
+    { value: 'swing', label: '波段交易', icon: Target, color: 'green' },
+    { value: 'value', label: '价值投资', icon: Award, color: 'indigo' }
   ];
 
-  const getCategoryInfo = (category: string) => {
-    return categoryOptions.find(opt => opt.value === category) || 
-           { label: category, icon: Filter, color: 'gray' };
+  const getTradingTypeInfo = (tradingType: string) => {
+    return tradingTypeOptions.find(opt => opt.value === tradingType) || 
+           { label: tradingType, icon: Filter, color: 'gray' };
   };
 
-  const handleRunStrategy = async (strategy: SelectionStrategy) => {
+  const handleRunStrategy = async (strategy: StockSelectionStrategy) => {
     setRunningStrategy(strategy.id);
     try {
       // 调用真实的策略运行API
@@ -109,16 +107,16 @@ export function SelectionStrategies({
     }
   };
 
-  const handleToggleStrategy = (strategy: SelectionStrategy) => {
+  const handleToggleStrategy = (strategy: StockSelectionStrategy) => {
     onUpdateStrategy(strategy.id, { isActive: !strategy.isActive });
   };
 
-  const handleEditStrategy = (strategy: SelectionStrategy) => {
+  const handleEditStrategy = (strategy: StockSelectionStrategy) => {
     setEditingStrategy(strategy);
     setShowCreateForm(true);
   };
 
-  const handleCopyStrategy = (strategy: SelectionStrategy) => {
+  const handleCopyStrategy = (strategy: StockSelectionStrategy) => {
     const copy = {
       ...strategy,
       name: `${strategy.name} (副本)`,
@@ -130,7 +128,7 @@ export function SelectionStrategies({
     onCreateStrategy(copy);
   };
 
-  const handleSaveStrategy = (strategyData: Omit<SelectionStrategy, 'id' | 'createdAt' | 'updatedAt'>) => {
+  const handleSaveStrategy = (strategyData: Omit<StockSelectionStrategy, 'id' | 'createdAt' | 'updatedAt'>) => {
     if (editingStrategy) {
       onUpdateStrategy(editingStrategy.id, strategyData);
     } else {
@@ -239,15 +237,15 @@ export function SelectionStrategies({
               </div>
             </div>
 
-            {/* 类别筛选 */}
+            {/* 交易类型筛选 */}
             <div className="md:w-64">
               <select
                 value={selectedCategory}
                 onChange={(e) => setSelectedCategory(e.target.value)}
                 className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               >
-                <option value="">所有类别</option>
-                {categoryOptions.map(option => (
+                <option value="">所有类型</option>
+                {tradingTypeOptions.map(option => (
                   <option key={option.value} value={option.value}>
                     {option.label}
                   </option>
@@ -285,21 +283,21 @@ export function SelectionStrategies({
             </CardContent>
           </Card>
         ) : (
-          Object.entries(strategiesByCategory).map(([category, categoryStrategies]) => {
-            const categoryInfo = getCategoryInfo(category);
-            const CategoryIcon = categoryInfo.icon;
+          Object.entries(strategiesByCategory).map(([tradingType, typeStrategies]) => {
+            const typeInfo = getTradingTypeInfo(tradingType);
+            const TypeIcon = typeInfo.icon;
             
             return (
-              <Card key={category}>
+              <Card key={tradingType}>
                 <CardHeader>
                   <CardTitle className="flex items-center">
-                    <CategoryIcon className={`w-5 h-5 mr-2 text-${categoryInfo.color}-500`} />
-                    {categoryInfo.label} ({categoryStrategies.length})
+                    <TypeIcon className={`w-5 h-5 mr-2 text-${typeInfo.color}-500`} />
+                    {typeInfo.label} ({typeStrategies.length})
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                    {categoryStrategies.map(strategy => (
+                    {typeStrategies.map(strategy => (
                       <StrategyCard
                         key={strategy.id}
                         strategy={strategy}

@@ -5,7 +5,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
-import { SelectionStrategy, TechnicalCondition, FundamentalCondition, PriceCondition } from '@/types';
+import { StockSelectionStrategy, TechnicalCondition, FundamentalCondition, PriceCondition, TradingType } from '@/types';
 import {
   X,
   Plus,
@@ -20,8 +20,8 @@ import {
 } from 'lucide-react';
 
 interface StrategyFormProps {
-  strategy?: SelectionStrategy;
-  onSave: (strategy: Omit<SelectionStrategy, 'id' | 'createdAt' | 'updatedAt'>) => void;
+  strategy?: StockSelectionStrategy;
+  onSave: (strategy: Omit<StockSelectionStrategy, 'id' | 'createdAt' | 'updatedAt'>) => void;
   onCancel: () => void;
 }
 
@@ -29,7 +29,7 @@ export function StrategyForm({ strategy, onSave, onCancel }: StrategyFormProps) 
   const [formData, setFormData] = useState<{
     name: string;
     description: string;
-    category: 'breakthrough' | 'pullback' | 'pattern' | 'indicator' | 'fundamental';
+    tradingType: TradingType;
     conditions: {
       technical: TechnicalCondition[];
       fundamental: FundamentalCondition[];
@@ -52,7 +52,7 @@ export function StrategyForm({ strategy, onSave, onCancel }: StrategyFormProps) 
   }>({
     name: '',
     description: '',
-    category: 'pattern',
+    tradingType: TradingType.SWING,
     conditions: {
       technical: [],
       fundamental: [],
@@ -175,7 +175,7 @@ export function StrategyForm({ strategy, onSave, onCancel }: StrategyFormProps) 
       setFormData({
         name: strategy.name,
         description: strategy.description,
-        category: strategy.category,
+        tradingType: strategy.tradingType,
         conditions: strategy.conditions,
         parameters: {
           timeframe: strategy.parameters.timeframe,
@@ -200,7 +200,7 @@ export function StrategyForm({ strategy, onSave, onCancel }: StrategyFormProps) 
       ...prev,
       name: pattern.name + '策略',
       description: pattern.description,
-      category: 'pattern' as const,
+      tradingType: TradingType.SWING,
       conditions: {
         ...prev.conditions,
         technical: pattern.conditions
@@ -274,18 +274,16 @@ export function StrategyForm({ strategy, onSave, onCancel }: StrategyFormProps) 
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    策略类别
+                    交易类型
                   </label>
                   <select
-                    value={formData.category}
-                    onChange={(e) => setFormData(prev => ({ ...prev, category: e.target.value as any }))}
+                    value={formData.tradingType}
+                    onChange={(e) => setFormData(prev => ({ ...prev, tradingType: e.target.value as TradingType }))}
                     className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   >
-                    {categoryOptions.map(option => (
-                      <option key={option.value} value={option.value}>
-                        {option.label}
-                      </option>
-                    ))}
+                    <option value={TradingType.SHORT_TERM}>短期投机</option>
+                    <option value={TradingType.SWING}>波段交易</option>
+                    <option value={TradingType.VALUE}>价值投资</option>
                   </select>
                 </div>
               </CardContent>
