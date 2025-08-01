@@ -12,7 +12,9 @@ from .config import settings
 from .models import (
     Base, StockDB, QuoteDB, KLineDB, StrategyDB, SelectionResultDB,
     ConceptDB, ConceptStockRelationDB, ExpertDB, ExpertOpinionDB,
-    TradingPlaybookDB, SelectionStrategyDB, StockInfo, QuoteData
+    TradingPlaybookDB, SelectionStrategyDB, StockInfo, QuoteData,
+    TradingPlanDB, TradeRecordDB, PositionDB, EmotionRecordDB, 
+    TradingDisciplineDB, TradingReviewDB
 )
 
 
@@ -566,6 +568,434 @@ class DatabaseService:
         except SQLAlchemyError as e:
             logger.error(f"Failed to cleanup old selection results: {e}")
             return 0
+
+    # ==================== 交易计划相关方法 ====================
+
+    def create_trading_plan(self, plan_data: dict) -> Optional[int]:
+        """创建交易计划"""
+        try:
+            import uuid
+            from datetime import datetime
+            
+            with self.get_session() as session:
+                # 生成唯一ID
+                plan_id = str(uuid.uuid4())
+                
+                # 计算计划评分和风险收益比
+                plan_score = self._calculate_plan_score(plan_data)
+                risk_reward_ratio = self._calculate_risk_reward_ratio(plan_data)
+                
+                plan = TradingPlanDB(
+                    plan_id=plan_id,
+                    stock_code=plan_data.get('stock_code'),
+                    stock_name=plan_data.get('stock_name'),
+                    plan_type=plan_data.get('plan_type'),
+                    trade_direction=plan_data.get('trade_direction'),
+                    trade_type=plan_data.get('trade_type'),
+                    buy_reason=plan_data.get('buy_reason'),
+                    target_price=plan_data.get('target_price'),
+                    position_size=plan_data.get('position_size'),
+                    max_position_ratio=plan_data.get('max_position_ratio', 10.0),
+                    stop_loss_price=plan_data.get('stop_loss_price'),
+                    stop_loss_ratio=plan_data.get('stop_loss_ratio'),
+                    take_profit_price=plan_data.get('take_profit_price'),
+                    take_profit_ratio=plan_data.get('take_profit_ratio'),
+                    batch_profit_plan=plan_data.get('batch_profit_plan'),
+                    expected_hold_period=plan_data.get('expected_hold_period'),
+                    planned_entry_date=plan_data.get('planned_entry_date'),
+                    planned_exit_date=plan_data.get('planned_exit_date'),
+                    related_strategy_id=plan_data.get('related_strategy_id'),
+                    related_playbook_id=plan_data.get('related_playbook_id'),
+                    plan_score=plan_score,
+                    risk_reward_ratio=risk_reward_ratio,
+                    confidence_level=plan_data.get('confidence_level', 'medium')
+                )
+                
+                session.add(plan)
+                session.commit()
+                session.refresh(plan)
+                
+                logger.info(f"Created trading plan: {plan.plan_id}")
+                return plan.id
+                
+        except SQLAlchemyError as e:
+            logger.error(f"Failed to create trading plan: {e}")
+            return None
+
+    def get_trading_plan(self, plan_id: str) -> Optional[TradingPlanDB]:
+        """获取交易计划"""
+        try:
+            with self.get_session() as session:
+                return session.query(TradingPlanDB).filter(
+                    TradingPlanDB.plan_id == plan_id
+                ).first()
+                
+        except SQLAlchemyError as e:
+            logger.error(f"Failed to get trading plan {plan_id}: {e}")
+            return None
+
+    def get_all_trading_plans(self, status: Optional[str] = None) -> List[TradingPlanDB]:
+        """获取所有交易计划"""
+        try:
+            with self.get_session() as session:
+                query = session.query(TradingPlanDB)
+                
+                if status:
+                    query = query.filter(TradingPlanDB.status == status)
+                
+                return query.order_by(TradingPlanDB.created_at.desc()).all()
+                
+        except SQLAlchemyError as e:
+            logger.error(f"Failed to get trading plans: {e}")
+            return []
+
+    def update_trading_plan(self, plan_id: str, update_data: dict) -> bool:
+        """更新交易计划"""
+        try:
+            with self.get_session() as session:
+                plan = session.query(TradingPlanDB).filter(
+                    TradingPlanDB.plan_id == plan_id
+                ).first()
+                
+                if plan:
+                    # 如果计划已锁定，不允许修改
+                    if plan.is_locked:
+                        logger.warning(f"Trading plan {plan_id} is locked and cannot be updated")
+                        return False
+                    
+                    for key, value in update_data.items():
+                        if hasattr(plan, key):
+                            setattr(plan, key, value)
+                    
+                    # 重新计算评分
+                    plan.plan_score = self._calculate_plan_score(update_data)
+                    if 'stop_loss_price' in update_data and 'take_profit_price' in update_data:
+                        plan.risk_reward_ratio = self._calculate_risk_reward_ratio(update_data)
+                    
+                    session.commit()
+                    logger.info(f"Updated trading plan: {plan_id}")
+                    return True
+                
+                return False
+                
+        except SQLAlchemyError as e:
+            logger.error(f"Failed to update trading plan {plan_id}: {e}")
+            return False
+
+    def lock_trading_plan(self, plan_id: str, lock_reason: str = "防止情绪化修改") -> bool:
+        """锁定交易计划"""
+        try:
+            with self.get_session() as session:
+                plan = session.query(TradingPlanDB).filter(
+                    TradingPlanDB.plan_id == plan_id
+                ).first()
+                
+                if plan:
+                    plan.is_locked = True
+                    plan.lock_reason = lock_reason
+                    session.commit()
+                    logger.info(f"Locked trading plan: {plan_id}")
+                    return True
+                
+                return False
+                
+        except SQLAlchemyError as e:
+            logger.error(f"Failed to lock trading plan {plan_id}: {e}")
+            return False
+
+    def unlock_trading_plan(self, plan_id: str) -> bool:
+        """解锁交易计划"""
+        try:
+            with self.get_session() as session:
+                plan = session.query(TradingPlanDB).filter(
+                    TradingPlanDB.plan_id == plan_id
+                ).first()
+                
+                if plan:
+                    plan.is_locked = False
+                    plan.lock_reason = None
+                    session.commit()
+                    logger.info(f"Unlocked trading plan: {plan_id}")
+                    return True
+                
+                return False
+                
+        except SQLAlchemyError as e:
+            logger.error(f"Failed to unlock trading plan {plan_id}: {e}")
+            return False
+
+    # ==================== 交易记录相关方法 ====================
+
+    def create_trade_record(self, trade_data: dict) -> Optional[int]:
+        """创建交易记录"""
+        try:
+            import uuid
+            from datetime import datetime
+            
+            with self.get_session() as session:
+                trade_id = str(uuid.uuid4())
+                
+                # 计算执行评分和偏离度
+                execution_score = self._calculate_execution_score(trade_data)
+                plan_deviation_ratio = self._calculate_plan_deviation(trade_data)
+                
+                # 检测是否为情绪化交易
+                is_emotional = self._detect_emotional_trade(trade_data)
+                
+                trade = TradeRecordDB(
+                    trade_id=trade_id,
+                    plan_id=trade_data.get('plan_id'),
+                    stock_code=trade_data.get('stock_code'),
+                    stock_name=trade_data.get('stock_name'),
+                    trade_direction=trade_data.get('trade_direction'),
+                    trade_type=trade_data.get('trade_type'),
+                    actual_price=trade_data.get('actual_price'),
+                    actual_quantity=trade_data.get('actual_quantity'),
+                    actual_amount=trade_data.get('actual_amount'),
+                    commission=trade_data.get('commission', 0.0),
+                    executed_at=trade_data.get('executed_at'),
+                    execution_score=execution_score,
+                    plan_deviation_ratio=plan_deviation_ratio,
+                    is_emotional_trade=is_emotional,
+                    emotional_factors=trade_data.get('emotional_factors'),
+                    execution_notes=trade_data.get('execution_notes'),
+                    deviation_reason=trade_data.get('deviation_reason')
+                )
+                
+                session.add(trade)
+                session.commit()
+                session.refresh(trade)
+                
+                # 更新持仓记录
+                self._update_position(trade_data, trade_id)
+                
+                logger.info(f"Created trade record: {trade.trade_id}")
+                return trade.id
+                
+        except SQLAlchemyError as e:
+            logger.error(f"Failed to create trade record: {e}")
+            return None
+
+    def get_trade_records(self, plan_id: Optional[str] = None, limit: int = 50) -> List[TradeRecordDB]:
+        """获取交易记录"""
+        try:
+            with self.get_session() as session:
+                query = session.query(TradeRecordDB)
+                
+                if plan_id:
+                    query = query.filter(TradeRecordDB.plan_id == plan_id)
+                
+                return query.order_by(TradeRecordDB.executed_at.desc()).limit(limit).all()
+                
+        except SQLAlchemyError as e:
+            logger.error(f"Failed to get trade records: {e}")
+            return []
+
+    # ==================== 情绪记录相关方法 ====================
+
+    def create_emotion_record(self, emotion_data: dict) -> Optional[int]:
+        """创建情绪记录"""
+        try:
+            import uuid
+            from datetime import datetime
+            
+            with self.get_session() as session:
+                record_id = str(uuid.uuid4())
+                
+                record = EmotionRecordDB(
+                    record_id=record_id,
+                    trade_id=emotion_data.get('trade_id'),
+                    plan_id=emotion_data.get('plan_id'),
+                    emotion_type=emotion_data.get('emotion_type'),
+                    emotion_intensity=emotion_data.get('emotion_intensity'),
+                    emotion_description=emotion_data.get('emotion_description'),
+                    trigger_factors=emotion_data.get('trigger_factors'),
+                    trigger_source=emotion_data.get('trigger_source'),
+                    recorded_at=emotion_data.get('recorded_at', datetime.utcnow()),
+                    trade_phase=emotion_data.get('trade_phase'),
+                    intervention_taken=emotion_data.get('intervention_taken', False),
+                    intervention_type=emotion_data.get('intervention_type'),
+                    intervention_effectiveness=emotion_data.get('intervention_effectiveness'),
+                    rationality_score=emotion_data.get('rationality_score', 5.0),
+                    confidence_score=emotion_data.get('confidence_score', 5.0),
+                    stress_level=emotion_data.get('stress_level', 5.0)
+                )
+                
+                session.add(record)
+                session.commit()
+                session.refresh(record)
+                
+                logger.info(f"Created emotion record: {record.record_id}")
+                return record.id
+                
+        except SQLAlchemyError as e:
+            logger.error(f"Failed to create emotion record: {e}")
+            return None
+
+    def get_emotion_records(self, trade_id: Optional[str] = None, limit: int = 100) -> List[EmotionRecordDB]:
+        """获取情绪记录"""
+        try:
+            with self.get_session() as session:
+                query = session.query(EmotionRecordDB)
+                
+                if trade_id:
+                    query = query.filter(EmotionRecordDB.trade_id == trade_id)
+                
+                return query.order_by(EmotionRecordDB.recorded_at.desc()).limit(limit).all()
+                
+        except SQLAlchemyError as e:
+            logger.error(f"Failed to get emotion records: {e}")
+            return []
+
+    # ==================== 交易统计相关方法 ====================
+
+    def get_trading_statistics(self) -> dict:
+        """获取交易统计信息"""
+        try:
+            with self.get_session() as session:
+                # 基础统计
+                total_trades = session.query(TradeRecordDB).count()
+                emotional_trades = session.query(TradeRecordDB).filter(
+                    TradeRecordDB.is_emotional_trade == True
+                ).count()
+                
+                # 计算成功率（盈利交易比例）
+                successful_trades = 0
+                total_profit_loss = 0.0
+                max_profit = 0.0
+                max_loss = 0.0
+                
+                trades = session.query(TradeRecordDB).all()
+                for trade in trades:
+                    # 简化的盈亏计算（需要根据实际业务逻辑调整）
+                    if trade.trade_direction == 'buy':
+                        profit_loss = 0  # 需要后续完善
+                    else:
+                        profit_loss = 0
+                    
+                    total_profit_loss += profit_loss
+                    
+                    if profit_loss > 0:
+                        successful_trades += 1
+                        max_profit = max(max_profit, profit_loss)
+                    else:
+                        max_loss = min(max_loss, profit_loss)
+                
+                success_rate = (successful_trades / total_trades * 100) if total_trades > 0 else 0
+                emotional_trades_ratio = (emotional_trades / total_trades * 100) if total_trades > 0 else 0
+                average_profit_loss = total_profit_loss / total_trades if total_trades > 0 else 0
+                
+                # 计算平均执行评分
+                avg_execution_score = session.query(
+                    session.query(TradeRecordDB.execution_score).label('score')
+                ).all()
+                avg_score = sum([s.score for s in avg_execution_score]) / len(avg_execution_score) if avg_execution_score else 0
+                
+                # 获取当前纪律评分
+                latest_discipline = session.query(TradingDisciplineDB).order_by(
+                    TradingDisciplineDB.score_date.desc()
+                ).first()
+                
+                return {
+                    "total_trades": total_trades,
+                    "successful_trades": successful_trades,
+                    "success_rate": round(success_rate, 2),
+                    "total_profit_loss": round(total_profit_loss, 2),
+                    "average_profit_loss": round(average_profit_loss, 2),
+                    "max_profit": round(max_profit, 2),
+                    "max_loss": round(max_loss, 2),
+                    "emotional_trades_count": emotional_trades,
+                    "emotional_trades_ratio": round(emotional_trades_ratio, 2),
+                    "plan_compliance_rate": round(100 - emotional_trades_ratio, 2),  # 简化计算
+                    "average_execution_score": round(avg_score, 2),
+                    "current_discipline_score": latest_discipline.total_score if latest_discipline else 0
+                }
+                
+        except SQLAlchemyError as e:
+            logger.error(f"Failed to get trading statistics: {e}")
+            return {}
+
+    # ==================== 私有辅助方法 ====================
+
+    def _calculate_plan_score(self, plan_data: dict) -> float:
+        """计算计划完整性评分"""
+        score = 0
+        max_score = 100
+        
+        # 必填项检查 (60分)
+        required_fields = ['buy_reason', 'target_price', 'position_size', 'stop_loss_price']
+        for field in required_fields:
+            if plan_data.get(field):
+                score += 15
+        
+        # 可选项加分 (20分)
+        optional_fields = ['take_profit_price', 'expected_hold_period', 'batch_profit_plan']
+        for field in optional_fields:
+            if plan_data.get(field):
+                score += 7  # 约6.7分每个
+        
+        # 仓位合理性 (10分)
+        position_size = plan_data.get('position_size', 0)
+        if 0 < position_size <= 20:  # 合理仓位范围
+            score += 10
+        elif 20 < position_size <= 50:
+            score += 5
+        
+        # 风险收益比 (10分)
+        if self._calculate_risk_reward_ratio(plan_data) >= 2:
+            score += 10
+        elif self._calculate_risk_reward_ratio(plan_data) >= 1:
+            score += 5
+        
+        return min(score, max_score)
+
+    def _calculate_risk_reward_ratio(self, plan_data: dict) -> float:
+        """计算风险收益比"""
+        try:
+            target_price = plan_data.get('target_price', 0)
+            stop_loss_price = plan_data.get('stop_loss_price', 0)
+            take_profit_price = plan_data.get('take_profit_price', target_price)
+            
+            if stop_loss_price <= 0 or target_price <= 0:
+                return 0
+            
+            risk = abs(target_price - stop_loss_price)
+            reward = abs(take_profit_price - target_price)
+            
+            return reward / risk if risk > 0 else 0
+            
+        except:
+            return 0
+
+    def _calculate_execution_score(self, trade_data: dict) -> float:
+        """计算执行评分"""
+        score = 100
+        
+        # 偏离计划扣分
+        deviation = self._calculate_plan_deviation(trade_data)
+        score -= min(deviation * 2, 50)  # 最多扣50分
+        
+        # 情绪化交易扣分
+        if self._detect_emotional_trade(trade_data):
+            score -= 30
+        
+        return max(score, 0)
+
+    def _calculate_plan_deviation(self, trade_data: dict) -> float:
+        """计算计划偏离度"""
+        # 简化的偏离度计算，需要根据实际业务逻辑完善
+        return 0.0
+
+    def _detect_emotional_trade(self, trade_data: dict) -> bool:
+        """检测情绪化交易"""
+        # 简化的情绪化交易检测，需要根据实际业务逻辑完善
+        emotional_indicators = trade_data.get('emotional_factors', {})
+        return len(emotional_indicators) > 0
+
+    def _update_position(self, trade_data: dict, trade_id: str):
+        """更新持仓记录"""
+        # 简化的持仓更新逻辑，需要根据实际业务逻辑完善
+        pass
 
     def close(self):
         """关闭数据库连接"""
