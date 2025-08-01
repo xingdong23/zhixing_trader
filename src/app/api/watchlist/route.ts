@@ -1,7 +1,6 @@
 // 富途API - 获取用户自选股列表
 import { NextRequest, NextResponse } from 'next/server';
-
-const FUTU_API_BASE = 'https://openapi.futunn.com';
+import { FUTU_API_CONFIG } from '../../../config/api';
 
 export async function GET(request: NextRequest) {
   try {
@@ -15,7 +14,7 @@ export async function GET(request: NextRequest) {
       // 'X-API-Key': process.env.FUTU_API_KEY, // 需要在环境变量中配置
     };
 
-    const response = await fetch(`${FUTU_API_BASE}/v1/quote/get-user-security`, {
+    const response = await fetch(`${FUTU_API_CONFIG.BASE_URL}/v1/quote/get-user-security`, {
       method: 'POST',
       headers,
       body: JSON.stringify({

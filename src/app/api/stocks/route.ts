@@ -1,16 +1,13 @@
 // Stocks API - 代理到后端API
 import { NextRequest, NextResponse } from 'next/server';
-
-const BACKEND_API_BASE = 'http://localhost:8000/api/v1';
+import { getBackendApiUrl, createFetchConfig } from '../../../config/api';
 
 export async function GET(request: NextRequest) {
   try {
-    const response = await fetch(`${BACKEND_API_BASE}/stocks/`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
+    const response = await fetch(
+      getBackendApiUrl('stocks/'),
+      createFetchConfig('GET')
+    );
 
     if (!response.ok) {
       throw new Error(`后端API请求失败: ${response.status}`);
@@ -35,13 +32,10 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     
-    const response = await fetch(`${BACKEND_API_BASE}/stocks/`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(body),
-    });
+    const response = await fetch(
+      getBackendApiUrl('stocks/'),
+      createFetchConfig('POST', body)
+    );
 
     if (!response.ok) {
       throw new Error(`后端API请求失败: ${response.status}`);

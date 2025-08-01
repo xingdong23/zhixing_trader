@@ -1,16 +1,13 @@
 // Concepts Init Sample API - 代理到后端API
 import { NextRequest, NextResponse } from 'next/server';
-
-const BACKEND_API_BASE = 'http://localhost:8000/api/v1';
+import { getBackendApiUrl, createFetchConfig } from '../../../../config/api';
 
 export async function POST(request: NextRequest) {
   try {
-    const response = await fetch(`${BACKEND_API_BASE}/concepts/init-sample-data`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
+    const response = await fetch(
+      getBackendApiUrl('concepts/init-sample-data'),
+      createFetchConfig('POST')
+    );
 
     if (!response.ok) {
       throw new Error(`后端API请求失败: ${response.status}`);

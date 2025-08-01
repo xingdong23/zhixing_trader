@@ -1,19 +1,16 @@
 // Sync Trigger API - 代理到后端API
 import { NextRequest, NextResponse } from 'next/server';
-
-const BACKEND_API_BASE = 'http://localhost:8000/api/v1';
+import { getBackendApiUrl, createFetchConfig } from '../../../../../config/api';
 
 export async function POST(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const forceFullSync = searchParams.get('force_full') === 'true';
     
-    const response = await fetch(`${BACKEND_API_BASE}/data/sync/trigger?force_full=${forceFullSync}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
+    const response = await fetch(
+      getBackendApiUrl('data/sync/trigger?force_full=${forceFullSync}'),
+      createFetchConfig('POST')
+    );
 
     if (!response.ok) {
       throw new Error(`后端API请求失败: ${response.status}`);

@@ -1,16 +1,13 @@
 // Data Sync Status API - 代理到后端API
 import { NextRequest, NextResponse } from 'next/server';
-
-const BACKEND_API_BASE = 'http://localhost:8000/api/v1';
+import { getBackendApiUrl, createFetchConfig } from '../../../../config/api';
 
 export async function GET(request: NextRequest) {
   try {
-    const response = await fetch(`${BACKEND_API_BASE}/data/sync/status`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
+    const response = await fetch(
+      getBackendApiUrl('data/sync/status'),
+      createFetchConfig('GET')
+    );
 
     if (!response.ok) {
       throw new Error(`后端API请求失败: ${response.status}`);
