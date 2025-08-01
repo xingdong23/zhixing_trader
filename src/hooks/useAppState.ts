@@ -4,7 +4,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { AppState, TradingStats, TradingPlan, TradingPlaybook, TradeRecord, LiveJournal } from '@/types';
+import { AppState, TradingStats, TradingPlan, TradingPlaybook, TradeRecord } from '@/types';
 import { calculateTradingStats } from '@/utils/calculations';
 
 // 初始化默认统计数据
@@ -32,7 +32,6 @@ const initialAppState: AppState = {
   tradingStats: initialStats,
   activePlans: [],
   activeRecords: [],
-  liveJournals: [],
   playbooks: [], // 现在从数据库加载
   insights: [],
   currentView: 'dashboard',
@@ -90,17 +89,7 @@ export function useAppState() {
     });
   };
 
-  // 添加盘中观察日志
-  const addLiveJournal = (tradeId: string, journal: Omit<LiveJournal, 'id'>) => {
-    const newJournal: LiveJournal = {
-      ...journal,
-      id: `journal_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
-    };
 
-    updateAppState({
-      liveJournals: [...appState.liveJournals, newJournal]
-    });
-  };
 
   // 删除剧本
   const deletePlaybook = (playbookId: string) => {
@@ -253,8 +242,7 @@ export function useAppState() {
     addTradeRecord,
     updateTradeRecord,
 
-    // 日志相关
-    addLiveJournal,
+
 
     // 剧本相关
     addPlaybook,

@@ -4,7 +4,7 @@
 'use client';
 
 import React from 'react';
-import { Stock, SelectionStrategy } from '@/types';
+import { Stock, StockSelectionStrategy } from '@/types';
 import { MarketTabId } from './MarketTabs';
 
 // 导入各个功能模块组件
@@ -21,7 +21,7 @@ export interface MarketContentProps {
   
   // 数据
   stocks: Stock[];
-  strategies: SelectionStrategy[];
+  strategies: StockSelectionStrategy[];
   
   // 股票操作
   onAddStock: (stockData: Omit<Stock, 'id' | 'addedAt' | 'updatedAt'>) => void;
@@ -31,8 +31,8 @@ export interface MarketContentProps {
   onViewStockDetail: (stock: Stock) => void;
   
   // 策略操作
-  onCreateStrategy: (strategyData: Omit<SelectionStrategy, 'id' | 'createdAt' | 'updatedAt'>) => void;
-  onUpdateStrategy: (id: string, strategyData: Partial<SelectionStrategy>) => void;
+  onCreateStrategy: (strategyData: Omit<StockSelectionStrategy, 'id' | 'createdAt' | 'updatedAt'>) => void;
+  onUpdateStrategy: (id: string, strategyData: Partial<StockSelectionStrategy>) => void;
   onDeleteStrategy: (id: string) => void;
   onRunStrategy: (strategyId: string) => Promise<any[]>;
   

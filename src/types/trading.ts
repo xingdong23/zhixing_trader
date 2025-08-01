@@ -322,6 +322,31 @@ export interface RealTimeLog extends BaseEntity {
   isImportant: boolean;
 }
 
+/** 实时日志 - 盘中观察记录 */
+export interface LiveJournal {
+  id: string;
+  tradeId: string;           // 关联的交易ID
+  timestamp: Date;
+  type: 'trade' | 'plan' | 'emotion' | 'market' | 'system';
+  level: 'info' | 'warning' | 'error' | 'success';
+  title: string;
+  message: string;
+  
+  // 观察内容
+  currentPrice: number;      // 当前价格
+  observation: string;       // 观察记录
+  emotion: TradingEmotion;   // 当时情绪
+  
+  // 是否考虑调整计划
+  consideringAdjustment: boolean;
+  adjustmentReason?: string;
+  
+  relatedId?: string;
+  metadata?: Record<string, any>;
+  isRead: boolean;
+  isImportant: boolean;
+}
+
 // ==================== 交易剧本 ====================
 
 /** 剧本类型 */

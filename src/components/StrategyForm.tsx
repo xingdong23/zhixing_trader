@@ -5,7 +5,9 @@
 
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
-import { StockSelectionStrategy, TechnicalCondition, FundamentalCondition, PriceCondition, TradingType } from '@/types';
+import { FundamentalCondition, PriceCondition, TradingType } from '@/types';
+import { TechnicalCondition } from '@/types/strategy';
+import { StockSelectionStrategy } from '@/types/analysis';
 import {
   X,
   Plus,
@@ -30,8 +32,11 @@ export function StrategyForm({ strategy, onSave, onCancel }: StrategyFormProps) 
     name: string;
     description: string;
     tradingType: TradingType;
+    technicalConditions: import('@/types/analysis').TechnicalCondition[];
+    fundamentalConditions: FundamentalCondition[];
+    priceConditions: PriceCondition[];
     conditions: {
-      technical: TechnicalCondition[];
+      technical: import('@/types/analysis').TechnicalCondition[];
       fundamental: FundamentalCondition[];
       price: PriceCondition[];
     };
@@ -47,12 +52,27 @@ export function StrategyForm({ strategy, onSave, onCancel }: StrategyFormProps) 
       confirmationPeriods: number;
       tolerancePercent: number;
     };
+    markets: string[];
+    industries: string[];
+    marketCapRange?: [number, number];
+    sortBy: string;
+    sortOrder: 'asc' | 'desc';
+    maxResults: number;
+    usageCount: number;
+    avgSuccessRate?: number;
+    lastRunAt?: Date;
     isActive: boolean;
-    isSystemDefault?: boolean;
+    isDefault: boolean;
+    isSystemDefault: boolean;
+    tags: string[];
+    notes?: string;
   }>({
     name: '',
     description: '',
     tradingType: TradingType.SWING,
+    technicalConditions: [],
+    fundamentalConditions: [],
+    priceConditions: [],
     conditions: {
       technical: [],
       fundamental: [],
@@ -70,8 +90,16 @@ export function StrategyForm({ strategy, onSave, onCancel }: StrategyFormProps) 
       confirmationPeriods: 2,
       tolerancePercent: 3
     },
+    markets: [],
+    industries: [],
+    sortBy: 'score',
+    sortOrder: 'desc',
+    maxResults: 50,
+    usageCount: 0,
     isActive: true,
-    isSystemDefault: false
+    isDefault: false,
+    isSystemDefault: false,
+    tags: []
   });
 
   // 预设的技术分析模式
@@ -176,6 +204,9 @@ export function StrategyForm({ strategy, onSave, onCancel }: StrategyFormProps) 
         name: strategy.name,
         description: strategy.description,
         tradingType: strategy.tradingType,
+        technicalConditions: strategy.technicalConditions,
+        fundamentalConditions: strategy.fundamentalConditions,
+        priceConditions: strategy.priceConditions,
         conditions: strategy.conditions,
         parameters: {
           timeframe: strategy.parameters.timeframe,
@@ -189,11 +220,32 @@ export function StrategyForm({ strategy, onSave, onCancel }: StrategyFormProps) 
           confirmationPeriods: strategy.parameters.confirmationPeriods || 2,
           tolerancePercent: strategy.parameters.tolerancePercent || 2
         },
+        markets: strategy.markets,
+        industries: strategy.industries,
+        marketCapRange: strategy.marketCapRange,
+        sortBy: strategy.sortBy,
+        sortOrder: strategy.sortOrder,
+        maxResults: strategy.maxResults,
+        usageCount: strategy.usageCount,
         isActive: strategy.isActive,
-        isSystemDefault: strategy.isSystemDefault
+        isDefault: strategy.isDefault,
+        isSystemDefault: strategy.isSystemDefault,
+        tags: strategy.tags,
+        notes: strategy.notes
       });
     }
   }, [strategy]);
+
+  // 转换函数：将strategy.ts格式的TechnicalCondition转换为analysis.ts格式
+  const convertTechnicalConditions = (conditions: TechnicalCondition[]): import('@/types/analysis').TechnicalCondition[] => {
+    return conditions.map(condition => ({
+      indicator: condition.parameter,
+      operator: condition.operator,
+      value: condition.value,
+      timeframe: '1d', // 默认时间周期
+      description: condition.description
+    }));
+  };
 
   const handleApplyPattern = (pattern: typeof technicalPatterns[0]) => {
     setFormData(prev => ({
@@ -203,7 +255,7 @@ export function StrategyForm({ strategy, onSave, onCancel }: StrategyFormProps) 
       tradingType: TradingType.SWING,
       conditions: {
         ...prev.conditions,
-        technical: pattern.conditions
+        technical: convertTechnicalConditions(pattern.conditions)
       }
     }));
   };

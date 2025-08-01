@@ -29,7 +29,7 @@ export interface FormFieldProps {
   labelWidth?: string;
 }
 
-export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
+export interface InputProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'size'> {
   /** 输入框变体 */
   variant?: 'default' | 'filled' | 'outline';
   /** 输入框大小 */
@@ -63,7 +63,7 @@ export interface TextareaProps extends React.TextareaHTMLAttributes<HTMLTextArea
   className?: string;
 }
 
-export interface SelectProps extends React.SelectHTMLAttributes<HTMLSelectElement> {
+export interface SelectProps extends Omit<React.SelectHTMLAttributes<HTMLSelectElement>, 'size'> {
   /** 选择框变体 */
   variant?: 'default' | 'filled' | 'outline';
   /** 选择框大小 */
@@ -78,7 +78,7 @@ export interface SelectProps extends React.SelectHTMLAttributes<HTMLSelectElemen
   className?: string;
 }
 
-export interface CheckboxProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'type'> {
+export interface CheckboxProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'type' | 'size'> {
   /** 复选框标签 */
   label?: string;
   /** 复选框大小 */
@@ -91,7 +91,7 @@ export interface CheckboxProps extends Omit<React.InputHTMLAttributes<HTMLInputE
   className?: string;
 }
 
-export interface RadioProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'type'> {
+export interface RadioProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'type' | 'size'> {
   /** 单选框标签 */
   label?: string;
   /** 单选框大小 */

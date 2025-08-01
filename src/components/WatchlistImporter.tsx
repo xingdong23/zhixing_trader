@@ -4,11 +4,11 @@ import React, { useState, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { Upload, Download, FileText, AlertCircle, CheckCircle, X, BarChart3 } from 'lucide-react';
 
-import { ImportedStock, Industry, MarketType } from '@/types';
+import { ImportedStock, Industry, MarketType, Stock, MarketCap, WatchLevel } from '@/types';
 import { apiPost, API_ENDPOINTS } from '../utils/api';
 
 interface WatchlistImporterProps {
-  onImportComplete?: (stocks: ImportedStock[]) => void;
+  onImportComplete?: (stocks: Stock[]) => void;
 }
 
 export function WatchlistImporter({ onImportComplete }: WatchlistImporterProps) {
@@ -23,6 +23,31 @@ export function WatchlistImporter({ onImportComplete }: WatchlistImporterProps) 
     industries: number;
   } | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // 转换ImportedStock为Stock类型
+  const convertImportedStockToStock = (importedStock: ImportedStock): Stock => {
+    return {
+      id: importedStock.id,
+      symbol: importedStock.symbol,
+      name: importedStock.name,
+      market: importedStock.market,
+      tags: {
+        industry: importedStock.industry ? [importedStock.industry.name] : [],
+        fundamentals: [],
+        marketCap: MarketCap.MID, // 默认值，可以根据实际情况调整
+        watchLevel: WatchLevel.MEDIUM // 默认值
+      },
+      conceptIds: [], // 新导入的股票暂无概念关联
+      currentPrice: importedStock.price,
+      priceChange: importedStock.change,
+      priceChangePercent: importedStock.changePercent,
+      volume: importedStock.volume,
+      addedAt: importedStock.createdAt,
+      updatedAt: importedStock.updatedAt,
+      // createdAt: importedStock.createdAt, // Stock类型中没有createdAt属性
+      notes: importedStock.notes
+    };
+  };
 
   // 市场代码映射函数
   const mapMarketCode = (marketCode: string): MarketType => {
@@ -192,7 +217,8 @@ export function WatchlistImporter({ onImportComplete }: WatchlistImporterProps) 
         setSuccess(`成功导入 ${result.data.added_count || stocks.length} 只股票到数据库，其中 ${result.data.new_count || newStocks.length} 只为新股票，涉及 ${industries.length} 个行业。`);
 
         if (onImportComplete) {
-          onImportComplete(updatedStocks);
+          const convertedStocks = updatedStocks.map(convertImportedStockToStock);
+          onImportComplete(convertedStocks);
         }
 
       } catch (importError) {
@@ -212,7 +238,8 @@ export function WatchlistImporter({ onImportComplete }: WatchlistImporterProps) 
         });
 
         if (onImportComplete) {
-          onImportComplete(updatedStocks);
+          const convertedStocks = updatedStocks.map(convertImportedStockToStock);
+          onImportComplete(convertedStocks);
         }
       } finally {
         setIsLoading(false);

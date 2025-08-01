@@ -12,7 +12,8 @@ import { StockDetail } from './StockDetail';
 import { SelectionStrategies } from './SelectionStrategies';
 import DataSyncManager from './DataSyncManager';
 import DatabaseAdmin from './DatabaseAdmin';
-import { Stock, SelectionStrategy, SelectedStock } from '@/types';
+import { Stock, StockSelectionStrategy, StockSelectionResult } from '@/types';
+import { SelectedStock } from '@/types/strategy';
 import { apiPost, apiGet, apiPut, API_ENDPOINTS, buildApiUrl } from '@/utils/api';
 import {
   BarChart3,
@@ -122,7 +123,7 @@ export function StockMarket({ onCreateTradingPlan }: StockMarketProps) {
   };
   
   // 策略数据
-  const [strategies, setStrategies] = useState<SelectionStrategy[]>([]);
+  const [strategies, setStrategies] = useState<StockSelectionStrategy[]>([]);
   
   // 直接在组件中初始化数据（绕过useEffect问题）
   if (!isDataInitialized) {
@@ -208,8 +209,8 @@ export function StockMarket({ onCreateTradingPlan }: StockMarketProps) {
   };
 
   // 策略操作
-  const handleCreateStrategy = (strategyData: Omit<SelectionStrategy, 'id' | 'createdAt' | 'updatedAt'>) => {
-    const newStrategy: SelectionStrategy = {
+  const handleCreateStrategy = (strategyData: Omit<StockSelectionStrategy, 'id' | 'createdAt' | 'updatedAt'>) => {
+    const newStrategy: StockSelectionStrategy = {
       ...strategyData,
       id: `strategy_${Date.now()}`,
       createdAt: new Date(),
@@ -218,7 +219,7 @@ export function StockMarket({ onCreateTradingPlan }: StockMarketProps) {
     setStrategies(prev => [...prev, newStrategy]);
   };
 
-  const handleUpdateStrategy = (id: string, strategyData: Partial<SelectionStrategy>) => {
+  const handleUpdateStrategy = (id: string, strategyData: Partial<StockSelectionStrategy>) => {
     setStrategies(prev => prev.map(strategy => 
       strategy.id === id 
         ? { ...strategy, ...strategyData, updatedAt: new Date() }
@@ -231,7 +232,7 @@ export function StockMarket({ onCreateTradingPlan }: StockMarketProps) {
   };
 
   // 运行策略（调用真实后端API）
-  const handleRunStrategy = async (strategyId: string): Promise<SelectedStock[]> => {
+  const handleRunStrategy = async (strategyId: string): Promise<StockSelectionResult[]> => {
     try {
       // 将字符串ID转换为整数ID（简单映射）
       const numericId = strategyId.includes('ema55_strategy') ? 1 :
@@ -257,8 +258,23 @@ export function StockMarket({ onCreateTradingPlan }: StockMarketProps) {
       const results = await response.json();
       console.log(`策略 ${strategyId} 执行完成，选中 ${results.data?.length || 0} 只股票`);
 
-      // 返回选中的股票结果
-      return results.data || [];
+      // 将SelectedStock转换为StockSelectionResult
+      const convertedResults: StockSelectionResult[] = (results.data || []).map((selectedStock: SelectedStock, index: number) => ({
+        stockId: selectedStock.stock.id,
+        stock: selectedStock.stock,
+        score: selectedStock.score,
+        rank: index + 1,
+        technicalScore: selectedStock.score * 0.4, // 假设技术面占40%
+        fundamentalScore: selectedStock.score * 0.4, // 假设基本面占40%
+        priceScore: selectedStock.score * 0.2, // 假设价格面占20%
+        matchedConditions: selectedStock.reasons || [],
+        warnings: [],
+        recommendedAction: selectedStock.suggestedAction === 'buy' ? 'buy' : selectedStock.suggestedAction === 'sell' ? 'avoid' : 'watch',
+        confidence: selectedStock.confidence || 'medium',
+        reasoning: selectedStock.reasons?.join('; ') || selectedStock.suggestedAction || ''
+      }));
+      
+      return convertedResults;
 
     } catch (error) {
       console.error('执行策略失败:', error);

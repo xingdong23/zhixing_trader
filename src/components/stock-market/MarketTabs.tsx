@@ -238,7 +238,7 @@ export const marketTabsUtils = {
 };
 
 // 常量导出
-export const MARKET_TAB_IDS = DEFAULT_TABS.map(tab => tab.id) as const;
+export const MARKET_TAB_IDS = ['pool', 'import', 'concepts', 'strategies', 'sync', 'database'] as const;
 export const MARKET_TAB_LABELS = DEFAULT_TABS.reduce((acc, tab) => {
   acc[tab.id] = tab.label;
   return acc;

@@ -22,6 +22,12 @@ export { marketContentUtils, TAB_DISPLAY_NAMES, TAB_DESCRIPTIONS } from './Marke
 export { StockMarketRefactored } from './StockMarketRefactored';
 export type { StockMarketProps } from './StockMarketRefactored';
 
+// 导入工具函数和组件
+import { marketDataUtils, useMarketData } from './MarketDataManager';
+import { marketOverviewUtils, MarketOverview } from './MarketOverview';
+import { marketTabsUtils, MarketTabId, MarketTabs } from './MarketTabs';
+import { marketContentUtils, MarketContent } from './MarketContent';
+
 // 工具函数和常量
 export const stockMarketUtils = {
   // 数据管理
@@ -33,7 +39,7 @@ export const stockMarketUtils = {
   // 标签页管理
   ...marketTabsUtils,
   
-  // 内容渲染
+  // 内容管理
   ...marketContentUtils,
   
   // 通用工具
@@ -134,12 +140,12 @@ export const STOCK_MARKET_CONSTANTS = {
 
 // 类型导出
 export type StockMarketModule = {
-  // 组件类型
+  // 组件
   MarketOverview: typeof MarketOverview;
   MarketTabs: typeof MarketTabs;
   MarketContent: typeof MarketContent;
   
-  // Hook类型
+  // Hooks
   useMarketData: typeof useMarketData;
   
   // 工具类型

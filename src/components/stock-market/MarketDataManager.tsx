@@ -4,13 +4,13 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { Stock, SelectionStrategy } from '@/types';
+import { Stock, StockSelectionStrategy } from '@/types';
 import { apiPost, apiGet, apiPut, API_ENDPOINTS } from '@/utils/api';
 
 // 类型定义
 export interface MarketDataState {
   stocks: Stock[];
-  strategies: SelectionStrategy[];
+  strategies: StockSelectionStrategy[];
   isLoading: boolean;
   isInitialized: boolean;
   lastUpdated: Date | null;
@@ -25,8 +25,8 @@ export interface MarketDataActions {
   deleteStock: (id: string) => Promise<void>;
   
   // 策略操作
-  createStrategy: (strategyData: Omit<SelectionStrategy, 'id' | 'createdAt' | 'updatedAt'>) => void;
-  updateStrategy: (id: string, strategyData: Partial<SelectionStrategy>) => void;
+  createStrategy: (strategyData: Omit<StockSelectionStrategy, 'id' | 'createdAt' | 'updatedAt'>) => void;
+  updateStrategy: (id: string, strategyData: Partial<StockSelectionStrategy>) => void;
   deleteStrategy: (id: string) => void;
   runStrategy: (strategyId: string) => Promise<any[]>;
   runAllStrategies: () => Promise<void>;
@@ -188,8 +188,8 @@ export function useMarketData(): UseMarketDataResult {
   }, []);
 
   // 创建策略
-  const createStrategy = useCallback((strategyData: Omit<SelectionStrategy, 'id' | 'createdAt' | 'updatedAt'>) => {
-    const newStrategy: SelectionStrategy = {
+  const createStrategy = useCallback((strategyData: Omit<StockSelectionStrategy, 'id' | 'createdAt' | 'updatedAt'>) => {
+    const newStrategy: StockSelectionStrategy = {
       ...strategyData,
       id: `strategy_${Date.now()}`,
       createdAt: new Date(),
@@ -203,7 +203,7 @@ export function useMarketData(): UseMarketDataResult {
   }, []);
 
   // 更新策略
-  const updateStrategy = useCallback((id: string, strategyData: Partial<SelectionStrategy>) => {
+  const updateStrategy = useCallback((id: string, strategyData: Partial<StockSelectionStrategy>) => {
     setState(prev => ({
       ...prev,
       strategies: prev.strategies.map(strategy => 
@@ -343,7 +343,7 @@ export const marketDataUtils = {
   transformStockToApiData,
   
   // 计算统计信息
-  calculateStats: (stocks: Stock[], strategies: SelectionStrategy[]) => {
+  calculateStats: (stocks: Stock[], strategies: StockSelectionStrategy[]) => {
     return {
       totalStocks: stocks.length,
       totalStrategies: strategies.length,
@@ -358,7 +358,7 @@ export const marketDataUtils = {
   },
   
   // 验证策略数据
-  validateStrategy: (strategy: Partial<SelectionStrategy>): boolean => {
+  validateStrategy: (strategy: Partial<StockSelectionStrategy>): boolean => {
     return !!(strategy.name && strategy.description);
   }
 };

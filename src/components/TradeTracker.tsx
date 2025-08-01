@@ -147,11 +147,17 @@ export function TradeTracker({
     const journal: Omit<LiveJournal, 'id'> = {
       tradeId: selectedPlan.id,
       timestamp: new Date(),
+      type: 'trade',
+      level: 'info',
+      title: '盘中观察',
+      message: journalText,
       currentPrice,
       observation: journalText,
       emotion: journalEmotion,
       consideringAdjustment: false,
-      adjustmentReason: journalScreenshot ? '附带截图' : undefined
+      adjustmentReason: journalScreenshot ? '附带截图' : undefined,
+      isRead: false,
+      isImportant: false
     };
 
     onAddJournal(selectedPlan.id, journal);

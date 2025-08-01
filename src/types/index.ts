@@ -8,6 +8,10 @@ export * from './trading';
 export * from './analysis';
 export * from './app';
 
+// 明确导入需要的枚举类型
+export { TradingEmotion } from './core';
+export type { LiveJournal } from './trading';
+
 // ==================== 工具类型 ====================
 
 /** 实体ID类型 */
@@ -476,21 +480,7 @@ export interface RiskManagementRecord {
   }[];
 }
 
-// 盘中观察日志 - 执行过程中的心理记录
-export interface LiveJournal {
-  id: string;
-  tradeId: string;           // 关联的交易ID
-  timestamp: Date;
-  
-  // 观察内容
-  currentPrice: number;      // 当前价格
-  observation: string;       // 观察记录
-  emotion: string;   // 当时情绪
-  
-  // 是否考虑调整计划
-  consideringAdjustment: boolean;
-  adjustmentReason?: string;
-}
+// LiveJournal interface moved to trading.ts
 
 // 交易剧本 - 成功模式的固化
 export interface TradingPlaybook {
@@ -585,7 +575,6 @@ export interface AppState {
   // 当前数据
   activePlans: TradingPlan[];
   activeRecords: TradeRecord[];
-  liveJournals: LiveJournal[];
   playbooks: TradingPlaybook[];
   insights: InsightCard[];
   
