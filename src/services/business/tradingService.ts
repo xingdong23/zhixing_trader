@@ -1,7 +1,8 @@
 // 【知行交易】交易业务服务
 
 import { tradingApi } from '../api';
-import { TradingPlan, TradeRecord, ExecutionRecord, TradingStats, LiveJournal, DisciplineStatus, TradeStatus, StrategyType } from '../../types/trading';
+import { TradingPlan, TradeRecord, ExecutionRecord, TradingStats, TradeStatus, StrategyType } from '../../types/trading';
+import { LiveJournal, DisciplineStatus } from '../../types';
 import { ApiResponse } from '../../types/api';
 import { VALIDATION_RULES, ERROR_MESSAGES, SUCCESS_MESSAGES } from '../../constants';
 
@@ -133,32 +134,26 @@ export class TradingBusinessService {
       try {
         const planData: Partial<TradingPlan> = {
           symbol: recommendation.stockSymbol,
-          symbolName: recommendation.stockName,
-          positionLayers: [{
-            id: `layer-1-${Date.now()}`,
-            layerIndex: 1,
-            targetPrice: recommendation.entryPrice || recommendation.currentPrice,
-            positionPercent: 10, // 默认10%仓位
-            executed: false
+          addPositionLevels: [{
+            level: 1,
+            triggerPrice: recommendation.entryPrice || recommendation.currentPrice,
+            quantity: 100, // 默认数量
+            reasoning: '初始建仓',
+            isTriggered: false
           }],
-          takeProfitLayers: [{
-            id: `tp-1-${Date.now()}`,
-            layerIndex: 1,
-            targetPrice: recommendation.takeProfit?.[0] || recommendation.currentPrice * 1.1,
-            sellPercent: 100,
-            executed: false
+          takeProfitLevels: [{
+            level: 1,
+            triggerPrice: recommendation.takeProfit?.[0] || recommendation.currentPrice * 1.1,
+            sellRatio: 1.0, // 100%卖出
+            reasoning: '目标止盈',
+            isTriggered: false
           }],
           globalStopLoss: recommendation.stopLoss,
           maxTotalPosition: 10,
           maxLossPercent: 5,
           riskRewardRatio: 2,
-          strategyType: 'SINGLE_ENTRY' as const,
+          strategyType: StrategyType.TECHNICAL,
           trailingStopEnabled: false,
-          buyingLogic: {
-            technical: recommendation.technicalAnalysis || '技术分析',
-            fundamental: '基本面分析',
-            news: '消息面分析'
-          },
           ...defaultSettings
         };
         

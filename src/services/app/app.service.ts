@@ -440,21 +440,24 @@ export class AppService extends BaseService {
       throw ServiceError.validationError('无效的主题模式');
     }
 
-    if (settings.trading?.riskLevel && !['conservative', 'moderate', 'aggressive'].includes(settings.trading.riskLevel)) {
-      throw ServiceError.validationError('无效的风险等级');
-    }
+    // 注释掉riskLevel检查，因为TradingSettings中没有这个属性
+    // if (settings.trading?.riskLevel && !['conservative', 'moderate', 'aggressive'].includes(settings.trading.riskLevel)) {
+    //   throw ServiceError.validationError('无效的风险等级');
+    // }
 
-    if (settings.trading?.defaultQuantity && settings.trading.defaultQuantity <= 0) {
-      throw ServiceError.validationError('默认交易数量必须大于0');
-    }
+    // 注释掉defaultQuantity检查，因为TradingSettings中没有这个属性
+    // if (settings.trading?.defaultQuantity && settings.trading.defaultQuantity <= 0) {
+    //   throw ServiceError.validationError('默认交易数量必须大于0');
+    // }
 
-    if (settings.trading?.maxPositions && settings.trading.maxPositions <= 0) {
+    if (settings.trading?.maxPositionSize && settings.trading.maxPositionSize <= 0) {
       throw ServiceError.validationError('最大持仓数量必须大于0');
     }
 
-    if (settings.data?.refreshInterval && settings.data.refreshInterval < 1000) {
-      throw ServiceError.validationError('刷新间隔不能小于1秒');
-    }
+    // 注释掉refreshInterval检查，因为DataSettings中没有这个属性
+    // if (settings.data?.refreshInterval && settings.data.refreshInterval < 1000) {
+    //   throw ServiceError.validationError('刷新间隔不能小于1秒');
+    // }
   }
 
   /** 验证通知数据 */

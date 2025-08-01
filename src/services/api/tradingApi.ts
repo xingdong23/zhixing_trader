@@ -5,10 +5,9 @@ import {
   TradingPlan, 
   TradeRecord, 
   TradingStats,
-  LiveJournal,
-  ExecutionRecord,
-  DisciplineStatus
+  ExecutionRecord
 } from '../../types/trading';
+import { LiveJournal, DisciplineStatus } from '../../types';
 import { ApiResponse, BatchOperationResult } from '../../types/api';
 
 /**

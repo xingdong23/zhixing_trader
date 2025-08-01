@@ -3,6 +3,9 @@
 
 import { BaseEntity, TaggedEntity, NotedEntity, BaseStats, TradingEmotion, InformationSource, TradeStatus, DisciplineRating } from './core';
 
+// 重新导出需要的类型
+export { TradeStatus } from './core';
+
 // ==================== 交易类型分类 ====================
 
 /** 交易类型 */
@@ -76,6 +79,7 @@ export interface TakeProfitLevel {
 /** 交易计划 */
 export interface TradingPlan extends BaseEntity, TaggedEntity, NotedEntity {
   stockId: string;
+  symbol?: string;               // 股票代码
   strategyId?: string;
   strategyType?: StrategyType;   // 策略类型
   tradingType: TradingType;
@@ -88,6 +92,10 @@ export interface TradingPlan extends BaseEntity, TaggedEntity, NotedEntity {
   entryPrice: number;            // 计划入场价格
   stopLoss: number;              // 止损价格
   takeProfit: number;            // 止盈价格
+  globalStopLoss?: number;       // 全局止损价格
+  riskRewardRatio?: number;      // 风险收益比
+  trailingStopEnabled?: boolean; // 是否启用跟踪止损
+  disciplineLocked?: boolean;    // 是否锁定纪律
   
   // 仓位管理
   plannedQuantity: number;       // 计划数量

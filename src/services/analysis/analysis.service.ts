@@ -172,14 +172,14 @@ export class AnalysisService extends BaseService {
     pagination?: PaginationParams,
     sort?: SortParams,
     filters?: StrategyQueryParams
-  ): Promise<PaginatedResponse<StockSelectionStrategy>> {
+  ): Promise<ApiResponse<StockSelectionStrategy[]>> {
     try {
       this.logServiceCall('getStrategies', '/analysis/strategies', { pagination, sort, filters });
       
       const queryParams = this.buildPaginationParams(pagination, sort, filters);
       const response = await this.http.get<StockSelectionStrategy[]>(`/analysis/strategies${queryParams}`);
       
-      return response as PaginatedResponse<StockSelectionStrategy>;
+      return response;
     } catch (error) {
       this.handleServiceError(error, '获取选股策略列表');
     }
@@ -287,14 +287,14 @@ export class AnalysisService extends BaseService {
     pagination?: PaginationParams,
     sort?: SortParams,
     filters?: DailySelectionQueryParams
-  ): Promise<PaginatedResponse<DailyStockSelection>> {
+  ): Promise<ApiResponse<DailyStockSelection[]>> {
     try {
       this.logServiceCall('getDailySelections', '/analysis/daily-selections', { pagination, sort, filters });
       
       const queryParams = this.buildPaginationParams(pagination, sort, filters);
       const response = await this.http.get<DailyStockSelection[]>(`/analysis/daily-selections${queryParams}`);
       
-      return response as PaginatedResponse<DailyStockSelection>;
+      return response;
     } catch (error) {
       this.handleServiceError(error, '获取每日选股列表');
     }
@@ -341,14 +341,14 @@ export class AnalysisService extends BaseService {
     pagination?: PaginationParams,
     sort?: SortParams,
     filters?: RecommendationQueryParams
-  ): Promise<PaginatedResponse<TradingRecommendation>> {
+  ): Promise<ApiResponse<TradingRecommendation[]>> {
     try {
       this.logServiceCall('getRecommendations', '/analysis/recommendations', { pagination, sort, filters });
       
       const queryParams = this.buildPaginationParams(pagination, sort, filters);
       const response = await this.http.get<TradingRecommendation[]>(`/analysis/recommendations${queryParams}`);
       
-      return response as PaginatedResponse<TradingRecommendation>;
+      return response;
     } catch (error) {
       this.handleServiceError(error, '获取交易推荐列表');
     }
@@ -424,14 +424,14 @@ export class AnalysisService extends BaseService {
     pagination?: PaginationParams,
     sort?: SortParams,
     filters?: InsightQueryParams
-  ): Promise<PaginatedResponse<InsightCard>> {
+  ): Promise<ApiResponse<InsightCard[]>> {
     try {
       this.logServiceCall('getInsights', '/analysis/insights', { pagination, sort, filters });
       
       const queryParams = this.buildPaginationParams(pagination, sort, filters);
       const response = await this.http.get<InsightCard[]>(`/analysis/insights${queryParams}`);
       
-      return response as PaginatedResponse<InsightCard>;
+      return response;
     } catch (error) {
       this.handleServiceError(error, '获取洞察卡片列表');
     }
@@ -489,13 +489,13 @@ export class AnalysisService extends BaseService {
   async getReviewReports(
     pagination?: PaginationParams,
     filters?: { dateFrom?: string; dateTo?: string; type?: string }
-  ): Promise<PaginatedResponse<ReviewReport>> {
+  ): Promise<ApiResponse<ReviewReport[]>> {
     try {
       const queryParams = this.buildPaginationParams(pagination, undefined, filters);
       this.logServiceCall('getReviewReports', `/analysis/reviews${queryParams}`);
       
       const response = await this.http.get<ReviewReport[]>(`/analysis/reviews${queryParams}`);
-      return response as PaginatedResponse<ReviewReport>;
+      return response;
     } catch (error) {
       this.handleServiceError(error, '获取复盘报告');
     }
