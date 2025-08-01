@@ -77,6 +77,7 @@ export interface TakeProfitLevel {
 export interface TradingPlan extends BaseEntity, TaggedEntity, NotedEntity {
   stockId: string;
   strategyId?: string;
+  strategyType?: StrategyType;   // 策略类型
   tradingType: TradingType;
   
   // 基本信息
@@ -107,8 +108,10 @@ export interface TradingPlan extends BaseEntity, TaggedEntity, NotedEntity {
   actualEntryPrice?: number;     // 实际入场价格
   actualQuantity?: number;       // 实际数量
   
-  // 风险控制
+  // 风险管理
   maxLossAmount: number;         // 最大亏损金额
+  maxTotalPosition?: number;     // 最大总仓位
+  maxLossPercent?: number;       // 最大亏损百分比
   riskLevel: 'low' | 'medium' | 'high';
   
   // 情绪和纪律
@@ -133,6 +136,7 @@ export enum TradeAction {
 export interface ExecutionRecord extends BaseEntity {
   planId: string;
   action: TradeAction;
+  type: string;                  // 执行类型
   executedAt: Date;
   price: number;
   quantity: number;
@@ -174,10 +178,11 @@ export interface TradingRecord extends BaseEntity, TaggedEntity, NotedEntity {
   disciplineRating: DisciplineRating; // 纪律评级
   disciplineNotes?: string;      // 纪律备注
   
-  // 结果评估
+  // 盈亏信息
   isProfit?: boolean;            // 是否盈利
   profitAmount?: number;         // 盈亏金额
   profitRate?: number;           // 盈亏比例
+  totalPnL?: number;             // 总盈亏
   
   // 复盘标记
   isReviewed: boolean;           // 是否已复盘
@@ -223,13 +228,18 @@ export interface TradingStats extends BaseStats {
   losingTrades: number;
   winRate: number;
   
-  // 收益统计
+  // 盈亏统计
   totalProfit: number;
   totalLoss: number;
   netProfit: number;
   avgProfit: number;
   avgLoss: number;
   profitFactor: number;          // 盈亏比
+  totalPnL: number;              // 总盈亏
+  totalPnLPercent: number;       // 总盈亏百分比
+  avgWinPercent: number;         // 平均盈利百分比
+  avgLossPercent: number;        // 平均亏损百分比
+  avgRiskRewardRatio: number;    // 平均风险收益比
   
   // 风险统计
   maxDrawdown: number;
@@ -249,10 +259,36 @@ export interface TradingStats extends BaseStats {
   disciplineScore: number;
   planFollowRate: number;        // 计划执行率
   emotionalTrades: number;       // 情绪化交易次数
+  perfectExecutions: number;     // 完美执行次数
+  poorExecutions: number;        // 糟糕执行次数
   
   // 时间统计
   avgHoldingPeriod: number;      // 平均持仓时间(天)
+  avgHoldingDays: number;        // 平均持仓天数
   tradingFrequency: number;      // 交易频率(次/月)
+  
+  // 情绪统计
+  emotionBreakdown: {
+    calm: number;
+    fomo: number;
+    fear: number;
+    greed: number;
+    revenge: number;
+    confident: number;
+    uncertain: number;
+  };
+  
+  // 信息来源统计
+  sourceBreakdown: {
+    self_analysis: number;
+    friend_recommend: number;
+    news_media: number;
+    social_media: number;
+    professional_report: number;
+    technical_signal: number;
+  };
+  
+  lastUpdated: Date;             // 最后更新时间
 }
 
 // ==================== 实时日志 ====================

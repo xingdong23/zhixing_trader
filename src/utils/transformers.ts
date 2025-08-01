@@ -386,11 +386,12 @@ export class DataTransformer {
         id: data.id || `exec_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
         planId: data.planId || '',
         action: data.action || 'BUY',
+        type: data.type || 'MANUAL',  // 添加必需的type属性
         price: Number(data.price || data.execution_price || 0),
         quantity: Number(data.quantity || data.execution_quantity || 0),
         amount: Number(data.amount || 0),
         executedAt: new Date(data.executedAt || data.execution_time || Date.now()),
-        status: data.status || 'COMPLETED',
+        status: data.status || 'completed',
         createdAt: new Date(data.createdAt || Date.now()),
         updatedAt: new Date(data.updatedAt || Date.now()),
         notes: data.notes || ''

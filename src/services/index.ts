@@ -238,17 +238,19 @@ export type {
   ServiceErrorType,
   ServiceConfig as BaseServiceConfig,
   HttpMethod,
-  RequestConfig,
-  CacheConfig,
   PaginatedService,
   CrudService,
-  
+} from './core/base.service';
+
+export type {
   // 股票服务类型
   StockQueryParams,
   CreateStockData,
   UpdateStockData,
   StockPriceUpdate,
-  
+} from './stock/stock.service';
+
+export type {
   // 交易服务类型
   TradingPlanQueryParams,
   TradingRecordQueryParams,
@@ -261,7 +263,9 @@ export type {
   UpdateTradingStrategyData,
   ExecuteTradeParams,
   RiskCheckResult,
-  
+} from './trading/trading.service';
+
+export type {
   // 分析服务类型
   StrategyQueryParams,
   DailySelectionQueryParams,
@@ -273,15 +277,16 @@ export type {
   UpdateRecommendationData,
   ExecuteSelectionParams,
   SelectionResult,
-  MarketAnalysisParams,
-  
+} from './analysis/analysis.service';
+
+export type {
   // 应用服务类型
   NotificationQueryParams,
   CreateNotificationData,
   AppStatsQueryParams,
   UserActivity,
   HealthCheckResult,
-} from './stock/stock.service';
+} from './app/app.service';
 
 // ==================== 版本信息 ====================
 

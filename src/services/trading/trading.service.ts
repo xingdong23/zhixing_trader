@@ -12,7 +12,7 @@ import {
   TradingType,
   StrategyType,
   TradeAction,
-  TradingStatus,
+  TradeStatus,
   DisciplineRating,
   ApiResponse, 
   PaginatedResponse,
@@ -29,7 +29,7 @@ export interface TradingPlanQueryParams extends FilterParams {
   symbol?: string;                    // 股票代码
   tradingType?: TradingType;          // 交易类型
   strategyType?: StrategyType;        // 策略类型
-  status?: TradingStatus;             // 状态
+  status?: TradeStatus;             // 状态
   minTargetPrice?: number;            // 最小目标价格
   maxTargetPrice?: number;            // 最大目标价格
   dateFrom?: string;                  // 开始日期
@@ -78,7 +78,7 @@ export interface UpdateTradingPlanData {
   stopLoss?: number;
   takeProfit?: number;
   quantity?: number;
-  status?: TradingStatus;
+  status?: TradeStatus;
   notes?: string;
   tags?: string[];
 }
@@ -165,7 +165,18 @@ export class TradingService extends BaseService {
       const queryParams = this.buildPaginationParams(pagination, sort, filters);
       const response = await this.http.get<TradingPlan[]>(`/trading/plans${queryParams}`);
       
-      return response as PaginatedResponse<TradingPlan>;
+      // 转换为分页格式
+      const items = response.data || [];
+      const page = pagination?.page || 1;
+      const pageSize = pagination?.pageSize || 10;
+      
+      return {
+        items,
+        total: items.length,
+        page,
+        pageSize,
+        totalPages: Math.ceil(items.length / pageSize)
+      };
     } catch (error) {
       this.handleServiceError(error, '获取交易计划列表');
     }
@@ -270,7 +281,18 @@ export class TradingService extends BaseService {
       const queryParams = this.buildPaginationParams(pagination, sort, filters);
       const response = await this.http.get<TradingRecord[]>(`/trading/records${queryParams}`);
       
-      return response as PaginatedResponse<TradingRecord>;
+      // 转换为分页格式
+      const items = response.data || [];
+      const page = pagination?.page || 1;
+      const pageSize = pagination?.pageSize || 10;
+      
+      return {
+        items,
+        total: items.length,
+        page,
+        pageSize,
+        totalPages: Math.ceil(items.length / pageSize)
+      };
     } catch (error) {
       this.handleServiceError(error, '获取交易记录列表');
     }
@@ -351,7 +373,18 @@ export class TradingService extends BaseService {
       const queryParams = this.buildPaginationParams(pagination, sort, filters);
       const response = await this.http.get<TradingStrategy[]>(`/trading/strategies${queryParams}`);
       
-      return response as PaginatedResponse<TradingStrategy>;
+      // 转换为分页格式
+      const items = response.data || [];
+      const page = pagination?.page || 1;
+      const pageSize = pagination?.pageSize || 10;
+      
+      return {
+        items,
+        total: items.length,
+        page,
+        pageSize,
+        totalPages: Math.ceil(items.length / pageSize)
+      };
     } catch (error) {
       this.handleServiceError(error, '获取交易策略列表');
     }
@@ -468,7 +501,19 @@ export class TradingService extends BaseService {
       this.logServiceCall('getRealTimeLogs', `/trading/logs${queryParams}`);
       
       const response = await this.http.get<RealTimeLog[]>(`/trading/logs${queryParams}`);
-      return response as PaginatedResponse<RealTimeLog>;
+      
+      // 转换为分页格式
+      const items = response.data || [];
+      const page = pagination?.page || 1;
+      const pageSize = pagination?.pageSize || 10;
+      
+      return {
+        items,
+        total: items.length,
+        page,
+        pageSize,
+        totalPages: Math.ceil(items.length / pageSize)
+      };
     } catch (error) {
       this.handleServiceError(error, '获取实时日志');
     }
@@ -484,7 +529,19 @@ export class TradingService extends BaseService {
       this.logServiceCall('getScripts', `/trading/scripts${queryParams}`);
       
       const response = await this.http.get<TradingScript[]>(`/trading/scripts${queryParams}`);
-      return response as PaginatedResponse<TradingScript>;
+      
+      // 转换为分页格式
+      const items = response.data || [];
+      const page = pagination?.page || 1;
+      const pageSize = pagination?.pageSize || 10;
+      
+      return {
+        items: items,
+        total: items.length,
+        page,
+        pageSize,
+        totalPages: Math.ceil(items.length / pageSize)
+      };
     } catch (error) {
       this.handleServiceError(error, '获取交易剧本');
     }

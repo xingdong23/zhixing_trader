@@ -82,9 +82,20 @@ export class StockService extends BaseService implements
     try {
       this.logServiceCall('list', '/stocks', { pagination, sort, filters });
       const queryParams = this.buildPaginationParams(pagination, sort, filters);
-      const response = await this.http.get<ApiResponse<PaginatedResponse<Stock>>>(`/stocks${queryParams}`);
+      const response = await this.http.get<Stock[]>(`/stocks${queryParams}`);
       
-      return response.data || { items: [], total: 0, page: 1, pageSize: 10, totalPages: 0 };
+      // 转换为分页格式
+      const items = response.data || [];
+      const page = pagination?.page || 1;
+      const pageSize = pagination?.pageSize || 10;
+      
+      return {
+        items,
+        total: items.length,
+        page,
+        pageSize,
+        totalPages: Math.ceil(items.length / pageSize)
+      };
     } catch (error) {
       this.handleServiceError(error, '获取股票列表');
     }
@@ -323,9 +334,20 @@ export class StockService extends BaseService implements
       const queryParams = this.buildPaginationParams(pagination);
       this.logServiceCall('getOpinions', `/stocks/${stockId}/opinions${queryParams}`);
       
-      const response = await this.http.get<ApiResponse<PaginatedResponse<StockOpinion>>>(`/stocks/${stockId}/opinions${queryParams}`);
+      const response = await this.http.get<StockOpinion[]>(`/stocks/${stockId}/opinions${queryParams}`);
       
-      return response.data || { items: [], total: 0, page: 1, pageSize: 10, totalPages: 0 };
+      // 转换为分页格式
+      const items = response.data || [];
+      const page = pagination?.page || 1;
+      const pageSize = pagination?.pageSize || 10;
+      
+      return {
+        items,
+        total: items.length,
+        page,
+        pageSize,
+        totalPages: Math.ceil(items.length / pageSize)
+      };
     } catch (error) {
       this.handleServiceError(error, '获取股票观点');
     }

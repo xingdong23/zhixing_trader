@@ -477,4 +477,3 @@ export interface CrudService<T, CreateData = Partial<T>, UpdateData = Partial<T>
 // ==================== 导出 ====================
 
 export { DEFAULT_SERVICE_CONFIG as defaultConfig };
-export type { ServiceConfig, RequestOptions };

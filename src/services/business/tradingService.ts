@@ -1,7 +1,7 @@
 // 【知行交易】交易业务服务
 
 import { tradingApi } from '../api';
-import { TradingPlan, TradeRecord, ExecutionRecord, TradingStats, LiveJournal, DisciplineStatus, TradeStatus } from '../../types/trading';
+import { TradingPlan, TradeRecord, ExecutionRecord, TradingStats, LiveJournal, DisciplineStatus, TradeStatus, StrategyType } from '../../types/trading';
 import { ApiResponse } from '../../types/api';
 import { VALIDATION_RULES, ERROR_MESSAGES, SUCCESS_MESSAGES } from '../../constants';
 
@@ -417,7 +417,7 @@ export class TradingBusinessService {
     
     const totalValue = plans
       .filter(p => p.status === TradeStatus.ACTIVE && p.maxTotalPosition)
-      .reduce((sum, p) => sum + p.maxTotalPosition, 0);
+      .reduce((sum, p) => sum + (p.maxTotalPosition || 0), 0);
     
     return { total, active, pending, completed, totalValue };
   }
@@ -425,7 +425,7 @@ export class TradingBusinessService {
   private setTradingPlanDefaults(planData: Partial<TradingPlan>): Partial<TradingPlan> {
     return {
       status: TradeStatus.PLANNING,
-      strategyType: 'SINGLE_ENTRY',
+      strategyType: StrategyType.TECHNICAL,
       maxTotalPosition: 0.1,
       maxLossPercent: 0.05,
       riskRewardRatio: 2,
@@ -519,18 +519,38 @@ export class TradingBusinessService {
   
   private getDefaultTradingStats(): TradingStats {
     return {
+      totalCount: 0,
       totalTrades: 0,
       winningTrades: 0,
       losingTrades: 0,
       winRate: 0,
+      totalProfit: 0,
+      totalLoss: 0,
+      netProfit: 0,
+      avgProfit: 0,
+      avgLoss: 0,
+      profitFactor: 0,
       totalPnL: 0,
       totalPnLPercent: 0,
       avgWinPercent: 0,
       avgLossPercent: 0,
       avgRiskRewardRatio: 0,
+      maxDrawdown: 0,
+      maxConsecutiveLosses: 0,
+      maxConsecutiveWins: 0,
+      byTradingType: {
+        short_term: { trades: 0, winRate: 0, avgReturn: 0, totalProfit: 0 },
+        swing: { trades: 0, winRate: 0, avgReturn: 0, totalProfit: 0 },
+        value: { trades: 0, winRate: 0, avgReturn: 0, totalProfit: 0 }
+      },
       disciplineScore: 0,
+      planFollowRate: 0,
+      emotionalTrades: 0,
       perfectExecutions: 0,
       poorExecutions: 0,
+      avgHoldingPeriod: 0,
+      avgHoldingDays: 0,
+      tradingFrequency: 0,
       emotionBreakdown: {
         calm: 0,
         fomo: 0,
@@ -548,7 +568,6 @@ export class TradingBusinessService {
         professional_report: 0,
         technical_signal: 0
       },
-      avgHoldingDays: 0,
       lastUpdated: new Date()
     };
   }
