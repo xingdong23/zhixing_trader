@@ -9,11 +9,7 @@ from pydantic_settings import BaseSettings
 class Settings(BaseSettings):
     """应用配置"""
     
-    # 富途API配置
-    futu_host: str = "127.0.0.1"
-    futu_port: int = 11111
-    futu_username: str = ""
-    futu_password: str = ""
+
     
     # 服务器配置
     api_host: str = "0.0.0.0"
@@ -30,13 +26,8 @@ class Settings(BaseSettings):
     # CORS配置
     cors_origins: List[str] = ["*"]
     
-    # 数据更新配置
-    quote_update_interval: int = 5
-    watchlist_update_interval: int = 60
-    
     # API限制
-    max_quote_batch_size: int = 200
-    max_kline_days: int = 365
+    max_requests_per_minute: int = 100
     
     class Config:
         env_file = ".env"
@@ -51,11 +42,7 @@ def validate_config():
     """验证配置"""
     errors = []
     
-    if not settings.futu_username:
-        errors.append("FUTU_USERNAME is required")
-    
-    if not settings.futu_password:
-        errors.append("FUTU_PASSWORD is required")
+
     
     if errors:
         raise ValueError(f"Configuration validation failed: {', '.join(errors)}")

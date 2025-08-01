@@ -3,7 +3,7 @@
 import React, { useState, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { Upload, Download, FileText, AlertCircle, CheckCircle, X, BarChart3 } from 'lucide-react';
-import { FutuCsvParser } from '@/utils/futuCsvParser';
+
 import { ImportedStock, Industry } from '@/types';
 import { apiPost, API_ENDPOINTS } from '../utils/api';
 
@@ -24,31 +24,9 @@ export function WatchlistImporter({ onImportComplete }: WatchlistImporterProps) 
   } | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // 解析CSV文件（支持富途格式）
+  // 解析CSV文件
   const parseCSV = (csvText: string): ImportedStock[] => {
-    try {
-      // 尝试解析富途格式
-      const futuStocks = FutuCsvParser.parseCsvText(csvText);
-
-      // 提取行业信息
-      const extractedIndustries = FutuCsvParser.extractIndustries(futuStocks);
-
-      // 行业数据现在通过API管理
-      console.warn('⚠️ 行业数据管理已迁移到API');
-      setIndustries(extractedIndustries);
-
-      // 转换为导入格式
-      const importedStocks = futuStocks.map(futuStock => {
-        const industry = FutuCsvParser.findIndustryByName(extractedIndustries, futuStock.所属行业);
-        return FutuCsvParser.convertToImportedStock(futuStock, industry);
-      });
-
-      return importedStocks;
-    } catch (futuError) {
-      // 如果富途格式解析失败，尝试标准格式
-      console.warn('富途格式解析失败，尝试标准格式:', futuError);
-      return parseStandardCSV(csvText);
-    }
+    return parseStandardCSV(csvText);
   };
 
   // 解析标准CSV格式
@@ -235,17 +213,17 @@ export function WatchlistImporter({ onImportComplete }: WatchlistImporterProps) 
   // 下载示例CSV
   const downloadSampleCSV = () => {
     const sampleData = [
-      '"代码","名称","最新价","涨跌额","涨跌幅","成交量","成交额","今开","昨收","最高","最低","总市值","市盈率TTM","市净率","股息率TTM","所属行业"',
-      '"AAPL","苹果公司","150.00","+2.50","+1.69%","1000000","150000000","149.00","147.50","152.00","148.00","2500000000000","25.5","5.2","0.5%","消费电子"',
-      '"TSLA","特斯拉","200.00","-5.00","-2.44%","800000","160000000","202.00","205.00","205.00","195.00","800000000000","亏损","8.1","0.0%","电动车"',
-      '"00700","腾讯控股","350.00","+10.00","+2.94%","500000","175000000","345.00","340.00","360.00","340.00","3500000000000","15.2","2.8","0.3%","互联网"',
-      '"NVDA","英伟达","800.00","+20.00","+2.56%","2000000","1600000000","790.00","780.00","820.00","785.00","2000000000000","65.5","12.3","0.1%","半导体"'
+      'symbol,name,market,price,change,changepercent,volume,turnover,high,low,open,preclose',
+      'AAPL,Apple Inc.,US,150.00,2.50,1.69,1000000,150000000,152.00,148.00,149.00,147.50',
+      'TSLA,Tesla Inc.,US,200.00,-5.00,-2.44,800000,160000000,205.00,195.00,202.00,205.00',
+      '00700,Tencent Holdings,HK,350.00,10.00,2.94,500000,175000000,360.00,340.00,345.00,340.00',
+      'NVDA,NVIDIA Corporation,US,800.00,20.00,2.56,2000000,1600000000,820.00,785.00,790.00,780.00'
     ].join('\n');
 
     const blob = new Blob([sampleData], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement('a');
     link.href = URL.createObjectURL(blob);
-    link.download = 'futu_watchlist_sample.csv';
+    link.download = 'watchlist_sample.csv';
     link.click();
   };
 
@@ -372,15 +350,7 @@ export function WatchlistImporter({ onImportComplete }: WatchlistImporterProps) 
             <h4 className="font-semibold text-blue-800 mb-2">支持的CSV格式：</h4>
             <div className="text-sm text-blue-700 space-y-2">
               <div>
-                <strong>1. 富途牛牛格式（推荐）：</strong>
-                <ul className="ml-4 space-y-1">
-                  <li>• 必需列：代码、名称、最新价、所属行业</li>
-                  <li>• 可选列：涨跌额、涨跌幅、成交量、成交额、市盈率TTM、市净率等</li>
-                  <li>• 自动识别市场类型和行业分类</li>
-                </ul>
-              </div>
-              <div>
-                <strong>2. 标准格式：</strong>
+                <strong>标准格式：</strong>
                 <ul className="ml-4 space-y-1">
                   <li>• 必需列：symbol（股票代码）, name（股票名称）, market（市场）</li>
                   <li>• 市场代码：US（美股）, HK（港股）, CN（A股）</li>
@@ -393,7 +363,6 @@ export function WatchlistImporter({ onImportComplete }: WatchlistImporterProps) 
                   <li>• 支持引号包围的字段</li>
                   <li>• 自动去重，避免重复导入</li>
                   <li>• 导入后股票将显示在"股票池"中</li>
-                  <li>• 可通过行业筛选器查看分类结果</li>
                 </ul>
               </div>
             </div>

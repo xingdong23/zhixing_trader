@@ -18,13 +18,7 @@ export const BACKEND_API_CONFIG = {
   },
 } as const;
 
-/**
- * 富途API配置
- */
-export const FUTU_API_CONFIG = {
-  BASE_URL: 'https://openapi.futunn.com',
-  TIMEOUT: 30000,
-} as const;
+
 
 /**
  * 获取后端API完整URL

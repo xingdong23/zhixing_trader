@@ -71,7 +71,7 @@ async def lifespan(app: FastAPI):
 # 创建FastAPI应用
 app = FastAPI(
     title="知行交易 API 服务",
-    description="基于富途OpenAPI的股票数据服务",
+    description="智能股票交易系统API服务",
     version="1.0.0",
     lifespan=lifespan
 )

@@ -611,21 +611,9 @@ class PaginatedResponse(BaseModel):
     timestamp: str
 
 
-# ==================== 富途API相关模型 ====================
-
-class FutuConfig(BaseModel):
-    """富途API配置"""
-    host: str
-    port: int
-    username: str
-    password: str
 
 
-class FutuError(BaseModel):
-    """富途API错误"""
-    ret_type: int
-    ret_msg: str
-    err_code: Optional[int] = None
+
 
 
 # ==================== 交易纪律管理相关Pydantic模型 ====================

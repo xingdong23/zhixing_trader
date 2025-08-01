@@ -5,7 +5,6 @@ import {
   Stock, 
   StockOpinion, 
   StockPoolStats, 
-  FutuStockData, 
   ImportedStock,
   ApiResponse, 
   PaginatedResponse,
@@ -184,21 +183,7 @@ export class StockService extends BaseService implements
     }
   }
 
-  /** 获取股票实时数据 */
-  async getRealTimeData(symbols: string[]): Promise<ApiResponse<FutuStockData[]>> {
-    try {
-      if (!Array.isArray(symbols) || symbols.length === 0) {
-        throw ServiceError.validationError('股票代码列表不能为空');
-      }
-      
-      const queryParams = this.buildQueryParams({ symbols: symbols.join(',') });
-      this.logServiceCall('getRealTimeData', `/stocks/realtime${queryParams}`);
-      
-      return await this.http.get<FutuStockData[]>(`/stocks/realtime${queryParams}`);
-    } catch (error) {
-      this.handleServiceError(error, '获取股票实时数据');
-    }
-  }
+
 
   // ==================== 股票搜索和筛选 ====================
 
@@ -348,19 +333,7 @@ export class StockService extends BaseService implements
 
   // ==================== 数据导入和同步 ====================
 
-  /** 从富途导入股票数据 */
-  async importFromFutu(symbols: string[]): Promise<ApiResponse<ImportedStock[]>> {
-    try {
-      if (!Array.isArray(symbols) || symbols.length === 0) {
-        throw ServiceError.validationError('股票代码列表不能为空');
-      }
-      
-      this.logServiceCall('importFromFutu', '/stocks/import/futu', { symbols });
-      return await this.http.post<ImportedStock[]>('/stocks/import/futu', { symbols });
-    } catch (error) {
-      this.handleServiceError(error, '从富途导入股票数据');
-    }
-  }
+
 
   /** 同步股票数据 */
   async syncData(options?: {

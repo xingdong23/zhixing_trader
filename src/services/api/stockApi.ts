@@ -7,7 +7,7 @@ import {
   ConceptStockRelation, 
   Industry,
   StockPoolStats,
-  FutuStockData,
+
   ImportedStock
 } from '../../types/stock';
 import { ApiResponse, PaginatedResponse, ImportResult } from '../../types/api';
@@ -180,12 +180,7 @@ export class StockApiService extends BaseApiClient {
   
   // ==================== 数据导入 ====================
   
-  /**
-   * 从富途导入股票数据
-   */
-  async importFromFutu(data: FutuStockData[]): Promise<ApiResponse<ImportResult>> {
-    return this.post<ImportResult>('/api/stocks/import/futu', { data });
-  }
+
   
   /**
    * 从CSV导入股票数据

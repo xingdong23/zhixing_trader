@@ -3,7 +3,6 @@ import { apiGet, API_ENDPOINTS } from '@/utils/api';
 
 /**
  * 股票池统一数据管理服务
- * 整合富途导入数据和现有股票池数据
  */
 export class StockPoolService {
   /**

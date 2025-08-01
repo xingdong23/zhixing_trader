@@ -8,7 +8,7 @@
 - **状态**：已废弃，不再使用
 
 ### ❌ 其他已清理的文件
-- `demo_futu_import.md` - 演示文件
+
 - `CONCEPT_SYSTEM_DEMO.md` - 概念演示
 - `README_IMPORT.md` - 导入说明
 - `test_import.html` - 测试文件

@@ -12,7 +12,6 @@ const { execSync } = require('child_process');
 // 配置
 const API_DIR = path.join(__dirname, '../src/app/api');
 const CONFIG_IMPORT = "import { getBackendApiUrl, createFetchConfig } from '../../../config/api';";
-const FUTU_CONFIG_IMPORT = "import { FUTU_API_CONFIG } from '../../../config/api';";
 
 /**
  * 递归查找所有route.ts文件
@@ -53,28 +52,7 @@ function refactorRouteFile(filePath) {
   let content = fs.readFileSync(filePath, 'utf8');
   let modified = false;
   
-  // 检查是否是富途API文件
-  const isFutuApi = content.includes('FUTU_API_BASE');
-  
-  if (isFutuApi) {
-    // 处理富途API文件
-    if (content.includes("const FUTU_API_BASE = 'https://openapi.futunn.com';")) {
-      const importPath = getImportPath(filePath);
-      content = content.replace(
-        /import \{ NextRequest, NextResponse \} from 'next\/server';/,
-        `import { NextRequest, NextResponse } from 'next/server';\nimport { FUTU_API_CONFIG } from '${importPath}';`
-      );
-      content = content.replace(
-        /const FUTU_API_BASE = 'https:\/\/openapi\.futunn\.com';/,
-        ''
-      );
-      content = content.replace(
-        /\$\{FUTU_API_BASE\}/g,
-        '${FUTU_API_CONFIG.BASE_URL}'
-      );
-      modified = true;
-    }
-  } else {
+  {
     // 处理后端API文件
     if (content.includes("const BACKEND_API_BASE = 'http://localhost:8000/api/v1';")) {
       const importPath = getImportPath(filePath);

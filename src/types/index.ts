@@ -840,7 +840,7 @@ export interface ConceptStockRelation {
   addedAt: Date;
 }
 
-// 行业分类接口（保留用于富途导入）
+// 行业分类接口
 export interface Industry {
   id: string;
   name: string;                // 行业名称，如"半导体"、"生物技术"
@@ -850,53 +850,7 @@ export interface Industry {
   updatedAt: Date;
 }
 
-// 富途导入的原始数据接口
-export interface FutuStockData {
-  代码: string;
-  名称: string;
-  最新价: string;
-  涨跌额: string;
-  涨跌幅: string;
-  成交量: string;
-  成交额: string;
-  今开: string;
-  昨收: string;
-  最高: string;
-  最低: string;
-  总市值: string;
-  市盈率TTM: string;
-  市净率: string;
-  股息率TTM: string;
-  所属行业: string;
-  [key: string]: string; // 允许其他字段
-}
 
-// 导入的股票数据（处理后的格式）
-export interface ImportedStock {
-  id: string;
-  symbol: string;
-  name: string;
-  market: 'US' | 'HK' | 'CN';
-  industryId?: string;
-  industry?: Industry;
-  price: number;
-  change: number;
-  changePercent: number;
-  volume: number;
-  turnover: number;
-  high: number;
-  low: number;
-  open: number;
-  preClose: number;
-  marketCap?: number;
-  peRatio?: number;
-  pbRatio?: number;
-  dividendYield?: number;
-  addedAt: Date;
-  updatedAt: Date;
-  tags: string[];
-  notes: string;
-}
 
 // 注意：以上遗留类型定义保持不变，确保向后兼容性
 // 新的开发应使用模块化的类型定义

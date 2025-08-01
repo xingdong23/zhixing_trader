@@ -158,26 +158,7 @@ export interface ExpertOpinionStats {
 
 // ==================== 导入相关 ====================
 
-/** 富途股票数据格式 */
-export interface FutuStockData {
-  代码: string;
-  名称: string;
-  最新价: string;
-  涨跌额: string;
-  涨跌幅: string;
-  成交量: string;
-  成交额: string;
-  今开: string;
-  昨收: string;
-  最高: string;
-  最低: string;
-  总市值: string;
-  市盈率TTM: string;
-  市净率: string;
-  股息率TTM: string;
-  所属行业: string;
-  [key: string]: string;
-}
+
 
 /** 导入的股票数据 */
 export interface ImportedStock extends BaseEntity, TaggedEntity, NotedEntity {
