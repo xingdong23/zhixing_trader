@@ -3,10 +3,10 @@
 
 // ==================== API 配置 ====================
 export const API_CONFIG = {
-  // 后端API基础地址 - 可通过环境变量配置
-  BASE_URL: process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3001/api/v1',
+  // 后端API基础地址 - 使用Next.js API路由作为代理
+  BASE_URL: process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3000/api',
   // 不带版本号的基础地址，用于某些特殊接口
-  BASE_URL_NO_VERSION: process.env.NEXT_PUBLIC_API_BASE_URL?.replace('/api/v1', '') || 'http://localhost:3001',
+  BASE_URL_NO_VERSION: process.env.NEXT_PUBLIC_API_BASE_URL?.replace('/api', '') || 'http://localhost:3000',
   TIMEOUT: 30000,
   RETRY_ATTEMPTS: 3,
   RETRY_DELAY: 1000,
@@ -15,7 +15,7 @@ export const API_CONFIG = {
 // API端点配置
 export const API_ENDPOINTS = {
   // 概念相关
-  CONCEPTS: '/concepts/',
+  CONCEPTS: '/concepts',
   CONCEPTS_INIT_SAMPLE: '/concepts/init-sample-data',
   CONCEPT_RELATIONS: '/concepts/relations',
   CONCEPT_STOCKS: (conceptId: string) => `/concepts/${conceptId}/stocks`,

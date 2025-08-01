@@ -10,14 +10,14 @@ from loguru import logger
 from ....services.data_sync_service import DataSyncService
 from ....core.market_data.yahoo_provider import YahooFinanceProvider
 from ....repositories.memory_stock_repository import MemoryStockRepository
-from ....repositories.memory_kline_repository import MemoryKLineRepository
+from ....repositories.kline_repository import KLineRepository
 
 router = APIRouter()
 
 # 创建服务实例
 yahoo_provider = YahooFinanceProvider(rate_limit_delay=0.2)
 stock_repository = MemoryStockRepository()
-kline_repository = MemoryKLineRepository()
+kline_repository = KLineRepository()
 data_sync_service = DataSyncService(yahoo_provider, stock_repository, kline_repository)
 
 

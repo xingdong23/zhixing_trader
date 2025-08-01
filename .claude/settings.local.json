@@ -10,7 +10,12 @@
       "Bash(lsof:*)",
       "Bash(pkill:*)",
       "Bash(true:*)",
-      "Bash(open:*)"
+      "Bash(open:*)",
+      "Bash(grep:*)",
+      "Bash(pkill -f \"uvicorn.*api-server\")",
+      "Bash(pkill -f \"uvicorn.*app.main\")",
+      "Bash(ls:*)",
+      "Bash(sqlite3:*)"
     ],
     "deny": []
   }
