@@ -32,7 +32,7 @@ export type Color = string;
 export type Optional<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
 
 /** 必需字段工具类型 */
-export type Required<T, K extends keyof T> = T & Required<Pick<T, K>>;
+export type RequiredFields<T, K extends keyof T> = T & Required<Pick<T, K>>;
 
 /** 深度部分类型 */
 export type DeepPartial<T> = {
@@ -49,11 +49,8 @@ export type DeepReadonly<T> = {
 /** 所有实体类型 */
 export type AnyEntity = 
   | Stock 
-  | TradingStrategy 
   | TradingPlan 
-  | TradingRecord 
-  | StockSelectionStrategy 
-  | TradingRecommendation 
+  | TradeRecord 
   | InsightCard 
   | Expert 
   | Concept 
@@ -63,23 +60,14 @@ export type AnyEntity =
 export type AnyStats = 
   | TradingStats 
   | StockPoolStats 
-  | SelectionStats 
-  | RecommendationStats 
-  | AppStats;
+  | ExpertOpinionStats;
 
 /** 所有配置类型 */
-export type AnyConfig = 
-  | UserSettings 
-  | ThemeSettings 
-  | TradingSettings 
-  | NotificationSettings 
-  | DataSettings 
-  | TradingTypeConfig;
+export type AnyConfig = Record<string, any>;
 
 /** 所有状态类型 */
 export type AnyState = 
   | AppState 
-  | UIState 
   | DisciplineStatus;
 
 // ==================== 类型守卫 ====================
@@ -100,26 +88,26 @@ export function isTradingPlan(entity: any): entity is TradingPlan {
 }
 
 /** 检查是否为交易记录 */
-export function isTradingRecord(entity: any): entity is TradingRecord {
-  return isValidEntity(entity) && 'planId' in entity && 'price' in entity;
+export function isTradeRecord(entity: any): entity is TradeRecord {
+  return isValidEntity(entity) && 'planId' in entity && 'executions' in entity;
 }
 
 // ==================== 默认值 ====================
 
 /** 默认分页参数 */
-export const DEFAULT_PAGINATION: PaginationParams = {
+export const DEFAULT_PAGINATION = {
   page: 1,
   pageSize: 20
 };
 
 /** 默认排序参数 */
-export const DEFAULT_SORT: SortParams = {
+export const DEFAULT_SORT = {
   field: 'createdAt',
   order: 'desc'
 };
 
 /** 默认用户设置 */
-export const DEFAULT_USER_SETTINGS: Partial<UserSettings> = {
+export const DEFAULT_USER_SETTINGS = {
   theme: {
     mode: 'auto',
     primaryColor: '#1890ff',
@@ -291,8 +279,8 @@ export interface TradingPlan {
   };
 
   // 心理与纪律
-  emotion: TradingEmotion;     // 交易情绪
-  informationSource: InformationSource; // 信息来源
+  emotion: string;     // 交易情绪
+  informationSource: string; // 信息来源
   disciplineLocked: boolean;   // 是否开启纪律锁定
   disciplineStatus: DisciplineStatus; // 纪律执行状态
 
@@ -306,7 +294,7 @@ export interface TradingPlan {
   playbookId?: string;         // 应用的剧本ID
 
   // 状态
-  status: TradeStatus;
+  status: string;
 }
 
 // 单次执行记录 - 每次买入/卖出的具体记录
@@ -348,7 +336,7 @@ export interface TradeRecord {
   lastExitTime?: Date;         // 最后卖出时间
 
   // 纪律评估
-  disciplineRating: DisciplineRating; // 纪律执行评级
+  disciplineRating: string; // 纪律执行评级
   disciplineNotes: string;     // 纪律执行说明
 
   // 复盘总结
@@ -356,7 +344,7 @@ export interface TradeRecord {
   lessonsLearned: string;      // 经验教训
 
   // 状态
-  status: TradeStatus;
+  status: string;
 
   // 持仓详细记录（新增）
   positionDetails: PositionDetail[];
@@ -497,7 +485,7 @@ export interface LiveJournal {
   // 观察内容
   currentPrice: number;      // 当前价格
   observation: string;       // 观察记录
-  emotion: TradingEmotion;   // 当时情绪
+  emotion: string;   // 当时情绪
   
   // 是否考虑调整计划
   consideringAdjustment: boolean;
@@ -523,8 +511,8 @@ export interface TradingPlaybook {
       stopLossRatio: number;   // 止损比例
       takeProfitRatio: number; // 止盈比例
     };
-    recommendedEmotion: TradingEmotion;
-    recommendedSource: InformationSource;
+    recommendedEmotion: string;
+    recommendedSource: string;
   };
   
   // 历史表现
@@ -566,8 +554,8 @@ export interface TradingStats {
   poorExecutions: number;     // 糟糕执行次数
   
   // 情绪分析
-  emotionBreakdown: Record<TradingEmotion, number>;
-  sourceBreakdown: Record<InformationSource, number>;
+  emotionBreakdown: Record<string, number>;
+  sourceBreakdown: Record<string, number>;
   
   // 时间分析
   avgHoldingDays: number;

@@ -4,7 +4,7 @@ import React, { useState, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { Upload, Download, FileText, AlertCircle, CheckCircle, X, BarChart3 } from 'lucide-react';
 
-import { ImportedStock, Industry } from '@/types';
+import { ImportedStock, Industry, MarketType } from '@/types';
 import { apiPost, API_ENDPOINTS } from '../utils/api';
 
 interface WatchlistImporterProps {
@@ -23,6 +23,24 @@ export function WatchlistImporter({ onImportComplete }: WatchlistImporterProps) 
     industries: number;
   } | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // 市场代码映射函数
+  const mapMarketCode = (marketCode: string): MarketType => {
+    switch (marketCode.toUpperCase()) {
+      case 'SH':
+      case 'SZ':
+      case 'BJ':
+        return MarketType.CN; // 上海、深圳、北京交易所都属于中国A股
+      case 'HK':
+        return MarketType.HK;
+      case 'US':
+      case 'NASDAQ':
+      case 'NYSE':
+        return MarketType.US;
+      default:
+        return MarketType.CN; // 默认为A股
+    }
+  };
 
   // 解析CSV文件
   const parseCSV = (csvText: string): ImportedStock[] => {
@@ -58,7 +76,7 @@ export function WatchlistImporter({ onImportComplete }: WatchlistImporterProps) 
 
       const stock: Partial<ImportedStock> = {
         id: `std_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-        addedAt: now,
+        createdAt: now,
         updatedAt: now,
         tags: ['标准导入'],
         notes: '从标准CSV导入'
@@ -74,7 +92,7 @@ export function WatchlistImporter({ onImportComplete }: WatchlistImporterProps) 
             stock.name = value;
             break;
           case 'market':
-            stock.market = value as 'US' | 'HK' | 'CN';
+            stock.market = mapMarketCode(value);
             break;
           case 'price':
             stock.price = parseFloat(value) || 0;
@@ -391,8 +409,8 @@ export function WatchlistImporter({ onImportComplete }: WatchlistImporterProps) 
                         <td className="px-3 py-2">{stock.name}</td>
                         <td className="px-3 py-2">
                           <span className={`px-2 py-1 rounded text-xs ${
-                            stock.market === 'US' ? 'bg-blue-100 text-blue-800' :
-                            stock.market === 'HK' ? 'bg-green-100 text-green-800' :
+                            stock.market === MarketType.US ? 'bg-blue-100 text-blue-800' :
+                            stock.market === MarketType.HK ? 'bg-green-100 text-green-800' :
                             'bg-red-100 text-red-800'
                           }`}>
                             {stock.market}

@@ -81,11 +81,10 @@ export class StockService extends BaseService implements
   ): Promise<PaginatedResponse<Stock>> {
     try {
       this.logServiceCall('list', '/stocks', { pagination, sort, filters });
-      
       const queryParams = this.buildPaginationParams(pagination, sort, filters);
-      const response = await this.http.get<Stock[]>(`/stocks${queryParams}`);
+      const response = await this.http.get<ApiResponse<PaginatedResponse<Stock>>>(`/stocks${queryParams}`);
       
-      return response as PaginatedResponse<Stock>;
+      return response.data || { items: [], total: 0, page: 1, pageSize: 10, totalPages: 0 };
     } catch (error) {
       this.handleServiceError(error, '获取股票列表');
     }
@@ -324,8 +323,9 @@ export class StockService extends BaseService implements
       const queryParams = this.buildPaginationParams(pagination);
       this.logServiceCall('getOpinions', `/stocks/${stockId}/opinions${queryParams}`);
       
-      const response = await this.http.get<StockOpinion[]>(`/stocks/${stockId}/opinions${queryParams}`);
-      return response as PaginatedResponse<StockOpinion>;
+      const response = await this.http.get<ApiResponse<PaginatedResponse<StockOpinion>>>(`/stocks/${stockId}/opinions${queryParams}`);
+      
+      return response.data || { items: [], total: 0, page: 1, pageSize: 10, totalPages: 0 };
     } catch (error) {
       this.handleServiceError(error, '获取股票观点');
     }

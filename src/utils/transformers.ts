@@ -86,7 +86,7 @@ export class DataTransformer {
         priceChange: data.change,
         priceChangePercent: data.changePercent || data.change_percent,
         volume: data.volume,
-        addedAt: data.addedAt ? new Date(data.addedAt) : new Date(),
+        createdAt: data.createdAt ? new Date(data.createdAt) : new Date(),
         updatedAt: data.updatedAt ? new Date(data.updatedAt) : new Date(),
         notes: data.notes,
         opinions: data.opinions || []
@@ -205,25 +205,52 @@ export class DataTransformer {
     
     try {
       return {
-        id: data.id || '',
+        // BaseEntity 属性
+        id: data.id || `rec_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+        createdAt: new Date(data.createdAt || Date.now()),
+        updatedAt: new Date(data.updatedAt || Date.now()),
+        
+        // TaggedEntity 属性
+        tags: data.tags || [],
+        
+        // TradingRecommendation 必需属性
         stockId: data.stockId || data.stock_id || '',
-        stockSymbol: data.stockSymbol || data.stock_symbol || '',
-        stockName: data.stockName || data.stock_name || '',
-        type: data.type || 'daily',
-        action: data.action || 'buy',
+        stock: data.stock || { id: data.stockId || '', symbol: data.symbol || '', name: data.name || '' },
+        type: data.type || 'BUY',
+        source: data.source || 'ALGORITHM',
+        confidence: Number(data.confidence || 50),
+        priority: data.priority || 'medium',
+        
+        // 价格信息
         currentPrice: Number(data.currentPrice || data.price || 0),
-        entryPrice: Number(data.entryPrice || data.price || 0),
-        stopLoss: Number(data.stopLoss || 0),
-        takeProfit: Array.isArray(data.takeProfit) ? data.takeProfit.map(Number) : [Number(data.targetPrice || 0)],
-        reason: data.reason || '',
-        technicalAnalysis: data.technicalAnalysis || data.technical_analysis || '',
-        riskLevel: data.riskLevel || data.risk_level || 'medium',
-        positionSize: data.positionSize || data.position_size || '',
+        targetPrice: data.targetPrice ? Number(data.targetPrice) : undefined,
+        stopLoss: data.stopLoss ? Number(data.stopLoss) : undefined,
+        priceRange: data.priceRange || undefined,
+        
+        // 推荐理由
+        title: data.title || '交易推荐',
+        summary: data.summary || '',
+        reasoning: data.reasoning || [],
+        risks: data.risks || [],
+        catalysts: data.catalysts || [],
+        
+        // 时间信息
         timeframe: data.timeframe || '',
-        publishedAt: data.publishedAt ? new Date(data.publishedAt) : new Date(),
-        expiresAt: data.expiresAt ? new Date(data.expiresAt) : new Date(Date.now() + 24 * 60 * 60 * 1000),
-        status: data.status || 'active',
-        confidence: Number(data.confidence || 5)
+        validUntil: data.validUntil ? new Date(data.validUntil) : undefined,
+        
+        // 跟踪信息
+        isActive: data.isActive !== undefined ? data.isActive : true,
+        isFollowed: data.isFollowed || false,
+        followedAt: data.followedAt ? new Date(data.followedAt) : undefined,
+        
+        // 结果跟踪
+        actualReturn: data.actualReturn ? Number(data.actualReturn) : undefined,
+        maxReturn: data.maxReturn ? Number(data.maxReturn) : undefined,
+        minReturn: data.minReturn ? Number(data.minReturn) : undefined,
+        
+        // 用户反馈
+        userRating: data.userRating ? Number(data.userRating) : undefined,
+        userNotes: data.userNotes || undefined
       };
     } catch (error) {
       console.error('Error transforming trading recommendation data:', error);
@@ -287,25 +314,57 @@ export class DataTransformer {
     
     try {
       return {
+        // BaseEntity 属性
         id: data.id || '',
-        planId: data.planId || data.plan_id || '',
         createdAt: new Date(data.createdAt || data.created_at || Date.now()),
         updatedAt: new Date(data.updatedAt || data.updated_at || Date.now()),
-        executions: data.executions || [],
-        currentPosition: Number(data.currentPosition || data.current_position || 0),
-        averageEntryPrice: Number(data.averageEntryPrice || data.average_entry_price || 0),
-        totalInvested: Number(data.totalInvested || data.total_invested || 0),
-        unrealizedPnL: Number(data.unrealizedPnL || data.unrealized_pnl || 0),
-        realizedPnL: Number(data.realizedPnL || data.realized_pnl || 0),
-        totalPnL: Number(data.totalPnL || data.total_pnl || 0),
-        totalPnLPercent: Number(data.totalPnLPercent || data.total_pnl_percent || 0),
-        firstEntryTime: data.firstEntryTime ? new Date(data.firstEntryTime) : undefined,
-        lastExitTime: data.lastExitTime ? new Date(data.lastExitTime) : undefined,
+        
+        // TaggedEntity 属性
+        tags: data.tags || [],
+        
+        // NotedEntity 属性
+        notes: data.notes || '',
+        
+        // 计划关联
+        planId: data.planId || data.plan_id || '',
+        
+        // 必需属性
+        stockId: data.stockId || '',
+        tradingType: data.tradingType || 'SHORT_TERM',
+        
+        // 交易基本信息
+        action: data.action || 'BUY',
+        quantity: Number(data.quantity || 0),
+        price: Number(data.price || 0),
+        amount: Number(data.amount || 0),
+        commission: Number(data.commission || 0),
+        
+        // 时间信息
+        executedAt: new Date(data.executedAt || Date.now()),
+        
+        // 市场信息
+        marketPrice: Number(data.marketPrice || 0),
+        marketCondition: data.marketCondition || '',
+        
+        // 决策信息
+        reasoning: data.reasoning || '',
+        emotion: data.emotion || 'CALM',
+        infoSource: data.infoSource || 'SELF_RESEARCH',
+        
+        // 纪律评估
+        followedPlan: Boolean(data.followedPlan !== false),
         disciplineRating: data.disciplineRating || data.discipline_rating || 'GOOD',
         disciplineNotes: data.disciplineNotes || data.discipline_notes || '',
-        tradingSummary: data.tradingSummary || data.trading_summary || '',
-        lessonsLearned: data.lessonsLearned || data.lessons_learned || '',
-        status: data.status || 'PLANNING'
+        
+        // 结果评估
+        isProfit: data.isProfit,
+        profitAmount: data.profitAmount ? Number(data.profitAmount) : undefined,
+        profitRate: data.profitRate ? Number(data.profitRate) : undefined,
+        
+        // 复盘标记
+        isReviewed: Boolean(data.isReviewed || false),
+        reviewNotes: data.reviewNotes,
+        reviewScore: data.reviewScore ? Number(data.reviewScore) : undefined
       };
     } catch (error) {
       console.error('Error transforming trade record data:', error);
@@ -322,15 +381,18 @@ export class DataTransformer {
     }
     
     try {
+      // ExecutionRecord 需要更多必需属性，暂时返回基础结构
       return {
-        id: data.id || '',
-        type: data.type || 'BUY',
-        layerId: data.layerId || data.layer_id,
+        id: data.id || `exec_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+        planId: data.planId || '',
+        action: data.action || 'BUY',
         price: Number(data.price || data.execution_price || 0),
         quantity: Number(data.quantity || data.execution_quantity || 0),
         amount: Number(data.amount || 0),
-        timestamp: new Date(data.timestamp || data.execution_time || Date.now()),
-        deviation: Number(data.deviation || 0),
+        executedAt: new Date(data.executedAt || data.execution_time || Date.now()),
+        status: data.status || 'COMPLETED',
+        createdAt: new Date(data.createdAt || Date.now()),
+        updatedAt: new Date(data.updatedAt || Date.now()),
         notes: data.notes || ''
       };
     } catch (error) {

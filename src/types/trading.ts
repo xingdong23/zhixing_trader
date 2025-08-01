@@ -121,13 +121,28 @@ export interface TradingPlan extends BaseEntity, TaggedEntity, NotedEntity {
 
 // ==================== 交易记录 ====================
 
-/** 交易操作类型 */
+/** 交易动作 */
 export enum TradeAction {
   BUY = 'buy',
   SELL = 'sell',
   ADD_POSITION = 'add_position',
   REDUCE_POSITION = 'reduce_position'
 }
+
+/** 执行记录 */
+export interface ExecutionRecord extends BaseEntity {
+  planId: string;
+  action: TradeAction;
+  executedAt: Date;
+  price: number;
+  quantity: number;
+  amount: number;
+  status: 'pending' | 'completed' | 'failed';
+  notes?: string;
+}
+
+/** 交易记录别名 */
+export type TradeRecord = TradingRecord;
 
 /** 交易记录 */
 export interface TradingRecord extends BaseEntity, TaggedEntity, NotedEntity {
