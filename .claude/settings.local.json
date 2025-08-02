@@ -15,7 +15,10 @@
       "Bash(pkill -f \"uvicorn.*api-server\")",
       "Bash(pkill -f \"uvicorn.*app.main\")",
       "Bash(ls:*)",
-      "Bash(sqlite3:*)"
+      "Bash(sqlite3:*)",
+      "Bash(cat:*)",
+      "Bash(source:*)",
+      "Bash(pip install:*)"
     ],
     "deny": []
   }

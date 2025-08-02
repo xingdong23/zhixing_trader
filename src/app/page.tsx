@@ -5,7 +5,7 @@
 
 import { useState } from 'react';
 import { TopNavigation, MainModule } from '@/components/TopNavigation';
-import { StockMarket } from '@/components/StockMarket';
+import { StockMarketRefactored as StockMarket } from '@/components/stock-market';
 import { TradingManagement } from '@/components/TradingManagement';
 import { IntelligentReview } from '@/components/IntelligentReview';
 import { SettingsPage } from '@/components/SettingsPage';

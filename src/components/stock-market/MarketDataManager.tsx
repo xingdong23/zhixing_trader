@@ -110,13 +110,19 @@ export function useMarketData(): UseMarketDataResult {
     
     try {
       console.log('🔄 开始从API获取股票数据...');
+      console.log('📍 请求URL:', API_ENDPOINTS.STOCKS);
       const response = await apiGet(API_ENDPOINTS.STOCKS);
+      
+      console.log('📡 API响应状态:', response.status, response.statusText);
       
       if (response.ok) {
         const result = await response.json();
+        console.log('📦 API响应数据:', result);
         
-        if (result.success && result.data.stocks) {
+        if (result.success && result.data && result.data.stocks) {
+          console.log('📊 原始股票数据:', result.data.stocks);
           const apiStocks = result.data.stocks.map(transformApiStockToStock);
+          console.log('🔄 转换后的股票数据:', apiStocks);
           
           setState(prev => ({
             ...prev,
@@ -129,6 +135,7 @@ export function useMarketData(): UseMarketDataResult {
           console.log(`✅ 从API获取到 ${apiStocks.length} 只股票`);
           return;
         } else {
+          console.error('❌ API返回格式不正确:', { success: result.success, data: result.data });
           throw new Error('API返回格式不正确');
         }
       } else {
