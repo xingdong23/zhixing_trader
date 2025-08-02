@@ -33,11 +33,11 @@ import {
 
 interface UnifiedTradingPlanProps {
   playbooks: TradingPlaybook[];
-  onSave: (plan: Omit<TradingPlan, 'id' | 'createdAt' | 'updatedAt'>) => void;
-  onCancel: () => void;
+  saveAction: (plan: Omit<TradingPlan, 'id' | 'createdAt' | 'updatedAt'>) => void;
+  cancelAction: () => void;
 }
 
-export function UnifiedTradingPlan({ playbooks, onSave, onCancel }: UnifiedTradingPlanProps) {
+export function UnifiedTradingPlan({ playbooks, saveAction, cancelAction }: UnifiedTradingPlanProps) {
   // 基础信息
   const [symbol, setSymbol] = useState('');
   const [symbolName, setSymbolName] = useState('');
@@ -254,7 +254,7 @@ export function UnifiedTradingPlan({ playbooks, onSave, onCancel }: UnifiedTradi
       status: TradeStatus.PLANNING
     };
     
-    onSave(plan);
+    saveAction(plan);
   };
   
   return (
@@ -266,7 +266,7 @@ export function UnifiedTradingPlan({ playbooks, onSave, onCancel }: UnifiedTradi
         </div>
         <div className="flex space-x-3">
           <button
-            onClick={onCancel}
+            onClick={cancelAction}
             className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
           >
             取消

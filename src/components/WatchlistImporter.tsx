@@ -33,7 +33,6 @@ export function WatchlistImporter({ onImportComplete }: WatchlistImporterProps) 
       market: importedStock.market,
       tags: {
         industry: importedStock.industry ? [importedStock.industry.name] : [],
-        fundamentals: [],
         marketCap: MarketCap.MID, // 默认值，可以根据实际情况调整
         watchLevel: WatchLevel.MEDIUM // 默认值
       },

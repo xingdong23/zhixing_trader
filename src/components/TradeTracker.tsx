@@ -34,20 +34,20 @@ interface TradeTrackerProps {
   activePlans: TradingPlan[];
   activeRecords: TradeRecord[];
   liveJournals: LiveJournal[];
-  onUpdatePlan: (planId: string, updates: Partial<TradingPlan>) => void;
-  onCloseTrade: (planId: string) => void;
-  onAddJournal: (tradeId: string, journal: Omit<LiveJournal, 'id'>) => void;
-  onBack: () => void;
+  updatePlanAction: (planId: string, updates: Partial<TradingPlan>) => void;
+  closeTradeAction: (planId: string) => void;
+  addJournalAction: (tradeId: string, journal: Omit<LiveJournal, 'id'>) => void;
+  backAction: () => void;
 }
 
 export function TradeTracker({
   activePlans,
   activeRecords,
   liveJournals,
-  onUpdatePlan,
-  onCloseTrade,
-  onAddJournal,
-  onBack
+  updatePlanAction,
+  closeTradeAction,
+  addJournalAction,
+  backAction
 }: TradeTrackerProps) {
   const [selectedPlan, setSelectedPlan] = useState<TradingPlan | null>(null);
   const [currentPrice, setCurrentPrice] = useState<number>(0);
@@ -86,7 +86,7 @@ export function TradeTracker({
   // 保存编辑
   const handleSaveEdit = () => {
     if (selectedPlan && editForm) {
-      onUpdatePlan(selectedPlan.id, editForm);
+      updatePlanAction(selectedPlan.id, editForm);
       setIsEditing(false);
       setEditForm({});
     }
@@ -160,7 +160,7 @@ export function TradeTracker({
       isImportant: false
     };
 
-    onAddJournal(selectedPlan.id, journal);
+    addJournalAction(selectedPlan.id, journal);
     setJournalText('');
     setJournalEmotion(TradingEmotion.CALM);
     setJournalScreenshot('');
@@ -228,7 +228,7 @@ export function TradeTracker({
             <p className="text-gray-600">纪律执行驾驶舱 - 实时监控交易进展</p>
           </div>
           <button
-            onClick={onBack}
+            onClick={backAction}
             className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
           >
             返回仪表盘
@@ -400,7 +400,7 @@ export function TradeTracker({
                     {/* 操作按钮 */}
                     <div className="flex space-x-3">
                       <button
-                        onClick={() => onCloseTrade(selectedPlan.id)}
+                        onClick={() => closeTradeAction(selectedPlan.id)}
                         className="flex-1 bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded-lg font-semibold transition-colors"
                       >
                         平仓并复盘

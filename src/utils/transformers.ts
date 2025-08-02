@@ -77,7 +77,6 @@ export class DataTransformer {
         market: data.market || 'CN',
         tags: {
           industry: data.industry ? [data.industry] : [],
-          fundamentals: [],
           marketCap: data.marketCap > 100000000000 ? MarketCap.LARGE : data.marketCap > 10000000000 ? MarketCap.MID : MarketCap.SMALL,
           watchLevel: WatchLevel.MEDIUM
         },

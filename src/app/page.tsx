@@ -84,9 +84,9 @@ export default function Home() {
             activePlans={appState.activePlans}
             activeRecords={appState.activeRecords}
             playbooks={appState.playbooks}
-            onCreatePlan={() => {}}
-            onUpdatePlan={updateTradingPlan}
-            onAddRecord={addTradeRecord}
+            createPlanAction={() => {}}
+            updatePlanAction={updateTradingPlan}
+            addRecordAction={addTradeRecord}
             selectedStock={selectedStock}
           />
         )}

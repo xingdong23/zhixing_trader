@@ -7,6 +7,7 @@ import { BaseEntity, TaggedEntity, NotedEntity, PriceData, MarketType, MarketCap
 
 /** 股票标签分类 */
 export interface StockTags {
+  industry: string[];        // 行业标签
   marketCap: MarketCap;      // 市值规模
   watchLevel: WatchLevel;    // 关注程度
 }
@@ -17,6 +18,7 @@ export interface Stock extends BaseEntity, NotedEntity, PriceData {
   name: string;              // 股票名称
   market: MarketType;        // 市场类型
   tags: StockTags;           // 标签分类
+  conceptIds: string[];      // 关联的概念ID列表
   opinions?: StockOpinion[]; // 观点记录列表
 }
 

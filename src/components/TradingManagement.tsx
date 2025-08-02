@@ -24,9 +24,9 @@ interface TradingManagementProps {
   activePlans: TradingPlan[];
   activeRecords: TradeRecord[];
   playbooks: TradingPlaybook[];
-  onCreatePlan: () => void;
-  onUpdatePlan: (id: string, plan: Partial<TradingPlan>) => void;
-  onAddRecord: (record: Omit<TradeRecord, 'id' | 'createdAt' | 'updatedAt'>) => void;
+  createPlanAction: () => void;
+  updatePlanAction: (id: string, plan: Partial<TradingPlan>) => void;
+  addRecordAction: (record: Omit<TradeRecord, 'id' | 'createdAt' | 'updatedAt'>) => void;
   selectedStock?: Stock; // 从股票市场传入的股票
 }
 
@@ -34,9 +34,9 @@ export function TradingManagement({
   activePlans,
   activeRecords,
   playbooks,
-  onCreatePlan,
-  onUpdatePlan,
-  onAddRecord,
+  createPlanAction,
+  updatePlanAction,
+  addRecordAction,
   selectedStock
 }: TradingManagementProps) {
   const [currentTab, setCurrentTab] = useState<'overview' | 'plans' | 'tracking' | 'positions'>('overview');
@@ -77,8 +77,8 @@ export function TradingManagement({
     return (
       <UnifiedTradingPlan
         playbooks={playbooks}
-        onSave={handlePlanSubmit}
-        onCancel={handlePlanCancel}
+        saveAction={handlePlanSubmit}
+        cancelAction={handlePlanCancel}
 
       />
     );
@@ -91,13 +91,13 @@ export function TradingManagement({
         activePlans={[selectedPlan]}
         activeRecords={activeRecords.filter(r => r.planId === selectedPlan.id)}
         liveJournals={[]} // 暂时使用空数组，后续可以从props传入
-        onUpdatePlan={onUpdatePlan}
-        onCloseTrade={(planId) => {
+        updatePlanAction={updatePlanAction}
+        closeTradeAction={(planId) => {
           // 关闭交易的逻辑
           setSelectedPlan(null);
         }}
-        onAddJournal={(tradeId, journal) => {}} // 暂时使用空函数，后续可以从props传入
-        onBack={() => setSelectedPlan(null)}
+        addJournalAction={(tradeId, journal) => {}} // 暂时使用空函数，后续可以从props传入
+        backAction={() => setSelectedPlan(null)}
       />
     );
   }
@@ -120,13 +120,13 @@ export function TradingManagement({
             // 更新记录的逻辑
           }}
           onAddPlannedAction={(action) => {
-            // 添加预定操作的逻辑
+            // 添加预定动作的逻辑
           }}
           onUpdatePlannedAction={(actionId, updates) => {
-            // 更新预定操作的逻辑
+            // 更新预定动作的逻辑
           }}
           onDeletePlannedAction={(actionId) => {
-            // 删除预定操作的逻辑
+            // 删除预定动作的逻辑
           }}
         />
       </div>
@@ -235,30 +235,30 @@ export function TradingManagement({
           <TradingOverview
             activePlans={activePlans}
             activeRecords={activeRecords}
-            onSelectPlan={setSelectedPlan}
-            onSelectRecord={setSelectedRecord}
+            selectPlanAction={setSelectedPlan}
+            selectRecordAction={setSelectedRecord}
           />
         )}
 
         {currentTab === 'plans' && (
           <TradingPlans
             plans={activePlans}
-            onSelectPlan={setSelectedPlan}
-            onCreatePlan={handleCreatePlan}
+            selectPlanAction={setSelectedPlan}
+            createPlanAction={handleCreatePlan}
           />
         )}
 
         {currentTab === 'tracking' && (
           <TradingTracking
             records={activeRecords}
-            onSelectRecord={setSelectedRecord}
+            selectRecordAction={setSelectedRecord}
           />
         )}
 
         {currentTab === 'positions' && (
           <PositionManagement
             records={activeRecords}
-            onSelectRecord={setSelectedRecord}
+            selectRecordAction={setSelectedRecord}
           />
         )}
       </div>
@@ -270,13 +270,13 @@ export function TradingManagement({
 function TradingOverview({
   activePlans,
   activeRecords,
-  onSelectPlan,
-  onSelectRecord
+  selectPlanAction,
+  selectRecordAction
 }: {
   activePlans: TradingPlan[];
   activeRecords: TradeRecord[];
-  onSelectPlan: (plan: TradingPlan) => void;
-  onSelectRecord: (record: TradeRecord) => void;
+  selectPlanAction: (plan: TradingPlan) => void;
+  selectRecordAction: (record: TradeRecord) => void;
 }) {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -293,7 +293,7 @@ function TradingOverview({
             {activePlans.slice(0, 3).map(plan => (
               <div
                 key={plan.id}
-                onClick={() => onSelectPlan(plan)}
+                onClick={() => selectPlanAction(plan)}
                 className="p-3 border border-gray-200 rounded-lg hover:border-blue-300 hover:shadow-sm transition-all cursor-pointer"
               >
                 <div className="flex justify-between items-start">
@@ -329,7 +329,7 @@ function TradingOverview({
             {activeRecords.filter(r => r.status === 'active').slice(0, 3).map(record => (
               <div
                 key={record.id}
-                onClick={() => onSelectRecord(record)}
+                onClick={() => selectRecordAction(record)}
                 className="p-3 border border-gray-200 rounded-lg hover:border-blue-300 hover:shadow-sm transition-all cursor-pointer"
               >
                 <div className="flex justify-between items-start">
@@ -360,12 +360,12 @@ function TradingOverview({
 // 交易计划列表组件
 function TradingPlans({
   plans,
-  onSelectPlan,
-  onCreatePlan
+  selectPlanAction,
+  createPlanAction
 }: {
   plans: TradingPlan[];
-  onSelectPlan: (plan: TradingPlan) => void;
-  onCreatePlan: () => void;
+  selectPlanAction: (plan: TradingPlan) => void;
+  createPlanAction: () => void;
 }) {
   return (
     <div className="space-y-4">
@@ -375,7 +375,7 @@ function TradingPlans({
             <FileText className="w-12 h-12 text-gray-400 mx-auto mb-4" />
             <p className="text-gray-500 mb-2">暂无交易计划</p>
             <button
-              onClick={onCreatePlan}
+              onClick={createPlanAction}
               className="text-blue-600 hover:text-blue-700"
             >
               创建第一个交易计划
@@ -384,7 +384,7 @@ function TradingPlans({
         </Card>
       ) : (
         plans.map(plan => (
-          <Card key={plan.id} className="hover:shadow-md transition-shadow cursor-pointer" onClick={() => onSelectPlan(plan)}>
+          <Card key={plan.id} className="hover:shadow-md transition-shadow cursor-pointer" onClick={() => selectPlanAction(plan)}>
             <CardContent className="p-4">
               <div className="flex justify-between items-start">
                 <div className="flex-1">
@@ -415,10 +415,10 @@ function TradingPlans({
 // 交易追踪组件
 function TradingTracking({
   records,
-  onSelectRecord
+  selectRecordAction
 }: {
   records: TradeRecord[];
-  onSelectRecord: (record: TradeRecord) => void;
+  selectRecordAction: (record: TradeRecord) => void;
 }) {
   const activeRecords = records.filter(r => r.status === 'active');
 
@@ -433,7 +433,7 @@ function TradingTracking({
         </Card>
       ) : (
         activeRecords.map(record => (
-          <Card key={record.id} className="hover:shadow-md transition-shadow cursor-pointer" onClick={() => onSelectRecord(record)}>
+          <Card key={record.id} className="hover:shadow-md transition-shadow cursor-pointer" onClick={() => selectRecordAction(record)}>
             <CardContent className="p-4">
               <div className="flex justify-between items-start">
                 <div className="flex-1">
@@ -468,10 +468,10 @@ function TradingTracking({
 // 持仓管理组件
 function PositionManagement({
   records,
-  onSelectRecord
+  selectRecordAction
 }: {
   records: TradeRecord[];
-  onSelectRecord: (record: TradeRecord) => void;
+  selectRecordAction: (record: TradeRecord) => void;
 }) {
   return (
     <div className="space-y-4">
@@ -484,7 +484,7 @@ function PositionManagement({
         </Card>
       ) : (
         records.map(record => (
-          <Card key={record.id} className="hover:shadow-md transition-shadow cursor-pointer" onClick={() => onSelectRecord(record)}>
+          <Card key={record.id} className="hover:shadow-md transition-shadow cursor-pointer" onClick={() => selectRecordAction(record)}>
             <CardContent className="p-4">
               <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                 <div>

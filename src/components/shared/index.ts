@@ -217,7 +217,7 @@ export const REFACTOR_INFO = {
 // ==================== 默认导出 ====================
 
 /** 默认导出最常用的组件 */
-export default {
+const SharedComponents = {
   // 工具函数
   utils: sharedUtils,
   // 配置
@@ -225,3 +225,5 @@ export default {
   // 版本信息
   version: SHARED_COMPONENTS_VERSION,
 };
+
+export default SharedComponents;
