@@ -23,24 +23,20 @@ import {
 interface TradingManagementProps {
   activePlans: TradingPlan[];
   activeRecords: TradeRecord[];
-  liveJournals: LiveJournal[];
   playbooks: TradingPlaybook[];
   onCreatePlan: () => void;
   onUpdatePlan: (id: string, plan: Partial<TradingPlan>) => void;
   onAddRecord: (record: Omit<TradeRecord, 'id' | 'createdAt' | 'updatedAt'>) => void;
-  onAddJournal: (journal: Omit<LiveJournal, 'id'>) => void;
   selectedStock?: Stock; // 从股票市场传入的股票
 }
 
 export function TradingManagement({
   activePlans,
   activeRecords,
-  liveJournals,
   playbooks,
   onCreatePlan,
   onUpdatePlan,
   onAddRecord,
-  onAddJournal,
   selectedStock
 }: TradingManagementProps) {
   const [currentTab, setCurrentTab] = useState<'overview' | 'plans' | 'tracking' | 'positions'>('overview');
@@ -94,13 +90,13 @@ export function TradingManagement({
       <TradeTracker
         activePlans={[selectedPlan]}
         activeRecords={activeRecords.filter(r => r.planId === selectedPlan.id)}
-        liveJournals={liveJournals.filter(j => activeRecords.some(r => r.id === j.tradeId && r.planId === selectedPlan.id))}
+        liveJournals={[]} // 暂时使用空数组，后续可以从props传入
         onUpdatePlan={onUpdatePlan}
         onCloseTrade={(planId) => {
           // 关闭交易的逻辑
           setSelectedPlan(null);
         }}
-        onAddJournal={(tradeId, journal) => onAddJournal(journal)}
+        onAddJournal={(tradeId, journal) => {}} // 暂时使用空函数，后续可以从props传入
         onBack={() => setSelectedPlan(null)}
       />
     );

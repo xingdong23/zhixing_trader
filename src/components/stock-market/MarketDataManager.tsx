@@ -50,11 +50,11 @@ function transformApiStockToStock(apiStock: any): Stock {
     name: apiStock.name,
     market: apiStock.market,
     tags: {
-        // industry和fundamentals字段已移除，使用概念关联表管理
+        industry: apiStock.industry || [], // 行业标签数组
         marketCap: apiStock.market_cap || 'mid' as const,
         watchLevel: apiStock.watch_level || 'medium' as const
       },
-    // conceptIds字段已移除，使用concept_stock_relations表管理
+    conceptIds: apiStock.concept_ids || [], // 概念ID数组
     currentPrice: 0,
     priceChange: 0,
     priceChangePercent: 0,
@@ -235,8 +235,8 @@ export function useMarketData(): UseMarketDataResult {
           priceChange: stock.priceChange,
           priceChangePercent: stock.priceChangePercent,
           volume: stock.volume,
-          tags: stock.tags,
-          conceptIds: stock.conceptIds || []
+          tags: stock.tags
+          // conceptIds 字段已移除，概念关联通过 concept_stock_relations 表管理
         }))
       });
 

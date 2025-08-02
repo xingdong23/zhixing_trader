@@ -4,10 +4,10 @@ import { getBackendApiUrl, createFetchConfig } from '../../../../../config/api';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { conceptId: string } }
+  { params }: { params: Promise<{ conceptId: string }> }
 ) {
   try {
-    const { conceptId } = params;
+    const { conceptId } = await params;
     
     const response = await fetch(
       getBackendApiUrl('concepts/${conceptId}/stocks'),
@@ -35,10 +35,10 @@ export async function GET(
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { conceptId: string } }
+  { params }: { params: Promise<{ conceptId: string }> }
 ) {
   try {
-    const { conceptId } = params;
+    const { conceptId } = await params;
     const body = await request.json();
     
     const response = await fetch(

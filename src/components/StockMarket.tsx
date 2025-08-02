@@ -27,6 +27,7 @@ interface StockMarketProps {
 export function StockMarket({ onCreateTradingPlan }: StockMarketProps) {
   console.log('🎯 StockMarket 组件正在渲染... [v4.0]');
   console.log('🔧 测试：组件函数体执行中...');
+  console.log('🧪 测试useEffect是否存在:', typeof useEffect);
   
   const [currentTab, setCurrentTab] = useState<'pool' | 'import' | 'concepts' | 'strategies'>('pool');
   const [selectedStock, setSelectedStock] = useState<Stock | null>(null);
@@ -121,26 +122,44 @@ export function StockMarket({ onCreateTradingPlan }: StockMarketProps) {
   const [strategies, setStrategies] = useState<StockSelectionStrategy[]>([]);
   
   // 使用useEffect正确初始化数据
-  useEffect(() => {
-    if (!isDataInitialized) {
-      console.log('🚀🚀🚀 开始初始化数据!!! 🚀🚀🚀');
+  console.log('🔥🔥🔥 组件渲染时的测试日志，isDataInitialized:', isDataInitialized);
+  
+  // 使用setTimeout测试异步执行
+  console.log('🔥🔥🔥 useEffect定义前的日志');
+  
+  // 尝试使用setTimeout来延迟执行
+  React.useEffect(() => {
+    console.log('🎉🎉🎉🎉🎉 useEffect真的执行了！！！🎉🎉🎉🎉🎉');
+    console.log('🚀🚀🚀 useEffect执行，isDataInitialized:', isDataInitialized);
+    console.log('🌍 当前环境:', typeof window !== 'undefined' ? 'client' : 'server');
+    
+    const timer = setTimeout(() => {
+      console.log('⏰ setTimeout执行了！');
       
-      const initData = async () => {
-        try {
-          console.log('🔄 开始初始化数据库概念...');
-          await initDatabaseConcepts();
-          console.log('🔄 开始获取股票数据...');
-          await fetchStocksFromAPI();
+      // 确保只在客户端执行
+      if (typeof window === 'undefined') {
+        console.log('⚠️ 服务端环境，跳过数据初始化');
+        return;
+      }
+      
+      // 简化版本，先测试useEffect是否执行
+      if (!isDataInitialized) {
+        console.log('🚀🚀🚀 开始初始化数据!!! 🚀🚀🚀');
+        
+        // 直接调用API测试
+        fetchStocksFromAPI().then(() => {
+          console.log('✅ API调用成功');
           setIsDataInitialized(true);
-          console.log('✅ 数据初始化完成');
-        } catch (error) {
-          console.error('❌ 数据初始化失败:', error);
-        }
-      };
-      
-      initData();
-    }
-  }, [isDataInitialized]);
+        }).catch(error => {
+          console.error('❌ API调用失败:', error);
+        });
+      }
+    }, 100);
+    
+    return () => clearTimeout(timer);
+  }, []); // 只在组件挂载时执行一次
+  
+  console.log('🔥🔥🔥 useEffect定义后的日志');
 
   // 股票池操作
   const handleAddStock = (stockData: Omit<Stock, 'id' | 'addedAt' | 'updatedAt'>) => {

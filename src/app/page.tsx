@@ -19,7 +19,6 @@ export default function Home() {
     addTradingPlan,
     updateTradingPlan,
     addTradeRecord,
-    addLiveJournal,
     addPlaybook,
     deletePlaybook,
     updateSettings,
@@ -84,12 +83,10 @@ export default function Home() {
           <TradingManagement
             activePlans={appState.activePlans}
             activeRecords={appState.activeRecords}
-            liveJournals={appState.liveJournals}
             playbooks={appState.playbooks}
             onCreatePlan={() => {}}
             onUpdatePlan={updateTradingPlan}
             onAddRecord={addTradeRecord}
-            onAddJournal={(journal) => addLiveJournal('', journal)}
             selectedStock={selectedStock}
           />
         )}

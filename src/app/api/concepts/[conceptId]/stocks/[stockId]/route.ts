@@ -4,10 +4,10 @@ import { getBackendApiUrl, createFetchConfig } from '../../../../../../config/ap
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { conceptId: string; stockId: string } }
+  { params }: { params: Promise<{ conceptId: string; stockId: string }> }
 ) {
   try {
-    const { conceptId, stockId } = params;
+    const { conceptId, stockId } = await params;
     
     const response = await fetch(
       getBackendApiUrl('concepts/${conceptId}/stocks/${stockId}'),
