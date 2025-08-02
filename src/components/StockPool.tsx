@@ -16,10 +16,7 @@ const industryTags = [
   '互联网', '电商', '游戏', '教育', '汽车', '航空', '银行', '保险', '证券', '基金'
 ];
 
-const fundamentalTags = [
-  '高成长', '价值股', '蓝筹股', '小盘股', '中盘股', '大盘股', '高分红', '低估值',
-  '高ROE', '低负债', '现金充裕', '业绩稳定', '业绩增长', '转型升级', '行业龙头'
-];
+// fundamentalTags 已移除，概念通过关联表管理
 import {
   Plus,
   Search,
@@ -57,7 +54,7 @@ export function StockPool({
   console.log('🔍 StockPool: 接收到的stocks数据:', stocks);
   console.log('🔍 StockPool: stocks数量:', stocks.length);
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedFundamental, setSelectedFundamental] = useState<string>('');
+  // selectedFundamental 已移除，概念通过关联表管理
   const [selectedMarket, setSelectedMarket] = useState<string>('');
   const [selectedWatchLevel, setSelectedWatchLevel] = useState<string>('');
   const [selectedConcept, setSelectedConcept] = useState<string>('');
@@ -92,12 +89,7 @@ export function StockPool({
       return acc;
     }, {} as Record<string, number>);
 
-    const byIndustry = stocks.reduce((acc, stock) => {
-      stock.tags.industry.forEach(industry => {
-        acc[industry] = (acc[industry] || 0) + 1;
-      });
-      return acc;
-    }, {} as Record<string, number>);
+    const byIndustry = {} as Record<string, number>; // 行业统计已移除，使用概念关联表
 
     const byWatchLevel = stocks.reduce((acc, stock) => {
       acc[stock.tags.watchLevel] = (acc[stock.tags.watchLevel] || 0) + 1;
@@ -125,6 +117,8 @@ export function StockPool({
     const fetchRelations = async () => {
       try {
         const relations = await ConceptService.getConceptRelations();
+        console.log('🔍 StockPool: 获取到的概念关联关系:', relations);
+        console.log('🔍 StockPool: 关联关系数量:', relations.length);
         setConceptRelations(relations);
       } catch (error) {
         console.error('获取概念关联关系失败:', error);
@@ -142,8 +136,7 @@ export function StockPool({
         stock.symbol.toLowerCase().includes(searchTerm.toLowerCase()) ||
         stock.name.toLowerCase().includes(searchTerm.toLowerCase());
 
-      const matchesFundamental = !selectedFundamental ||
-        stock.tags.fundamentals.includes(selectedFundamental);
+      // matchesFundamental 已移除，概念通过关联表管理
 
       const matchesMarket = !selectedMarket || stock.market === selectedMarket;
 
@@ -156,19 +149,12 @@ export function StockPool({
           rel.conceptId === selectedConcept && rel.stockId === stock.symbol
         );
 
-      return matchesSearch && matchesFundamental &&
+      return matchesSearch &&
              matchesMarket && matchesWatchLevel && matchesConcept;
     });
-  }, [updatedStocks, searchTerm, selectedFundamental, selectedMarket, selectedWatchLevel, selectedConcept, conceptRelations]);
+  }, [updatedStocks, searchTerm, selectedMarket, selectedWatchLevel, selectedConcept, conceptRelations]);
 
-  // 获取所有已使用的基本面标签
-  const usedFundamentalTags = useMemo(() => {
-    const tags = new Set<string>();
-    updatedStocks.forEach(stock => {
-      stock.tags.fundamentals.forEach(tag => tags.add(tag));
-    });
-    return Array.from(tags).sort();
-  }, [updatedStocks]);
+  // usedFundamentalTags 已移除，概念通过关联表管理
 
   // 概念数据状态
   const [availableConcepts, setAvailableConcepts] = useState<Array<Concept & { stockCount: number }>>([]);
@@ -228,7 +214,7 @@ export function StockPool({
 
   const clearFilters = () => {
     setSearchTerm('');
-    setSelectedFundamental('');
+    // setSelectedFundamental 已移除，概念通过关联表管理
     setSelectedMarket('');
     setSelectedWatchLevel('');
     setSelectedConcept('');
@@ -277,18 +263,8 @@ export function StockPool({
 
       {/* 基础筛选条件 */}
       <div className="bg-white border border-gray-200 rounded p-3">
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
-          {/* 基本面筛选 */}
-          <select
-            value={selectedFundamental}
-            onChange={(e) => setSelectedFundamental(e.target.value)}
-            className="p-2 border border-gray-300 rounded text-sm focus:ring-1 focus:ring-gray-500 focus:border-gray-500"
-          >
-            <option value="">所有基本面</option>
-            {usedFundamentalTags.map(tag => (
-              <option key={tag} value={tag}>{tag}</option>
-            ))}
-          </select>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          {/* 基本面筛选已移除，概念通过关联表管理 */}
 
           {/* 市场筛选 */}
           <select
@@ -390,6 +366,7 @@ export function StockPool({
               key={stock.id}
               stock={stock}
               concepts={concepts}
+              conceptRelations={conceptRelations}
               onEdit={() => handleEditStock(stock)}
               onDelete={() => onDeleteStock(stock.id)}
               onSelect={() => onSelectStock(stock)}
@@ -418,6 +395,7 @@ export function StockPool({
 function StockCard({
   stock,
   concepts,
+  conceptRelations,
   onEdit,
   onDelete,
   onSelect,
@@ -425,6 +403,7 @@ function StockCard({
 }: {
   stock: Stock;
   concepts: Concept[];
+  conceptRelations: ConceptStockRelation[];
   onEdit: () => void;
   onDelete: () => void;
   onSelect: () => void;
@@ -476,37 +455,45 @@ function StockCard({
             </span>
           </div>
 
-          {/* 概念标签 */}
-          {stock.conceptIds && stock.conceptIds.length > 0 && (
-            <div className="flex flex-wrap gap-1 mb-2">
-              {stock.conceptIds.map(conceptId => {
-                const concept = concepts.find(c => c.id === conceptId);
-                return concept ? (
+          {/* 概念标签 - 通过概念关联表管理 */}
+          {(() => {
+            console.log(`🔍 StockCard: 处理股票 ${stock.symbol} 的概念标签`);
+            console.log('🔍 StockCard: 可用概念关联关系:', conceptRelations);
+            console.log('🔍 StockCard: 可用概念列表:', concepts);
+            
+            const stockConcepts = conceptRelations
+              .filter(rel => {
+                const match = rel.stockId === stock.symbol;
+                console.log(`🔍 StockCard: 关联关系 ${rel.conceptId}-${rel.stockId} 与股票 ${stock.symbol} 匹配: ${match}`);
+                return match;
+              })
+              .map(rel => {
+                const concept = concepts.find(concept => concept.id === rel.conceptId);
+                console.log(`🔍 StockCard: 概念ID ${rel.conceptId} 找到概念:`, concept);
+                return concept;
+              })
+              .filter(Boolean) as Concept[];
+            
+            console.log(`🔍 StockCard: 股票 ${stock.symbol} 匹配到的概念:`, stockConcepts);
+            
+            return stockConcepts.length > 0 && (
+              <div className="flex flex-wrap gap-1 mb-2">
+                {stockConcepts.slice(0, 3).map((concept) => (
                   <span
-                    key={conceptId}
-                    className="px-2 py-1 rounded text-xs text-white"
-                    style={{ backgroundColor: concept.color }}
+                    key={concept.id}
+                    className="px-2 py-1 bg-purple-100 text-purple-800 text-xs rounded-full"
                   >
                     {concept.name}
                   </span>
-                ) : null;
-              })}
-            </div>
-          )}
-
-          {/* 行业标签 */}
-          {stock.tags.industry.length > 0 && (
-            <div className="flex flex-wrap gap-1 mb-2">
-              {stock.tags.industry.map(industry => (
-                <span
-                  key={industry}
-                  className="px-2 py-1 bg-purple-100 text-purple-800 rounded text-xs"
-                >
-                  {industry}
-                </span>
-              ))}
-            </div>
-          )}
+                ))}
+                {stockConcepts.length > 3 && (
+                  <span className="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded-full">
+                    +{stockConcepts.length - 3}
+                  </span>
+                )}
+              </div>
+            );
+          })()}
 
           {/* 价格信息 */}
           {stock.currentPrice && (
@@ -577,7 +564,7 @@ function StockForm({
     market: stock?.market || 'US' as const,
     tags: {
       industry: stock?.tags.industry || [],
-      fundamentals: stock?.tags.fundamentals || [],
+      // fundamentals 字段已移除：基本面标签通过概念关联表管理
       marketCap: stock?.tags.marketCap || 'mid' as const,
       watchLevel: stock?.tags.watchLevel || 'medium' as const
     },
@@ -586,7 +573,7 @@ function StockForm({
     notes: stock?.notes || ''
   });
 
-  const [newFundamentalTag, setNewFundamentalTag] = useState('');
+  // const [newFundamentalTag, setNewFundamentalTag] = useState(''); // 已移除：基本面标签通过概念关联表管理
   const [concepts, setConcepts] = useState<Concept[]>([]);
   const [newConceptName, setNewConceptName] = useState('');
 
@@ -657,27 +644,9 @@ function StockForm({
     }
   };
 
-  const addFundamentalTag = (tag: string) => {
-    if (tag && !formData.tags.fundamentals.includes(tag)) {
-      setFormData({
-        ...formData,
-        tags: {
-          ...formData.tags,
-          fundamentals: [...formData.tags.fundamentals, tag]
-        }
-      });
-    }
-  };
-
-  const removeFundamentalTag = (tag: string) => {
-    setFormData({
-      ...formData,
-      tags: {
-        ...formData.tags,
-        fundamentals: formData.tags.fundamentals.filter(t => t !== tag)
-      }
-    });
-  };
+  // 基本面标签相关函数已移除：基本面标签通过概念关联表管理
+  // const addFundamentalTag = (tag: string) => {...};
+  // const removeFundamentalTag = (tag: string) => {...};
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
@@ -842,62 +811,7 @@ function StockForm({
             </div>
           </div>
 
-          {/* 基本面标签 */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              基本面标签
-            </label>
-            <div className="space-y-2">
-              <div className="flex space-x-2">
-                <select
-                  value=""
-                  onChange={(e) => {
-                    if (e.target.value) {
-                      addFundamentalTag(e.target.value);
-                      e.target.value = '';
-                    }
-                  }}
-                  className="flex-1 p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                >
-                  <option value="">选择基本面标签...</option>
-                  {fundamentalTags.map(tag => (
-                    <option key={tag} value={tag}>{tag}</option>
-                  ))}
-                </select>
-                <input
-                  type="text"
-                  value={newFundamentalTag}
-                  onChange={(e) => setNewFundamentalTag(e.target.value)}
-                  onKeyPress={(e) => {
-                    if (e.key === 'Enter') {
-                      e.preventDefault();
-                      addFundamentalTag(newFundamentalTag);
-                      setNewFundamentalTag('');
-                    }
-                  }}
-                  className="flex-1 p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="或输入自定义标签..."
-                />
-              </div>
-              <div className="flex flex-wrap gap-2">
-                {formData.tags.fundamentals.map((tag, index) => (
-                  <span
-                    key={index}
-                    className="px-3 py-1 bg-green-100 text-green-800 text-sm rounded-full flex items-center"
-                  >
-                    {tag}
-                    <button
-                      type="button"
-                      onClick={() => removeFundamentalTag(tag)}
-                      className="ml-2 text-green-600 hover:text-green-800"
-                    >
-                      ×
-                    </button>
-                  </span>
-                ))}
-              </div>
-            </div>
-          </div>
+          {/* 基本面标签部分已移除：基本面标签通过概念关联表管理 */}
 
 
 

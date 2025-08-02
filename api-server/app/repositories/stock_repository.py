@@ -51,7 +51,7 @@ class StockRepository(IStockRepository):
             # 更新字段
             with db_service.get_session() as session:
                 # 重新查询股票以确保在当前session中
-                from ..models import StockDB
+                from ..models import StockDB, ConceptStockRelationDB
                 stock = session.query(StockDB).filter(
                     StockDB.code == symbol,
                     StockDB.is_active == True
@@ -60,13 +60,29 @@ class StockRepository(IStockRepository):
                 if not stock:
                     return False
 
+                # 处理概念关联
+                concept_ids = stock_data.pop('concept_ids', None)
+                if concept_ids is not None:
+                    # 删除现有的概念关联
+                    session.query(ConceptStockRelationDB).filter(
+                        ConceptStockRelationDB.stock_code == symbol
+                    ).delete()
+                    
+                    # 添加新的概念关联
+                    if concept_ids:
+                        for concept_id in concept_ids:
+                            relation = ConceptStockRelationDB(
+                                concept_id=str(concept_id),
+                                stock_code=symbol
+                            )
+                            session.add(relation)
+                    
+                    logger.info(f"股票 {symbol} 概念关联已更新: {concept_ids}")
+
+                # 处理其他字段
                 for key, value in stock_data.items():
                     if hasattr(stock, key):
-                        # 处理JSON字段
-                        if key in ['industry_tags', 'fundamental_tags', 'concept_ids'] and isinstance(value, list):
-                            setattr(stock, key, json.dumps(value))
-                        else:
-                            setattr(stock, key, value)
+                        setattr(stock, key, value)
 
                 # 更新时间戳
                 from datetime import datetime

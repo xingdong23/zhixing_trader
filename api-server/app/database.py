@@ -94,11 +94,9 @@ class DatabaseService:
                     lot_size=stock_data.get('lot_size', 100),
                     sec_type=stock_data.get('sec_type', 'STOCK'),
                     # 处理标签数据
-                    industry_tags=json.dumps(stock_data.get('industry_tags', [])) if stock_data.get('industry_tags') else None,
-                    fundamental_tags=json.dumps(stock_data.get('fundamental_tags', [])) if stock_data.get('fundamental_tags') else None,
+                    # fundamental_tags 字段已移除，概念通过关联表管理
                     market_cap=stock_data.get('market_cap'),
                     watch_level=stock_data.get('watch_level'),
-                    concept_ids=json.dumps(stock_data.get('concept_ids', [])) if stock_data.get('concept_ids') else None,
                     notes=stock_data.get('notes')
                 )
 

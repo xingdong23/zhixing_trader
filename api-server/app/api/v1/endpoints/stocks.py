@@ -41,15 +41,7 @@ async def get_all_stocks(
                 "updated_at": stock.updated_at.isoformat() if stock.updated_at else None
             }
 
-            # 添加标签信息
-            try:
-                stock_data["industry_tags"] = json.loads(stock.industry_tags) if stock.industry_tags else []
-                stock_data["fundamental_tags"] = json.loads(stock.fundamental_tags) if stock.fundamental_tags else []
-                stock_data["concept_ids"] = json.loads(stock.concept_ids) if stock.concept_ids else []
-            except (json.JSONDecodeError, TypeError):
-                stock_data["industry_tags"] = []
-                stock_data["fundamental_tags"] = []
-                stock_data["concept_ids"] = []
+            # 概念信息从关联表获取，不再使用 fundamental_tags 字段
 
             stock_data["market_cap"] = stock.market_cap
             stock_data["watch_level"] = stock.watch_level
@@ -193,26 +185,12 @@ async def update_stock(
             # 获取更新后的股票信息
             updated_stock = await stock_repository.get_stock_by_symbol(symbol)
 
-            # 处理标签数据
-            import json
-            try:
-                industry_tags = json.loads(updated_stock.industry_tags) if updated_stock.industry_tags else []
-                fundamental_tags = json.loads(updated_stock.fundamental_tags) if updated_stock.fundamental_tags else []
-                concept_ids = json.loads(updated_stock.concept_ids) if updated_stock.concept_ids else []
-            except (json.JSONDecodeError, TypeError):
-                industry_tags = []
-                fundamental_tags = []
-                concept_ids = []
-
             return {
                 "success": True,
                 "data": {
                     "id": updated_stock.id,
                     "symbol": updated_stock.code,
                     "name": updated_stock.name,
-                    "industry_tags": industry_tags,
-                    "fundamental_tags": fundamental_tags,
-                    "concept_ids": concept_ids,
                     "market_cap": updated_stock.market_cap,
                     "watch_level": updated_stock.watch_level,
                     "notes": updated_stock.notes,

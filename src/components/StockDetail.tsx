@@ -341,24 +341,28 @@ function StockOverview({
         </CardContent>
       </Card>
 
-      {/* 基本面标签 */}
+      {/* 概念标签 */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center">
             <BarChart3 className="w-5 h-5 mr-2 text-purple-500" />
-            基本面标签
+            概念标签
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="flex flex-wrap gap-2">
-            {stock.tags.fundamentals.map((tag, index) => (
-              <span
-                key={index}
-                className="px-3 py-1 bg-green-100 text-green-800 text-sm rounded-full"
-              >
-                {tag}
-              </span>
-            ))}
+            {stock.conceptIds && stock.conceptIds.length > 0 ? (
+              stock.conceptIds.map((conceptId, index) => (
+                <span
+                  key={index}
+                  className="px-3 py-1 bg-purple-100 text-purple-800 text-sm rounded-full"
+                >
+                  {conceptId}
+                </span>
+              ))
+            ) : (
+              <span className="text-gray-500 text-sm">暂无概念标签</span>
+            )}
           </div>
         </CardContent>
       </Card>

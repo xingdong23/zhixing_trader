@@ -601,7 +601,7 @@ export interface Stock {
   // 固有属性标签
   tags: {
     industry: string[];        // 行业标签：量子计算、核能、新能源汽车等（保留用于兼容）
-    fundamentals: string[];    // 基本面标签：基本面优秀、财务健康、高成长等
+    // fundamentals 字段已移除，概念通过关联表管理
     marketCap: 'large' | 'mid' | 'small';  // 市值规模
     watchLevel: 'high' | 'medium' | 'low'; // 关注程度
   };

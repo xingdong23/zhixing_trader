@@ -12,6 +12,7 @@ import uvicorn
 from .config import settings
 from .database import db_service
 from .api.v1.api import api_router
+from .core.container import container
 
 
 # 简化的后台任务
@@ -42,6 +43,9 @@ async def lifespan(app: FastAPI):
         import os
         os.makedirs("data", exist_ok=True)
         os.makedirs("logs", exist_ok=True)
+
+        # 初始化依赖注入容器
+        container.initialize()
 
         # 启动后台任务
         task = asyncio.create_task(background_tasks())

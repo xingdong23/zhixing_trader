@@ -9,7 +9,11 @@ from pydantic_settings import BaseSettings
 class Settings(BaseSettings):
     """应用配置"""
     
-
+    # 富途OpenAPI配置
+    futu_host: str = "127.0.0.1"
+    futu_port: str = "11111"
+    futu_username: str = ""
+    futu_password: str = ""
     
     # 服务器配置
     api_host: str = "0.0.0.0"
@@ -26,8 +30,14 @@ class Settings(BaseSettings):
     # CORS配置
     cors_origins: List[str] = ["*"]
     
+    # 数据更新频率配置
+    quote_update_interval: int = 5
+    watchlist_update_interval: int = 60
+    
     # API限制
     max_requests_per_minute: int = 100
+    max_quote_batch_size: int = 200
+    max_kline_days: int = 365
     
     class Config:
         env_file = ".env"

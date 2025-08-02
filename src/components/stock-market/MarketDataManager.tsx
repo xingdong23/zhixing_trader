@@ -50,12 +50,11 @@ function transformApiStockToStock(apiStock: any): Stock {
     name: apiStock.name,
     market: apiStock.market,
     tags: {
-      industry: apiStock.industry_tags || [apiStock.group_name || '未分类'],
-      fundamentals: apiStock.fundamental_tags || [],
-      marketCap: apiStock.market_cap || 'mid' as const,
-      watchLevel: apiStock.watch_level || 'medium' as const
-    },
-    conceptIds: apiStock.concept_ids || [],
+        // industry和fundamentals字段已移除，使用概念关联表管理
+        marketCap: apiStock.market_cap || 'mid' as const,
+        watchLevel: apiStock.watch_level || 'medium' as const
+      },
+    // conceptIds字段已移除，使用concept_stock_relations表管理
     currentPrice: 0,
     priceChange: 0,
     priceChangePercent: 0,
@@ -69,11 +68,11 @@ function transformApiStockToStock(apiStock: any): Stock {
 
 function transformStockToApiData(stock: Stock) {
   return {
-    industry_tags: stock.tags.industry,
-    fundamental_tags: stock.tags.fundamentals,
+    // industry_tags字段已移除
+    // fundamental_tags字段已移除，概念通过关联表管理
     market_cap: stock.tags.marketCap,
     watch_level: stock.tags.watchLevel,
-    concept_ids: stock.conceptIds,
+    // concept_ids字段已移除
     notes: stock.notes
   };
 }

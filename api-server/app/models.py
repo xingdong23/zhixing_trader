@@ -26,12 +26,9 @@ class StockDB(Base):
     lot_size = Column(Integer, default=100)
     sec_type = Column(String(20), default="STOCK")
 
-    # 用户自定义标签和属性（JSON格式存储）
-    industry_tags = Column(Text)  # JSON数组：["消费电子", "科技硬件"]
-    fundamental_tags = Column(Text)  # JSON数组：["基本面优秀", "财务健康"]
+    # 用户自定义标签和属性
     market_cap = Column(String(20))  # large, mid, small
     watch_level = Column(String(20))  # high, medium, low
-    concept_ids = Column(Text)  # JSON数组：关联的概念ID列表
     notes = Column(Text)  # 用户备注
 
     added_at = Column(DateTime, default=datetime.utcnow)

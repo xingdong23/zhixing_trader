@@ -10,18 +10,14 @@ import { ConceptManager } from './ConceptManager';
 // import { StockPoolService } from '@/services/stockPoolService'; // 已废弃，使用API管理
 import { StockDetail } from './StockDetail';
 import { SelectionStrategies } from './SelectionStrategies';
-import DataSyncManager from './DataSyncManager';
-import DatabaseAdmin from './DatabaseAdmin';
 import { Stock, StockSelectionStrategy, StockSelectionResult } from '@/types';
 import { SelectedStock } from '@/types/strategy';
 import { apiPost, apiGet, apiPut, API_ENDPOINTS, buildApiUrl } from '@/utils/api';
 import {
   BarChart3,
-  Target,
   Calendar,
   Filter,
-  Tag,
-  Database
+  Tag
 } from 'lucide-react';
 
 interface StockMarketProps {
@@ -32,7 +28,7 @@ export function StockMarket({ onCreateTradingPlan }: StockMarketProps) {
   console.log('🎯 StockMarket 组件正在渲染... [v4.0]');
   console.log('🔧 测试：组件函数体执行中...');
   
-  const [currentTab, setCurrentTab] = useState<'pool' | 'import' | 'concepts' | 'strategies' | 'sync' | 'database'>('pool');
+  const [currentTab, setCurrentTab] = useState<'pool' | 'import' | 'concepts' | 'strategies'>('pool');
   const [selectedStock, setSelectedStock] = useState<Stock | null>(null);
   
   // 股票池数据
@@ -77,13 +73,12 @@ export function StockMarket({ onCreateTradingPlan }: StockMarketProps) {
             symbol: apiStock.symbol,
             name: apiStock.name,
             market: apiStock.market,
-            tags: {
-              industry: apiStock.industry_tags || [apiStock.group_name || '未分类'],
-              fundamentals: apiStock.fundamental_tags || [],
-              marketCap: apiStock.market_cap || 'mid' as const,
-              watchLevel: apiStock.watch_level || 'medium' as const
+            tags: { 
+              industry: [], // 行业标签保留用于兼容
+              marketCap: apiStock.market_cap || 'mid' as const, 
+              watchLevel: apiStock.watch_level || 'medium' as const 
             },
-            conceptIds: apiStock.concept_ids || [],
+            conceptIds: apiStock.concept_ids || [], // 添加概念ID字段
             currentPrice: 0,
             priceChange: 0,
             priceChangePercent: 0,
@@ -125,27 +120,27 @@ export function StockMarket({ onCreateTradingPlan }: StockMarketProps) {
   // 策略数据
   const [strategies, setStrategies] = useState<StockSelectionStrategy[]>([]);
   
-  // 直接在组件中初始化数据（绕过useEffect问题）
-  if (!isDataInitialized) {
-    console.log('🚀🚀🚀 开始直接初始化数据!!! 🚀🚀🚀');
-    
-    const initData = async () => {
-      try {
-        console.log('🔄 开始初始化数据库概念...');
-        await initDatabaseConcepts();
-        console.log('🔄 开始获取股票数据...');
-        await fetchStocksFromAPI();
-        setIsDataInitialized(true);
-        console.log('✅ 数据初始化完成');
-      } catch (error) {
-        console.error('❌ 数据初始化失败:', error);
-      }
-    };
-    
-    initData();
-  } else {
-    console.log('⏭️ 数据已经初始化，跳过');
-  }
+  // 使用useEffect正确初始化数据
+  useEffect(() => {
+    if (!isDataInitialized) {
+      console.log('🚀🚀🚀 开始初始化数据!!! 🚀🚀🚀');
+      
+      const initData = async () => {
+        try {
+          console.log('🔄 开始初始化数据库概念...');
+          await initDatabaseConcepts();
+          console.log('🔄 开始获取股票数据...');
+          await fetchStocksFromAPI();
+          setIsDataInitialized(true);
+          console.log('✅ 数据初始化完成');
+        } catch (error) {
+          console.error('❌ 数据初始化失败:', error);
+        }
+      };
+      
+      initData();
+    }
+  }, [isDataInitialized]);
 
   // 股票池操作
   const handleAddStock = (stockData: Omit<Stock, 'id' | 'addedAt' | 'updatedAt'>) => {
@@ -164,14 +159,14 @@ export function StockMarket({ onCreateTradingPlan }: StockMarketProps) {
       }
 
       // 准备API数据格式
-      const apiData = {
-        industry_tags: stockData.tags?.industry || stockToUpdate.tags.industry,
-        fundamental_tags: stockData.tags?.fundamentals || stockToUpdate.tags.fundamentals,
-        market_cap: stockData.tags?.marketCap || stockToUpdate.tags.marketCap,
-        watch_level: stockData.tags?.watchLevel || stockToUpdate.tags.watchLevel,
-        concept_ids: stockData.conceptIds || stockToUpdate.conceptIds,
-        notes: stockData.notes || stockToUpdate.notes
-      };
+        const apiData = {
+          // industry_tags字段已移除
+          // fundamental_tags字段已移除，概念通过关联表管理
+          market_cap: stockData.tags?.marketCap || stockToUpdate.tags.marketCap,
+          watch_level: stockData.tags?.watchLevel || stockToUpdate.tags.watchLevel,
+          concept_ids: stockData.conceptIds || stockToUpdate.conceptIds || [], // 添加概念ID数组
+          notes: stockData.notes || stockToUpdate.notes
+        };
 
       // 调用后端API更新股票
       const response = await apiPut(API_ENDPOINTS.STOCK_DETAIL(stockToUpdate.symbol), apiData);
@@ -283,20 +278,7 @@ export function StockMarket({ onCreateTradingPlan }: StockMarketProps) {
     }
   };
 
-  // 运行所有启用的策略
-  const handleRunAllStrategies = async () => {
-    const activeStrategies = strategies.filter(s => s.isActive);
 
-    // 并行执行所有策略
-    const strategyPromises = activeStrategies.map(async strategy => {
-      await handleRunStrategy(strategy.id);
-    });
-
-    await Promise.all(strategyPromises);
-
-    // 运行完成后，可以在选股策略页面查看结果
-    setCurrentTab('strategies');
-  };
 
   // 统计数据
   const stats = useMemo(() => {
@@ -317,9 +299,7 @@ export function StockMarket({ onCreateTradingPlan }: StockMarketProps) {
     { id: 'pool', label: '股票池', icon: BarChart3 },
     { id: 'import', label: '导入自选股', icon: Calendar },
     { id: 'concepts', label: '概念管理', icon: Tag },
-    { id: 'strategies', label: '选股策略', icon: Filter },
-    { id: 'sync', label: '数据同步', icon: Target },
-    { id: 'database', label: '数据库管理', icon: Database }
+    { id: 'strategies', label: '选股策略', icon: Filter }
   ];
 
   // 如果选中了股票，显示股票详情页
@@ -362,41 +342,24 @@ export function StockMarket({ onCreateTradingPlan }: StockMarketProps) {
       {/* 功能导航 */}
       <div className="bg-white border border-gray-200 rounded">
         <div className="px-4 py-3 border-b border-gray-200">
-          <div className="flex items-center justify-between">
-            <div className="flex space-x-2">
-              {tabs.map(tab => {
-                const isActive = currentTab === tab.id;
-                return (
-                  <button
-                    key={tab.id}
-                    onClick={() => setCurrentTab(tab.id as any)}
-                    className={`px-4 py-2 text-sm rounded border transition-colors flex items-center space-x-2 ${
-                      isActive
-                        ? 'bg-blue-600 text-white border-blue-600'
-                        : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50 hover:border-gray-400'
-                    }`}
-                  >
-                    <tab.icon className="w-4 h-4" />
-                    <span>{tab.label}</span>
-                  </button>
-                );
-              })}
-            </div>
-            <div className="flex space-x-2">
-              <button 
-                onClick={fetchStocksFromAPI}
-                className="px-3 py-1 bg-blue-500 text-white text-sm rounded hover:bg-blue-600"
-              >
-                手动刷新股票数据
-              </button>
-              <button
-                onClick={handleRunAllStrategies}
-                disabled={strategies.filter(s => s.isActive).length === 0}
-                className="px-3 py-1 bg-gray-800 text-white text-sm rounded hover:bg-gray-900 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
-              >
-                运行所有策略
-              </button>
-            </div>
+          <div className="flex space-x-2">
+            {tabs.map(tab => {
+              const isActive = currentTab === tab.id;
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => setCurrentTab(tab.id as any)}
+                  className={`px-4 py-2 text-sm rounded border transition-colors flex items-center space-x-2 ${
+                    isActive
+                      ? 'bg-blue-600 text-white border-blue-600'
+                      : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50 hover:border-gray-400'
+                  }`}
+                >
+                  <tab.icon className="w-4 h-4" />
+                  <span>{tab.label}</span>
+                </button>
+              );
+            })}
           </div>
         </div>
       </div>
@@ -450,13 +413,7 @@ export function StockMarket({ onCreateTradingPlan }: StockMarketProps) {
 
 
 
-        {currentTab === 'sync' && (
-          <DataSyncManager />
-        )}
 
-        {currentTab === 'database' && (
-          <DatabaseAdmin />
-        )}
       </div>
     </div>
   );

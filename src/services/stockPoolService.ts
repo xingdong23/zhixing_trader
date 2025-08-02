@@ -26,12 +26,12 @@ export class StockPoolService {
           name: apiStock.name,
           market: apiStock.market,
           tags: {
-            industry: apiStock.industry_tags || [apiStock.group_name || '未分类'],
-            fundamentals: apiStock.fundamental_tags || [],
-            marketCap: apiStock.market_cap || 'mid' as const,
-            watchLevel: apiStock.watch_level || 'medium' as const
-          },
-          conceptIds: apiStock.concept_ids || [],
+        industry: [], // 已移除，使用概念关联表
+        fundamentals: [], // 从概念关联表获取，不再使用 fundamental_tags 字段
+        marketCap: apiStock.market_cap || 'mid' as const,
+        watchLevel: apiStock.watch_level || 'medium' as const
+      },
+          // conceptIds字段已移除，使用concept_stock_relations表管理
           currentPrice: 0,
           priceChange: 0,
           priceChangePercent: 0,

@@ -4,13 +4,13 @@ import { getBackendApiUrl, createFetchConfig } from '../../../../config/api';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { symbol: string } }
+  { params }: { params: Promise<{ symbol: string }> }
 ) {
   try {
-    const { symbol } = params;
+    const { symbol } = await params;
     
     const response = await fetch(
-      getBackendApiUrl('stocks/${symbol}'),
+      getBackendApiUrl(`stocks/${symbol}`),
       createFetchConfig('GET')
     );
 
@@ -34,14 +34,14 @@ export async function GET(
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { symbol: string } }
+  { params }: { params: Promise<{ symbol: string }> }
 ) {
   try {
-    const { symbol } = params;
+    const { symbol } = await params;
     const body = await request.json();
     
     const response = await fetch(
-      getBackendApiUrl('stocks/${symbol}'),
+      getBackendApiUrl(`stocks/${symbol}`),
       createFetchConfig('PUT', body)
     );
 

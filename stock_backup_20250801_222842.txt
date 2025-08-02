@@ -1,0 +1,5 @@
+# 股票表字段备份
+# 格式: ID|代码|名称|行业标签|概念IDs
+1|AAPL|Apple Inc.|["\u4eba\u5de5\u667a\u80fd"]|["1"]
+2|TSLA|Tesla, Inc.|["\u65b0\u80fd\u6e90\u8f66"]|
+3|NVDA|NVIDIA Corporation|["\u4eba\u5de5\u667a\u80fd", "\u82af\u7247"]|
