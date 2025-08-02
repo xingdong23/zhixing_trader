@@ -25,10 +25,7 @@ interface StockMarketProps {
 }
 
 export function StockMarket({ onCreateTradingPlan }: StockMarketProps) {
-  console.log('🎯 StockMarket 组件正在渲染... [v4.0]');
-  console.log('🔧 测试：组件函数体执行中...');
-  console.log('🧪 测试useEffect是否存在:', typeof useEffect);
-  
+  console.log('🎯 StockMarket组件开始渲染');
   const [currentTab, setCurrentTab] = useState<'pool' | 'import' | 'concepts' | 'strategies'>('pool');
   const [selectedStock, setSelectedStock] = useState<Stock | null>(null);
   
@@ -38,8 +35,6 @@ export function StockMarket({ onCreateTradingPlan }: StockMarketProps) {
 
   // 数据初始化状态
   const [isDataInitialized, setIsDataInitialized] = useState(false);
-
-  console.log('🔍 准备执行useEffect，当前isDataInitialized:', isDataInitialized);
 
   // 初始化数据库概念数据
   const initDatabaseConcepts = async () => {
@@ -121,45 +116,36 @@ export function StockMarket({ onCreateTradingPlan }: StockMarketProps) {
   // 策略数据
   const [strategies, setStrategies] = useState<StockSelectionStrategy[]>([]);
   
-  // 使用useEffect正确初始化数据
-  console.log('🔥🔥🔥 组件渲染时的测试日志，isDataInitialized:', isDataInitialized);
+  // 使用useEffect确保只在客户端执行
+  console.log('🔧 准备定义useEffect');
+  console.log('🔍 useEffect定义前的状态检查 - isDataInitialized:', isDataInitialized);
+  console.log('🔍 useEffect定义前的环境检查 - window存在:', typeof window !== 'undefined');
   
-  // 使用setTimeout测试异步执行
-  console.log('🔥🔥🔥 useEffect定义前的日志');
-  
-  // 尝试使用setTimeout来延迟执行
-  React.useEffect(() => {
-    console.log('🎉🎉🎉🎉🎉 useEffect真的执行了！！！🎉🎉🎉🎉🎉');
-    console.log('🚀🚀🚀 useEffect执行，isDataInitialized:', isDataInitialized);
-    console.log('🌍 当前环境:', typeof window !== 'undefined' ? 'client' : 'server');
+  useEffect(() => {
+    console.log('🚀🚀🚀 useEffect终于开始执行了!!! 🚀🚀🚀');
+    console.log('🔍 useEffect执行中，当前isDataInitialized:', isDataInitialized);
+    console.log('🌍 检查客户端环境:', typeof window !== 'undefined');
     
-    const timer = setTimeout(() => {
-      console.log('⏰ setTimeout执行了！');
-      
-      // 确保只在客户端执行
-      if (typeof window === 'undefined') {
-        console.log('⚠️ 服务端环境，跳过数据初始化');
-        return;
-      }
-      
-      // 简化版本，先测试useEffect是否执行
+    // 确保在客户端环境中执行
+    if (typeof window !== 'undefined') {
+      console.log('🚀🚀🚀 开始初始化数据!!! 🚀🚀🚀');
       if (!isDataInitialized) {
-        console.log('🚀🚀🚀 开始初始化数据!!! 🚀🚀🚀');
-        
-        // 直接调用API测试
-        fetchStocksFromAPI().then(() => {
-          console.log('✅ API调用成功');
-          setIsDataInitialized(true);
-        }).catch(error => {
-          console.error('❌ API调用失败:', error);
-        });
+        setIsDataInitialized(true); // 先设置为true，避免重复调用
+        fetchStocksFromAPI()
+          .then(() => {
+            console.log('✅ API数据获取成功');
+          })
+          .catch((error) => {
+            console.error('❌ API数据获取失败:', error);
+            setIsDataInitialized(false); // 失败时重置，允许重试
+          });
+      } else {
+        console.log('⚠️ 数据已初始化，跳过重复初始化');
       }
-    }, 100);
-    
-    return () => clearTimeout(timer);
-  }, []); // 只在组件挂载时执行一次
-  
-  console.log('🔥🔥🔥 useEffect定义后的日志');
+    } else {
+      console.log('⚠️ 服务端环境，跳过初始化');
+    }
+  }, [isDataInitialized]); // 依赖isDataInitialized状态
 
   // 股票池操作
   const handleAddStock = (stockData: Omit<Stock, 'id' | 'addedAt' | 'updatedAt'>) => {

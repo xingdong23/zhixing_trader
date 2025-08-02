@@ -23,7 +23,7 @@ export class StockApiService extends BaseApiClient {
    * 获取所有股票
    */
   async getAllStocks(): Promise<ApiResponse<Stock[]>> {
-    return this.get<Stock[]>('/api/stocks');
+    return this.get<Stock[]>('/stocks/');
   }
   
   /**
