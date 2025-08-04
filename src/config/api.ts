@@ -7,7 +7,7 @@
  */
 export const BACKEND_API_CONFIG = {
   // 后端API基础地址
-  BASE_URL: process.env.BACKEND_API_BASE_URL || 'http://127.0.0.1:3002/api/v1',
+  BASE_URL: process.env.BACKEND_API_BASE_URL || 'http://127.0.0.1:3001/api/v1',
   
   // 请求超时时间
   TIMEOUT: 30000,

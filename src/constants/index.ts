@@ -4,9 +4,9 @@
 // ==================== API 配置 ====================
 export const API_CONFIG = {
   // 后端API基础地址 - 直接连接后端服务
-  BASE_URL: process.env.NEXT_PUBLIC_API_BASE_URL || 'http://127.0.0.1:3002/api/v1',
+  BASE_URL: process.env.NEXT_PUBLIC_API_BASE_URL || 'http://127.0.0.1:3001/api/v1',
   // 不带版本号的基础地址，用于某些特殊接口
-  BASE_URL_NO_VERSION: process.env.NEXT_PUBLIC_API_BASE_URL?.replace('/api/v1', '') || 'http://127.0.0.1:3002',
+  BASE_URL_NO_VERSION: process.env.NEXT_PUBLIC_API_BASE_URL?.replace('/api/v1', '') || 'http://127.0.0.1:3001',
   TIMEOUT: 30000,
   RETRY_ATTEMPTS: 3,
   RETRY_DELAY: 1000,

@@ -18,7 +18,9 @@
       "Bash(sqlite3:*)",
       "Bash(cat:*)",
       "Bash(source:*)",
-      "Bash(pip install:*)"
+      "Bash(pip install:*)",
+      "Bash(find:*)",
+      "Bash(npm install)"
     ],
     "deny": []
   }
