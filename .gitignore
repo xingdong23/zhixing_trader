@@ -64,3 +64,6 @@ __pycache__/
 .DS_Store
 .AppleDouble
 .LSOverride
+
+# Crush local data
+.crush/
