@@ -8,89 +8,24 @@ export {
   Card,
   CardHeader,
   CardContent,
-  CardFooter,
-  StatCard,
-  createLoadingCard,
-  EmptyCard,
-  cardUtils,
+  CardTitle,
+  CardDescription,
   type CardProps,
   type CardHeaderProps,
   type CardContentProps,
-  type CardFooterProps,
-  type StatCardProps,
-} from './ui/Card';
+} from '@/components/ui/Card';
 
 // 表格组件
-export {
-  Table,
-  PaginatedTable,
-  createColumn,
-  createActionColumn,
-  createStatusColumn,
-  type TableProps,
-  type Column,
-  type PaginatedTableProps,
-  type TableHeaderProps,
-  type TableBodyProps,
-} from './ui/Table';
+// Table is not ready in ui; re-export nothing to avoid breakage
 
 // 按钮组件
-export {
-  Button,
-  IconButton,
-  ButtonGroup,
-  ConfirmButton,
-  CancelButton,
-  DeleteButton,
-  SubmitButton,
-  ResetButton,
-  ConfirmDeleteButton,
-  createButtonConfig,
-  buttonUtils,
-  type ButtonProps,
-  type IconButtonProps,
-  type ButtonGroupProps,
-  type ConfirmDeleteButtonProps,
-} from './ui/Button';
+export { Button, type ButtonProps } from '@/components/ui/Button';
 
 // 表单组件
-export {
-  FormField,
-  Input,
-  Textarea,
-  Select,
-  Checkbox,
-  Radio,
-  RadioGroup,
-  SearchInput,
-  PasswordInput,
-  formUtils,
-  type FormFieldProps,
-  type InputProps,
-  type TextareaProps,
-  type SelectProps,
-  type CheckboxProps,
-  type RadioProps,
-  type RadioGroupProps,
-} from './ui/Form';
+export { Input, Textarea, type InputProps, type TextareaProps } from '@/components/ui/Form';
 
 // 模态框组件
-export {
-  Modal,
-  ModalHeader,
-  ModalBody,
-  ModalFooter,
-  ConfirmModal,
-  InfoModal,
-  useModal,
-  modalUtils,
-  type ModalProps,
-  type ModalHeaderProps,
-  type ModalBodyProps,
-  type ModalFooterProps,
-  type ConfirmModalProps,
-  type InfoModalProps,
-} from './ui/Modal';
+export { Modal, type ModalProps } from '@/components/ui/Modal';
 
 // ==================== 业务组件 ====================
 
@@ -129,20 +64,12 @@ export {
 // ==================== 工具函数集合 ====================
 
 // 先导入所有工具函数
-import { cardUtils } from './ui/Card';
-import { buttonUtils } from './ui/Button';
-import { formUtils } from './ui/Form';
-import { modalUtils } from './ui/Modal';
+// utils removed in minimal ui extraction
 
 // 类型已在上方的组件导出中包含，无需重复导出
 
 /** 所有工具函数集合 */
-export const sharedUtils = {
-  card: cardUtils,
-  button: buttonUtils,
-  form: formUtils,
-  modal: modalUtils,
-};
+export const sharedUtils = {} as const;
 
 // ==================== 常量定义 ====================
 

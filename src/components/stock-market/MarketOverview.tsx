@@ -4,7 +4,7 @@
 'use client';
 
 import React from 'react';
-import { Card } from '@/components/shared';
+import { Card, CardHeader, CardContent, CardTitle } from '@/components/ui';
 import { BarChart3, Target, Filter, TrendingUp } from 'lucide-react';
 
 // 类型定义
@@ -68,7 +68,21 @@ function formatNumber(num: number): string {
 export function MarketOverview({ stats, isLoading = false, onRefresh }: MarketOverviewProps) {
   return (
     <Card className="mb-6">
-      <div className="p-6">
+      <CardHeader>
+        <div className="flex items-center justify-between">
+          <CardTitle>市场概览</CardTitle>
+          {onRefresh && (
+            <button
+              onClick={onRefresh}
+              className="px-3 py-1 text-sm text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded transition-colors"
+              disabled={isLoading}
+            >
+              {isLoading ? '刷新中...' : '刷新'}
+            </button>
+          )}
+        </div>
+      </CardHeader>
+      <CardContent>
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-semibold text-gray-900">市场概览</h2>
           {onRefresh && (
@@ -151,7 +165,7 @@ export function MarketOverview({ stats, isLoading = false, onRefresh }: MarketOv
             </div>
           </div>
         </div>
-      </div>
+      </CardContent>
     </Card>
   );
 }

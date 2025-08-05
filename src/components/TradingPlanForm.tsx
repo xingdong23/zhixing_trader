@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
-import { Card, CardContent, CardHeader } from '@/components/ui';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui';
 import { Button } from '@/components/ui';
 import { Input } from '@/components/ui';
 import { Textarea } from '@/components/ui';
@@ -130,8 +130,11 @@ export default function TradingPlanForm({ onPlanCreated }: TradingPlanFormProps)
 
   return (
     <Card className="w-full max-w-4xl mx-auto">
-      <CardHeader title="📋 创建交易计划" subtitle="强制制定交易计划，培养纪律性交易习惯" />
-      
+      <CardHeader>
+        <CardTitle>📋 创建交易计划</CardTitle>
+        <CardDescription>强制制定交易计划，培养纪律性交易习惯</CardDescription>
+      </CardHeader>
+
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* 基本信息 */}

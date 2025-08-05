@@ -2,7 +2,7 @@
 // 显示数据库基本信息和统计数据
 
 import React from 'react';
-import { Card, StatCard } from '../shared';
+import { Card } from '@/components/ui';
 import { cn } from '../../utils/cn';
 
 // ==================== 类型定义 ====================
@@ -191,61 +191,36 @@ export const DatabaseOverview: React.FC<DatabaseOverviewProps> = ({
 
       {/* 统计卡片 */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard
-          title="总记录数"
-          value={data ? formatNumber(data.totalRecords) : '--'}
-          loading={loading}
-          icon={
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-            </svg>
-          }
-        />
+        <div className="bg-white p-4 rounded-lg border border-gray-200">
+          <div className="text-sm text-gray-700 mb-1">总记录数</div>
+          <div className="text-2xl font-semibold text-gray-900">{data ? formatNumber(data.totalRecords) : '--'}</div>
+        </div>
         
-        <StatCard
-          title="符号数量"
-          value={data ? data.symbolCount.toString() : '--'}
-          loading={loading}
-          icon={
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z" />
-            </svg>
-          }
-        />
+        <div className="bg-white p-4 rounded-lg border border-gray-200">
+          <div className="text-sm text-gray-700 mb-1">符号数量</div>
+          <div className="text-2xl font-semibold text-gray-900">{data ? data.symbolCount.toString() : '--'}</div>
+        </div>
         
         {data?.activeSymbols !== undefined && (
-          <StatCard
-            title="活跃符号"
-            value={data.activeSymbols.toString()}
-            loading={loading}
-            icon={
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-              </svg>
-            }
-          />
+          <div className="bg-white p-4 rounded-lg border border-gray-200">
+            <div className="text-sm text-gray-700 mb-1">活跃符号</div>
+            <div className="text-2xl font-semibold text-gray-900">{data.activeSymbols.toString()}</div>
+          </div>
         )}
         
         {data?.qualityScore !== undefined && (
-          <StatCard
-            title="数据质量"
-            value={`${data.qualityScore}%`}
-            description={getQualityScoreDescription(data.qualityScore)}
-            loading={loading}
-            color={data.qualityScore >= 90 ? 'green' : data.qualityScore >= 70 ? 'orange' : 'red'}
-            icon={
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
-              </svg>
-            }
-          />
+          <div className="bg-white p-4 rounded-lg border border-gray-200">
+            <div className="text-sm text-gray-700 mb-1">数据质量</div>
+            <div className={cn('text-2xl font-semibold', getQualityScoreColor(data.qualityScore))}>{data.qualityScore}%</div>
+            <div className="text-xs text-gray-600">{getQualityScoreDescription(data.qualityScore)}</div>
+          </div>
         )}
       </div>
 
       {/* 详细信息 */}
       {data && (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <Card loading={loading}>
+          <Card>
             <div className="p-6 space-y-4">
               <DateRangeInfo dateRange={data.dateRange} />
               
@@ -269,7 +244,7 @@ export const DatabaseOverview: React.FC<DatabaseOverviewProps> = ({
             </div>
           </Card>
           
-          <Card loading={loading}>
+          <Card>
             <div className="p-6">
               <TimeframesInfo timeframes={data.timeframes} />
             </div>

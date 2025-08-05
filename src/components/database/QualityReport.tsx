@@ -2,7 +2,8 @@
 // 显示数据质量分析、问题统计和改进建议
 
 import React, { useState } from 'react';
-import { Card, Button } from '../shared';
+import { Card } from '@/components/ui';
+import { Button } from '@/components/ui';
 import { cn } from '../../utils/cn';
 
 // ==================== 类型定义 ====================
@@ -284,8 +285,8 @@ const IssueCard: React.FC<{
               size="sm"
               variant="outline"
               onClick={() => onFix(issue.id)}
-              loading={isFixing}
-              disabled={isFixing}
+
+
             >
               {isFixing ? '修复中...' : '自动修复'}
             </Button>
@@ -413,7 +414,7 @@ export const QualityReport: React.FC<QualityReportProps> = ({
               variant="primary"
               size="sm"
               onClick={handleBatchFix}
-              loading={selectedAutoFixableIssues.some(issue => fixingIssues.has(issue.id))}
+
             >
               批量修复 ({selectedAutoFixableIssues.length})
             </Button>
@@ -424,12 +425,8 @@ export const QualityReport: React.FC<QualityReportProps> = ({
               variant="outline"
               size="sm"
               onClick={onRefresh}
-              loading={loading}
-              icon={
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                </svg>
-              }
+
+
             >
               刷新
             </Button>
@@ -440,7 +437,7 @@ export const QualityReport: React.FC<QualityReportProps> = ({
       {data && (
         <>
           {/* 质量评分概览 */}
-          <Card loading={loading}>
+          <Card>
             <div className="p-6">
               <h3 className="text-lg font-medium text-gray-900 mb-4">质量评分概览</h3>
               
@@ -527,7 +524,7 @@ export const QualityReport: React.FC<QualityReportProps> = ({
 
           {/* 问题列表 */}
           {data.issues.length > 0 && (
-            <Card loading={loading}>
+            <Card>
               <div className="p-6">
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="text-lg font-medium text-gray-900">
@@ -573,7 +570,7 @@ export const QualityReport: React.FC<QualityReportProps> = ({
 
           {/* 改进建议 */}
           {data.recommendations.length > 0 && (
-            <Card loading={loading}>
+            <Card>
               <div className="p-6">
                 <h3 className="text-lg font-medium text-gray-900 mb-4">
                   改进建议

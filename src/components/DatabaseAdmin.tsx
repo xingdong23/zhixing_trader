@@ -11,7 +11,8 @@ import {
   type StockDataItem,
   type QualityReportData,
 } from './database';
-import { Card, Button } from './shared';
+import { Card } from '@/components/ui';
+import { Button } from '@/components/ui';
 import { cn } from '../utils/cn';
 
 // 数据转换函数
@@ -233,10 +234,7 @@ export default function DatabaseAdmin() {
           <Button
             variant="outline"
             onClick={handleRefresh}
-            loading={refreshing}
-            icon={
-              <RefreshCw className={cn('w-4 h-4', refreshing && 'animate-spin')} />
-            }
+
           >
             {refreshing ? '刷新中...' : '刷新数据'}
           </Button>

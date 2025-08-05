@@ -2,7 +2,8 @@
 // 显示股票数据列表，支持搜索、筛选和删除操作
 
 import React, { useState, useMemo } from 'react';
-import { Card, Table, Button, SearchInput, Select, ConfirmDeleteButton } from '../shared';
+import { Card } from '@/components/ui';
+import { Button } from '@/components/ui';
 import { cn } from '../../utils/cn';
 
 // ==================== 类型定义 ====================
@@ -220,26 +221,32 @@ const FilterControls: React.FC<{
   return (
     <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
       <div className="flex flex-col sm:flex-row gap-3 flex-1">
-        <SearchInput
+        <input
           placeholder="搜索股票代码或名称..."
           value={searchTerm}
-          onChange={(e) => onSearchChange(e.target.value)}
-          className="w-full sm:w-64"
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) => onSearchChange(e.target.value)}
+          className="w-full sm:w-64 px-3 py-2 border border-gray-300 rounded-md"
         />
         
-        <Select
+        <select
           value={statusFilter}
-          onChange={(e) => onStatusFilterChange(e.target.value)}
-          options={STATUS_OPTIONS}
-          className="w-full sm:w-32"
-        />
+          onChange={(e: React.ChangeEvent<HTMLSelectElement>) => onStatusFilterChange(e.target.value)}
+          className="w-full sm:w-32 px-3 py-2 border border-gray-300 rounded-md"
+        >
+          {STATUS_OPTIONS.map(opt => (
+            <option key={opt.value} value={opt.value}>{opt.label}</option>
+          ))}
+        </select>
         
-        <Select
+        <select
           value={industryFilter}
-          onChange={(e) => onIndustryFilterChange(e.target.value)}
-          options={INDUSTRY_OPTIONS}
-          className="w-full sm:w-32"
-        />
+          onChange={(e: React.ChangeEvent<HTMLSelectElement>) => onIndustryFilterChange(e.target.value)}
+          className="w-full sm:w-32 px-3 py-2 border border-gray-300 rounded-md"
+        >
+          {INDUSTRY_OPTIONS.map(opt => (
+            <option key={opt.value} value={opt.value}>{opt.label}</option>
+          ))}
+        </select>
       </div>
       
       {onRefresh && (
@@ -247,12 +254,6 @@ const FilterControls: React.FC<{
           variant="outline"
           size="sm"
           onClick={onRefresh}
-          loading={loading}
-          icon={
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-            </svg>
-          }
         >
           刷新
         </Button>
@@ -390,24 +391,16 @@ export const StockDataList: React.FC<StockDataListProps> = ({
               variant="ghost"
               size="sm"
               onClick={() => onViewDetails(item.symbol)}
-              icon={
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                </svg>
-              }
             >
               查看
             </Button>
           )}
           
           {onDeleteStock && item.deletable !== false && (
-            <ConfirmDeleteButton
-              onConfirm={() => onDeleteStock(item.symbol)}
-              confirmText={`确定要删除 ${item.symbol} (${item.name}) 的所有数据吗？此操作不可撤销。`}
-              size="sm"
-            />
-          )}
+                            <Button variant="danger" size="sm" onClick={() => onDeleteStock(item.symbol)}>
+                              删除
+                            </Button>
+                          )}
         </div>
       ),
     },
@@ -465,15 +458,70 @@ export const StockDataList: React.FC<StockDataListProps> = ({
 
       {/* 数据表格 */}
       <Card>
-        <Table
-          data={filteredAndSortedData}
-          columns={columns}
-          loading={loading}
-          sortState={sortField ? { key: sortField, direction: sortDirection } : undefined}
-          onSortChange={handleSort}
-          emptyText="暂无股票数据"
-          className="min-h-[400px]"
-        />
+        <div className="min-h-[400px]">
+          <div className="overflow-x-auto">
+            <table className="min-w-full text-sm">
+              <thead>
+                <tr className="text-left text-gray-600">
+                  <th className="py-2 px-3">股票代码</th>
+                  <th className="py-2 px-3">行业</th>
+                  <th className="py-2 px-3">数据统计</th>
+                  <th className="py-2 px-3">状态</th>
+                  <th className="py-2 px-3">质量评分</th>
+                  <th className="py-2 px-3">最后更新</th>
+                  <th className="py-2 px-3">操作</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredAndSortedData.length === 0 ? (
+                  <tr>
+                    <td colSpan={7} className="py-10 text-center text-gray-500">暂无股票数据</td>
+                  </tr>
+                ) : (
+                  filteredAndSortedData.map((item) => (
+                    <tr key={item.symbol} className="border-t">
+                      <td className="py-2 px-3">
+                        <div className="space-y-1">
+                          <div className="font-medium text-gray-900">{item.symbol}</div>
+                          <div className="text-xs text-gray-600">{item.name}</div>
+                        </div>
+                      </td>
+                      <td className="py-2 px-3">
+                        <span className="text-sm text-gray-700">{item.industry}</span>
+                      </td>
+                      <td className="py-2 px-3">
+                        <DataStats totalRecords={item.totalRecords} dailyRecords={item.dailyRecords} hourlyRecords={item.hourlyRecords} />
+                      </td>
+                      <td className="py-2 px-3">
+                        <StatusBadge status={item.status} />
+                      </td>
+                      <td className="py-2 px-3">
+                        <QualityScore score={item.qualityScore} />
+                      </td>
+                      <td className="py-2 px-3">
+                        <span className="text-sm text-gray-600">{formatDate(item.lastUpdated)}</span>
+                      </td>
+                      <td className="py-2 px-3">
+                        <div className="flex items-center gap-2">
+                          {onViewDetails && (
+                            <Button variant="ghost" size="sm" onClick={() => onViewDetails(item.symbol)}>
+                              查看
+                            </Button>
+                          )}
+                          {onDeleteStock && item.deletable !== false && (
+                            <Button variant="danger" size="sm" onClick={() => onDeleteStock(item.symbol)}>
+                              删除
+                            </Button>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
       </Card>
     </div>
   );

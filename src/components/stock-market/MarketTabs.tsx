@@ -4,7 +4,7 @@
 'use client';
 
 import React from 'react';
-import { Button } from '@/components/shared';
+import { Button } from '@/components/ui';
 import {
   BarChart3,
   Target,
