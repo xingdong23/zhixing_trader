@@ -1,10 +1,10 @@
 "use client";
 
 import React, { useState } from 'react';
-import { Card, CardContent, CardHeader } from '@/components/shared/ui/Card';
-import { Button } from '@/components/shared/ui/Button';
-import { Input } from '@/components/shared/ui/Form';
-import { Textarea } from '@/components/shared/ui/Form';
+import { Card, CardContent, CardHeader } from '@/components/ui';
+import { Button } from '@/components/ui';
+import { Input } from '@/components/ui';
+import { Textarea } from '@/components/ui';
 
 interface TradingPlanData {
   stock_code: string;
