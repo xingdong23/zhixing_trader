@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useRef } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui';
 import { Upload, Download, FileText, AlertCircle, CheckCircle, X, BarChart3 } from 'lucide-react';
 
 import { ImportedStock, Industry, MarketType, Stock, MarketCap, WatchLevel } from '@/types';

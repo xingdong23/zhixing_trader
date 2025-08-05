@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui';
 import { Plus, Edit2, Trash2, Tag, Search, BarChart3, X, Check, ChevronDown, ChevronRight } from 'lucide-react';
 import { ConceptService } from '@/services/conceptService';
 import { StockPoolService } from '@/services/stockPoolService';

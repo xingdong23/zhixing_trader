@@ -4,7 +4,7 @@
 'use client';
 
 import React, { useState, useMemo } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui';
 import { Expert, ExpertOpinion, Stock, PriceGuidance, PriceGuidanceType } from '@/types';
 import {
   User,

@@ -4,7 +4,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui';
 import { AppState } from '@/types';
 import { 
   Settings, 

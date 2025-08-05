@@ -4,7 +4,7 @@
 'use client';
 
 import React, { useState, useMemo, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui';
 import { Stock, StockPoolStats, Concept, ConceptStockRelation } from '@/types';
 
 import { ConceptService } from '@/services/conceptService';

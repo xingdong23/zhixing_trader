@@ -4,7 +4,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui';
 import { FundamentalCondition, PriceCondition, TradingType } from '@/types';
 import { TechnicalCondition } from '@/types/strategy';
 import { StockSelectionStrategy } from '@/types/analysis';
