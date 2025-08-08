@@ -8,7 +8,7 @@ export async function POST(request: NextRequest) {
     const forceFullSync = searchParams.get('force_full') === 'true';
     
     const response = await fetch(
-      getBackendApiUrl('data/sync/trigger?force_full=${forceFullSync}'),
+      getBackendApiUrl(`data/sync/trigger?force_full=${forceFullSync}`),
       createFetchConfig('POST')
     );
 
