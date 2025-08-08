@@ -48,6 +48,34 @@ export function WatchlistImporter({ onImportComplete }: WatchlistImporterProps) 
     };
   };
 
+  // 简易CSV解析（支持逗号/分号/制表符，支持引号）
+  function detectDelimiter(header: string): string {
+    if (header.includes('\t')) return '\t';
+    if (header.includes(';')) return ';';
+    return ',';
+  }
+
+  function parseCsvRow(row: string, delimiter: string): string[] {
+    const result: string[] = [];
+    let cur = '';
+    let inQuotes = false;
+    for (let i = 0; i < row.length; i++) {
+      const ch = row[i];
+      if (ch === '"') {
+        // 双引号转义 ""
+        if (inQuotes && row[i + 1] === '"') { cur += '"'; i++; }
+        else { inQuotes = !inQuotes; }
+      } else if (ch === delimiter && !inQuotes) {
+        result.push(cur);
+        cur = '';
+      } else {
+        cur += ch;
+      }
+    }
+    result.push(cur);
+    return result;
+  }
+
   // 市场代码映射函数
   const mapMarketCode = (marketCode: string): MarketType => {
     switch (marketCode.toUpperCase()) {
@@ -88,7 +116,9 @@ export function WatchlistImporter({ onImportComplete }: WatchlistImporterProps) 
       throw new Error('CSV文件格式错误：至少需要标题行和一行数据');
     }
 
-    const headers = lines[0].split(',').map(h => h.trim().toLowerCase());
+    const headerLine = lines[0].replace(/^\uFEFF/, '');
+    const delimiter = detectDelimiter(headerLine);
+    const headers = parseCsvRow(headerLine, delimiter).map(h => h.trim().toLowerCase());
     const requiredHeaders = ['symbol', 'name', 'market'];
 
     // 检查必需的列
@@ -102,11 +132,7 @@ export function WatchlistImporter({ onImportComplete }: WatchlistImporterProps) 
     const now = new Date();
 
     for (let i = 1; i < lines.length; i++) {
-      const values = lines[i].split(',').map(v => v.trim());
-      if (values.length !== headers.length) {
-        console.warn(`第${i + 1}行数据格式错误，跳过`);
-        continue;
-      }
+      const values = parseCsvRow(lines[i], delimiter).map(v => v.trim());
 
       const stock: Partial<ImportedStock> = {
         id: `std_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,

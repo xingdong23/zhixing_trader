@@ -221,3 +221,20 @@ INFO:     Waiting for application startup.
 2025-08-08 22:08:33.264 | INFO     | app.main:lifespan:51 - ✅ API Server started successfully
 2025-08-08 22:08:33.264 | DEBUG    | app.main:background_tasks:24 - 🔄 系统状态检查
 INFO:     Application startup complete.
+2025-08-08 22:12:04.942 | INFO     | app.api.v1.endpoints.concepts:init_sample_data:78 - 概念数据已存在，无需初始化示例数据
+INFO:     127.0.0.1:49589 - "POST /api/v1/concepts/init-sample-data HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49590 - "GET /api/v1/concepts/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49589 - "GET /api/v1/stocks/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49589 - "GET /api/v1/strategies/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49684 - "GET /api/v1/concepts/ HTTP/1.1" 200 OK
+2025-08-08 22:12:18.176 | INFO     | app.api.v1.endpoints.concepts:init_sample_data:78 - 概念数据已存在，无需初始化示例数据
+INFO:     127.0.0.1:49685 - "POST /api/v1/concepts/init-sample-data HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49684 - "GET /api/v1/stocks/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49685 - "GET /api/v1/strategies/ HTTP/1.1" 200 OK
+2025-08-08 23:16:43.569 | DEBUG    | app.main:background_tasks:24 - 🔄 系统状态检查
+2025-08-08 23:19:37.033 | INFO     | app.api.v1.endpoints.concepts:init_sample_data:78 - 概念数据已存在，无需初始化示例数据
+INFO:     127.0.0.1:52581 - "POST /api/v1/concepts/init-sample-data HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52582 - "GET /api/v1/concepts/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52581 - "GET /api/v1/stocks/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52582 - "GET /api/v1/strategies/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55107 - "GET /api/v1/concepts/ HTTP/1.1" 200 OK
