@@ -151,3 +151,8 @@ INFO:     127.0.0.1:63063 - "GET /api/v1/concepts/ HTTP/1.1" 200 OK
 INFO:     127.0.0.1:63064 - "POST /api/v1/concepts/init-sample-data HTTP/1.1" 200 OK
 INFO:     127.0.0.1:63063 - "GET /api/v1/stocks/ HTTP/1.1" 200 OK
 INFO:     127.0.0.1:63064 - "GET /api/v1/strategies/ HTTP/1.1" 200 OK
+2025-08-08 21:40:53.477 | INFO     | app.api.v1.endpoints.concepts:init_sample_data:78 - 概念数据已存在，无需初始化示例数据
+INFO:     127.0.0.1:49895 - "POST /api/v1/concepts/init-sample-data HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49896 - "GET /api/v1/concepts/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49895 - "GET /api/v1/stocks/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49896 - "GET /api/v1/strategies/ HTTP/1.1" 200 OK

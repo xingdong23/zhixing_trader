@@ -161,8 +161,14 @@ export function useMarketData(): UseMarketDataResult {
         throw new Error(`API请求失败: ${response.status}`);
       }
       const result = await response.json();
-      // 兼容后端统一响应格式 { success, data }
-      const rawList = Array.isArray(result) ? result : (result.data || result.strategies || []);
+      // 兼容多种结构：
+      // 1) { success, data: { strategies: [...] } }
+      // 2) { strategies: [...] }
+      // 3) { data: [...] }
+      let rawList = result?.data?.strategies ?? result?.strategies ?? result?.data ?? [];
+      if (!Array.isArray(rawList)) {
+        rawList = [];
+      }
       const normalized: StockSelectionStrategy[] = (rawList || []).map((s: any) => ({
         id: String(s.id),
         name: s.name,
