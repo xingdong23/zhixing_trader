@@ -5,19 +5,18 @@
 
 import React from 'react';
 import { Button } from '@/components/ui';
-import {
+import { 
   BarChart3,
   Target,
   Calendar,
   Filter,
   Tag,
-  Database,
   RefreshCw,
   Play
 } from 'lucide-react';
 
 // 类型定义
-export type MarketTabId = 'pool' | 'import' | 'concepts' | 'strategies' | 'sync' | 'database';
+export type MarketTabId = 'pool' | 'import' | 'concepts' | 'strategies' | 'sync';
 
 export interface MarketTab {
   id: MarketTabId;
@@ -69,12 +68,7 @@ export const DEFAULT_TABS: MarketTab[] = [
     icon: Target,
     description: '同步股票数据和价格信息'
   },
-  {
-    id: 'database',
-    label: '数据库管理',
-    icon: Database,
-    description: '管理数据库和数据质量'
-  }
+  
 ];
 
 // 标签页按钮组件
@@ -238,7 +232,7 @@ export const marketTabsUtils = {
 };
 
 // 常量导出
-export const MARKET_TAB_IDS = ['pool', 'import', 'concepts', 'strategies', 'sync', 'database'] as const;
+export const MARKET_TAB_IDS = ['pool', 'import', 'concepts', 'strategies', 'sync'] as const;
 export const MARKET_TAB_LABELS = DEFAULT_TABS.reduce((acc, tab) => {
   acc[tab.id] = tab.label;
   return acc;

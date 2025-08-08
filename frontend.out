@@ -211,3 +211,230 @@
  ✓ Compiled in 1060ms (942 modules)
  ✓ Compiled in 241ms (942 modules)
  ✓ Compiled in 357ms (942 modules)
+ ✓ Compiled in 351ms (942 modules)
+🎯 StockMarketRefactored 组件正在渲染... [v2.0]
+🔍 StockPool: 接收到的stocks数据: []
+🔍 StockPool: stocks数量: 0
+ GET / 200 in 392ms
+ ✓ Compiled /api/concepts/init-sample-data in 424ms (522 modules)
+ ✓ Compiled (529 modules)
+ GET /favicon.ico 200 in 642ms
+ GET /api/concepts 200 in 615ms
+ POST /api/concepts/init-sample-data 200 in 621ms
+ ✓ Compiled /api/strategies in 161ms (531 modules)
+ ✓ Compiled (533 modules)
+ GET /api/stocks 200 in 516ms
+ GET /api/strategies 200 in 520ms
+ ✓ Compiled /api/stocks/import in 266ms (971 modules)
+ POST /api/stocks/import 200 in 2117ms
+ GET /api/stocks 200 in 1366ms
+ GET /api/strategies 200 in 1371ms
+🎯 StockMarketRefactored 组件正在渲染... [v2.0]
+🔍 StockPool: 接收到的stocks数据: []
+🔍 StockPool: stocks数量: 0
+ GET / 200 in 286ms
+ GET /favicon.ico 200 in 28ms
+ GET /api/concepts 200 in 231ms
+ POST /api/concepts/init-sample-data 200 in 238ms
+ GET /api/stocks 200 in 236ms
+ GET /api/strategies 200 in 238ms
+ ✓ Compiled /api/sync/status in 225ms (525 modules)
+ GET /api/sync/status 200 in 298ms
+ GET /api/sync/status 200 in 22ms
+ ✓ Compiled /api/data/sync/trigger in 352ms (963 modules)
+ POST /api/data/sync/trigger?force_full=true 200 in 472ms
+ GET /api/sync/status 200 in 53ms
+ ✓ Compiled /_not-found in 265ms (967 modules)
+ GET /.well-known/appspecific/com.chrome.devtools.json 404 in 386ms
+ GET /api/sync/status 200 in 535ms
+ GET /api/sync/status 200 in 767ms
+ GET /api/sync/status 200 in 61ms
+ GET /api/sync/status 200 in 470ms
+ GET /api/sync/status 200 in 551ms
+ GET /api/sync/status 200 in 96ms
+ ✓ Compiled /api/strategies/[id]/execute in 202ms (527 modules)
+ ✓ Compiled /api/strategies in 347ms (525 modules)
+ ✓ Compiled (527 modules)
+ GET /api/strategies 200 in 596ms
+ GET /api/stocks 200 in 745ms
+ GET /api/strategies 200 in 328ms
+ GET /api/stocks 200 in 440ms
+ ✓ Compiled /api/sync/status in 171ms (529 modules)
+ GET /api/sync/status 200 in 321ms
+ GET /api/sync/status 200 in 104ms
+ ✓ Compiled /_not-found in 411ms (969 modules)
+ GET /.well-known/appspecific/com.chrome.devtools.json 404 in 567ms
+ GET /api/sync/status 200 in 186ms
+ GET /api/sync/status 200 in 287ms
+ GET /api/sync/status 200 in 237ms
+ GET /api/sync/status 200 in 136ms
+ GET /api/sync/status 200 in 170ms
+ GET /api/sync/status 200 in 434ms
+ GET /api/sync/status 200 in 126ms
+ GET /api/sync/status 200 in 114ms
+ GET /api/sync/status 200 in 157ms
+ GET /api/sync/status 200 in 106ms
+ GET /api/sync/status 200 in 179ms
+ GET /api/sync/status 200 in 187ms
+ GET /api/sync/status 200 in 187ms
+ GET /api/sync/status 200 in 348ms
+ GET /api/sync/status 200 in 110ms
+ GET /api/sync/status 200 in 109ms
+ GET /api/sync/status 200 in 128ms
+ GET /api/sync/status 200 in 127ms
+ GET /api/sync/status 200 in 111ms
+ GET /api/sync/status 200 in 110ms
+ GET /api/sync/status 200 in 245ms
+ GET /api/sync/status 200 in 324ms
+ ✓ Compiled /api/stocks in 286ms (527 modules)
+ ✓ Compiled (529 modules)
+ GET /api/concepts 200 in 557ms
+ GET /api/stocks 200 in 664ms
+ GET /api/stocks 200 in 409ms
+ GET /api/concepts 200 in 93ms
+ GET /api/stocks 200 in 194ms
+ GET /api/stocks 200 in 177ms
+ GET /api/sync/status 200 in 329ms
+ GET /api/sync/status 200 in 787ms
+ GET /api/sync/status 200 in 503ms
+ GET /api/sync/status 200 in 158ms
+ GET /api/sync/status 200 in 137ms
+ GET /api/sync/status 200 in 351ms
+ GET /api/sync/status 200 in 174ms
+ GET /api/sync/status 200 in 249ms
+ GET /api/sync/status 200 in 438ms
+ GET /api/sync/status 200 in 142ms
+ GET /api/sync/status 200 in 147ms
+ GET /api/sync/status 200 in 451ms
+ GET /api/sync/status 200 in 144ms
+ GET /api/sync/status 200 in 142ms
+ GET /api/sync/status 200 in 137ms
+执行策略失败: TypeError: fetch failed
+    at async POST (src/app/api/strategies/[id]/execute/route.ts:12:21)
+  10 |     const { id } = await params;
+  11 |     // 不从前端读取body，后端此端点无需请求体
+> 12 |     const response = await fetch(
+     |                     ^
+  13 |       getBackendApiUrl(`strategies/${id}/execute`),
+  14 |       createFetchConfig('POST')
+  15 |     ); {
+  [cause]: [Error [HeadersTimeoutError]: Headers Timeout Error] {
+    code: 'UND_ERR_HEADERS_TIMEOUT'
+  }
+}
+ POST /api/strategies/1/execute 500 in 301479ms
+ GET /api/sync/status 200 in 942ms
+🎯 StockMarketRefactored 组件正在渲染... [v2.0]
+🔍 StockPool: 接收到的stocks数据: []
+🔍 StockPool: stocks数量: 0
+ GET / 200 in 383ms
+ ✓ Compiled /api/concepts/init-sample-data in 322ms (531 modules)
+ ✓ Compiled (533 modules)
+ GET /favicon.ico 200 in 463ms
+ GET /api/concepts 200 in 932ms
+ POST /api/concepts/init-sample-data 200 in 933ms
+ ✓ Compiled /api/strategies in 142ms (535 modules)
+ GET /api/stocks 200 in 348ms
+ GET /api/strategies 200 in 347ms
+ GET /api/sync/status 200 in 362ms
+ GET /api/sync/status 200 in 148ms
+ GET /api/sync/status 200 in 195ms
+ GET /api/sync/status 200 in 170ms
+ GET /api/sync/status 200 in 219ms
+ GET /api/sync/status 200 in 263ms
+ GET /api/sync/status 200 in 414ms
+ GET /api/sync/status 200 in 361ms
+ GET /api/sync/status 200 in 180ms
+ GET /api/sync/status 200 in 144ms
+ GET /api/sync/status 200 in 151ms
+ GET /api/sync/status 200 in 180ms
+ GET /api/sync/status 200 in 203ms
+ GET /api/sync/status 200 in 632ms
+ GET /api/sync/status 200 in 336ms
+ GET /api/sync/status 200 in 186ms
+ GET /api/concepts 200 in 127ms
+ GET /api/stocks 200 in 210ms
+ GET /api/stocks 200 in 104ms
+ GET /api/concepts 200 in 120ms
+ GET /api/stocks 200 in 200ms
+ GET /api/stocks 200 in 107ms
+ ✓ Compiled /_not-found in 419ms (967 modules)
+ GET /api/data/database/stocks 404 in 582ms
+ GET /api/data/database/overview 404 in 589ms
+ GET /api/data/database/quality 404 in 584ms
+ GET /api/data/database/overview 404 in 41ms
+ GET /api/data/database/stocks 404 in 42ms
+ GET /api/data/database/quality 404 in 41ms
+ ✓ Compiled /api/sync/status in 239ms (530 modules)
+ GET /api/sync/status 200 in 699ms
+ GET /api/sync/status 200 in 436ms
+ ✓ Compiled /api/strategies in 162ms (532 modules)
+ GET /api/stocks 200 in 514ms
+ GET /api/strategies 200 in 510ms
+ GET /api/sync/status 200 in 1021ms
+ GET /api/sync/status 200 in 200ms
+ GET /api/sync/status 200 in 366ms
+ GET /api/sync/status 200 in 256ms
+ GET /api/sync/status 200 in 492ms
+ GET /api/sync/status 200 in 748ms
+ GET /api/sync/status 200 in 321ms
+ GET /api/sync/status 200 in 284ms
+ GET /api/sync/status 200 in 390ms
+ GET /api/sync/status 200 in 231ms
+ GET /api/sync/status 200 in 261ms
+ GET /api/sync/status 200 in 334ms
+ GET /api/sync/status 200 in 292ms
+ GET /api/sync/status 200 in 479ms
+ GET /api/sync/status 200 in 304ms
+ GET /api/sync/status 200 in 382ms
+ GET /api/sync/status 200 in 319ms
+ GET /api/sync/status 200 in 226ms
+ GET /api/sync/status 200 in 214ms
+ GET /api/sync/status 200 in 209ms
+ GET /api/sync/status 200 in 216ms
+🎯 StockMarketRefactored 组件正在渲染... [v2.0]
+🔍 StockPool: 接收到的stocks数据: []
+🔍 StockPool: stocks数量: 0
+ GET / 200 in 317ms
+ ✓ Compiled /api/concepts/init-sample-data in 276ms (527 modules)
+ ✓ Compiled (531 modules)
+ GET /favicon.ico 200 in 429ms
+ POST /api/concepts/init-sample-data 200 in 857ms
+ GET /api/concepts 200 in 936ms
+ ✓ Compiled /api/strategies in 69ms (533 modules)
+ ✓ Compiled (535 modules)
+ GET /api/strategies 200 in 155ms
+ GET /api/stocks 200 in 281ms
+ GET /api/sync/status 200 in 517ms
+ GET /api/sync/status 200 in 282ms
+ GET /api/sync/status 200 in 311ms
+ ✓ Compiled /_not-found in 324ms (975 modules)
+ GET /.well-known/appspecific/com.chrome.devtools.json 404 in 380ms
+ GET /api/sync/status 200 in 345ms
+ GET /api/sync/status 200 in 356ms
+ GET /api/sync/status 200 in 263ms
+ GET /api/sync/status 200 in 399ms
+ GET /api/sync/status 200 in 312ms
+ GET /api/sync/status 200 in 393ms
+ GET /api/sync/status 200 in 345ms
+ GET /api/sync/status 200 in 340ms
+ GET /api/sync/status 200 in 477ms
+ GET /api/sync/status 200 in 405ms
+ GET /api/sync/status 200 in 369ms
+ GET /api/sync/status 200 in 339ms
+ GET /api/sync/status 200 in 275ms
+ GET /api/sync/status 200 in 251ms
+ GET /api/sync/status 200 in 374ms
+ GET /api/sync/status 200 in 255ms
+ GET /api/sync/status 200 in 285ms
+ GET /api/sync/status 200 in 552ms
+ GET /api/sync/status 200 in 716ms
+ ✓ Compiled in 993ms (961 modules)
+ ✓ Compiled in 243ms (951 modules)
+ GET /api/sync/status 200 in 269ms
+ GET /api/sync/status 200 in 250ms
+ ✓ Compiled in 303ms (951 modules)
+ ✓ Compiled in 289ms (951 modules)
+ GET /api/sync/status 200 in 518ms
+ GET /api/sync/status 200 in 349ms
+ GET /api/sync/status 200 in 373ms

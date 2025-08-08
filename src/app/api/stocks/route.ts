@@ -4,9 +4,16 @@ import { getBackendApiUrl, createFetchConfig } from '../../../config/api';
 
 export async function GET(request: NextRequest) {
   try {
+    const { searchParams } = new URL(request.url);
+    const page = searchParams.get('page') || '1';
+    const pageSize = searchParams.get('pageSize') || '20';
+    const conceptId = searchParams.get('concept_id');
+
+    const query = new URLSearchParams({ page, page_size: pageSize });
+    if (conceptId) query.set('concept_id', conceptId);
+
     const response = await fetch(
-      // 后端FastAPI路由为 /api/v1/stocks/（需要末尾斜杠）
-      getBackendApiUrl('stocks/'),
+      getBackendApiUrl(`stocks/?${query.toString()}`),
       createFetchConfig('GET')
     );
 

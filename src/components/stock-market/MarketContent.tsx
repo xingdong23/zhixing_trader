@@ -13,7 +13,7 @@ import { WatchlistImporter } from '../WatchlistImporter';
 import { ConceptManager } from '../ConceptManager';
 import { SelectionStrategies } from '../SelectionStrategies';
 import DataSyncManager from '../DataSyncManager';
-import DatabaseAdmin from '../DatabaseAdmin';
+// 已移除数据库管理模块
 
 // 类型定义
 export interface MarketContentProps {
@@ -116,7 +116,7 @@ function EmptyState({ tabId }: { tabId: MarketTabId }) {
     concepts: '暂无概念数据',
     strategies: '暂无选股策略',
     sync: '数据同步准备就绪',
-    database: '数据库管理准备就绪'
+    // database: '数据库管理准备就绪'
   };
 
   return (
@@ -228,12 +228,7 @@ export function MarketContent({
           </TabErrorBoundary>
         );
 
-      case 'database':
-        return (
-          <TabErrorBoundary tabId="database">
-            <DatabaseAdmin />
-          </TabErrorBoundary>
-        );
+      
 
       default:
         return <EmptyState tabId={currentTab} />;
@@ -299,8 +294,7 @@ export const TAB_DISPLAY_NAMES = {
   import: '导入自选股',
   concepts: '概念管理',
   strategies: '选股策略',
-  sync: '数据同步',
-  database: '数据库管理'
+  sync: '数据同步'
 } as const;
 
 export const TAB_DESCRIPTIONS = {
@@ -308,6 +302,5 @@ export const TAB_DESCRIPTIONS = {
   import: '从外部平台导入自选股列表，支持多种格式',
   concepts: '管理股票概念和分类标签，建立股票与概念的关联',
   strategies: '创建和管理选股策略，执行策略并查看结果',
-  sync: '同步股票数据和价格信息，保持数据最新',
-  database: '管理数据库和数据质量，监控系统状态'
+  sync: '同步股票数据和价格信息，保持数据最新'
 } as const;

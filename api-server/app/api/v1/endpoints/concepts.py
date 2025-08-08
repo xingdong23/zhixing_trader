@@ -3,7 +3,7 @@
 """
 from typing import Dict, Any, List
 from datetime import datetime
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, HTTPException, Depends, Query
 from loguru import logger
 from ....database import db_service
 from ....models import ConceptDB, ConceptStockRelationDB, StockDB
@@ -15,12 +15,21 @@ sample_concepts = []
 
 
 @router.get("/")
-async def get_concepts() -> Dict[str, Any]:
-    """获取所有概念"""
+async def get_concepts(
+    page: int = Query(1, ge=1),
+    page_size: int = Query(20, ge=1, le=200)
+) -> Dict[str, Any]:
+    """获取概念列表（分页）"""
     try:
         # 从数据库获取真实概念数据
         with db_service.get_session() as session:
-            concept_dbs = session.query(ConceptDB).filter(ConceptDB.is_active == True).all()
+            base_query = session.query(ConceptDB).filter(ConceptDB.is_active == True)
+            total = base_query.count()
+            concept_dbs = (base_query
+                           .order_by(ConceptDB.updated_at.desc())
+                           .offset((page - 1) * page_size)
+                           .limit(page_size)
+                           .all())
 
             concepts = []
             for concept_db in concept_dbs:
@@ -62,7 +71,10 @@ async def get_concepts() -> Dict[str, Any]:
             "success": True,
             "data": {
                 "concepts": concepts,
-                "total": len(concepts)
+                "total": total,
+                "page": page,
+                "pageSize": page_size,
+                "totalPages": (total + page_size - 1) // page_size
             },
             "message": "获取概念列表成功"
         }

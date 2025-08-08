@@ -4,9 +4,11 @@ import { getBackendApiUrl, createFetchConfig } from '../../../config/api';
 
 export async function GET(request: NextRequest) {
   try {
+    const { searchParams } = new URL(request.url);
+    const page = searchParams.get('page') || '1';
+    const pageSize = searchParams.get('pageSize') || '20';
     const response = await fetch(
-      // 后端FastAPI路由为 /api/v1/concepts/（需要末尾斜杠）
-      getBackendApiUrl('concepts/'),
+      getBackendApiUrl(`concepts/?page=${page}&page_size=${pageSize}`),
       createFetchConfig('GET')
     );
 

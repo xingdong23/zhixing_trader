@@ -1,8 +1,8 @@
 """
 股票API端点
 """
-from fastapi import APIRouter, HTTPException, Depends
-from typing import List, Dict, Any
+from fastapi import APIRouter, HTTPException, Depends, Query
+from typing import List, Dict, Any, Optional
 from loguru import logger
 
 from ....core.container import container
@@ -20,56 +20,90 @@ def get_stock_repository() -> StockRepository:
 
 @router.get("/")
 async def get_all_stocks(
-    stock_repository: StockRepository = Depends(get_stock_repository)
+    stock_repository: StockRepository = Depends(get_stock_repository),
+    page: int = Query(1, ge=1),
+    page_size: int = Query(20, ge=1, le=200),
+    concept_id: Optional[str] = Query(None, description="按概念过滤，支持概念表主键或concept_id")
 ) -> Dict[str, Any]:
-    """获取所有股票"""
+    """获取股票列表（支持分页与概念筛选）"""
     try:
-        import json
-        stocks = await stock_repository.get_all_stocks()
+        with db_service.get_session() as session:
+            query = session.query(StockDB).filter(StockDB.is_active == True)
 
-        stock_list = []
-        for stock in stocks:
-            stock_data = {
-                "id": stock.id,
-                "symbol": stock.code,
-                "name": stock.name,
-                "market": stock.market,
-                "group_id": stock.group_id,
-                "group_name": stock.group_name,
-                "lot_size": stock.lot_size,
-                "sec_type": stock.sec_type,
-                "is_active": stock.is_active,
-                "added_at": stock.added_at.isoformat() if stock.added_at else None,
-                "updated_at": stock.updated_at.isoformat() if stock.updated_at else None
-            }
+            # 概念筛选（兼容 id 与 concept_id）
+            if concept_id:
+                # 规范为 concept_id
+                target_cid = None
+                # 尝试按 concept_id
+                c = session.query(ConceptDB).filter(ConceptDB.concept_id == str(concept_id)).first()
+                if c:
+                    target_cid = c.concept_id
+                else:
+                    # 尝试按主键
+                    try:
+                        cid_int = int(str(concept_id))
+                        c2 = session.query(ConceptDB).filter(ConceptDB.id == cid_int).first()
+                        if c2:
+                            target_cid = c2.concept_id
+                    except Exception:
+                        pass
 
-            # 概念信息从关联表获取，不再使用 fundamental_tags 字段
-            # 返回给前端一个 concept_ids 数组以便展示与筛选
-            try:
-                with db_service.get_session() as session:
+                if target_cid:
+                    rel_symbols = [rel.stock_code for rel in session.query(ConceptStockRelationDB).filter(
+                        ConceptStockRelationDB.concept_id == target_cid
+                    ).all()]
+                    if rel_symbols:
+                        query = query.filter(StockDB.code.in_(rel_symbols))
+                    else:
+                        return {"success": True, "data": {"stocks": [], "total": 0, "page": page, "pageSize": page_size, "totalPages": 0}}
+
+            total = query.count()
+            items = (query
+                     .order_by(StockDB.updated_at.desc())
+                     .offset((page - 1) * page_size)
+                     .limit(page_size)
+                     .all())
+
+            stock_list: List[Dict[str, Any]] = []
+            for stock in items:
+                stock_data = {
+                    "id": stock.id,
+                    "symbol": stock.code,
+                    "name": stock.name,
+                    "market": stock.market,
+                    "group_id": stock.group_id,
+                    "group_name": stock.group_name,
+                    "lot_size": stock.lot_size,
+                    "sec_type": stock.sec_type,
+                    "is_active": stock.is_active,
+                    "added_at": stock.added_at.isoformat() if stock.added_at else None,
+                    "updated_at": stock.updated_at.isoformat() if stock.updated_at else None
+                }
+
+                try:
                     relations = session.query(ConceptStockRelationDB).filter(
                         ConceptStockRelationDB.stock_code == stock.code
                     ).all()
-                    concept_ids = [rel.concept_id for rel in relations]
-                    stock_data["concept_ids"] = concept_ids
-            except Exception:
-                stock_data["concept_ids"] = []
+                    stock_data["concept_ids"] = [rel.concept_id for rel in relations]
+                except Exception:
+                    stock_data["concept_ids"] = []
 
-            stock_data["market_cap"] = stock.market_cap
-            stock_data["watch_level"] = stock.watch_level
-            stock_data["notes"] = stock.notes
+                stock_data["market_cap"] = stock.market_cap
+                stock_data["watch_level"] = stock.watch_level
+                stock_data["notes"] = stock.notes
+                stock_list.append(stock_data)
 
-            stock_list.append(stock_data)
-
-        return {
-            "success": True,
-            "data": {
-                "stocks": stock_list,
-                "total": len(stock_list)
-            },
-            "message": "获取股票列表成功"
-        }
-        
+            return {
+                "success": True,
+                "data": {
+                    "stocks": stock_list,
+                    "total": total,
+                    "page": page,
+                    "pageSize": page_size,
+                    "totalPages": (total + page_size - 1) // page_size
+                },
+                "message": "获取股票列表成功"
+            }
     except Exception as e:
         logger.error(f"获取股票列表失败: {e}")
         raise HTTPException(status_code=500, detail="获取股票列表失败")
