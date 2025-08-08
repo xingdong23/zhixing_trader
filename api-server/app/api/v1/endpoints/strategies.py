@@ -89,8 +89,8 @@ async def execute_strategy(strategy_id: int, strategy_service: StrategyService =
         }
 
     except Exception as e:
-        logger.error(f"执行策略失败: {e}")
-        raise HTTPException(status_code=500, detail="执行策略失败")
+        logger.exception(f"执行策略失败: {e}")
+        raise HTTPException(status_code=500, detail=f"执行策略失败: {str(e)}")
 
 
 @router.post("/{strategy_id}/execute-async")
@@ -100,8 +100,8 @@ async def execute_strategy_async(strategy_id: int, strategy_service: StrategySer
         task_id = await strategy_service.execute_strategy_async(strategy_id)
         return { "success": True, "data": { "task_id": task_id }, "message": "任务已启动" }
     except Exception as e:
-        logger.error(f"异步执行策略失败: {e}")
-        raise HTTPException(status_code=500, detail="异步执行策略失败")
+        logger.exception(f"异步执行策略失败: {e}")
+        raise HTTPException(status_code=500, detail=f"异步执行策略失败: {str(e)}")
 
 
 @router.get("/exec/status")

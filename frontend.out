@@ -629,3 +629,32 @@
  POST /api/strategies/1/execute 500 in 517ms
  GET / 200 in 283ms
  ✓ Compiled in 198ms (501 modules)
+🎯 StockMarketRefactored 组件正在渲染... [v2.0]
+🔍 StockPool: 接收到的stocks数据: []
+🔍 StockPool: stocks数量: 0
+ GET / 200 in 282ms
+ ○ Compiling /_not-found ...
+ ✓ Compiled /_not-found in 666ms (936 modules)
+ GET /.well-known/appspecific/com.chrome.devtools.json 404 in 722ms
+ ✓ Compiled /api/concepts in 163ms (518 modules)
+ ✓ Compiled (525 modules)
+ GET /favicon.ico 200 in 420ms
+ POST /api/concepts/init-sample-data 200 in 423ms
+ GET /api/concepts 200 in 665ms
+ ✓ Compiled /api/stocks in 410ms (527 modules)
+ ✓ Compiled (529 modules)
+ GET /api/strategies 200 in 526ms
+ GET /api/stocks?page=1&pageSize=20 200 in 533ms
+ ✓ Compiled /api/strategies/[id]/execute in 261ms (531 modules)
+执行策略失败: Error: 后端API请求失败: 500
+    at POST (src/app/api/strategies/[id]/execute/route.ts:16:12)
+  14 |
+  15 |     if (!response.ok) {
+> 16 |       throw new Error(`后端API请求失败: ${response.status}`);
+     |            ^
+  17 |     }
+  18 |
+  19 |     const data = await response.json();
+ POST /api/strategies/1/execute 500 in 405ms
+ GET / 200 in 208ms
+[?25h
