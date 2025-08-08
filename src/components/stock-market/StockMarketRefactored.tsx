@@ -167,9 +167,9 @@ export function StockMarketRefactored({
         onDeleteStock={actions.deleteStock}
         onSelectStock={onCreateTradingPlan}
         onViewStockDetail={handleViewStockDetail}
-        onCreateStrategy={actions.createStrategy}
-        onUpdateStrategy={actions.updateStrategy}
-        onDeleteStrategy={actions.deleteStrategy}
+          onCreateStrategy={() => { /* 禁用创建 */ }}
+          onUpdateStrategy={() => { /* 禁用更新 */ }}
+          onDeleteStrategy={() => { /* 禁用删除 */ }}
         onRunStrategy={actions.runStrategy}
         onImportComplete={handleImportComplete}
         onConceptSelect={handleConceptSelect}

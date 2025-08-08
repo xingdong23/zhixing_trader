@@ -56,41 +56,7 @@ async def get_strategies() -> Dict[str, Any]:
         raise HTTPException(status_code=500, detail="获取策略列表失败")
 
 
-@router.post("/")
-async def create_strategy(payload: Dict[str, Any]) -> Dict[str, Any]:
-    """创建策略（保存到 strategies 表）。不写入任何 demo 数据。"""
-    try:
-        from ....database import db_service
-        required = ["name", "category", "impl_type", "timeframe"]
-        for key in required:
-            if key not in payload:
-                raise HTTPException(status_code=400, detail=f"缺少必要字段: {key}")
-
-        import json
-        strategy_data = {
-            "name": payload["name"],
-            "description": payload.get("description", ""),
-            "category": payload["category"],
-            "impl_type": payload["impl_type"],
-            "configuration": json.dumps(payload.get("configuration", {}), ensure_ascii=False),
-            "timeframe": payload["timeframe"],
-            "enabled": bool(payload.get("enabled", True)),
-            "is_system_default": False,
-        }
-        new_id = db_service.create_strategy(strategy_data)
-        if not new_id:
-            raise HTTPException(status_code=500, detail="创建策略失败")
-
-        return {
-            "success": True,
-            "data": {"id": new_id},
-            "message": "策略创建成功"
-        }
-    except HTTPException:
-        raise
-    except Exception as e:
-        logger.error(f"创建策略失败: {e}")
-        raise HTTPException(status_code=500, detail="创建策略失败")
+## 禁用通过接口创建策略，策略需在代码与数据库中定义
 
 
 @router.post("/{strategy_id}/execute")

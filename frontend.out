@@ -47,3 +47,28 @@
  POST /api/concepts/init-sample-data 200 in 86ms
  GET /api/stocks 200 in 23ms
  ✓ Compiled in 1644ms (948 modules)
+🎯 StockMarketRefactored 组件正在渲染... [v2.0]
+🔍 StockPool: 接收到的stocks数据: []
+🔍 StockPool: stocks数量: 0
+ GET / 200 in 554ms
+ ✓ Compiled /api/concepts/init-sample-data in 319ms (528 modules)
+ ✓ Compiled /favicon.ico in 0ms (530 modules)
+ ✓ Compiled in 1ms (532 modules)
+ ✓ Compiled in 0ms (532 modules)
+ ✓ Compiled in 0ms (532 modules)
+ GET /api/concepts 200 in 1016ms
+ POST /api/concepts/init-sample-data 200 in 1031ms
+ ✓ Compiled /api/stocks in 0ms (532 modules)
+ GET /favicon.ico 200 in 811ms
+ ✓ Compiled (534 modules)
+ GET /api/stocks 200 in 287ms
+ ✓ Compiled /_not-found in 489ms (977 modules)
+ GET /.well-known/appspecific/com.chrome.devtools.json 404 in 583ms
+ GET /api/stocks 200 in 90ms
+ GET /api/stocks 200 in 75ms
+ ✓ Compiled /api/sync/status in 206ms (537 modules)
+ GET /api/sync/status 200 in 275ms
+ GET /api/sync/status 200 in 294ms
+ ✓ Compiled in 686ms (948 modules)
+ ✓ Compiled in 284ms (948 modules)
+ ✓ Compiled in 165ms (948 modules)

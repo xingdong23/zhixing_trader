@@ -213,9 +213,9 @@ export function MarketContent({
             <SelectionStrategies
               strategies={strategies}
               stocks={stocks}
-              onCreateStrategy={onCreateStrategy}
-              onUpdateStrategy={onUpdateStrategy}
-              onDeleteStrategy={onDeleteStrategy}
+              onCreateStrategy={() => { /* 禁用创建 */ }}
+              onUpdateStrategy={() => { /* 禁用更新 */ }}
+              onDeleteStrategy={() => { /* 禁用删除 */ }}
               onRunStrategy={onRunStrategy}
             />
           </TabErrorBoundary>

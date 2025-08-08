@@ -111,9 +111,8 @@ export function SelectionStrategies({
     onUpdateStrategy(strategy.id, { isActive: !strategy.isActive });
   };
 
-  const handleEditStrategy = (strategy: StockSelectionStrategy) => {
-    setEditingStrategy(strategy);
-    setShowCreateForm(true);
+  const handleEditStrategy = (_strategy: StockSelectionStrategy) => {
+    // 编辑入口关闭（策略定义在代码，配置在DB）
   };
 
   const handleCopyStrategy = (strategy: StockSelectionStrategy) => {
@@ -152,13 +151,7 @@ export function SelectionStrategies({
           <p className="text-gray-600 mt-2">管理和运行您的选股策略，发现投资机会</p>
         </div>
         <div className="flex space-x-3">
-          <button
-            onClick={() => setShowCreateForm(true)}
-            className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-          >
-            <Plus className="w-4 h-4 mr-2" />
-            创建策略
-          </button>
+          {/* 创建入口关闭 */}
         </div>
       </div>
 
@@ -274,12 +267,6 @@ export function SelectionStrategies({
             <CardContent className="p-12 text-center">
               <Filter className="w-12 h-12 text-gray-400 mx-auto mb-4" />
               <p className="text-gray-500 mb-2">暂无匹配的策略</p>
-              <button
-                onClick={() => setShowCreateForm(true)}
-                className="text-blue-600 hover:text-blue-700"
-              >
-                创建第一个策略
-              </button>
             </CardContent>
           </Card>
         ) : (
@@ -408,31 +395,7 @@ function StrategyCard({
             {isRunning ? '运行中...' : '运行策略'}
           </button>
 
-          <div className="flex space-x-1">
-            <button
-              onClick={onEdit}
-              className="p-1 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors"
-              title="编辑"
-            >
-              <Edit3 className="w-4 h-4" />
-            </button>
-            <button
-              onClick={onCopy}
-              className="p-1 text-gray-600 hover:text-green-600 hover:bg-green-50 rounded transition-colors"
-              title="复制"
-            >
-              <Copy className="w-4 h-4" />
-            </button>
-            {!strategy.isSystemDefault && (
-              <button
-                onClick={onDelete}
-                className="p-1 text-gray-600 hover:text-red-600 hover:bg-red-50 rounded transition-colors"
-                title="删除"
-              >
-                <Trash2 className="w-4 h-4" />
-              </button>
-            )}
-          </div>
+          {/* 编辑/复制/删除入口关闭 */}
         </div>
       </div>
 

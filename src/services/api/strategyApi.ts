@@ -35,35 +35,36 @@ export class StrategyApiService extends BaseApiClient {
    * 创建新策略
    */
   async createStrategy(strategy: Partial<SelectionStrategy>): Promise<ApiResponse<SelectionStrategy>> {
-    return this.post<SelectionStrategy>('/api/strategies', strategy);
+    // 创建入口禁用
+    throw new Error('创建策略已禁用：策略需在代码与数据库中定义');
   }
   
   /**
    * 更新策略
    */
   async updateStrategy(id: string, updates: Partial<SelectionStrategy>): Promise<ApiResponse<SelectionStrategy>> {
-    return this.put<SelectionStrategy>(`/api/strategies/${id}`, updates);
+    throw new Error('更新策略已禁用：策略需在代码与数据库中定义');
   }
   
   /**
    * 删除策略
    */
   async deleteStrategy(id: string): Promise<ApiResponse<void>> {
-    return this.delete<void>(`/api/strategies/${id}`);
+    throw new Error('删除策略已禁用');
   }
   
   /**
    * 启用/禁用策略
    */
   async toggleStrategy(id: string, isActive: boolean): Promise<ApiResponse<SelectionStrategy>> {
-    return this.put<SelectionStrategy>(`/api/strategies/${id}/toggle`, { isActive });
+    throw new Error('启用/禁用策略请通过数据库字段 enabled 管理');
   }
   
   /**
    * 复制策略
    */
   async cloneStrategy(id: string, newName: string): Promise<ApiResponse<SelectionStrategy>> {
-    return this.post<SelectionStrategy>(`/api/strategies/${id}/clone`, { name: newName });
+    throw new Error('复制策略已禁用');
   }
   
   // ==================== 策略执行 ====================

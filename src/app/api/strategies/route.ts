@@ -28,28 +28,4 @@ export async function GET(request: NextRequest) {
   }
 }
 
-export async function POST(request: NextRequest) {
-  try {
-    const body = await request.json();
-    const response = await fetch(
-      getBackendApiUrl('strategies/'),
-      createFetchConfig('POST', body)
-    );
-
-    if (!response.ok) {
-      throw new Error(`后端API请求失败: ${response.status}`);
-    }
-
-    const data = await response.json();
-    return NextResponse.json(data);
-  } catch (error) {
-    console.error('创建策略失败:', error);
-    return NextResponse.json(
-      { 
-        success: false, 
-        error: error instanceof Error ? error.message : '未知错误'
-      },
-      { status: 500 }
-    );
-  }
-}
+// 禁用通过前端创建策略
