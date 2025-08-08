@@ -6,7 +6,7 @@
 import React, { useState, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui';
 import { StockSelectionStrategy, Stock, StockSelectionResult } from '@/types';
-import { StrategyForm } from './StrategyForm';
+// 创建/编辑功能已移除
 import {
   Target,
   TrendingUp,
@@ -44,8 +44,7 @@ export function SelectionStrategies({
 }: SelectionStrategiesProps) {
   const [selectedCategory, setSelectedCategory] = useState<string>('');
   const [searchTerm, setSearchTerm] = useState('');
-  const [showCreateForm, setShowCreateForm] = useState(false);
-  const [editingStrategy, setEditingStrategy] = useState<StockSelectionStrategy | null>(null);
+  // 创建/编辑已禁用
   const [runningStrategy, setRunningStrategy] = useState<string | null>(null);
   const [strategyResults, setStrategyResults] = useState<Record<string, StockSelectionResult[]>>({});
 
@@ -111,36 +110,13 @@ export function SelectionStrategies({
     onUpdateStrategy(strategy.id, { isActive: !strategy.isActive });
   };
 
-  const handleEditStrategy = (_strategy: StockSelectionStrategy) => {
-    // 编辑入口关闭（策略定义在代码，配置在DB）
-  };
+  const handleEditStrategy = (_strategy: StockSelectionStrategy) => {};
 
-  const handleCopyStrategy = (strategy: StockSelectionStrategy) => {
-    const copy = {
-      ...strategy,
-      name: `${strategy.name} (副本)`,
-      isSystemDefault: false
-    };
-    delete (copy as any).id;
-    delete (copy as any).createdAt;
-    delete (copy as any).updatedAt;
-    onCreateStrategy(copy);
-  };
+  const handleCopyStrategy = (_strategy: StockSelectionStrategy) => {};
 
-  const handleSaveStrategy = (strategyData: Omit<StockSelectionStrategy, 'id' | 'createdAt' | 'updatedAt'>) => {
-    if (editingStrategy) {
-      onUpdateStrategy(editingStrategy.id, strategyData);
-    } else {
-      onCreateStrategy(strategyData);
-    }
-    setShowCreateForm(false);
-    setEditingStrategy(null);
-  };
+  const handleSaveStrategy = (_strategyData: Omit<StockSelectionStrategy, 'id' | 'createdAt' | 'updatedAt'>) => {};
 
-  const handleCancelForm = () => {
-    setShowCreateForm(false);
-    setEditingStrategy(null);
-  };
+  const handleCancelForm = () => {};
 
   return (
     <div className="max-w-7xl mx-auto p-6 space-y-6">
@@ -150,9 +126,7 @@ export function SelectionStrategies({
           <h1 className="text-3xl font-bold text-gray-900">选股策略</h1>
           <p className="text-gray-600 mt-2">管理和运行您的选股策略，发现投资机会</p>
         </div>
-        <div className="flex space-x-3">
-          {/* 创建入口关闭 */}
-        </div>
+        <div className="flex space-x-3" />
       </div>
 
       {/* 统计卡片 */}
@@ -305,14 +279,7 @@ export function SelectionStrategies({
         )}
       </div>
 
-      {/* 策略表单弹窗 */}
-      {showCreateForm && (
-        <StrategyForm
-          strategy={editingStrategy || undefined}
-          onSave={handleSaveStrategy}
-          onCancel={handleCancelForm}
-        />
-      )}
+      {/* 创建/编辑已禁用 */}
     </div>
   );
 }

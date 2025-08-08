@@ -46,24 +46,7 @@ export class StrategyBusinessService {
    * 创建策略（带验证和默认值）
    */
   async createStrategy(strategyData: Partial<SelectionStrategy>): Promise<SelectionStrategy> {
-    // 验证策略数据
-    this.validateStrategyData(strategyData);
-    
-    // 设置默认值
-    const completeStrategyData = this.setStrategyDefaults(strategyData);
-    
-    try {
-      const response = await strategyApi.createStrategy(completeStrategyData);
-      
-      if (!response.success) {
-        throw new Error(response.error || ERROR_MESSAGES.CREATE_STRATEGY_FAILED);
-      }
-      
-      return response.data!;
-    } catch (error) {
-      console.error('创建策略失败:', error);
-      throw error;
-    }
+    throw new Error('前端已禁用创建策略');
   }
   
   /**

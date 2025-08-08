@@ -152,10 +152,57 @@ export function useMarketData(): UseMarketDataResult {
     }
   }, []);
 
+  // 从后端获取策略列表
+  const fetchStrategies = useCallback(async () => {
+    setState(prev => ({ ...prev, isLoading: true, error: null }));
+    try {
+      const response = await apiGet(API_ENDPOINTS.STRATEGIES);
+      if (!response.ok) {
+        throw new Error(`API请求失败: ${response.status}`);
+      }
+      const result = await response.json();
+      // 兼容后端统一响应格式 { success, data }
+      const rawList = Array.isArray(result) ? result : (result.data || result.strategies || []);
+      const normalized: StockSelectionStrategy[] = (rawList || []).map((s: any) => ({
+        id: String(s.id),
+        name: s.name,
+        description: s.description || '',
+        category: s.category || 'indicator',
+        conditions: { technical: [], fundamental: [], price: [] },
+        parameters: {
+          timeframe: s.timeframe || '1d',
+          volumeThreshold: 0,
+          priceChangeThreshold: 0,
+          stabilizationHours: s.configuration?.parameters?.stabilization_hours,
+          emaLength: s.configuration?.parameters?.ema_period,
+          tolerancePercent: s.configuration?.parameters?.pullback_tolerance,
+        },
+        isActive: Boolean(s.enabled),
+        isSystemDefault: Boolean(s.is_system_default),
+        createdAt: new Date(s.created_at || Date.now()),
+        updatedAt: new Date(s.updated_at || Date.now()),
+      }));
+
+      setState(prev => ({
+        ...prev,
+        strategies: normalized,
+        isLoading: false,
+        lastUpdated: new Date(),
+        error: null,
+      }));
+    } catch (error) {
+      console.error('❌ 获取策略数据失败:', error);
+      setState(prev => ({
+        ...prev,
+        isLoading: false,
+        error: error instanceof Error ? error.message : '获取策略数据失败',
+      }));
+    }
+  }, []);
+
   // 添加股票
-  const addStock = useCallback(async (stockData: Omit<Stock, 'id' | 'addedAt' | 'updatedAt'>) => {
-    console.warn('本地存储功能已废弃，添加股票功能需要通过API实现');
-    // TODO: 实现通过API添加股票的功能
+  const addStock = useCallback(async (_stockData: Omit<Stock, 'id' | 'addedAt' | 'updatedAt'>) => {
+    console.warn('添加股票功能请使用后端API，前端本地存储已废弃');
   }, []);
 
   // 更新股票
@@ -189,9 +236,8 @@ export function useMarketData(): UseMarketDataResult {
   }, [state.stocks, fetchStocks]);
 
   // 删除股票
-  const deleteStock = useCallback(async (id: string) => {
-    console.warn('本地存储功能已废弃，删除股票功能需要通过API实现');
-    // TODO: 实现通过API删除股票的功能
+  const deleteStock = useCallback(async (_id: string) => {
+    console.warn('删除股票功能请使用后端API，前端本地存储已废弃');
   }, []);
 
   // 创建策略
@@ -232,8 +278,7 @@ export function useMarketData(): UseMarketDataResult {
   // 运行策略
   const runStrategy = useCallback(async (strategyId: string) => {
     try {
-      const numericId = strategyId.includes('ema55_strategy') ? 1 :
-                       strategyId.includes('strategy_') ? parseInt(strategyId.split('_').pop() || '1') : 1;
+      const numericId = parseInt(strategyId, 10) || 1;
 
       const response = await apiPost(API_ENDPOINTS.STRATEGY_EXECUTE(numericId.toString()));
 
@@ -269,8 +314,11 @@ export function useMarketData(): UseMarketDataResult {
 
   // 刷新数据
   const refreshData = useCallback(async () => {
-    await fetchStocks();
-  }, [fetchStocks]);
+    await Promise.all([
+      fetchStocks(),
+      fetchStrategies(),
+    ]);
+  }, [fetchStocks, fetchStrategies]);
 
   // 初始化数据
   const initializeData = useCallback(async () => {
@@ -280,7 +328,10 @@ export function useMarketData(): UseMarketDataResult {
     
     try {
       await initDatabaseConcepts();
-      await fetchStocks();
+      await Promise.all([
+        fetchStocks(),
+        fetchStrategies(),
+      ]);
       
       setState(prev => ({
         ...prev,
@@ -297,7 +348,7 @@ export function useMarketData(): UseMarketDataResult {
         error: error instanceof Error ? error.message : '数据初始化失败'
       }));
     }
-  }, [state.isInitialized, initDatabaseConcepts, fetchStocks]);
+  }, [state.isInitialized, initDatabaseConcepts, fetchStocks, fetchStrategies]);
 
   // 清除错误
   const clearError = useCallback(() => {
@@ -315,6 +366,7 @@ export function useMarketData(): UseMarketDataResult {
     state,
     actions: {
       fetchStocks,
+      fetchStrategies,
       addStock,
       updateStock,
       deleteStock,
