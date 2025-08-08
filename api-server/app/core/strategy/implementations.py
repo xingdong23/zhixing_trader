@@ -13,8 +13,9 @@ from ..analysis.technical_analyzer import TechnicalAnalyzer
 class BaseStrategy(IStrategy):
     """策略基类"""
     
-    def __init__(self, config: Dict[str, Any]):
+    def __init__(self, config: Dict[str, Any], strategy_id: int | None = None):
         self.config = config
+        self.strategy_id = strategy_id
         self.analyzer = TechnicalAnalyzer()
     
     def validate_config(self, config: Dict[str, Any]) -> bool:
@@ -84,7 +85,7 @@ class EMA55PullbackStrategy(BaseStrategy):
                     current_price = daily_data[-1].close if daily_data else 0
                     
                     result = SelectionResult(
-                        strategy_id=1,  # 简化实现
+                        strategy_id=self.strategy_id or 0,
                         stock_symbol=symbol,
                         execution_time=execution_time,
                         score=analysis_result.score,

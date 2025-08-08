@@ -83,6 +83,8 @@ class StrategyDB(Base):
     name = Column(String(100), nullable=False)
     description = Column(Text)
     category = Column(String(50), nullable=False)  # pattern, pullback, breakthrough
+    # 策略实现类型（由后端代码实现类在工厂中映射，例如 'ema55_pullback'）
+    impl_type = Column(String(100), nullable=False)
     configuration = Column(Text)  # JSON格式的策略配置
     timeframe = Column(String(10), nullable=False)  # 1d, 1h, 15m
     enabled = Column(Boolean, default=True)
@@ -539,6 +541,7 @@ class StrategyCreate(BaseModel):
     name: str
     description: str
     category: str
+    impl_type: str
     configuration: Dict[str, Any] = {}
     timeframe: str = "1d"
     enabled: bool = True
@@ -549,6 +552,7 @@ class StrategyUpdate(BaseModel):
     name: Optional[str] = None
     description: Optional[str] = None
     category: Optional[str] = None
+    impl_type: Optional[str] = None
     configuration: Optional[Dict[str, Any]] = None
     timeframe: Optional[str] = None
     enabled: Optional[bool] = None
@@ -560,6 +564,7 @@ class StrategyResponse(BaseModel):
     name: str
     description: str
     category: str
+    impl_type: str
     configuration: Dict[str, Any]
     timeframe: str
     enabled: bool

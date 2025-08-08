@@ -18,25 +18,30 @@ def get_strategy_service() -> StrategyService:
 
 @router.get("/")
 async def get_strategies() -> Dict[str, Any]:
-    """获取所有可用策略"""
+    """从数据库返回策略列表（不含任何Demo/硬编码）"""
     try:
-        # 简化实现，返回硬编码的策略列表
-        strategies = [
-            {
-                "id": 1,
-                "name": "EMA55回踩企稳策略",
-                "description": "主升浪回踩EMA55不破，1小时级别企稳",
-                "category": "回调买入",
-                "is_active": True
-            },
-            {
-                "id": 2,
-                "name": "均线缠绕突破策略",
-                "description": "多条均线缠绕后向上突破，回踩不破均线",
-                "category": "形态策略",
-                "is_active": False
-            }
-        ]
+        from ....database import db_service
+        from ....models import StrategyDB
+        import json
+
+        records = db_service.get_all_strategies()
+        strategies = []
+        for s in records:
+            strategies.append({
+                "id": s.id,
+                "name": s.name,
+                "description": s.description,
+                "category": s.category,
+                "impl_type": s.impl_type,
+                "configuration": json.loads(s.configuration) if s.configuration else {},
+                "timeframe": s.timeframe,
+                "enabled": s.enabled,
+                "is_system_default": s.is_system_default,
+                "execution_count": s.execution_count,
+                "last_execution_time": s.last_execution_time.isoformat() if s.last_execution_time else None,
+                "created_at": s.created_at.isoformat() if s.created_at else None,
+                "updated_at": s.updated_at.isoformat() if s.updated_at else None,
+            })
 
         return {
             "success": True,
@@ -51,44 +56,70 @@ async def get_strategies() -> Dict[str, Any]:
         raise HTTPException(status_code=500, detail="获取策略列表失败")
 
 
+@router.post("/")
+async def create_strategy(payload: Dict[str, Any]) -> Dict[str, Any]:
+    """创建策略（保存到 strategies 表）。不写入任何 demo 数据。"""
+    try:
+        from ....database import db_service
+        required = ["name", "category", "impl_type", "timeframe"]
+        for key in required:
+            if key not in payload:
+                raise HTTPException(status_code=400, detail=f"缺少必要字段: {key}")
+
+        import json
+        strategy_data = {
+            "name": payload["name"],
+            "description": payload.get("description", ""),
+            "category": payload["category"],
+            "impl_type": payload["impl_type"],
+            "configuration": json.dumps(payload.get("configuration", {}), ensure_ascii=False),
+            "timeframe": payload["timeframe"],
+            "enabled": bool(payload.get("enabled", True)),
+            "is_system_default": False,
+        }
+        new_id = db_service.create_strategy(strategy_data)
+        if not new_id:
+            raise HTTPException(status_code=500, detail="创建策略失败")
+
+        return {
+            "success": True,
+            "data": {"id": new_id},
+            "message": "策略创建成功"
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"创建策略失败: {e}")
+        raise HTTPException(status_code=500, detail="创建策略失败")
+
+
 @router.post("/{strategy_id}/execute")
-async def execute_strategy(strategy_id: int) -> Dict[str, Any]:
-    """执行策略"""
+async def execute_strategy(strategy_id: int, strategy_service: StrategyService = Depends(get_strategy_service)) -> Dict[str, Any]:
+    """执行策略（从已注册的实现运行）"""
     try:
         logger.info(f"执行策略 {strategy_id}")
+        results = await strategy_service.execute_strategy(strategy_id)
 
-        # 简化实现，返回模拟结果
-        mock_results = [
+        formatted = [
             {
-                "stock_symbol": "AAPL",
-                "score": 85,
-                "confidence": "high",
-                "reasons": ["技术指标良好", "成交量放大", "突破关键阻力位"],
-                "suggested_action": "买入",
-                "target_price": 180.0,
-                "stop_loss": 165.0,
-                "current_price": 175.0,
-                "technical_details": {"rsi": 65, "macd": "金叉"},
-                "risk_level": "medium"
-            },
-            {
-                "stock_symbol": "MSFT",
-                "score": 78,
-                "confidence": "medium",
-                "reasons": ["均线支撑", "财报预期良好"],
-                "suggested_action": "观察",
-                "target_price": 320.0,
-                "stop_loss": 300.0,
-                "current_price": 310.0,
-                "technical_details": {"rsi": 58, "macd": "多头排列"},
-                "risk_level": "low"
+                "stock_symbol": r.stock_symbol,
+                "score": r.score,
+                "confidence": r.confidence,
+                "reasons": r.reasons,
+                "suggested_action": r.suggested_action,
+                "target_price": r.target_price,
+                "stop_loss": r.stop_loss,
+                "current_price": r.current_price,
+                "technical_details": r.technical_details,
+                "risk_level": r.risk_level,
             }
+            for r in results
         ]
 
         return {
             "success": True,
-            "data": mock_results,
-            "message": f"策略执行完成，筛选出 {len(mock_results)} 只股票"
+            "data": formatted,
+            "message": f"策略执行完成，筛选出 {len(formatted)} 只股票"
         }
 
     except Exception as e:

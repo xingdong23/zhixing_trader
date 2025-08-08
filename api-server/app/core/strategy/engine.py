@@ -25,24 +25,21 @@ class StrategyEngine(IStrategyEngine):
         self.stock_repository = stock_repository
         self.kline_repository = kline_repository
         self.market_data_provider = market_data_provider
-        self.strategies: Dict[str, IStrategy] = {}
+        # 使用策略ID进行注册与检索
+        self.strategies_by_id: Dict[int, IStrategy] = {}
         
-    def register_strategy(self, strategy: IStrategy) -> None:
-        """注册策略"""
-        self.strategies[strategy.name] = strategy
-        logger.info(f"注册策略: {strategy.name}")
+    def register_strategy(self, strategy_id: int, strategy: IStrategy) -> None:
+        """按ID注册策略实例"""
+        self.strategies_by_id[strategy_id] = strategy
+        logger.info(f"注册策略: id={strategy_id}, name={strategy.name}")
     
     async def execute_strategy(self, strategy_id: int) -> List[SelectionResult]:
         """执行单个策略"""
         try:
-            # 这里需要从数据库获取策略配置
-            # 简化实现，直接使用注册的策略
-            if not self.strategies:
-                logger.warning("没有注册的策略")
+            if strategy_id not in self.strategies_by_id:
+                logger.warning(f"策略 {strategy_id} 未注册")
                 return []
-            
-            # 获取第一个策略作为示例
-            strategy = list(self.strategies.values())[0]
+            strategy = self.strategies_by_id[strategy_id]
             
             # 获取自选股数据
             stocks = await self.stock_repository.get_all_stocks()
@@ -88,14 +85,13 @@ class StrategyEngine(IStrategyEngine):
         try:
             all_results = {}
             
-            for strategy_name, strategy in self.strategies.items():
+            for sid, strategy in self.strategies_by_id.items():
                 try:
-                    # 这里应该检查策略是否启用
-                    results = await self.execute_strategy(1)  # 简化实现
-                    all_results[strategy_name] = results
+                    results = await self.execute_strategy(sid)
+                    all_results[strategy.name] = results
                 except Exception as e:
-                    logger.error(f"执行策略 {strategy_name} 失败: {e}")
-                    all_results[strategy_name] = []
+                    logger.error(f"执行策略 {sid} 失败: {e}")
+                    all_results[strategy.name] = []
             
             return all_results
             
@@ -103,13 +99,13 @@ class StrategyEngine(IStrategyEngine):
             logger.error(f"执行所有策略失败: {e}")
             return {}
     
-    def get_registered_strategies(self) -> List[str]:
-        """获取已注册的策略列表"""
-        return list(self.strategies.keys())
+    def get_registered_strategies(self) -> List[int]:
+        """获取已注册的策略ID列表"""
+        return list(self.strategies_by_id.keys())
     
-    def get_strategy(self, name: str) -> Optional[IStrategy]:
+    def get_strategy(self, strategy_id: int) -> Optional[IStrategy]:
         """获取指定策略"""
-        return self.strategies.get(name)
+        return self.strategies_by_id.get(strategy_id)
 
 
 class StrategyFactory:

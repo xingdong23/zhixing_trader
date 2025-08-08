@@ -11,7 +11,7 @@ from ..core.interfaces import (
     IMarketDataProvider, SelectionResult
 )
 from ..core.strategy.engine import StrategyEngine, StrategyFactory
-from ..core.strategy.implementations import EMA55PullbackStrategy
+from ..database import db_service
 
 
 class StrategyService:
@@ -34,34 +34,34 @@ class StrategyService:
             market_data_provider
         )
         
-        # 注册默认策略
-        self._register_default_strategies()
+        # 从数据库加载启用的策略
+        self._load_enabled_strategies_from_db()
     
-    def _register_default_strategies(self):
-        """注册默认策略 - 暂时只注册EMA55策略"""
+    def _load_enabled_strategies_from_db(self):
+        """从数据库加载启用的策略并注册到引擎"""
         try:
-            # EMA55回踩策略
-            ema55_config = {
-                'ema_period': 55,
-                'pullback_tolerance': 0.03,
-                'stabilization_hours': 8,
-                'stabilization_volatility': 0.02,
-                'min_uptrend_gain': 0.20
-            }
-            ema55_strategy = EMA55PullbackStrategy(ema55_config)
-            self.strategy_engine.register_strategy(ema55_strategy)
-
-            logger.info("EMA55回踩策略注册完成")
-
+            enabled = db_service.get_enabled_strategies()
+            for s in enabled:
+                import json
+                config = json.loads(s.configuration) if s.configuration else {}
+                strategy = StrategyFactory.create_strategy(s.impl_type, config)
+                if strategy is not None:
+                    # 设置策略ID，便于结果落库时引用
+                    if hasattr(strategy, 'strategy_id'):
+                        strategy.strategy_id = s.id
+                    self.strategy_engine.register_strategy(s.id, strategy)
+                    logger.info(f"策略已加载: id={s.id}, type={s.impl_type}, name={s.name}")
+                else:
+                    logger.warning(f"未能创建策略: id={s.id}, type={s.impl_type}")
         except Exception as e:
-            logger.error(f"注册默认策略失败: {e}")
+            logger.error(f"加载启用策略失败: {e}")
     
     async def execute_strategy(self, strategy_id: int) -> List[SelectionResult]:
         """执行策略"""
         try:
             return await self.strategy_engine.execute_strategy(strategy_id)
         except Exception as e:
-            logger.error(f"执行策略失败: {e}")
+            logger.error(f"执行策略 {strategy_id} 失败: {e}")
             return []
     
     async def execute_all_strategies(self) -> Dict[str, List[SelectionResult]]:
@@ -72,17 +72,18 @@ class StrategyService:
             logger.error(f"执行所有策略失败: {e}")
             return {}
     
-    def get_available_strategies(self) -> List[str]:
-        """获取可用策略"""
+    def get_available_strategies(self) -> List[int]:
+        """获取可用策略ID列表"""
         return self.strategy_engine.get_registered_strategies()
     
     def create_custom_strategy(self, strategy_type: str, config: Dict[str, Any]) -> bool:
-        """创建自定义策略"""
+        """创建自定义策略（临时注册，不落库）"""
         try:
             strategy = StrategyFactory.create_strategy(strategy_type, config)
             if strategy:
-                self.strategy_engine.register_strategy(strategy)
-                logger.info(f"创建自定义策略: {strategy.name}")
+                temp_id = max(self.strategy_engine.get_registered_strategies() + [0]) + 1
+                self.strategy_engine.register_strategy(temp_id, strategy)
+                logger.info(f"创建自定义策略: {strategy.name}, 临时ID={temp_id}")
                 return True
             return False
         except Exception as e:

@@ -102,86 +102,8 @@ export function StrategyForm({ strategy, onSave, onCancel }: StrategyFormProps) 
     tags: []
   });
 
-  // 预设的技术分析模式
-  const technicalPatterns = [
-    {
-      id: 'ma_entanglement_breakthrough',
-      name: '均线缠绕突破',
-      description: '多条均线缠绕后向上突破，回踩不破均线',
-      conditions: [
-        {
-          type: 'pattern' as const,
-          parameter: 'ma_entanglement',
-          operator: '=' as const,
-          value: 1,
-          description: '5日、10日、20日均线缠绕'
-        },
-        {
-          type: 'moving_average' as const,
-          parameter: 'ma_breakthrough',
-          operator: 'cross_above' as const,
-          value: 1,
-          description: '价格向上突破均线束'
-        },
-        {
-          type: 'pattern' as const,
-          parameter: 'pullback_support',
-          operator: '>=' as const,
-          value: 0.98,
-          description: '回踩不破均线支撑'
-        }
-      ]
-    },
-    {
-      id: 'ema55_pullback',
-      name: 'EMA55回踩企稳',
-      description: '主升浪回踩EMA55不破，1小时级别企稳',
-      conditions: [
-        {
-          type: 'indicator' as const,
-          parameter: 'main_uptrend',
-          operator: '>=' as const,
-          value: 20,
-          description: '前期主升浪涨幅超过20%'
-        },
-        {
-          type: 'moving_average' as const,
-          parameter: 'ema55_support',
-          operator: '>=' as const,
-          value: 0.97,
-          description: '回踩EMA55不破'
-        },
-        {
-          type: 'pattern' as const,
-          parameter: 'hourly_stabilization',
-          operator: '=' as const,
-          value: 1,
-          description: '1小时级别企稳'
-        }
-      ]
-    },
-    {
-      id: 'trendline_breakthrough',
-      name: '趋势线突破',
-      description: '突破重要趋势线阻力，确认新上涨',
-      conditions: [
-        {
-          type: 'pattern' as const,
-          parameter: 'trendline_break',
-          operator: '>' as const,
-          value: 1.02,
-          description: '突破趋势线2%以上'
-        },
-        {
-          type: 'volume' as const,
-          parameter: 'breakthrough_volume',
-          operator: '>=' as const,
-          value: 2.0,
-          description: '突破时成交量放大2倍'
-        }
-      ]
-    }
-  ];
+  // 移除预设技术分析模式：策略来源于后端数据库
+  const technicalPatterns: Array<any> = [];
 
   const categoryOptions = [
     { value: 'breakthrough', label: '技术突破', icon: TrendingUp, color: 'blue' },

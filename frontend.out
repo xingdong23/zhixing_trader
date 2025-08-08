@@ -1,0 +1,49 @@
+
+> zhixing_trader@0.1.0 dev
+> next dev
+
+   ▲ Next.js 15.3.5
+   - Local:        http://localhost:3000
+   - Network:      http://10.238.198.86:3000
+   - Environments: .env.local
+
+ ✓ Starting...
+ ✓ Ready in 1652ms
+ ○ Compiling / ...
+ ✓ Compiled / in 825ms (947 modules)
+🎯 StockMarketRefactored 组件正在渲染... [v2.0]
+🔍 StockPool: 接收到的stocks数据: []
+🔍 StockPool: stocks数量: 0
+ GET / 200 in 1128ms
+ ○ Compiling /api/concepts/init-sample-data ...
+ ✓ Compiled /api/concepts/init-sample-data in 646ms (525 modules)
+ ✓ Compiled in 181ms (439 modules)
+ GET /favicon.ico 200 in 975ms
+ POST /api/concepts/init-sample-data 200 in 744ms
+ GET /api/concepts 200 in 765ms
+ ✓ Compiled /api/stocks in 138ms (973 modules)
+ GET /api/stocks 200 in 247ms
+ ✓ Compiled /api/sync/status in 198ms (975 modules)
+ GET /api/sync/status 200 in 302ms
+ GET /api/sync/status 200 in 17ms
+ ✓ Compiled /_not-found in 265ms (979 modules)
+ GET /api/data/database/stocks 404 in 361ms
+ GET /api/data/database/quality 404 in 361ms
+ GET /api/data/database/overview 404 in 365ms
+ GET /api/data/database/overview 404 in 110ms
+ GET /api/data/database/stocks 404 in 110ms
+ GET /api/data/database/quality 404 in 110ms
+ GET /api/sync/status 200 in 45ms
+ GET /api/sync/status 200 in 14ms
+ GET /api/concepts 200 in 19ms
+ ✓ Compiled /api/strategies/[id]/execute in 338ms (981 modules)
+ POST /api/strategies/1754655653164/execute 200 in 1077ms
+🎯 StockMarketRefactored 组件正在渲染... [v2.0]
+🔍 StockPool: 接收到的stocks数据: []
+🔍 StockPool: stocks数量: 0
+ GET / 200 in 203ms
+ GET /favicon.ico 200 in 34ms
+ GET /api/concepts 200 in 82ms
+ POST /api/concepts/init-sample-data 200 in 86ms
+ GET /api/stocks 200 in 23ms
+ ✓ Compiled in 1644ms (948 modules)
