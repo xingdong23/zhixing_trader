@@ -210,3 +210,4 @@
  GET /api/strategies 200 in 55ms
  ✓ Compiled in 1060ms (942 modules)
  ✓ Compiled in 241ms (942 modules)
+ ✓ Compiled in 357ms (942 modules)

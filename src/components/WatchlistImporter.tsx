@@ -199,24 +199,30 @@ export function WatchlistImporter({ onImportComplete }: WatchlistImporterProps) 
       throw new Error('CSV文件格式错误：至少需要标题行和一行数据');
     }
 
-    // 兼容带 BOM 的文件
-    const rawHeader = lines[0].replace(/^\uFEFF/, '');
-    const headers = rawHeader.split(',').map(h => h.trim());
+    // 兼容BOM与多分隔符
+    const headerLine = lines[0].replace(/^\uFEFF/, '');
+    const delimiter = detectDelimiter(headerLine);
+    const headers = parseCsvRow(headerLine, delimiter).map(h => h.trim().replace(/^"|"$/g, ''));
 
-    // 定位中文表头索引
+    const norm = (s: string) => s.replace(/\s+/g, '').replace(/"/g, '').toLowerCase();
+    const findIndex = (cands: string[]) => headers.findIndex(h => {
+      const nh = norm(h);
+      return cands.some(c => nh === norm(c) || nh.includes(norm(c)));
+    });
+
+    // 定位中文/英文表头索引
     const idx = {
-      code: headers.findIndex(h => ['代码', '股票代码', '证券代码', 'symbol'].includes(h.toLowerCase() || h)),
-      name: headers.findIndex(h => ['名称', '股票名称', '证券名称', 'name'].includes(h.toLowerCase() || h)),
-      market: headers.findIndex(h => ['市场', '交易所', 'market'].includes(h.toLowerCase() || h)),
-      industry: headers.findIndex(h => ['所属行业', '行业', '板块', 'industry'].includes(h.toLowerCase() || h)),
-      price: headers.findIndex(h => ['价格', '现价', 'price'].includes(h.toLowerCase() || h)),
-      changePercent: headers.findIndex(h => ['涨跌幅', '涨幅', 'changepercent', 'change_percent'].includes(h.toLowerCase() || h)),
-      volume: headers.findIndex(h => ['成交量', 'volume'].includes(h.toLowerCase() || h)),
-      turnover: headers.findIndex(h => ['成交额', 'turnover'].includes(h.toLowerCase() || h)),
+      code: findIndex(['代码', '股票代码', '证券代码', 'symbol', 'ticker']),
+      name: findIndex(['名称', '股票名称', '证券名称', 'name', '公司名称']),
+      market: findIndex(['市场', '交易所', 'market', 'exchange']),
+      industry: findIndex(['所属行业', '行业', '板块', 'industry', 'sector']),
+      price: findIndex(['价格', '现价', 'price', 'lastprice']),
+      changePercent: findIndex(['涨跌幅', '涨幅', 'changepercent', 'change_percent', '%']),
+      volume: findIndex(['成交量', 'volume']),
+      turnover: findIndex(['成交额', 'turnover'])
     };
 
     if (idx.code === -1 || idx.name === -1) {
-      // 仍无法解析
       throw new Error('CSV文件缺少必需的列: symbol/name (支持中文表头：代码/名称)');
     }
 
@@ -228,13 +234,21 @@ export function WatchlistImporter({ onImportComplete }: WatchlistImporterProps) 
       return MarketType.US;
     };
 
+    const normalizeSymbol = (raw: string): string => {
+      let s = (raw || '').trim().toUpperCase();
+      s = s.replace(/^HK\./, '').replace(/^US\./, '').replace(/^SH\./, '').replace(/^SZ\./, '');
+      if (s.includes(':')) s = s.split(':').pop() as string;
+      if (s.startsWith('"') && s.endsWith('"')) s = s.slice(1, -1);
+      return s;
+    };
+
     const now = new Date();
     const stocks: ImportedStock[] = [];
     for (let i = 1; i < lines.length; i++) {
-      const values = lines[i].split(',').map(v => v.trim().replace(/^"|"$/g, ''));
+      const values = parseCsvRow(lines[i], delimiter).map(v => v.trim().replace(/^"|"$/g, ''));
       if (values.length < 2) continue;
 
-      const symbol = values[idx.code] || '';
+      const symbol = normalizeSymbol(values[idx.code] || '');
       const name = values[idx.name] || '';
       if (!symbol || !name) continue;
 
