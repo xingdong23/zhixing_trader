@@ -174,6 +174,12 @@ export function useMarketData(): UseMarketDataResult {
         name: s.name,
         description: s.description || '',
         category: s.category || 'indicator',
+        // 将后端的 category 映射为前端分组用的 tradingType
+        tradingType: (s.category === 'pullback') ? 'swing' : (s.category || 'swing'),
+        // 兼容旧结构需要的字段
+        technicalConditions: [],
+        fundamentalConditions: [],
+        priceConditions: [],
         conditions: { technical: [], fundamental: [], price: [] },
         parameters: {
           timeframe: s.timeframe || '1d',
@@ -183,7 +189,14 @@ export function useMarketData(): UseMarketDataResult {
           emaLength: s.configuration?.parameters?.ema_period,
           tolerancePercent: s.configuration?.parameters?.pullback_tolerance,
         },
+        markets: ['US'],
+        industries: [],
+        sortBy: 'name',
+        sortOrder: 'asc',
+        maxResults: 1000,
+        usageCount: 0,
         isActive: Boolean(s.enabled),
+        isDefault: false,
         isSystemDefault: Boolean(s.is_system_default),
         createdAt: new Date(s.created_at || Date.now()),
         updatedAt: new Date(s.updated_at || Date.now()),

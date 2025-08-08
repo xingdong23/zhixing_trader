@@ -156,3 +156,43 @@ INFO:     127.0.0.1:49895 - "POST /api/v1/concepts/init-sample-data HTTP/1.1" 20
 INFO:     127.0.0.1:49896 - "GET /api/v1/concepts/ HTTP/1.1" 200 OK
 INFO:     127.0.0.1:49895 - "GET /api/v1/stocks/ HTTP/1.1" 200 OK
 INFO:     127.0.0.1:49896 - "GET /api/v1/strategies/ HTTP/1.1" 200 OK
+2025-08-08 21:42:35.970 | INFO     | app.api.v1.endpoints.concepts:init_sample_data:78 - 概念数据已存在，无需初始化示例数据
+INFO:     127.0.0.1:51221 - "POST /api/v1/concepts/init-sample-data HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51222 - "GET /api/v1/concepts/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51221 - "GET /api/v1/stocks/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51222 - "GET /api/v1/strategies/ HTTP/1.1" 200 OK
+2025-08-08 21:43:10.554 | INFO     | app.api.v1.endpoints.strategies:execute_strategy:66 - 执行策略 1
+2025-08-08 21:43:10.569 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: AAPL, period: 1y, interval: 1d
+2025-08-08 21:43:12.242 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 AAPL 的 251 条K线数据
+2025-08-08 21:43:12.242 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: AAPL, period: 60d, interval: 1h
+2025-08-08 21:43:12.708 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 AAPL 的 410 条K线数据
+2025-08-08 21:43:12.708 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 AAPL 数据: 日线 251 条, 小时线 410 条
+2025-08-08 21:43:12.708 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: TSLA, period: 1y, interval: 1d
+2025-08-08 21:43:13.115 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 TSLA 的 251 条K线数据
+2025-08-08 21:43:13.115 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: TSLA, period: 60d, interval: 1h
+2025-08-08 21:43:13.654 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 TSLA 的 410 条K线数据
+2025-08-08 21:43:13.654 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 TSLA 数据: 日线 251 条, 小时线 410 条
+2025-08-08 21:43:13.654 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: NVDA, period: 1y, interval: 1d
+2025-08-08 21:43:14.071 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 NVDA 的 251 条K线数据
+2025-08-08 21:43:14.071 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: NVDA, period: 60d, interval: 1h
+2025-08-08 21:43:14.501 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 NVDA 的 410 条K线数据
+2025-08-08 21:43:14.501 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 NVDA 数据: 日线 251 条, 小时线 410 条
+2025-08-08 21:43:14.501 | INFO     | app.core.strategy.engine:execute_strategy:76 - 策略 EMA55回踩企稳策略 执行完成，筛选出 0 只股票
+INFO:     127.0.0.1:51673 - "POST /api/v1/strategies/1/execute HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51883 - "GET /api/v1/concepts/ HTTP/1.1" 200 OK
+2025-08-08 21:43:31.741 | INFO     | app.api.v1.endpoints.concepts:init_sample_data:78 - 概念数据已存在，无需初始化示例数据
+INFO:     127.0.0.1:51884 - "POST /api/v1/concepts/init-sample-data HTTP/1.1" 200 OK
+2025-08-08 21:43:31.744 | INFO     | app.api.v1.endpoints.concepts:init_sample_data:78 - 概念数据已存在，无需初始化示例数据
+INFO:     127.0.0.1:51885 - "POST /api/v1/concepts/init-sample-data HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51883 - "GET /api/v1/stocks/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51884 - "GET /api/v1/strategies/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51883 - "GET /api/v1/stocks/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51884 - "GET /api/v1/strategies/ HTTP/1.1" 200 OK
+2025-08-08 21:43:34.499 | INFO     | app.api.v1.endpoints.concepts:init_sample_data:78 - 概念数据已存在，无需初始化示例数据
+INFO:     127.0.0.1:51883 - "POST /api/v1/concepts/init-sample-data HTTP/1.1" 200 OK
+2025-08-08 21:43:34.502 | INFO     | app.api.v1.endpoints.concepts:init_sample_data:78 - 概念数据已存在，无需初始化示例数据
+INFO:     127.0.0.1:51884 - "POST /api/v1/concepts/init-sample-data HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51883 - "GET /api/v1/stocks/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51884 - "GET /api/v1/strategies/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51883 - "GET /api/v1/strategies/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51883 - "GET /api/v1/stocks/ HTTP/1.1" 200 OK
