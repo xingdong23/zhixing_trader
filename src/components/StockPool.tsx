@@ -65,19 +65,20 @@ export function StockPool({
   // 直接使用传入的股票数据，不依赖本地存储
   const updatedStocks = stocks;
 
-  // 获取概念数据
+  // 获取概念数据（使用缓存/合并请求）
   useEffect(() => {
+    let mounted = true;
     const fetchConcepts = async () => {
       try {
         const conceptsData = await ConceptService.getConcepts();
-        setConcepts(conceptsData);
+        if (mounted) setConcepts(conceptsData);
       } catch (error) {
         console.error('获取概念数据失败:', error);
-        setConcepts([]);
+        if (mounted) setConcepts([]);
       }
     };
-
     fetchConcepts();
+    return () => { mounted = false; };
   }, []);
 
 

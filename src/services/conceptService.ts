@@ -5,6 +5,10 @@ import { apiGet, apiPost, apiPut, apiDelete, API_ENDPOINTS } from '@/utils/api';
  * 支持自定义概念的创建、编辑、删除和股票关联管理
  */
 export class ConceptService {
+  // 简单内存缓存，减少同页多次重复请求
+  private static conceptsCache: { data: Concept[]; ts: number } | null = null;
+  private static conceptsInFlight: Promise<Concept[]> | null = null;
+  private static readonly CACHE_TTL_MS = 10_000; // 10s
   // ==================== 概念管理 ====================
 
   /**
@@ -12,31 +16,52 @@ export class ConceptService {
    */
   static async getConcepts(): Promise<Concept[]> {
     try {
-      const response = await apiGet(API_ENDPOINTS.CONCEPTS);
+      // 命中缓存
+      if (
+        ConceptService.conceptsCache &&
+        Date.now() - ConceptService.conceptsCache.ts < ConceptService.CACHE_TTL_MS
+      ) {
+        return ConceptService.conceptsCache.data;
+      }
 
-      if (!response.ok) {
-        console.warn('⚠️ 概念API请求失败，返回空数组');
+      // 并发合并
+      if (ConceptService.conceptsInFlight) {
+        return await ConceptService.conceptsInFlight;
+      }
+
+      ConceptService.conceptsInFlight = (async () => {
+        const response = await apiGet(API_ENDPOINTS.CONCEPTS);
+
+        if (!response.ok) {
+          console.warn('⚠️ 概念API请求失败，返回空数组');
+          return [];
+        }
+
+        const result = await response.json();
+        if (result.success && result.data.concepts) {
+          const concepts = result.data.concepts.map((apiConcept: any) => ({
+            id: String(apiConcept.id), // 确保ID是字符串类型
+            name: apiConcept.name,
+            description: apiConcept.description || '',
+            color: ConceptService.generateColorForConcept(apiConcept.name),
+            // 后端返回的字段为 stock_code，这里统一存储为字符串的股票代码
+            stockIds: (apiConcept.stocks || []).map((stock: any) => String(stock.stock_code).toUpperCase()),
+            stockCount: apiConcept.stock_count || 0,
+            createdAt: new Date(apiConcept.created_at || Date.now()),
+            updatedAt: new Date(apiConcept.updated_at || Date.now())
+          }));
+          // 写入缓存
+          ConceptService.conceptsCache = { data: concepts, ts: Date.now() };
+          return concepts;
+        }
+
+        console.warn('⚠️ 概念API返回格式不正确，返回空数组');
         return [];
-      }
+      })();
 
-      const result = await response.json();
-      if (result.success && result.data.concepts) {
-        const concepts = result.data.concepts.map((apiConcept: any) => ({
-          id: String(apiConcept.id), // 确保ID是字符串类型
-          name: apiConcept.name,
-          description: apiConcept.description || '',
-          color: ConceptService.generateColorForConcept(apiConcept.name),
-          // 后端返回的字段为 stock_code，这里统一存储为字符串的股票代码
-          stockIds: (apiConcept.stocks || []).map((stock: any) => String(stock.stock_code).toUpperCase()),
-          stockCount: apiConcept.stock_count || 0,
-          createdAt: new Date(apiConcept.created_at || Date.now()),
-          updatedAt: new Date(apiConcept.updated_at || Date.now())
-        }));
-        return concepts;
-      }
-
-      console.warn('⚠️ 概念API返回格式不正确，返回空数组');
-      return [];
+      const data = await ConceptService.conceptsInFlight;
+      ConceptService.conceptsInFlight = null;
+      return data;
     } catch (error) {
       console.error('❌ 获取概念数据失败:', error);
       return [];
@@ -149,37 +174,19 @@ export class ConceptService {
    */
   static async getConceptRelations(): Promise<ConceptStockRelation[]> {
     try {
-      console.log('🔄 从数据库API获取概念关联关系...');
-      const response = await apiGet(API_ENDPOINTS.CONCEPTS);
-
-      if (!response.ok) {
-        console.warn('⚠️ 概念关联API请求失败，返回空数组');
-        return [];
-      }
-
-      const result = await response.json();
-      if (result.success && result.data.concepts) {
-        const relations: ConceptStockRelation[] = [];
-
-        // 从概念数据中提取关联关系
-        for (const concept of result.data.concepts) {
-          if (concept.stocks && concept.stocks.length > 0) {
-            for (const stock of concept.stocks) {
-              relations.push({
-                conceptId: String(concept.id), // 统一为字符串，避免与前端概念ID类型不一致
-                stockId: String(stock.stock_code).toUpperCase(), // 统一为大写股票代码，便于与 Stock.symbol 匹配
-                addedAt: new Date()
-              });
-            }
-          }
+      // 直接复用概念缓存，避免再次请求
+      const concepts = await ConceptService.getConcepts();
+      const relations: ConceptStockRelation[] = [];
+      for (const concept of concepts) {
+        for (const stockId of concept.stockIds) {
+          relations.push({
+            conceptId: concept.id,
+            stockId: stockId,
+            addedAt: new Date()
+          });
         }
-
-        console.log(`✅ 从数据库获取到 ${relations.length} 个概念关联关系`);
-        return relations;
       }
-
-      console.warn('⚠️ 概念关联API返回格式不正确，返回空数组');
-      return [];
+      return relations;
     } catch (error) {
       console.error('❌ 获取概念关联关系失败:', error);
       return [];
