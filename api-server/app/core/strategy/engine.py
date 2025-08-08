@@ -101,7 +101,7 @@ class StrategyEngine(IStrategyEngine):
 
     async def execute_strategy_with_progress(self, strategy_id: int, progress_cb) -> List[SelectionResult]:
         """执行策略并通过回调报告进度。
-        progress_cb(current:int, total:int, symbol:str|None, phase:str)
+        progress_cb(current:int, total:int, symbol:Optional[str], phase:str)
         """
         if strategy_id not in self.strategies_by_id:
             logger.warning(f"策略 {strategy_id} 未注册")

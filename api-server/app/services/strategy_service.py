@@ -116,7 +116,7 @@ class StrategyService:
         """启动异步执行并返回 task_id"""
         task_id = self._init_task(strategy_id)
 
-        async def progress_callback(current: int, total: int, symbol: str | None, phase: str):
+        async def progress_callback(current: int, total: int, symbol: Optional[str], phase: str):
             percent = float(current) / float(total) * 100 if total else 0.0
             self._update_task(task_id, state="running", processed=current, total=total,
                               percent=round(percent, 1), current_symbol=symbol, phase=phase)
