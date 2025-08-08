@@ -96,3 +96,27 @@ class KLineRepository(IKLineRepository):
                 "data_by_timeframe": {},
                 "latest_updates": {}
             }
+
+    async def get_last_datetime(self, symbol: str, timeframe: str) -> Optional[datetime]:
+        """获取某股票某周期最新一条K线的时间（用于增量同步起点）"""
+        try:
+            period_map = {
+                "1d": "K_DAY",
+                "1h": "K_60M",
+                "15m": "K_15M",
+                "5m": "K_5M",
+                "1m": "K_1M",
+            }
+            period = period_map.get(timeframe, timeframe)
+            with db_service.get_session() as session:
+                latest_time_key = session.query(func.max(KLineDB.time_key)).filter(
+                    KLineDB.code == symbol,
+                    KLineDB.period == period,
+                ).scalar()
+                if latest_time_key:
+                    # time_key 格式为 '%Y-%m-%d %H:%M:%S'
+                    return datetime.strptime(latest_time_key, "%Y-%m-%d %H:%M:%S")
+                return None
+        except Exception as e:
+            logger.error(f"获取最新K线时间失败: {symbol} {timeframe}: {e}")
+            return None

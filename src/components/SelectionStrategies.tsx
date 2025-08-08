@@ -3,7 +3,7 @@
 
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { apiGet, apiPost, API_ENDPOINTS, pollApi } from '@/utils/api';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui';
 import { StockSelectionStrategy, Stock, StockSelectionResult } from '@/types';
@@ -48,6 +48,25 @@ export function SelectionStrategies({
   // 创建/编辑已禁用
   const [runningStrategy, setRunningStrategy] = useState<string | null>(null);
   const [strategyResults, setStrategyResults] = useState<Record<string, StockSelectionResult[]>>({});
+  const [progressByStrategy, setProgressByStrategy] = useState<Record<string, { percent: number; current: string | null; state: string; }>>({});
+  // 页面挂载后尝试恢复最近一次任务状态
+  useEffect(() => {
+    const restore = async () => {
+      for (const s of strategies) {
+        try {
+          const res = await apiGet(`/strategies/exec/last-status?strategy_id=${s.id}`);
+          if (!res.ok) continue;
+          const data = await res.json();
+          const st = data?.data;
+          if (st && (st.state === 'running' || st.state === 'pending')) {
+            setRunningStrategy(String(s.id));
+            setProgressByStrategy(prev => ({ ...prev, [s.id]: { percent: st.percent ?? 0, current: st.current_symbol ?? null, state: st.state } }));
+          }
+        } catch {}
+      }
+    };
+    restore();
+  }, [strategies]);
 
   // 按类别分组策略
   const strategiesByCategory = useMemo(() => {
@@ -103,6 +122,7 @@ export function SelectionStrategies({
       if (!taskId) throw new Error('启动任务失败');
 
       // 2) 轮询任务状态并在按钮旁展示简单进度（标题）
+      // 轮询任务状态并更新进度
       const status = await pollApi(`/strategies/exec/status?task_id=${taskId}`, { intervalMs: 1000, timeoutMs: 600000 });
       console.log('策略任务完成:', status);
 
@@ -116,6 +136,7 @@ export function SelectionStrategies({
       console.error('运行策略失败:', e);
     } finally {
       setRunningStrategy(null);
+      setProgressByStrategy(prev => ({ ...prev, [strategy.id]: { percent: 100, current: null, state: 'completed' } }));
     }
   };
 
@@ -374,6 +395,23 @@ function StrategyCard({
           >
             {isRunning ? '运行中…' : '运行策略'}
           </button>
+
+          {isRunning && (
+            <div className="mt-2 text-xs text-gray-600">
+              <div className="w-48 bg-gray-200 rounded h-2 overflow-hidden">
+                <div
+                  className="bg-blue-600 h-2 transition-all"
+                  style={{ width: `${progressByStrategy[strategy.id]?.percent ?? 0}%` }}
+                />
+              </div>
+              <div className="mt-1 flex justify-between">
+                <span>{progressByStrategy[strategy.id]?.percent ?? 0}%</span>
+                <span className="truncate max-w-[8rem]" title={progressByStrategy[strategy.id]?.current ?? ''}>
+                  {progressByStrategy[strategy.id]?.current ?? ''}
+                </span>
+              </div>
+            </div>
+          )}
 
           {/* 编辑/复制/删除入口关闭 */}
         </div>

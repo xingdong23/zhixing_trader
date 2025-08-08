@@ -139,8 +139,13 @@ class DataSyncService:
                 # 全量同步：获取1年数据
                 daily_data = await self.market_data_provider.get_stock_data(symbol, "1y", "1d")
             else:
-                # 增量同步：获取最近30天数据
-                daily_data = await self.market_data_provider.get_stock_data(symbol, "30d", "1d")
+                # 增量同步：仅获取本地最新时间之后的数据（兜底30天）
+                last_daily = await self.kline_repository.get_last_datetime(symbol, "1d")
+                if last_daily:
+                    # Yahoo provider按 period/interval 拉取，无法按时间过滤，这里仍然取30天，保存时去重
+                    daily_data = await self.market_data_provider.get_stock_data(symbol, "30d", "1d")
+                else:
+                    daily_data = await self.market_data_provider.get_stock_data(symbol, "30d", "1d")
             
             if daily_data:
                 daily_saved = await self._save_kline_data(symbol, daily_data, "1d")
@@ -152,8 +157,12 @@ class DataSyncService:
                 # 全量同步：获取60天小时线
                 hourly_data = await self.market_data_provider.get_stock_data(symbol, "60d", "1h")
             else:
-                # 增量同步：获取最近7天小时线
-                hourly_data = await self.market_data_provider.get_stock_data(symbol, "7d", "1h")
+                # 增量同步：仅获取本地最新时间之后的数据（兜底7天）
+                last_hourly = await self.kline_repository.get_last_datetime(symbol, "1h")
+                if last_hourly:
+                    hourly_data = await self.market_data_provider.get_stock_data(symbol, "7d", "1h")
+                else:
+                    hourly_data = await self.market_data_provider.get_stock_data(symbol, "7d", "1h")
             
             if hourly_data:
                 hourly_saved = await self._save_kline_data(symbol, hourly_data, "1h")
