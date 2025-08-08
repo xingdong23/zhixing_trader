@@ -8,9 +8,9 @@ export async function POST(
 ) {
   try {
     const { id } = await params;
-    // 不从前端读取body，后端此端点无需请求体
-    // 使用 Next 代理：调用后端异步执行端点
-    const response = await fetch(getBackendApiUrl(`strategies/${id}/execute-async`), createFetchConfig('POST'));
+    const mode = new URL(request.url).searchParams.get('mode') || 'async';
+    const backendPath = mode === 'sync' ? `strategies/${id}/execute` : `strategies/${id}/execute-async`;
+    const response = await fetch(getBackendApiUrl(backendPath), createFetchConfig('POST'));
 
     if (!response.ok) {
       throw new Error(`后端API请求失败: ${response.status}`);
