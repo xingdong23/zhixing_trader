@@ -14,15 +14,15 @@ export const API_CONFIG = {
 
 // API端点配置
 export const API_ENDPOINTS = {
-  // 概念相关
-  CONCEPTS: '/concepts/',
+  // 概念相关（去掉末尾斜杠，避免 Next 对 /api/.../ 的 308 重定向）
+  CONCEPTS: '/concepts',
   CONCEPTS_INIT_SAMPLE: '/concepts/init-sample-data',
   CONCEPT_RELATIONS: '/concepts/relations',
   CONCEPT_STOCKS: (conceptId: string) => `/concepts/${conceptId}/stocks`,
   CONCEPT_STOCK: (conceptId: string, stockId: string) => `/concepts/${conceptId}/stocks/${stockId}`,
   
-  // 股票相关
-  STOCKS: '/stocks/',
+  // 股票相关（去掉末尾斜杠，避免 308 重定向）
+  STOCKS: '/stocks',
   STOCKS_IMPORT: '/stocks/import',
   STOCK_DETAIL: (symbol: string) => `/stocks/${symbol}`,
   

@@ -5,7 +5,7 @@ import { getBackendApiUrl, createFetchConfig } from '../../../config/api';
 export async function GET(request: NextRequest) {
   try {
     const response = await fetch(
-      getBackendApiUrl('concepts/'),
+      getBackendApiUrl('concepts'),
       createFetchConfig('GET')
     );
 
@@ -33,7 +33,7 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     
     const response = await fetch(
-      getBackendApiUrl('concepts/'),
+      getBackendApiUrl('concepts'),
       createFetchConfig('POST', body)
     );
 
