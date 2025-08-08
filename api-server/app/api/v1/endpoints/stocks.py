@@ -7,6 +7,8 @@ from loguru import logger
 
 from ....core.container import container
 from ....repositories.stock_repository import StockRepository
+from ....database import db_service
+from ....models import ConceptStockRelationDB
 
 router = APIRouter()
 
@@ -42,6 +44,16 @@ async def get_all_stocks(
             }
 
             # 概念信息从关联表获取，不再使用 fundamental_tags 字段
+            # 返回给前端一个 concept_ids 数组以便展示与筛选
+            try:
+                with db_service.get_session() as session:
+                    relations = session.query(ConceptStockRelationDB).filter(
+                        ConceptStockRelationDB.stock_code == stock.code
+                    ).all()
+                    concept_ids = [rel.concept_id for rel in relations]
+                    stock_data["concept_ids"] = concept_ids
+            except Exception:
+                stock_data["concept_ids"] = []
 
             stock_data["market_cap"] = stock.market_cap
             stock_data["watch_level"] = stock.watch_level
