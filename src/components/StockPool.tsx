@@ -47,6 +47,7 @@ interface StockPoolProps {
   totalPages?: number;
   onPageChange?: (page: number) => void;
   onPageSizeChange?: (size: number) => void;
+  onConceptChange?: (conceptId: string) => void;
 }
 
 export function StockPool({
@@ -61,7 +62,8 @@ export function StockPool({
   total = 0,
   totalPages = 0,
   onPageChange,
-  onPageSizeChange
+  onPageSizeChange,
+  onConceptChange
 }: StockPoolProps) {
   // 调试信息
   console.log('🔍 StockPool: 接收到的stocks数据:', stocks);
@@ -336,7 +338,11 @@ export function StockPool({
           {availableConcepts.map(concept => (
             <button
               key={concept.id}
-              onClick={() => setSelectedConcept(concept.id === selectedConcept ? '' : concept.id)}
+              onClick={() => {
+                const next = concept.id === selectedConcept ? '' : concept.id;
+                setSelectedConcept(next);
+                if (onConceptChange) onConceptChange(next);
+              }}
               className={`px-3 py-1 rounded-full text-sm transition-all duration-200 border ${
                 selectedConcept === concept.id
                   ? 'text-white font-medium shadow-md'

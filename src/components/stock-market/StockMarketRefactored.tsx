@@ -34,7 +34,7 @@ export function StockMarketRefactored({
   
   // 数据管理
   const { state, actions } = useMarketData();
-  const { stocks, strategies, isLoading, error } = state;
+  const { stocks, strategies, isLoading, error, page, pageSize, total, totalPages } = state;
   
   // 计算统计信息
   const stats = useMemo(() => {
@@ -162,6 +162,13 @@ export function StockMarketRefactored({
         currentTab={currentTab}
         stocks={stocks}
         strategies={strategies}
+        page={page}
+        pageSize={pageSize}
+        total={total}
+        totalPages={totalPages}
+        onPageChange={async (p) => { await actions.fetchStocks({ page: p }); }}
+        onPageSizeChange={async (s) => { await actions.fetchStocks({ page: 1, pageSize: s }); }}
+        onConceptFilterChange={async (conceptId) => { await actions.fetchStocks({ page: 1, conceptId }); }}
         onAddStock={actions.addStock}
         onUpdateStock={actions.updateStock}
         onDeleteStock={actions.deleteStock}
