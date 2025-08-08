@@ -5,7 +5,8 @@ import { getBackendApiUrl, createFetchConfig } from '../../../config/api';
 export async function GET(request: NextRequest) {
   try {
     const response = await fetch(
-      getBackendApiUrl('stocks'),
+      // 后端FastAPI路由为 /api/v1/stocks/（需要末尾斜杠）
+      getBackendApiUrl('stocks/'),
       createFetchConfig('GET')
     );
 
@@ -33,7 +34,8 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     
     const response = await fetch(
-      getBackendApiUrl('stocks'),
+      // 后端FastAPI路由为 /api/v1/stocks/（需要末尾斜杠）
+      getBackendApiUrl('stocks/'),
       createFetchConfig('POST', body)
     );
 
