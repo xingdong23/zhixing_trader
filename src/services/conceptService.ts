@@ -26,7 +26,8 @@ export class ConceptService {
           name: apiConcept.name,
           description: apiConcept.description || '',
           color: ConceptService.generateColorForConcept(apiConcept.name),
-          stockIds: (apiConcept.stocks || []).map((stock: any) => String(stock.id)), // 从关联股票中提取ID
+          // 后端返回的字段为 stock_code，这里统一存储为字符串的股票代码
+          stockIds: (apiConcept.stocks || []).map((stock: any) => String(stock.stock_code).toUpperCase()),
           stockCount: apiConcept.stock_count || 0,
           createdAt: new Date(apiConcept.created_at || Date.now()),
           updatedAt: new Date(apiConcept.updated_at || Date.now())
@@ -165,8 +166,8 @@ export class ConceptService {
           if (concept.stocks && concept.stocks.length > 0) {
             for (const stock of concept.stocks) {
               relations.push({
-                conceptId: concept.id,
-                stockId: stock.stock_code,
+                conceptId: String(concept.id), // 统一为字符串，避免与前端概念ID类型不一致
+                stockId: String(stock.stock_code).toUpperCase(), // 统一为大写股票代码，便于与 Stock.symbol 匹配
                 addedAt: new Date()
               });
             }
