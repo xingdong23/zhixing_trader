@@ -142,3 +142,24 @@ export async function apiCall<T = any>(endpoint: string, options?: RequestInit):
 
 // 导出API端点常量，方便使用
 export { API_ENDPOINTS };
+
+// 便捷的长轮询工具（用于任务进度）
+export async function pollApi<T = any>(endpoint: string, {
+  intervalMs = 1000,
+  timeoutMs = 600000
+}: { intervalMs?: number; timeoutMs?: number } = {}): Promise<T> {
+  const url = buildApiUrl(endpoint);
+  const start = Date.now();
+  while (true) {
+    const res = await fetch(url, { method: 'GET', headers: { 'Content-Type': 'application/json' } });
+    if (!res.ok) throw new Error(`API请求失败: ${res.status}`);
+    const data = await res.json();
+    if (data?.data?.state && ['completed', 'failed', 'not_found'].includes(data.data.state)) {
+      return data as T;
+    }
+    if (Date.now() - start > timeoutMs) {
+      throw new Error('轮询超时');
+    }
+    await new Promise(r => setTimeout(r, intervalMs));
+  }
+}

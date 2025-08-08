@@ -4,6 +4,7 @@
 'use client';
 
 import React, { useState, useMemo } from 'react';
+import { apiGet, apiPost, API_ENDPOINTS, pollApi } from '@/utils/api';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui';
 import { StockSelectionStrategy, Stock, StockSelectionResult } from '@/types';
 // 创建/编辑功能已移除
@@ -95,12 +96,24 @@ export function SelectionStrategies({
   const handleRunStrategy = async (strategy: StockSelectionStrategy) => {
     setRunningStrategy(strategy.id);
     try {
-      // 调用真实的策略运行API
-      const results = await onRunStrategy(strategy.id);
-      setStrategyResults(prev => ({
-        ...prev,
-        [strategy.id]: results
-      }));
+      // 1) 启动异步任务
+      const resp = await apiPost(API_ENDPOINTS.STRATEGY_EXECUTE(strategy.id));
+      const startData = await resp.json();
+      const taskId = startData?.data?.task_id;
+      if (!taskId) throw new Error('启动任务失败');
+
+      // 2) 轮询任务状态并在按钮旁展示简单进度（标题）
+      const status = await pollApi(`/strategies/exec/status?task_id=${taskId}`, { intervalMs: 1000, timeoutMs: 600000 });
+      console.log('策略任务完成:', status);
+
+      // 3) 任务完成后，拉取一次同步执行结果接口以获取结果（复用现有端点）
+      const finishRes = await apiPost(API_ENDPOINTS.STRATEGY_EXECUTE_SYNC(strategy.id));
+      const finishData = await finishRes.json();
+      const results = finishData?.data || [];
+
+      setStrategyResults(prev => ({ ...prev, [strategy.id]: results }));
+    } catch (e) {
+      console.error('运行策略失败:', e);
     } finally {
       setRunningStrategy(null);
     }
@@ -359,7 +372,7 @@ function StrategyCard({
                 : 'bg-gray-300 text-gray-500 cursor-not-allowed'
             }`}
           >
-            {isRunning ? '运行中...' : '运行策略'}
+            {isRunning ? '运行中…' : '运行策略'}
           </button>
 
           {/* 编辑/复制/删除入口关闭 */}

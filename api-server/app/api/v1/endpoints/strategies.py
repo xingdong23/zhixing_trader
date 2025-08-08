@@ -1,7 +1,7 @@
 """
 策略API端点
 """
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, HTTPException, Depends, Query
 from typing import List, Dict, Any
 from loguru import logger
 
@@ -91,6 +91,37 @@ async def execute_strategy(strategy_id: int, strategy_service: StrategyService =
     except Exception as e:
         logger.error(f"执行策略失败: {e}")
         raise HTTPException(status_code=500, detail="执行策略失败")
+
+
+@router.post("/{strategy_id}/execute-async")
+async def execute_strategy_async(strategy_id: int, strategy_service: StrategyService = Depends(get_strategy_service)) -> Dict[str, Any]:
+    """异步执行策略，返回 task_id 供前端轮询进度"""
+    try:
+        task_id = await strategy_service.execute_strategy_async(strategy_id)
+        return { "success": True, "data": { "task_id": task_id }, "message": "任务已启动" }
+    except Exception as e:
+        logger.error(f"异步执行策略失败: {e}")
+        raise HTTPException(status_code=500, detail="异步执行策略失败")
+
+
+@router.get("/exec/status")
+async def get_exec_status(task_id: str = Query(...), strategy_service: StrategyService = Depends(get_strategy_service)) -> Dict[str, Any]:
+    try:
+        status = strategy_service.get_task_status(task_id)
+        return { "success": True, "data": status }
+    except Exception as e:
+        logger.error(f"获取策略任务状态失败: {e}")
+        raise HTTPException(status_code=500, detail="获取策略任务状态失败")
+
+
+@router.get("/exec/last-status")
+async def get_last_exec_status(strategy_id: int = Query(...), strategy_service: StrategyService = Depends(get_strategy_service)) -> Dict[str, Any]:
+    try:
+        status = strategy_service.get_last_task_status(strategy_id)
+        return { "success": True, "data": status }
+    except Exception as e:
+        logger.error(f"获取策略最近任务状态失败: {e}")
+        raise HTTPException(status_code=500, detail="获取策略最近任务状态失败")
 
 
 @router.post("/execute-all")

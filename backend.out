@@ -6012,3 +6012,69 @@ INFO:     127.0.0.1:50724 - "GET /api/v1/concepts/?page=1&page_size=20 HTTP/1.1"
 INFO:     127.0.0.1:50726 - "GET /api/v1/strategies/ HTTP/1.1" 200 OK
 INFO:     127.0.0.1:50723 - "GET /api/v1/stocks/?page=1&page_size=20 HTTP/1.1" 200 OK
 INFO:     127.0.0.1:52743 - "GET /api/v1/concepts/?page=1&page_size=20 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53627 - "GET /api/v1/concepts/?page=1&page_size=20 HTTP/1.1" 200 OK
+2025-08-09 00:18:37.356 | INFO     | app.api.v1.endpoints.concepts:init_sample_data:90 - 概念数据已存在，无需初始化示例数据
+INFO:     127.0.0.1:53628 - "POST /api/v1/concepts/init-sample-data HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53627 - "GET /api/v1/strategies/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53628 - "GET /api/v1/stocks/?page=1&page_size=20 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53627 - "GET /api/v1/stocks/?page=1&page_size=20&concept_id=27 HTTP/1.1" 200 OK
+WARNING:  WatchFiles detected changes in 'app/services/strategy_service.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+2025-08-09 00:22:34.949 | INFO     | app.main:lifespan:59 - 🛑 Shutting down API Server...
+2025-08-09 00:22:34.963 | INFO     | app.database:close:1002 - Database connection closed
+2025-08-09 00:22:34.963 | INFO     | app.main:lifespan:69 - ✅ API Server shutdown completed
+INFO:     Application shutdown complete.
+INFO:     Finished server process [24038]
+2025-08-09 00:22:35.812 | INFO     | app.database:init_database:52 - Database initialized: sqlite:///./data/zhixing_trader.db
+INFO:     Started server process [43696]
+INFO:     Waiting for application startup.
+2025-08-09 00:22:36.662 | INFO     | app.main:lifespan:39 - 🚀 Starting Zhixing Trader API Server...
+2025-08-09 00:22:36.662 | INFO     | app.core.container:initialize:32 - 初始化依赖注入容器...
+2025-08-09 00:22:36.681 | WARNING  | app.core.analysis.technical_analyzer:<module>:16 - TA-Lib not available, using simplified implementation
+2025-08-09 00:22:36.682 | INFO     | app.core.strategy.engine:register_strategy:34 - 注册策略: id=1, name=EMA55回踩企稳策略
+2025-08-09 00:22:36.683 | INFO     | app.services.strategy_service:_load_enabled_strategies_from_db:59 - 策略已加载: id=1, type=ema55_pullback, name=EMA55 回踩
+2025-08-09 00:22:36.683 | INFO     | app.core.container:initialize:55 - 依赖注入容器初始化完成
+2025-08-09 00:22:36.683 | INFO     | app.main:lifespan:51 - ✅ API Server started successfully
+2025-08-09 00:22:36.683 | DEBUG    | app.main:background_tasks:24 - 🔄 系统状态检查
+INFO:     Application startup complete.
+WARNING:  WatchFiles detected changes in 'app/core/strategy/engine.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+2025-08-09 00:22:53.637 | INFO     | app.main:lifespan:59 - 🛑 Shutting down API Server...
+2025-08-09 00:22:53.640 | INFO     | app.database:close:1002 - Database connection closed
+2025-08-09 00:22:53.640 | INFO     | app.main:lifespan:69 - ✅ API Server shutdown completed
+INFO:     Application shutdown complete.
+INFO:     Finished server process [43696]
+2025-08-09 00:22:54.657 | INFO     | app.database:init_database:52 - Database initialized: sqlite:///./data/zhixing_trader.db
+INFO:     Started server process [43934]
+INFO:     Waiting for application startup.
+2025-08-09 00:22:55.607 | INFO     | app.main:lifespan:39 - 🚀 Starting Zhixing Trader API Server...
+2025-08-09 00:22:55.607 | INFO     | app.core.container:initialize:32 - 初始化依赖注入容器...
+2025-08-09 00:22:55.618 | WARNING  | app.core.analysis.technical_analyzer:<module>:16 - TA-Lib not available, using simplified implementation
+2025-08-09 00:22:55.619 | INFO     | app.core.strategy.engine:register_strategy:34 - 注册策略: id=1, name=EMA55回踩企稳策略
+2025-08-09 00:22:55.619 | INFO     | app.services.strategy_service:_load_enabled_strategies_from_db:59 - 策略已加载: id=1, type=ema55_pullback, name=EMA55 回踩
+2025-08-09 00:22:55.619 | INFO     | app.core.container:initialize:55 - 依赖注入容器初始化完成
+2025-08-09 00:22:55.619 | INFO     | app.main:lifespan:51 - ✅ API Server started successfully
+2025-08-09 00:22:55.619 | DEBUG    | app.main:background_tasks:24 - 🔄 系统状态检查
+INFO:     Application startup complete.
+WARNING:  WatchFiles detected changes in 'app/api/v1/endpoints/strategies.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+2025-08-09 00:23:32.152 | INFO     | app.main:lifespan:59 - 🛑 Shutting down API Server...
+2025-08-09 00:23:32.162 | INFO     | app.database:close:1002 - Database connection closed
+2025-08-09 00:23:32.162 | INFO     | app.main:lifespan:69 - ✅ API Server shutdown completed
+INFO:     Application shutdown complete.
+INFO:     Finished server process [43934]
+2025-08-09 00:23:32.935 | INFO     | app.database:init_database:52 - Database initialized: sqlite:///./data/zhixing_trader.db
+INFO:     Started server process [44323]
+INFO:     Waiting for application startup.
+2025-08-09 00:23:33.785 | INFO     | app.main:lifespan:39 - 🚀 Starting Zhixing Trader API Server...
+2025-08-09 00:23:33.785 | INFO     | app.core.container:initialize:32 - 初始化依赖注入容器...
+2025-08-09 00:23:33.795 | WARNING  | app.core.analysis.technical_analyzer:<module>:16 - TA-Lib not available, using simplified implementation
+2025-08-09 00:23:33.795 | INFO     | app.core.strategy.engine:register_strategy:34 - 注册策略: id=1, name=EMA55回踩企稳策略
+2025-08-09 00:23:33.795 | INFO     | app.services.strategy_service:_load_enabled_strategies_from_db:59 - 策略已加载: id=1, type=ema55_pullback, name=EMA55 回踩
+2025-08-09 00:23:33.795 | INFO     | app.core.container:initialize:55 - 依赖注入容器初始化完成
+2025-08-09 00:23:33.796 | INFO     | app.main:lifespan:51 - ✅ API Server started successfully
+2025-08-09 00:23:33.796 | DEBUG    | app.main:background_tasks:24 - 🔄 系统状态检查
+INFO:     Application startup complete.

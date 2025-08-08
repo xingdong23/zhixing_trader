@@ -28,7 +28,8 @@ export const API_ENDPOINTS = {
   
   // 策略相关
   STRATEGIES: '/strategies',
-  STRATEGY_EXECUTE: (id: string) => `/strategies/${id}/execute`,
+  STRATEGY_EXECUTE: (id: string) => `/strategies/${id}/execute-async`,
+  STRATEGY_EXECUTE_SYNC: (id: string) => `/strategies/${id}/execute`,
   
   // 数据管理相关
   DATA_SYNC: '/data/sync',

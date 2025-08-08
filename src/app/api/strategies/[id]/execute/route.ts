@@ -10,7 +10,7 @@ export async function POST(
     const { id } = await params;
     // 不从前端读取body，后端此端点无需请求体
     const response = await fetch(
-      getBackendApiUrl(`strategies/${id}/execute`),
+      getBackendApiUrl(`strategies/${id}/execute-async`),
       createFetchConfig('POST')
     );
 

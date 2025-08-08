@@ -28,4 +28,23 @@ export async function GET(request: NextRequest) {
   }
 }
 
+// 额外：代理获取任务状态（POST /api/strategies?action=status&task_id=...）
+export async function POST(request: NextRequest) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const action = searchParams.get('action');
+    if (action === 'status') {
+      const taskId = searchParams.get('task_id');
+      if (!taskId) return NextResponse.json({ success: false, error: 'missing task_id' }, { status: 400 });
+      const res = await fetch(getBackendApiUrl(`strategies/exec/status?task_id=${taskId}`), createFetchConfig('GET'));
+      if (!res.ok) return NextResponse.json({ success: false, error: `status ${res.status}` }, { status: 500 });
+      const data = await res.json();
+      return NextResponse.json(data);
+    }
+    return NextResponse.json({ success: false, error: 'unknown action' }, { status: 400 });
+  } catch (e) {
+    return NextResponse.json({ success: false, error: (e as Error).message }, { status: 500 });
+  }
+}
+
 // 禁用通过前端创建策略

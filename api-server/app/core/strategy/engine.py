@@ -98,6 +98,42 @@ class StrategyEngine(IStrategyEngine):
         except Exception as e:
             logger.error(f"执行所有策略失败: {e}")
             return {}
+
+    async def execute_strategy_with_progress(self, strategy_id: int, progress_cb) -> List[SelectionResult]:
+        """执行策略并通过回调报告进度。
+        progress_cb(current:int, total:int, symbol:str|None, phase:str)
+        """
+        if strategy_id not in self.strategies_by_id:
+            logger.warning(f"策略 {strategy_id} 未注册")
+            return []
+
+        strategy = self.strategies_by_id[strategy_id]
+
+        stocks = await self.stock_repository.get_all_stocks()
+        if not stocks:
+            return []
+
+        results: List[SelectionResult] = []
+        total = len(stocks)
+
+        stock_data = {}
+        for idx, stock in enumerate(stocks, start=1):
+            symbol = stock.code if hasattr(stock, 'code') else stock.symbol
+            await progress_cb(idx - 1, total, symbol, 'fetch')
+            try:
+                daily_data = await self.market_data_provider.get_stock_data(symbol, "1y", "1d")
+                hourly_data = await self.market_data_provider.get_stock_data(symbol, "60d", "1h")
+                stock_data[symbol] = { 'daily': daily_data, 'hourly': hourly_data }
+            except Exception as e:
+                logger.error(f"获取 {symbol} 数据失败: {e}")
+                await progress_cb(idx, total, symbol, 'fetch_error')
+                continue
+
+        # 汇总执行
+        await progress_cb(total, total, None, 'execute')
+        results = await strategy.execute(stock_data)
+        await progress_cb(total, total, None, 'done')
+        return results
     
     def get_registered_strategies(self) -> List[int]:
         """获取已注册的策略ID列表"""
