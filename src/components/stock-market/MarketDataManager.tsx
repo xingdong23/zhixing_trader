@@ -72,7 +72,8 @@ function transformStockToApiData(stock: Stock) {
     // fundamental_tags字段已移除，概念通过关联表管理
     market_cap: stock.tags.marketCap,
     watch_level: stock.tags.watchLevel,
-    // concept_ids字段已移除
+    // 概念关联通过后端关联表维护，这里显式传递 concept_ids 以便后端更新关联
+    concept_ids: stock.conceptIds,
     notes: stock.notes
   };
 }
