@@ -183,3 +183,114 @@ INFO:     Application startup complete.
 FROM strategies ORDER BY strategies.created_at DESC]
 (Background on this error at: https://sqlalche.me/e/20/e3q8)
 INFO:     127.0.0.1:53351 - "GET /api/v1/strategies/ HTTP/1.1" 200 OK
+WARNING:  WatchFiles detected changes in 'app/core/strategy/base.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+2025-08-08 20:46:11.192 | INFO     | app.main:lifespan:59 - 🛑 Shutting down API Server...
+2025-08-08 20:46:11.195 | INFO     | app.database:close:1002 - Database connection closed
+2025-08-08 20:46:11.196 | INFO     | app.main:lifespan:69 - ✅ API Server shutdown completed
+INFO:     Application shutdown complete.
+INFO:     Finished server process [90783]
+2025-08-08 20:46:11.966 | INFO     | app.database:init_database:52 - Database initialized: sqlite:///./data/zhixing_trader.db
+INFO:     Started server process [93791]
+INFO:     Waiting for application startup.
+2025-08-08 20:46:13.019 | INFO     | app.main:lifespan:39 - 🚀 Starting Zhixing Trader API Server...
+2025-08-08 20:46:13.019 | INFO     | app.core.container:initialize:32 - 初始化依赖注入容器...
+2025-08-08 20:46:13.028 | ERROR    | app.database:get_enabled_strategies:446 - Failed to get enabled strategies: (sqlite3.OperationalError) no such column: strategies.impl_type
+[SQL: SELECT strategies.id AS strategies_id, strategies.name AS strategies_name, strategies.description AS strategies_description, strategies.category AS strategies_category, strategies.impl_type AS strategies_impl_type, strategies.configuration AS strategies_configuration, strategies.timeframe AS strategies_timeframe, strategies.enabled AS strategies_enabled, strategies.is_system_default AS strategies_is_system_default, strategies.execution_count AS strategies_execution_count, strategies.last_execution_time AS strategies_last_execution_time, strategies.created_at AS strategies_created_at, strategies.updated_at AS strategies_updated_at 
+FROM strategies 
+WHERE strategies.enabled = 1]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2025-08-08 20:46:13.028 | INFO     | app.core.container:initialize:55 - 依赖注入容器初始化完成
+2025-08-08 20:46:13.028 | INFO     | app.main:lifespan:51 - ✅ API Server started successfully
+2025-08-08 20:46:13.028 | DEBUG    | app.main:background_tasks:24 - 🔄 系统状态检查
+INFO:     Application startup complete.
+WARNING:  WatchFiles detected changes in 'app/core/strategy/implementations.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+2025-08-08 20:47:22.185 | INFO     | app.main:lifespan:59 - 🛑 Shutting down API Server...
+2025-08-08 20:47:22.188 | INFO     | app.database:close:1002 - Database connection closed
+2025-08-08 20:47:22.189 | INFO     | app.main:lifespan:69 - ✅ API Server shutdown completed
+INFO:     Application shutdown complete.
+INFO:     Finished server process [93791]
+2025-08-08 20:47:22.957 | INFO     | app.database:init_database:52 - Database initialized: sqlite:///./data/zhixing_trader.db
+INFO:     Started server process [94808]
+INFO:     Waiting for application startup.
+2025-08-08 20:47:23.669 | INFO     | app.main:lifespan:39 - 🚀 Starting Zhixing Trader API Server...
+2025-08-08 20:47:23.669 | INFO     | app.core.container:initialize:32 - 初始化依赖注入容器...
+2025-08-08 20:47:23.679 | ERROR    | app.database:get_enabled_strategies:446 - Failed to get enabled strategies: (sqlite3.OperationalError) no such column: strategies.impl_type
+[SQL: SELECT strategies.id AS strategies_id, strategies.name AS strategies_name, strategies.description AS strategies_description, strategies.category AS strategies_category, strategies.impl_type AS strategies_impl_type, strategies.configuration AS strategies_configuration, strategies.timeframe AS strategies_timeframe, strategies.enabled AS strategies_enabled, strategies.is_system_default AS strategies_is_system_default, strategies.execution_count AS strategies_execution_count, strategies.last_execution_time AS strategies_last_execution_time, strategies.created_at AS strategies_created_at, strategies.updated_at AS strategies_updated_at 
+FROM strategies 
+WHERE strategies.enabled = 1]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2025-08-08 20:47:23.679 | INFO     | app.core.container:initialize:55 - 依赖注入容器初始化完成
+2025-08-08 20:47:23.679 | INFO     | app.main:lifespan:51 - ✅ API Server started successfully
+2025-08-08 20:47:23.680 | DEBUG    | app.main:background_tasks:24 - 🔄 系统状态检查
+INFO:     Application startup complete.
+WARNING:  WatchFiles detected changes in 'app/core/strategy/ema55_pullback/__init__.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+2025-08-08 20:47:33.872 | INFO     | app.main:lifespan:59 - 🛑 Shutting down API Server...
+2025-08-08 20:47:33.881 | INFO     | app.database:close:1002 - Database connection closed
+2025-08-08 20:47:33.882 | INFO     | app.main:lifespan:69 - ✅ API Server shutdown completed
+INFO:     Application shutdown complete.
+INFO:     Finished server process [94808]
+2025-08-08 20:47:34.814 | INFO     | app.database:init_database:52 - Database initialized: sqlite:///./data/zhixing_trader.db
+INFO:     Started server process [94991]
+INFO:     Waiting for application startup.
+2025-08-08 20:47:35.801 | INFO     | app.main:lifespan:39 - 🚀 Starting Zhixing Trader API Server...
+2025-08-08 20:47:35.802 | INFO     | app.core.container:initialize:32 - 初始化依赖注入容器...
+2025-08-08 20:47:35.810 | ERROR    | app.database:get_enabled_strategies:446 - Failed to get enabled strategies: (sqlite3.OperationalError) no such column: strategies.impl_type
+[SQL: SELECT strategies.id AS strategies_id, strategies.name AS strategies_name, strategies.description AS strategies_description, strategies.category AS strategies_category, strategies.impl_type AS strategies_impl_type, strategies.configuration AS strategies_configuration, strategies.timeframe AS strategies_timeframe, strategies.enabled AS strategies_enabled, strategies.is_system_default AS strategies_is_system_default, strategies.execution_count AS strategies_execution_count, strategies.last_execution_time AS strategies_last_execution_time, strategies.created_at AS strategies_created_at, strategies.updated_at AS strategies_updated_at 
+FROM strategies 
+WHERE strategies.enabled = 1]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2025-08-08 20:47:35.810 | INFO     | app.core.container:initialize:55 - 依赖注入容器初始化完成
+2025-08-08 20:47:35.810 | INFO     | app.main:lifespan:51 - ✅ API Server started successfully
+2025-08-08 20:47:35.811 | DEBUG    | app.main:background_tasks:24 - 🔄 系统状态检查
+INFO:     Application startup complete.
+WARNING:  WatchFiles detected changes in 'app/core/strategy/ema55_pullback/strategy.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+2025-08-08 20:47:50.573 | INFO     | app.main:lifespan:59 - 🛑 Shutting down API Server...
+2025-08-08 20:47:50.580 | INFO     | app.database:close:1002 - Database connection closed
+2025-08-08 20:47:50.581 | INFO     | app.main:lifespan:69 - ✅ API Server shutdown completed
+INFO:     Application shutdown complete.
+INFO:     Finished server process [94991]
+2025-08-08 20:47:51.793 | INFO     | app.database:init_database:52 - Database initialized: sqlite:///./data/zhixing_trader.db
+INFO:     Started server process [95267]
+INFO:     Waiting for application startup.
+2025-08-08 20:47:52.703 | INFO     | app.main:lifespan:39 - 🚀 Starting Zhixing Trader API Server...
+2025-08-08 20:47:52.703 | INFO     | app.core.container:initialize:32 - 初始化依赖注入容器...
+2025-08-08 20:47:52.711 | ERROR    | app.database:get_enabled_strategies:446 - Failed to get enabled strategies: (sqlite3.OperationalError) no such column: strategies.impl_type
+[SQL: SELECT strategies.id AS strategies_id, strategies.name AS strategies_name, strategies.description AS strategies_description, strategies.category AS strategies_category, strategies.impl_type AS strategies_impl_type, strategies.configuration AS strategies_configuration, strategies.timeframe AS strategies_timeframe, strategies.enabled AS strategies_enabled, strategies.is_system_default AS strategies_is_system_default, strategies.execution_count AS strategies_execution_count, strategies.last_execution_time AS strategies_last_execution_time, strategies.created_at AS strategies_created_at, strategies.updated_at AS strategies_updated_at 
+FROM strategies 
+WHERE strategies.enabled = 1]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2025-08-08 20:47:52.711 | INFO     | app.core.container:initialize:55 - 依赖注入容器初始化完成
+2025-08-08 20:47:52.711 | INFO     | app.main:lifespan:51 - ✅ API Server started successfully
+2025-08-08 20:47:52.711 | DEBUG    | app.main:background_tasks:24 - 🔄 系统状态检查
+INFO:     Application startup complete.
+WARNING:  WatchFiles detected changes in 'app/core/strategy/engine.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+2025-08-08 20:48:00.088 | INFO     | app.main:lifespan:59 - 🛑 Shutting down API Server...
+2025-08-08 20:48:00.098 | INFO     | app.database:close:1002 - Database connection closed
+2025-08-08 20:48:00.098 | INFO     | app.main:lifespan:69 - ✅ API Server shutdown completed
+INFO:     Application shutdown complete.
+INFO:     Finished server process [95267]
+2025-08-08 20:48:01.308 | INFO     | app.database:init_database:52 - Database initialized: sqlite:///./data/zhixing_trader.db
+INFO:     Started server process [95405]
+INFO:     Waiting for application startup.
+2025-08-08 20:48:02.175 | INFO     | app.main:lifespan:39 - 🚀 Starting Zhixing Trader API Server...
+2025-08-08 20:48:02.175 | INFO     | app.core.container:initialize:32 - 初始化依赖注入容器...
+2025-08-08 20:48:02.186 | ERROR    | app.database:get_enabled_strategies:446 - Failed to get enabled strategies: (sqlite3.OperationalError) no such column: strategies.impl_type
+[SQL: SELECT strategies.id AS strategies_id, strategies.name AS strategies_name, strategies.description AS strategies_description, strategies.category AS strategies_category, strategies.impl_type AS strategies_impl_type, strategies.configuration AS strategies_configuration, strategies.timeframe AS strategies_timeframe, strategies.enabled AS strategies_enabled, strategies.is_system_default AS strategies_is_system_default, strategies.execution_count AS strategies_execution_count, strategies.last_execution_time AS strategies_last_execution_time, strategies.created_at AS strategies_created_at, strategies.updated_at AS strategies_updated_at 
+FROM strategies 
+WHERE strategies.enabled = 1]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2025-08-08 20:48:02.187 | INFO     | app.core.container:initialize:55 - 依赖注入容器初始化完成
+2025-08-08 20:48:02.187 | INFO     | app.main:lifespan:51 - ✅ API Server started successfully
+2025-08-08 20:48:02.187 | DEBUG    | app.main:background_tasks:24 - 🔄 系统状态检查
+INFO:     Application startup complete.
+INFO:     127.0.0.1:55444 - "GET /api/v1/strategies/available HTTP/1.1" 200 OK

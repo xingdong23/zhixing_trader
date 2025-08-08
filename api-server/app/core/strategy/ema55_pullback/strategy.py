@@ -1,13 +1,10 @@
-"""
-具体策略实现（旧文件，将逐步拆分到独立模块）
-保留向后兼容一段时间
-"""
-from typing import Dict, List, Any
 from datetime import datetime
+from typing import Dict, List
+
 from loguru import logger
 
-from ..interfaces import KLineData, SelectionResult
-from .base import BaseStrategy
+from ..base import BaseStrategy
+from ...interfaces import KLineData, SelectionResult
 
 
 class EMA55PullbackStrategy(BaseStrategy):
@@ -22,7 +19,7 @@ class EMA55PullbackStrategy(BaseStrategy):
         return "主升浪回踩EMA55不破，1小时级别企稳"
 
     async def execute(self, stock_data: Dict[str, List[KLineData]]) -> List[SelectionResult]:
-        results = []
+        results: List[SelectionResult] = []
         execution_time = datetime.now()
 
         for symbol, data in stock_data.items():
@@ -72,3 +69,5 @@ class EMA55PullbackStrategy(BaseStrategy):
             return 4
         else:
             return 5
+
+

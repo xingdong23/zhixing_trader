@@ -114,11 +114,12 @@ class StrategyFactory:
     @staticmethod
     def create_strategy(strategy_type: str, config: Dict) -> Optional[IStrategy]:
         """根据类型创建策略"""
-        from .implementations import EMA55PullbackStrategy
+        # 延迟导入各策略模块，按 impl_type 名称映射
+        from .ema55_pullback import EMA55PullbackStrategy
 
         strategy_map = {
             'ema55_pullback': EMA55PullbackStrategy,
-            # 暂时只保留一个策略
+            # 新增策略时仅需在此注册映射或改为动态发现
         }
 
         strategy_class = strategy_map.get(strategy_type)
