@@ -27,6 +27,7 @@ class DataSyncService:
         self.is_syncing = False
         # 最近一次同步结果（内存保存，便于前端查看失败详情/重试）
         self._last_result: Optional[Dict[str, any]] = None
+        self._last_sync_time: Optional[datetime] = None
     
     async def sync_all_watchlist_data(self, force_full_sync: bool = False) -> Dict[str, any]:
         """
@@ -112,6 +113,7 @@ class DataSyncService:
                        f"耗时 {sync_duration:.1f}秒")
             # 保存最后一次结果
             self._last_result = sync_results
+            self._last_sync_time = sync_end_time
             return sync_results
             
         except Exception as e:
@@ -121,6 +123,7 @@ class DataSyncService:
                 "error": str(e),
                 "end_time": datetime.now().isoformat()
             }
+            self._last_sync_time = datetime.now()
             return self._last_result
         
         finally:
@@ -168,15 +171,21 @@ class DataSyncService:
                 "success_rate": round((results["success_stocks"] / max(1, len(symbols))) * 100, 1),
             })
             self._last_result = results
+            self._last_sync_time = sync_end_time
             return results
         except Exception as e:
-            self._last_result = {"status": "failed", "error": str(e), "end_time": datetime.now().isoformat()}
+            now = datetime.now()
+            self._last_result = {"status": "failed", "error": str(e), "end_time": now.isoformat()}
+            self._last_sync_time = now
             return self._last_result
         finally:
             self.is_syncing = False
 
     def get_last_result(self) -> Dict[str, any]:
         return self._last_result or {"status": "none"}
+
+    def get_last_sync_time(self) -> Optional[str]:
+        return self._last_sync_time.isoformat() if self._last_sync_time else None
     
     async def _sync_single_stock(self, symbol: str, force_full_sync: bool) -> Dict[str, any]:
         """同步单只股票数据"""

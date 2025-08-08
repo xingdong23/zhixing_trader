@@ -94,7 +94,7 @@ async def get_sync_status() -> Dict[str, Any]:
         
         return {
             "success": True,
-            "sync_status": status,
+            "sync_status": { **status, "last_sync_time": data_sync_service.get_last_sync_time() },
             "watchlist_count": stock_count,
             "data_statistics": kline_stats,
             "current_time": datetime.now().isoformat()
