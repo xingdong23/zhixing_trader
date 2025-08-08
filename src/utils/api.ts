@@ -45,6 +45,7 @@ export async function apiGet(endpoint: string, options?: RequestInit): Promise<R
       'Content-Type': 'application/json',
       ...options?.headers,
     },
+    cache: 'no-store',
     ...options,
   });
 }
@@ -151,7 +152,8 @@ export async function pollApi<T = any>(endpoint: string, {
   const url = buildApiUrl(endpoint);
   const start = Date.now();
   while (true) {
-    const res = await fetch(url, { method: 'GET', headers: { 'Content-Type': 'application/json' } });
+    const res = await fetch(`${url}${url.includes('?') ? '&' : '?'}_ts=${Date.now()}`,
+      { method: 'GET', headers: { 'Content-Type': 'application/json' }, cache: 'no-store' });
     if (!res.ok) throw new Error(`API请求失败: ${res.status}`);
     const data = await res.json();
     if (data?.data?.state && ['completed', 'failed', 'not_found'].includes(data.data.state)) {

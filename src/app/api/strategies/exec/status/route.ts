@@ -11,8 +11,8 @@ export async function GET(request: NextRequest) {
     }
 
     const res = await fetch(
-      getBackendApiUrl(`strategies/exec/status?task_id=${encodeURIComponent(taskId)}`),
-      createFetchConfig('GET')
+      getBackendApiUrl(`strategies/exec/status?task_id=${encodeURIComponent(taskId)}&_ts=${Date.now()}`),
+      { ...createFetchConfig('GET'), cache: 'no-store' }
     );
 
     if (!res.ok) {

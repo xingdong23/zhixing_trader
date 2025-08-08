@@ -54,7 +54,7 @@ export function SelectionStrategies({
     const restore = async () => {
       for (const s of strategies) {
         try {
-          const res = await apiGet(`/strategies/exec/last-status?strategy_id=${s.id}`);
+          const res = await apiGet(`/strategies/exec/last-status?strategy_id=${s.id}&_ts=${Date.now()}`);
           if (!res.ok) continue;
           const data = await res.json();
           const st = data?.data;
@@ -125,7 +125,7 @@ export function SelectionStrategies({
       (async () => {
         try {
           while (true) {
-            const r = await apiGet(`/strategies/exec/status?task_id=${taskId}`);
+            const r = await apiGet(`/strategies/exec/status?task_id=${taskId}&_ts=${Date.now()}`);
             if (!r.ok) break;
             const d = await r.json();
             const st = d?.data;

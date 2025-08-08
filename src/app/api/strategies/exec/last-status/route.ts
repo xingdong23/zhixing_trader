@@ -11,8 +11,8 @@ export async function GET(request: NextRequest) {
     }
 
     const res = await fetch(
-      getBackendApiUrl(`strategies/exec/last-status?strategy_id=${encodeURIComponent(strategyId)}`),
-      createFetchConfig('GET')
+      getBackendApiUrl(`strategies/exec/last-status?strategy_id=${encodeURIComponent(strategyId)}&_ts=${Date.now()}`),
+      { ...createFetchConfig('GET'), cache: 'no-store' }
     );
     if (!res.ok) {
       const text = await res.text().catch(() => '');
