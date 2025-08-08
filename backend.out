@@ -6078,3 +6078,8 @@ INFO:     Waiting for application startup.
 2025-08-09 00:23:33.796 | INFO     | app.main:lifespan:51 - ✅ API Server started successfully
 2025-08-09 00:23:33.796 | DEBUG    | app.main:background_tasks:24 - 🔄 系统状态检查
 INFO:     Application startup complete.
+INFO:     127.0.0.1:59036 - "GET /api/v1/concepts/?page=1&page_size=20 HTTP/1.1" 200 OK
+2025-08-09 00:27:31.515 | INFO     | app.api.v1.endpoints.concepts:init_sample_data:90 - 概念数据已存在，无需初始化示例数据
+INFO:     127.0.0.1:59037 - "POST /api/v1/concepts/init-sample-data HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59036 - "GET /api/v1/strategies/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59037 - "GET /api/v1/stocks/?page=1&page_size=20 HTTP/1.1" 200 OK

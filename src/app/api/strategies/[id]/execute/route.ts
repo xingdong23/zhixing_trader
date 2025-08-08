@@ -9,10 +9,8 @@ export async function POST(
   try {
     const { id } = await params;
     // 不从前端读取body，后端此端点无需请求体
-    const response = await fetch(
-      getBackendApiUrl(`strategies/${id}/execute-async`),
-      createFetchConfig('POST')
-    );
+    // 使用 Next 代理：调用后端异步执行端点
+    const response = await fetch(getBackendApiUrl(`strategies/${id}/execute-async`), createFetchConfig('POST'));
 
     if (!response.ok) {
       throw new Error(`后端API请求失败: ${response.status}`);

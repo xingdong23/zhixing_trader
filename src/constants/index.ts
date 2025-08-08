@@ -28,8 +28,10 @@ export const API_ENDPOINTS = {
   
   // 策略相关
   STRATEGIES: '/strategies',
-  STRATEGY_EXECUTE: (id: string) => `/strategies/${id}/execute-async`,
-  STRATEGY_EXECUTE_SYNC: (id: string) => `/strategies/${id}/execute`,
+  // 默认执行为异步（由Next代理转发到后端异步接口）
+  STRATEGY_EXECUTE: (id: string) => `/strategies/${id}/execute`,
+  // 同步执行用于在任务完成后获取结果
+  STRATEGY_EXECUTE_SYNC: (id: string) => `/strategies/${id}/execute?mode=sync`,
   
   // 数据管理相关
   DATA_SYNC: '/data/sync',
