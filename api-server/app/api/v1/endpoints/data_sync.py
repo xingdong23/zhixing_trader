@@ -3,7 +3,7 @@
 提供手动触发数据同步和查看同步状态的功能
 """
 from fastapi import APIRouter, HTTPException, BackgroundTasks, Query
-from typing import Dict, Any
+from typing import Dict, Any, List
 from datetime import datetime
 from loguru import logger
 
@@ -138,3 +138,31 @@ async def cleanup_old_data(
 
 
 ## 删除计划配置接口，待未来引入调度器后再实现
+
+@router.get("/sync/last-result")
+async def get_last_sync_result() -> Dict[str, Any]:
+    try:
+        return {"success": True, "data": data_sync_service.get_last_result()}
+    except Exception as e:
+        logger.error(f"获取最近一次同步结果失败: {e}")
+        raise HTTPException(status_code=500, detail=f"获取失败: {str(e)}")
+
+
+@router.post("/sync/retry-failed")
+async def retry_failed_symbols(background_tasks: BackgroundTasks, force_full: bool = Query(False)) -> Dict[str, Any]:
+    try:
+        last = data_sync_service.get_last_result()
+        failed_symbols: List[str] = []
+        details = (last or {}).get("details", {})
+        for sym, info in details.items():
+            if not info.get("success"):
+                failed_symbols.append(sym)
+        if not failed_symbols:
+            return {"success": True, "message": "无失败股票可重试", "data": {"failed_symbols": []}}
+
+        # 后台重试
+        background_tasks.add_task(data_sync_service.sync_specific_symbols, failed_symbols, force_full)
+        return {"success": True, "message": "已发起失败重试", "data": {"failed_symbols": failed_symbols}}
+    except Exception as e:
+        logger.error(f"重试失败股票触发失败: {e}")
+        raise HTTPException(status_code=500, detail=f"重试触发失败: {str(e)}")

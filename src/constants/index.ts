@@ -44,9 +44,11 @@ export const API_ENDPOINTS = {
   
   // 数据同步相关
   SYNC_STATUS: '/sync/status',
+  SYNC_LAST_RESULT: '/sync/last-result',
   SYNC_START: '/sync/start',
   SYNC_STOP: '/sync/stop',
   SYNC_TRIGGER: (forceFullSync: boolean) => `/data/sync/trigger?force_full=${forceFullSync}`,
+  SYNC_RETRY_FAILED: (forceFullSync: boolean) => `/sync/retry-failed?force_full=${forceFullSync}`,
 } as const;
 
 // ==================== 应用配置 ====================

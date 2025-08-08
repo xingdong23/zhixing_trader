@@ -14653,3 +14653,1606 @@ INFO:     Waiting for connections to close. (CTRL+C to force quit)
 2025-08-09 00:58:04.301 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: CRNC, period: 1y, interval: 1d
 2025-08-09 00:58:04.699 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 CRNC 的 251 条K线数据
 2025-08-09 00:58:04.699 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: CRNC, period: 60d, interval: 1h
+2025-08-09 00:58:05.139 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 CRNC 的 413 条K线数据
+2025-08-09 00:58:05.139 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 CRNC 数据: 日线 251 条, 小时线 413 条
+2025-08-09 00:58:05.140 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: PL, period: 1y, interval: 1d
+2025-08-09 00:58:05.586 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 PL 的 251 条K线数据
+2025-08-09 00:58:05.586 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: PL, period: 60d, interval: 1h
+2025-08-09 00:58:06.020 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 PL 的 413 条K线数据
+2025-08-09 00:58:06.020 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 PL 数据: 日线 251 条, 小时线 413 条
+2025-08-09 00:58:06.020 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: LEU, period: 1y, interval: 1d
+2025-08-09 00:58:06.433 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 LEU 的 251 条K线数据
+2025-08-09 00:58:06.433 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: LEU, period: 60d, interval: 1h
+2025-08-09 00:58:06.886 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 LEU 的 413 条K线数据
+2025-08-09 00:58:06.886 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 LEU 数据: 日线 251 条, 小时线 413 条
+2025-08-09 00:58:06.886 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: ABVC, period: 1y, interval: 1d
+2025-08-09 00:58:07.300 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 ABVC 的 251 条K线数据
+2025-08-09 00:58:07.301 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: ABVC, period: 60d, interval: 1h
+2025-08-09 00:58:07.728 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 ABVC 的 413 条K线数据
+2025-08-09 00:58:07.728 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 ABVC 数据: 日线 251 条, 小时线 413 条
+2025-08-09 00:58:07.729 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: CCJ, period: 1y, interval: 1d
+2025-08-09 00:58:08.195 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 CCJ 的 251 条K线数据
+2025-08-09 00:58:08.195 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: CCJ, period: 60d, interval: 1h
+2025-08-09 00:58:08.626 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 CCJ 的 413 条K线数据
+2025-08-09 00:58:08.626 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 CCJ 数据: 日线 251 条, 小时线 413 条
+2025-08-09 00:58:08.626 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: WNS, period: 1y, interval: 1d
+2025-08-09 00:58:09.033 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 WNS 的 251 条K线数据
+2025-08-09 00:58:09.033 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: WNS, period: 60d, interval: 1h
+2025-08-09 00:58:09.478 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 WNS 的 413 条K线数据
+2025-08-09 00:58:09.478 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 WNS 数据: 日线 251 条, 小时线 413 条
+2025-08-09 00:58:09.478 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: TACO, period: 1y, interval: 1d
+2025-08-09 00:58:09.916 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 TACO 的 45 条K线数据
+2025-08-09 00:58:09.916 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: TACO, period: 60d, interval: 1h
+2025-08-09 00:58:10.378 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 TACO 的 303 条K线数据
+2025-08-09 00:58:10.378 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 TACO 数据: 日线 45 条, 小时线 303 条
+2025-08-09 00:58:10.379 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: NTLA, period: 1y, interval: 1d
+2025-08-09 00:58:11.401 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 NTLA 的 251 条K线数据
+2025-08-09 00:58:11.401 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: NTLA, period: 60d, interval: 1h
+2025-08-09 00:58:12.143 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 NTLA 的 413 条K线数据
+2025-08-09 00:58:12.144 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 NTLA 数据: 日线 251 条, 小时线 413 条
+2025-08-09 00:58:12.144 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: SANA, period: 1y, interval: 1d
+2025-08-09 00:58:12.681 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 SANA 的 251 条K线数据
+2025-08-09 00:58:12.682 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: SANA, period: 60d, interval: 1h
+2025-08-09 00:58:13.161 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 SANA 的 413 条K线数据
+2025-08-09 00:58:13.161 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 SANA 数据: 日线 251 条, 小时线 413 条
+2025-08-09 00:58:13.161 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: CAVA, period: 1y, interval: 1d
+2025-08-09 00:58:13.579 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 CAVA 的 251 条K线数据
+2025-08-09 00:58:13.580 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: CAVA, period: 60d, interval: 1h
+2025-08-09 00:58:14.026 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 CAVA 的 413 条K线数据
+2025-08-09 00:58:14.027 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 CAVA 数据: 日线 251 条, 小时线 413 条
+2025-08-09 00:58:14.027 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: XYZ, period: 1y, interval: 1d
+2025-08-09 00:58:14.437 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 XYZ 的 251 条K线数据
+2025-08-09 00:58:14.437 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: XYZ, period: 60d, interval: 1h
+2025-08-09 00:58:14.920 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 XYZ 的 413 条K线数据
+2025-08-09 00:58:14.920 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 XYZ 数据: 日线 251 条, 小时线 413 条
+2025-08-09 00:58:14.920 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: AI, period: 1y, interval: 1d
+2025-08-09 00:58:15.330 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 AI 的 251 条K线数据
+2025-08-09 00:58:15.330 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: AI, period: 60d, interval: 1h
+2025-08-09 00:58:15.790 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 AI 的 413 条K线数据
+2025-08-09 00:58:15.791 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 AI 数据: 日线 251 条, 小时线 413 条
+2025-08-09 00:58:15.791 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: ACHR, period: 1y, interval: 1d
+2025-08-09 00:58:16.193 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 ACHR 的 251 条K线数据
+2025-08-09 00:58:16.193 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: ACHR, period: 60d, interval: 1h
+2025-08-09 00:58:16.642 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 ACHR 的 413 条K线数据
+2025-08-09 00:58:16.643 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 ACHR 数据: 日线 251 条, 小时线 413 条
+2025-08-09 00:58:16.643 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: TTD, period: 1y, interval: 1d
+2025-08-09 00:58:17.056 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 TTD 的 251 条K线数据
+2025-08-09 00:58:17.057 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: TTD, period: 60d, interval: 1h
+2025-08-09 00:58:17.505 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 TTD 的 413 条K线数据
+2025-08-09 00:58:17.505 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 TTD 数据: 日线 251 条, 小时线 413 条
+2025-08-09 00:58:17.505 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: TDOC, period: 1y, interval: 1d
+2025-08-09 00:58:17.907 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 TDOC 的 251 条K线数据
+2025-08-09 00:58:17.907 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: TDOC, period: 60d, interval: 1h
+2025-08-09 00:58:18.364 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 TDOC 的 413 条K线数据
+2025-08-09 00:58:18.365 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 TDOC 数据: 日线 251 条, 小时线 413 条
+2025-08-09 00:58:18.365 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: ENVX, period: 1y, interval: 1d
+2025-08-09 00:58:18.828 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 ENVX 的 251 条K线数据
+2025-08-09 00:58:18.829 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: ENVX, period: 60d, interval: 1h
+2025-08-09 00:58:19.324 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 ENVX 的 413 条K线数据
+2025-08-09 00:58:19.325 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 ENVX 数据: 日线 251 条, 小时线 413 条
+2025-08-09 00:58:19.325 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: IWM, period: 1y, interval: 1d
+2025-08-09 00:58:19.871 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 IWM 的 251 条K线数据
+2025-08-09 00:58:19.872 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: IWM, period: 60d, interval: 1h
+2025-08-09 00:58:20.332 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 IWM 的 413 条K线数据
+2025-08-09 00:58:20.332 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 IWM 数据: 日线 251 条, 小时线 413 条
+2025-08-09 00:58:20.333 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: BTCS, period: 1y, interval: 1d
+2025-08-09 00:58:20.744 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 BTCS 的 251 条K线数据
+2025-08-09 00:58:20.744 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: BTCS, period: 60d, interval: 1h
+2025-08-09 00:58:21.247 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 BTCS 的 413 条K线数据
+2025-08-09 00:58:21.248 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 BTCS 数据: 日线 251 条, 小时线 413 条
+2025-08-09 00:58:21.248 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: TMC, period: 1y, interval: 1d
+2025-08-09 00:58:21.832 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 TMC 的 251 条K线数据
+2025-08-09 00:58:21.833 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: TMC, period: 60d, interval: 1h
+2025-08-09 00:58:22.412 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 TMC 的 413 条K线数据
+2025-08-09 00:58:22.413 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 TMC 数据: 日线 251 条, 小时线 413 条
+2025-08-09 00:58:22.414 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: CIFR, period: 1y, interval: 1d
+2025-08-09 00:58:22.929 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 CIFR 的 251 条K线数据
+2025-08-09 00:58:22.929 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: CIFR, period: 60d, interval: 1h
+2025-08-09 00:58:23.528 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 CIFR 的 413 条K线数据
+2025-08-09 00:58:23.529 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 CIFR 数据: 日线 251 条, 小时线 413 条
+2025-08-09 00:58:23.529 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: GRAB, period: 1y, interval: 1d
+2025-08-09 00:58:23.938 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 GRAB 的 251 条K线数据
+2025-08-09 00:58:23.938 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: GRAB, period: 60d, interval: 1h
+2025-08-09 00:58:24.411 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 GRAB 的 413 条K线数据
+2025-08-09 00:58:24.412 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 GRAB 数据: 日线 251 条, 小时线 413 条
+2025-08-09 00:58:24.413 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: BMNR, period: 1y, interval: 1d
+2025-08-09 00:58:24.885 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 BMNR 的 45 条K线数据
+2025-08-09 00:58:24.886 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: BMNR, period: 60d, interval: 1h
+2025-08-09 00:58:25.543 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 BMNR 的 305 条K线数据
+2025-08-09 00:58:25.543 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 BMNR 数据: 日线 45 条, 小时线 305 条
+2025-08-09 00:58:25.543 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: SERV, period: 1y, interval: 1d
+2025-08-09 00:58:25.956 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 SERV 的 251 条K线数据
+2025-08-09 00:58:25.956 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: SERV, period: 60d, interval: 1h
+2025-08-09 00:58:26.422 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 SERV 的 413 条K线数据
+2025-08-09 00:58:26.423 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 SERV 数据: 日线 251 条, 小时线 413 条
+2025-08-09 00:58:26.423 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: MSTR, period: 1y, interval: 1d
+2025-08-09 00:58:26.891 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 MSTR 的 251 条K线数据
+2025-08-09 00:58:26.891 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: MSTR, period: 60d, interval: 1h
+2025-08-09 00:58:27.386 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 MSTR 的 413 条K线数据
+2025-08-09 00:58:27.386 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 MSTR 数据: 日线 251 条, 小时线 413 条
+2025-08-09 00:58:27.386 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: RDDT, period: 1y, interval: 1d
+2025-08-09 00:58:27.852 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 RDDT 的 251 条K线数据
+2025-08-09 00:58:27.853 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: RDDT, period: 60d, interval: 1h
+2025-08-09 00:58:28.317 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 RDDT 的 413 条K线数据
+2025-08-09 00:58:28.318 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 RDDT 数据: 日线 251 条, 小时线 413 条
+2025-08-09 00:58:28.318 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: LULU, period: 1y, interval: 1d
+2025-08-09 00:58:28.809 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 LULU 的 251 条K线数据
+2025-08-09 00:58:28.810 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: LULU, period: 60d, interval: 1h
+2025-08-09 00:58:29.259 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 LULU 的 413 条K线数据
+2025-08-09 00:58:29.259 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 LULU 数据: 日线 251 条, 小时线 413 条
+2025-08-09 00:58:29.259 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: AAOI, period: 1y, interval: 1d
+2025-08-09 00:58:29.664 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 AAOI 的 251 条K线数据
+2025-08-09 00:58:29.665 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: AAOI, period: 60d, interval: 1h
+2025-08-09 00:58:30.156 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 AAOI 的 413 条K线数据
+2025-08-09 00:58:30.156 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 AAOI 数据: 日线 251 条, 小时线 413 条
+2025-08-09 00:58:30.156 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: BKSY, period: 1y, interval: 1d
+2025-08-09 00:58:30.561 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 BKSY 的 251 条K线数据
+2025-08-09 00:58:30.561 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: BKSY, period: 60d, interval: 1h
+2025-08-09 00:58:31.017 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 BKSY 的 413 条K线数据
+2025-08-09 00:58:31.017 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 BKSY 数据: 日线 251 条, 小时线 413 条
+2025-08-09 00:58:31.017 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: TSSI, period: 1y, interval: 1d
+2025-08-09 00:58:31.431 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 TSSI 的 251 条K线数据
+2025-08-09 00:58:31.431 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: TSSI, period: 60d, interval: 1h
+2025-08-09 00:58:31.890 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 TSSI 的 413 条K线数据
+2025-08-09 00:58:31.890 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 TSSI 数据: 日线 251 条, 小时线 413 条
+2025-08-09 00:58:31.890 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: AEVA, period: 1y, interval: 1d
+2025-08-09 00:58:32.357 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 AEVA 的 251 条K线数据
+2025-08-09 00:58:32.357 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: AEVA, period: 60d, interval: 1h
+2025-08-09 00:58:32.836 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 AEVA 的 413 条K线数据
+2025-08-09 00:58:32.836 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 AEVA 数据: 日线 251 条, 小时线 413 条
+2025-08-09 00:58:32.836 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: WULF, period: 1y, interval: 1d
+2025-08-09 00:58:33.247 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 WULF 的 251 条K线数据
+2025-08-09 00:58:33.248 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: WULF, period: 60d, interval: 1h
+2025-08-09 00:58:33.710 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 WULF 的 413 条K线数据
+2025-08-09 00:58:33.711 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 WULF 数据: 日线 251 条, 小时线 413 条
+2025-08-09 00:58:33.711 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: DOCS, period: 1y, interval: 1d
+2025-08-09 00:58:34.133 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 DOCS 的 251 条K线数据
+2025-08-09 00:58:34.133 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: DOCS, period: 60d, interval: 1h
+2025-08-09 00:58:34.585 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 DOCS 的 413 条K线数据
+2025-08-09 00:58:34.585 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 DOCS 数据: 日线 251 条, 小时线 413 条
+2025-08-09 00:58:34.586 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: BBAI, period: 1y, interval: 1d
+2025-08-09 00:58:35.002 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 BBAI 的 251 条K线数据
+2025-08-09 00:58:35.002 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: BBAI, period: 60d, interval: 1h
+2025-08-09 00:58:35.477 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 BBAI 的 413 条K线数据
+2025-08-09 00:58:35.478 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 BBAI 数据: 日线 251 条, 小时线 413 条
+2025-08-09 00:58:35.478 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: ONDS, period: 1y, interval: 1d
+2025-08-09 00:58:35.947 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 ONDS 的 251 条K线数据
+2025-08-09 00:58:35.947 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: ONDS, period: 60d, interval: 1h
+2025-08-09 00:58:36.426 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 ONDS 的 413 条K线数据
+2025-08-09 00:58:36.427 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 ONDS 数据: 日线 251 条, 小时线 413 条
+2025-08-09 00:58:36.427 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: NNE, period: 1y, interval: 1d
+2025-08-09 00:58:36.837 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 NNE 的 251 条K线数据
+2025-08-09 00:58:36.837 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: NNE, period: 60d, interval: 1h
+2025-08-09 00:58:37.320 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 NNE 的 413 条K线数据
+2025-08-09 00:58:37.321 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 NNE 数据: 日线 251 条, 小时线 413 条
+2025-08-09 00:58:37.321 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: FINV, period: 1y, interval: 1d
+2025-08-09 00:58:38.069 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 FINV 的 251 条K线数据
+2025-08-09 00:58:38.069 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: FINV, period: 60d, interval: 1h
+2025-08-09 00:58:38.506 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 FINV 的 413 条K线数据
+2025-08-09 00:58:38.507 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 FINV 数据: 日线 251 条, 小时线 413 条
+2025-08-09 00:58:38.507 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: QFIN, period: 1y, interval: 1d
+2025-08-09 00:58:38.921 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 QFIN 的 251 条K线数据
+2025-08-09 00:58:38.921 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: QFIN, period: 60d, interval: 1h
+2025-08-09 00:58:39.369 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 QFIN 的 413 条K线数据
+2025-08-09 00:58:39.369 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 QFIN 数据: 日线 251 条, 小时线 413 条
+2025-08-09 00:58:39.369 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: TTMI, period: 1y, interval: 1d
+2025-08-09 00:58:39.788 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 TTMI 的 251 条K线数据
+2025-08-09 00:58:39.788 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: TTMI, period: 60d, interval: 1h
+2025-08-09 00:58:40.230 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 TTMI 的 413 条K线数据
+2025-08-09 00:58:40.231 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 TTMI 数据: 日线 251 条, 小时线 413 条
+2025-08-09 00:58:40.231 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: PONY, period: 1y, interval: 1d
+2025-08-09 00:58:40.636 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 PONY 的 173 条K线数据
+2025-08-09 00:58:40.637 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: PONY, period: 60d, interval: 1h
+2025-08-09 00:58:41.093 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 PONY 的 413 条K线数据
+2025-08-09 00:58:41.093 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 PONY 数据: 日线 173 条, 小时线 413 条
+2025-08-09 00:58:41.093 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: CAI, period: 1y, interval: 1d
+2025-08-09 00:58:41.492 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 CAI 的 36 条K线数据
+2025-08-09 00:58:41.493 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: CAI, period: 60d, interval: 1h
+2025-08-09 00:58:41.923 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 CAI 的 243 条K线数据
+2025-08-09 00:58:41.923 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 CAI 数据: 日线 36 条, 小时线 243 条
+2025-08-09 00:58:41.924 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: CHYM, period: 1y, interval: 1d
+2025-08-09 00:58:42.305 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 CHYM 的 40 条K线数据
+2025-08-09 00:58:42.305 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: CHYM, period: 60d, interval: 1h
+2025-08-09 00:58:42.738 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 CHYM 的 270 条K线数据
+2025-08-09 00:58:42.738 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 CHYM 数据: 日线 40 条, 小时线 270 条
+2025-08-09 00:58:42.741 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: VOYG, period: 1y, interval: 1d
+2025-08-09 00:58:43.128 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 VOYG 的 41 条K线数据
+2025-08-09 00:58:43.128 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: VOYG, period: 60d, interval: 1h
+2025-08-09 00:58:43.556 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 VOYG 的 278 条K线数据
+2025-08-09 00:58:43.557 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 VOYG 数据: 日线 41 条, 小时线 278 条
+2025-08-09 00:58:43.557 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: SOUN, period: 1y, interval: 1d
+2025-08-09 00:58:43.959 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 SOUN 的 251 条K线数据
+2025-08-09 00:58:43.959 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: SOUN, period: 60d, interval: 1h
+2025-08-09 00:58:44.401 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 SOUN 的 413 条K线数据
+2025-08-09 00:58:44.401 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 SOUN 数据: 日线 251 条, 小时线 413 条
+2025-08-09 00:58:44.401 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: OUST, period: 1y, interval: 1d
+2025-08-09 00:58:44.799 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 OUST 的 251 条K线数据
+2025-08-09 00:58:44.800 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: OUST, period: 60d, interval: 1h
+2025-08-09 00:58:45.267 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 OUST 的 413 条K线数据
+2025-08-09 00:58:45.268 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 OUST 数据: 日线 251 条, 小时线 413 条
+2025-08-09 00:58:45.269 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: SMR, period: 1y, interval: 1d
+2025-08-09 00:58:45.750 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 SMR 的 251 条K线数据
+2025-08-09 00:58:45.750 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: SMR, period: 60d, interval: 1h
+2025-08-09 00:58:46.254 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 SMR 的 413 条K线数据
+2025-08-09 00:58:46.254 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 SMR 数据: 日线 251 条, 小时线 413 条
+2025-08-09 00:58:46.254 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: LTBR, period: 1y, interval: 1d
+2025-08-09 00:58:46.678 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 LTBR 的 251 条K线数据
+2025-08-09 00:58:46.678 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: LTBR, period: 60d, interval: 1h
+2025-08-09 00:58:47.128 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 LTBR 的 413 条K线数据
+2025-08-09 00:58:47.128 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 LTBR 数据: 日线 251 条, 小时线 413 条
+2025-08-09 00:58:47.129 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: NVTS, period: 1y, interval: 1d
+2025-08-09 00:58:47.542 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 NVTS 的 251 条K线数据
+2025-08-09 00:58:47.543 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: NVTS, period: 60d, interval: 1h
+2025-08-09 00:58:48.004 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 NVTS 的 413 条K线数据
+2025-08-09 00:58:48.004 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 NVTS 数据: 日线 251 条, 小时线 413 条
+2025-08-09 00:58:48.005 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: ZETA, period: 1y, interval: 1d
+2025-08-09 00:58:48.418 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 ZETA 的 251 条K线数据
+2025-08-09 00:58:48.418 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: ZETA, period: 60d, interval: 1h
+2025-08-09 00:58:48.875 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 ZETA 的 413 条K线数据
+2025-08-09 00:58:48.875 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 ZETA 数据: 日线 251 条, 小时线 413 条
+2025-08-09 00:58:48.875 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: SGOV, period: 1y, interval: 1d
+2025-08-09 00:58:49.302 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 SGOV 的 251 条K线数据
+2025-08-09 00:58:49.304 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: SGOV, period: 60d, interval: 1h
+2025-08-09 00:58:49.755 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 SGOV 的 413 条K线数据
+2025-08-09 00:58:49.755 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 SGOV 数据: 日线 251 条, 小时线 413 条
+2025-08-09 00:58:49.756 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: INOD, period: 1y, interval: 1d
+2025-08-09 00:58:50.159 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 INOD 的 251 条K线数据
+2025-08-09 00:58:50.159 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: INOD, period: 60d, interval: 1h
+2025-08-09 00:58:50.628 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 INOD 的 413 条K线数据
+2025-08-09 00:58:50.628 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 INOD 数据: 日线 251 条, 小时线 413 条
+2025-08-09 00:58:50.628 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: RKLB, period: 1y, interval: 1d
+2025-08-09 00:58:51.053 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 RKLB 的 251 条K线数据
+2025-08-09 00:58:51.054 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: RKLB, period: 60d, interval: 1h
+2025-08-09 00:58:51.529 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 RKLB 的 413 条K线数据
+2025-08-09 00:58:51.536 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 RKLB 数据: 日线 251 条, 小时线 413 条
+2025-08-09 00:58:51.536 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: SOFI, period: 1y, interval: 1d
+2025-08-09 00:58:51.937 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 SOFI 的 251 条K线数据
+2025-08-09 00:58:51.937 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: SOFI, period: 60d, interval: 1h
+2025-08-09 00:58:52.397 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 SOFI 的 413 条K线数据
+2025-08-09 00:58:52.397 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 SOFI 数据: 日线 251 条, 小时线 413 条
+2025-08-09 00:58:52.398 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: ODD, period: 1y, interval: 1d
+2025-08-09 00:58:52.798 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 ODD 的 251 条K线数据
+2025-08-09 00:58:52.799 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: ODD, period: 60d, interval: 1h
+2025-08-09 00:58:53.241 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 ODD 的 413 条K线数据
+2025-08-09 00:58:53.242 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 ODD 数据: 日线 251 条, 小时线 413 条
+2025-08-09 00:58:53.242 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: RBRK, period: 1y, interval: 1d
+2025-08-09 00:58:53.654 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 RBRK 的 251 条K线数据
+2025-08-09 00:58:53.654 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: RBRK, period: 60d, interval: 1h
+2025-08-09 00:58:54.135 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 RBRK 的 413 条K线数据
+2025-08-09 00:58:54.136 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 RBRK 数据: 日线 251 条, 小时线 413 条
+2025-08-09 00:58:54.136 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: AS, period: 1y, interval: 1d
+2025-08-09 00:58:54.543 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 AS 的 251 条K线数据
+2025-08-09 00:58:54.544 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: AS, period: 60d, interval: 1h
+2025-08-09 00:58:54.986 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 AS 的 413 条K线数据
+2025-08-09 00:58:54.987 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 AS 数据: 日线 251 条, 小时线 413 条
+2025-08-09 00:58:54.987 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: JOBY, period: 1y, interval: 1d
+2025-08-09 00:58:55.412 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 JOBY 的 251 条K线数据
+2025-08-09 00:58:55.413 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: JOBY, period: 60d, interval: 1h
+2025-08-09 00:58:55.872 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 JOBY 的 413 条K线数据
+2025-08-09 00:58:55.872 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 JOBY 数据: 日线 251 条, 小时线 413 条
+2025-08-09 00:58:55.872 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: OMDA, period: 1y, interval: 1d
+2025-08-09 00:58:56.358 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 OMDA 的 44 条K线数据
+2025-08-09 00:58:56.358 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: OMDA, period: 60d, interval: 1h
+2025-08-09 00:58:56.804 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 OMDA 的 300 条K线数据
+2025-08-09 00:58:56.805 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 OMDA 数据: 日线 44 条, 小时线 300 条
+2025-08-09 00:58:56.805 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: GLXY, period: 1y, interval: 1d
+2025-08-09 00:58:57.249 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 GLXY 的 58 条K线数据
+2025-08-09 00:58:57.249 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: GLXY, period: 60d, interval: 1h
+2025-08-09 00:58:57.709 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 GLXY 的 399 条K线数据
+2025-08-09 00:58:57.710 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 GLXY 数据: 日线 58 条, 小时线 399 条
+2025-08-09 00:58:57.710 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: KULR, period: 1y, interval: 1d
+2025-08-09 00:58:58.152 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 KULR 的 251 条K线数据
+2025-08-09 00:58:58.152 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: KULR, period: 60d, interval: 1h
+2025-08-09 00:58:58.596 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 KULR 的 413 条K线数据
+2025-08-09 00:58:58.596 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 KULR 数据: 日线 251 条, 小时线 413 条
+2025-08-09 00:58:58.597 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: LIST2542, period: 1y, interval: 1d
+HTTP Error 404: 
+$LIST2542: possibly delisted; no price data found  (period=1y) (Yahoo error = "No data found, symbol may be delisted")
+2025-08-09 00:59:01.431 | WARNING  | app.core.market_data.yahoo_provider:get_stock_data:36 - 未获取到股票 LIST2542 的数据
+2025-08-09 00:59:01.432 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: LIST2542, period: 60d, interval: 1h
+HTTP Error 404: 
+$LIST2542: possibly delisted; no price data found  (period=60d) (Yahoo error = "No data found, symbol may be delisted")
+2025-08-09 00:59:03.083 | WARNING  | app.core.market_data.yahoo_provider:get_stock_data:36 - 未获取到股票 LIST2542 的数据
+2025-08-09 00:59:03.083 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 LIST2542 数据: 日线 0 条, 小时线 0 条
+2025-08-09 00:59:03.084 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: SMH, period: 1y, interval: 1d
+2025-08-09 00:59:03.580 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 SMH 的 251 条K线数据
+2025-08-09 00:59:03.580 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: SMH, period: 60d, interval: 1h
+2025-08-09 00:59:04.065 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 SMH 的 413 条K线数据
+2025-08-09 00:59:04.065 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 SMH 数据: 日线 251 条, 小时线 413 条
+2025-08-09 00:59:04.065 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: QQQJ, period: 1y, interval: 1d
+2025-08-09 00:59:04.485 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 QQQJ 的 251 条K线数据
+2025-08-09 00:59:04.486 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: QQQJ, period: 60d, interval: 1h
+2025-08-09 00:59:04.943 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 QQQJ 的 413 条K线数据
+2025-08-09 00:59:04.944 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 QQQJ 数据: 日线 251 条, 小时线 413 条
+2025-08-09 00:59:04.944 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: SFM, period: 1y, interval: 1d
+2025-08-09 00:59:05.356 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 SFM 的 251 条K线数据
+2025-08-09 00:59:05.356 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: SFM, period: 60d, interval: 1h
+2025-08-09 00:59:05.801 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 SFM 的 413 条K线数据
+2025-08-09 00:59:05.802 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 SFM 数据: 日线 251 条, 小时线 413 条
+2025-08-09 00:59:05.802 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: APP, period: 1y, interval: 1d
+2025-08-09 00:59:06.210 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 APP 的 251 条K线数据
+2025-08-09 00:59:06.210 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: APP, period: 60d, interval: 1h
+2025-08-09 00:59:06.652 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 APP 的 413 条K线数据
+2025-08-09 00:59:06.653 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 APP 数据: 日线 251 条, 小时线 413 条
+2025-08-09 00:59:06.653 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: RGC, period: 1y, interval: 1d
+2025-08-09 00:59:07.073 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 RGC 的 251 条K线数据
+2025-08-09 00:59:07.073 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: RGC, period: 60d, interval: 1h
+2025-08-09 00:59:07.614 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 RGC 的 382 条K线数据
+2025-08-09 00:59:07.615 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 RGC 数据: 日线 251 条, 小时线 382 条
+2025-08-09 00:59:07.615 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: ARKK, period: 1y, interval: 1d
+2025-08-09 00:59:08.036 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 ARKK 的 251 条K线数据
+2025-08-09 00:59:08.036 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: ARKK, period: 60d, interval: 1h
+2025-08-09 00:59:08.487 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 ARKK 的 413 条K线数据
+2025-08-09 00:59:08.487 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 ARKK 数据: 日线 251 条, 小时线 413 条
+2025-08-09 00:59:08.487 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: UPST, period: 1y, interval: 1d
+2025-08-09 00:59:08.889 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 UPST 的 251 条K线数据
+2025-08-09 00:59:08.890 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: UPST, period: 60d, interval: 1h
+2025-08-09 00:59:09.341 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 UPST 的 413 条K线数据
+2025-08-09 00:59:09.342 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 UPST 数据: 日线 251 条, 小时线 413 条
+2025-08-09 00:59:09.342 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: CRWV, period: 1y, interval: 1d
+2025-08-09 00:59:09.742 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 CRWV 的 92 条K线数据
+2025-08-09 00:59:09.742 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: CRWV, period: 60d, interval: 1h
+2025-08-09 00:59:10.218 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 CRWV 的 413 条K线数据
+2025-08-09 00:59:10.219 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 CRWV 数据: 日线 92 条, 小时线 413 条
+2025-08-09 00:59:10.219 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: QBTS, period: 1y, interval: 1d
+2025-08-09 00:59:10.634 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 QBTS 的 251 条K线数据
+2025-08-09 00:59:10.634 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: QBTS, period: 60d, interval: 1h
+2025-08-09 00:59:11.087 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 QBTS 的 413 条K线数据
+2025-08-09 00:59:11.087 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 QBTS 数据: 日线 251 条, 小时线 413 条
+2025-08-09 00:59:11.088 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: DNA, period: 1y, interval: 1d
+2025-08-09 00:59:11.494 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 DNA 的 251 条K线数据
+2025-08-09 00:59:11.494 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: DNA, period: 60d, interval: 1h
+2025-08-09 00:59:11.926 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 DNA 的 413 条K线数据
+2025-08-09 00:59:11.926 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 DNA 数据: 日线 251 条, 小时线 413 条
+2025-08-09 00:59:11.926 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: LUNR, period: 1y, interval: 1d
+2025-08-09 00:59:12.336 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 LUNR 的 251 条K线数据
+2025-08-09 00:59:12.336 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: LUNR, period: 60d, interval: 1h
+2025-08-09 00:59:12.779 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 LUNR 的 413 条K线数据
+2025-08-09 00:59:12.780 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 LUNR 数据: 日线 251 条, 小时线 413 条
+2025-08-09 00:59:12.780 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: SEZL, period: 1y, interval: 1d
+2025-08-09 00:59:13.192 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 SEZL 的 251 条K线数据
+2025-08-09 00:59:13.192 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: SEZL, period: 60d, interval: 1h
+2025-08-09 00:59:13.650 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 SEZL 的 413 条K线数据
+2025-08-09 00:59:13.650 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 SEZL 数据: 日线 251 条, 小时线 413 条
+2025-08-09 00:59:13.650 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: NQ2606, period: 1y, interval: 1d
+$NQ2606: possibly delisted; no price data found  (period=1y) (Yahoo error = "No data found, symbol may be delisted")
+2025-08-09 00:59:15.022 | WARNING  | app.core.market_data.yahoo_provider:get_stock_data:36 - 未获取到股票 NQ2606 的数据
+2025-08-09 00:59:15.023 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: NQ2606, period: 60d, interval: 1h
+$NQ2606: possibly delisted; no price data found  (period=60d) (Yahoo error = "No data found, symbol may be delisted")
+2025-08-09 00:59:16.102 | WARNING  | app.core.market_data.yahoo_provider:get_stock_data:36 - 未获取到股票 NQ2606 的数据
+2025-08-09 00:59:16.103 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 NQ2606 数据: 日线 0 条, 小时线 0 条
+2025-08-09 00:59:16.103 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: OKLO, period: 1y, interval: 1d
+2025-08-09 00:59:16.532 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 OKLO 的 251 条K线数据
+2025-08-09 00:59:16.534 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: OKLO, period: 60d, interval: 1h
+2025-08-09 00:59:16.997 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 OKLO 的 413 条K线数据
+2025-08-09 00:59:16.998 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 OKLO 数据: 日线 251 条, 小时线 413 条
+2025-08-09 00:59:16.998 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: TEM, period: 1y, interval: 1d
+2025-08-09 00:59:17.460 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 TEM 的 251 条K线数据
+2025-08-09 00:59:17.461 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: TEM, period: 60d, interval: 1h
+2025-08-09 00:59:17.913 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 TEM 的 413 条K线数据
+2025-08-09 00:59:17.914 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 TEM 数据: 日线 251 条, 小时线 413 条
+2025-08-09 00:59:17.914 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: LRCX, period: 1y, interval: 1d
+2025-08-09 00:59:18.355 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 LRCX 的 251 条K线数据
+2025-08-09 00:59:18.356 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: LRCX, period: 60d, interval: 1h
+2025-08-09 00:59:18.816 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 LRCX 的 413 条K线数据
+2025-08-09 00:59:18.816 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 LRCX 数据: 日线 251 条, 小时线 413 条
+2025-08-09 00:59:18.816 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: HIMS, period: 1y, interval: 1d
+2025-08-09 00:59:19.222 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 HIMS 的 251 条K线数据
+2025-08-09 00:59:19.222 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: HIMS, period: 60d, interval: 1h
+2025-08-09 00:59:19.689 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 HIMS 的 413 条K线数据
+2025-08-09 00:59:19.690 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 HIMS 数据: 日线 251 条, 小时线 413 条
+2025-08-09 00:59:19.690 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: REAL, period: 1y, interval: 1d
+2025-08-09 00:59:20.097 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 REAL 的 251 条K线数据
+2025-08-09 00:59:20.098 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: REAL, period: 60d, interval: 1h
+2025-08-09 00:59:20.597 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 REAL 的 413 条K线数据
+2025-08-09 00:59:20.597 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 REAL 数据: 日线 251 条, 小时线 413 条
+2025-08-09 00:59:20.597 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: CRDO, period: 1y, interval: 1d
+2025-08-09 00:59:21.021 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 CRDO 的 251 条K线数据
+2025-08-09 00:59:21.022 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: CRDO, period: 60d, interval: 1h
+2025-08-09 00:59:21.497 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 CRDO 的 413 条K线数据
+2025-08-09 00:59:21.497 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 CRDO 数据: 日线 251 条, 小时线 413 条
+2025-08-09 00:59:21.497 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: LIF, period: 1y, interval: 1d
+2025-08-09 00:59:21.909 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 LIF 的 251 条K线数据
+2025-08-09 00:59:21.910 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: LIF, period: 60d, interval: 1h
+2025-08-09 00:59:22.352 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 LIF 的 413 条K线数据
+2025-08-09 00:59:22.352 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 LIF 数据: 日线 251 条, 小时线 413 条
+2025-08-09 00:59:22.352 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: MSFT, period: 1y, interval: 1d
+2025-08-09 00:59:22.792 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 MSFT 的 251 条K线数据
+2025-08-09 00:59:22.792 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: MSFT, period: 60d, interval: 1h
+2025-08-09 00:59:23.259 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 MSFT 的 413 条K线数据
+2025-08-09 00:59:23.259 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 MSFT 数据: 日线 251 条, 小时线 413 条
+2025-08-09 00:59:23.259 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: HUT, period: 1y, interval: 1d
+2025-08-09 00:59:23.677 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 HUT 的 251 条K线数据
+2025-08-09 00:59:23.677 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: HUT, period: 60d, interval: 1h
+2025-08-09 00:59:24.115 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 HUT 的 413 条K线数据
+2025-08-09 00:59:24.116 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 HUT 数据: 日线 251 条, 小时线 413 条
+2025-08-09 00:59:24.116 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: ASTS, period: 1y, interval: 1d
+2025-08-09 00:59:24.557 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 ASTS 的 251 条K线数据
+2025-08-09 00:59:24.557 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: ASTS, period: 60d, interval: 1h
+2025-08-09 00:59:25.046 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 ASTS 的 413 条K线数据
+2025-08-09 00:59:25.047 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 ASTS 数据: 日线 251 条, 小时线 413 条
+2025-08-09 00:59:25.047 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: NBIS, period: 1y, interval: 1d
+2025-08-09 00:59:25.455 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 NBIS 的 200 条K线数据
+2025-08-09 00:59:25.456 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: NBIS, period: 60d, interval: 1h
+2025-08-09 00:59:25.917 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 NBIS 的 413 条K线数据
+2025-08-09 00:59:25.918 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 NBIS 数据: 日线 200 条, 小时线 413 条
+2025-08-09 00:59:25.918 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: ETHV, period: 1y, interval: 1d
+2025-08-09 00:59:26.336 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 ETHV 的 251 条K线数据
+2025-08-09 00:59:26.336 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: ETHV, period: 60d, interval: 1h
+2025-08-09 00:59:26.788 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 ETHV 的 409 条K线数据
+2025-08-09 00:59:26.788 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 ETHV 数据: 日线 251 条, 小时线 409 条
+2025-08-09 00:59:26.789 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: CORZ, period: 1y, interval: 1d
+2025-08-09 00:59:27.199 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 CORZ 的 251 条K线数据
+2025-08-09 00:59:27.199 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: CORZ, period: 60d, interval: 1h
+2025-08-09 00:59:27.646 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 CORZ 的 413 条K线数据
+2025-08-09 00:59:27.647 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 CORZ 数据: 日线 251 条, 小时线 413 条
+2025-08-09 00:59:27.647 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: CLSK, period: 1y, interval: 1d
+2025-08-09 00:59:28.050 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 CLSK 的 251 条K线数据
+2025-08-09 00:59:28.051 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: CLSK, period: 60d, interval: 1h
+2025-08-09 00:59:28.501 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 CLSK 的 413 条K线数据
+2025-08-09 00:59:28.501 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 CLSK 数据: 日线 251 条, 小时线 413 条
+2025-08-09 00:59:28.502 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: CLS, period: 1y, interval: 1d
+2025-08-09 00:59:28.912 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 CLS 的 251 条K线数据
+2025-08-09 00:59:28.913 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: CLS, period: 60d, interval: 1h
+2025-08-09 00:59:29.380 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 CLS 的 413 条K线数据
+2025-08-09 00:59:29.381 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 CLS 数据: 日线 251 条, 小时线 413 条
+2025-08-09 00:59:29.381 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: DXYZ, period: 1y, interval: 1d
+2025-08-09 00:59:29.826 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 DXYZ 的 251 条K线数据
+2025-08-09 00:59:29.827 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: DXYZ, period: 60d, interval: 1h
+2025-08-09 00:59:30.302 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 DXYZ 的 413 条K线数据
+2025-08-09 00:59:30.303 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 DXYZ 数据: 日线 251 条, 小时线 413 条
+2025-08-09 00:59:30.303 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: DJT, period: 1y, interval: 1d
+2025-08-09 00:59:30.739 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 DJT 的 251 条K线数据
+2025-08-09 00:59:30.739 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: DJT, period: 60d, interval: 1h
+2025-08-09 00:59:31.240 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 DJT 的 413 条K线数据
+2025-08-09 00:59:31.241 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 DJT 数据: 日线 251 条, 小时线 413 条
+2025-08-09 00:59:31.241 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: VTEX, period: 1y, interval: 1d
+2025-08-09 00:59:31.773 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 VTEX 的 251 条K线数据
+2025-08-09 00:59:31.773 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: VTEX, period: 60d, interval: 1h
+2025-08-09 00:59:32.327 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 VTEX 的 413 条K线数据
+2025-08-09 00:59:32.328 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 VTEX 数据: 日线 251 条, 小时线 413 条
+2025-08-09 00:59:32.328 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: CXAI, period: 1y, interval: 1d
+2025-08-09 00:59:32.898 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 CXAI 的 251 条K线数据
+2025-08-09 00:59:32.899 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: CXAI, period: 60d, interval: 1h
+2025-08-09 00:59:33.530 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 CXAI 的 413 条K线数据
+2025-08-09 00:59:33.531 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 CXAI 数据: 日线 251 条, 小时线 413 条
+2025-08-09 00:59:33.531 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: VST, period: 1y, interval: 1d
+2025-08-09 00:59:34.112 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 VST 的 251 条K线数据
+2025-08-09 00:59:34.113 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: VST, period: 60d, interval: 1h
+2025-08-09 00:59:34.761 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 VST 的 413 条K线数据
+2025-08-09 00:59:34.762 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 VST 数据: 日线 251 条, 小时线 413 条
+2025-08-09 00:59:34.763 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: AMD, period: 1y, interval: 1d
+2025-08-09 00:59:35.205 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 AMD 的 251 条K线数据
+2025-08-09 00:59:35.205 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: AMD, period: 60d, interval: 1h
+2025-08-09 00:59:35.717 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 AMD 的 413 条K线数据
+2025-08-09 00:59:35.717 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 AMD 数据: 日线 251 条, 小时线 413 条
+2025-08-09 00:59:35.719 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: DHAI, period: 1y, interval: 1d
+2025-08-09 00:59:36.131 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 DHAI 的 251 条K线数据
+2025-08-09 00:59:36.131 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: DHAI, period: 60d, interval: 1h
+2025-08-09 00:59:36.651 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 DHAI 的 413 条K线数据
+2025-08-09 00:59:36.652 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 DHAI 数据: 日线 251 条, 小时线 413 条
+2025-08-09 00:59:36.652 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: ALAB, period: 1y, interval: 1d
+2025-08-09 00:59:37.221 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 ALAB 的 251 条K线数据
+2025-08-09 00:59:37.221 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: ALAB, period: 60d, interval: 1h
+2025-08-09 00:59:37.705 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 ALAB 的 413 条K线数据
+2025-08-09 00:59:37.705 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 ALAB 数据: 日线 251 条, 小时线 413 条
+2025-08-09 00:59:37.705 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: CDLX, period: 1y, interval: 1d
+2025-08-09 00:59:38.150 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 CDLX 的 251 条K线数据
+2025-08-09 00:59:38.151 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: CDLX, period: 60d, interval: 1h
+2025-08-09 00:59:38.789 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 CDLX 的 413 条K线数据
+2025-08-09 00:59:38.790 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 CDLX 数据: 日线 251 条, 小时线 413 条
+2025-08-09 00:59:38.790 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: ATCH, period: 1y, interval: 1d
+2025-08-09 00:59:39.250 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 ATCH 的 251 条K线数据
+2025-08-09 00:59:39.250 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: ATCH, period: 60d, interval: 1h
+2025-08-09 00:59:40.246 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 ATCH 的 413 条K线数据
+2025-08-09 00:59:40.247 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 ATCH 数据: 日线 251 条, 小时线 413 条
+2025-08-09 00:59:40.247 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: FIEE, period: 1y, interval: 1d
+2025-08-09 00:59:40.688 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 FIEE 的 251 条K线数据
+2025-08-09 00:59:40.688 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: FIEE, period: 60d, interval: 1h
+2025-08-09 00:59:41.132 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 FIEE 的 143 条K线数据
+2025-08-09 00:59:41.132 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 FIEE 数据: 日线 251 条, 小时线 143 条
+2025-08-09 00:59:41.132 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: GSAT, period: 1y, interval: 1d
+2025-08-09 00:59:41.561 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 GSAT 的 251 条K线数据
+2025-08-09 00:59:41.562 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: GSAT, period: 60d, interval: 1h
+2025-08-09 00:59:42.043 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 GSAT 的 413 条K线数据
+2025-08-09 00:59:42.044 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 GSAT 数据: 日线 251 条, 小时线 413 条
+2025-08-09 00:59:42.044 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: PGY, period: 1y, interval: 1d
+2025-08-09 00:59:42.485 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 PGY 的 251 条K线数据
+2025-08-09 00:59:42.486 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: PGY, period: 60d, interval: 1h
+2025-08-09 00:59:43.063 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 PGY 的 413 条K线数据
+2025-08-09 00:59:43.065 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 PGY 数据: 日线 251 条, 小时线 413 条
+2025-08-09 00:59:43.066 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: GXAI, period: 1y, interval: 1d
+2025-08-09 00:59:43.635 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 GXAI 的 251 条K线数据
+2025-08-09 00:59:43.635 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: GXAI, period: 60d, interval: 1h
+2025-08-09 00:59:44.165 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 GXAI 的 411 条K线数据
+2025-08-09 00:59:44.166 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 GXAI 数据: 日线 251 条, 小时线 411 条
+2025-08-09 00:59:44.167 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: GBTC, period: 1y, interval: 1d
+2025-08-09 00:59:44.586 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 GBTC 的 251 条K线数据
+2025-08-09 00:59:44.587 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: GBTC, period: 60d, interval: 1h
+2025-08-09 00:59:45.087 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 GBTC 的 413 条K线数据
+2025-08-09 00:59:45.087 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 GBTC 数据: 日线 251 条, 小时线 413 条
+2025-08-09 00:59:45.088 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: FBTC, period: 1y, interval: 1d
+2025-08-09 00:59:45.617 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 FBTC 的 251 条K线数据
+2025-08-09 00:59:45.617 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: FBTC, period: 60d, interval: 1h
+2025-08-09 00:59:46.384 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 FBTC 的 413 条K线数据
+2025-08-09 00:59:46.386 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 FBTC 数据: 日线 251 条, 小时线 413 条
+2025-08-09 00:59:46.393 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: LNTH, period: 1y, interval: 1d
+2025-08-09 00:59:47.055 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 LNTH 的 251 条K线数据
+2025-08-09 00:59:47.056 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: LNTH, period: 60d, interval: 1h
+2025-08-09 00:59:48.152 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 LNTH 的 413 条K线数据
+2025-08-09 00:59:48.242 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 LNTH 数据: 日线 251 条, 小时线 413 条
+2025-08-09 00:59:48.242 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: PANW, period: 1y, interval: 1d
+2025-08-09 00:59:48.725 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 PANW 的 251 条K线数据
+2025-08-09 00:59:48.726 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: PANW, period: 60d, interval: 1h
+2025-08-09 00:59:49.248 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 PANW 的 413 条K线数据
+2025-08-09 00:59:49.249 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 PANW 数据: 日线 251 条, 小时线 413 条
+2025-08-09 00:59:49.250 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: FSLY, period: 1y, interval: 1d
+2025-08-09 00:59:49.676 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 FSLY 的 251 条K线数据
+2025-08-09 00:59:49.676 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: FSLY, period: 60d, interval: 1h
+2025-08-09 00:59:50.194 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 FSLY 的 413 条K线数据
+2025-08-09 00:59:50.195 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 FSLY 数据: 日线 251 条, 小时线 413 条
+2025-08-09 00:59:50.198 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: VKTX, period: 1y, interval: 1d
+2025-08-09 00:59:50.652 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 VKTX 的 251 条K线数据
+2025-08-09 00:59:50.655 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: VKTX, period: 60d, interval: 1h
+2025-08-09 00:59:51.154 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 VKTX 的 413 条K线数据
+2025-08-09 00:59:51.157 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 VKTX 数据: 日线 251 条, 小时线 413 条
+2025-08-09 00:59:51.157 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: CSCO, period: 1y, interval: 1d
+2025-08-09 00:59:51.644 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 CSCO 的 251 条K线数据
+2025-08-09 00:59:51.644 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: CSCO, period: 60d, interval: 1h
+2025-08-09 00:59:52.141 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 CSCO 的 413 条K线数据
+2025-08-09 00:59:52.142 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 CSCO 数据: 日线 251 条, 小时线 413 条
+2025-08-09 00:59:52.143 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: BULZ, period: 1y, interval: 1d
+2025-08-09 00:59:52.596 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 BULZ 的 251 条K线数据
+2025-08-09 00:59:52.596 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: BULZ, period: 60d, interval: 1h
+2025-08-09 00:59:53.052 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 BULZ 的 413 条K线数据
+2025-08-09 00:59:53.052 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 BULZ 数据: 日线 251 条, 小时线 413 条
+2025-08-09 00:59:53.052 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: TMF, period: 1y, interval: 1d
+2025-08-09 00:59:53.490 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 TMF 的 251 条K线数据
+2025-08-09 00:59:53.490 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: TMF, period: 60d, interval: 1h
+2025-08-09 00:59:53.973 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 TMF 的 413 条K线数据
+2025-08-09 00:59:53.973 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 TMF 数据: 日线 251 条, 小时线 413 条
+2025-08-09 00:59:53.973 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: CELH, period: 1y, interval: 1d
+2025-08-09 00:59:54.401 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 CELH 的 251 条K线数据
+2025-08-09 00:59:54.402 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: CELH, period: 60d, interval: 1h
+2025-08-09 00:59:54.867 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 CELH 的 413 条K线数据
+2025-08-09 00:59:54.867 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 CELH 数据: 日线 251 条, 小时线 413 条
+2025-08-09 00:59:54.867 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: XPO, period: 1y, interval: 1d
+2025-08-09 00:59:55.271 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 XPO 的 251 条K线数据
+2025-08-09 00:59:55.271 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: XPO, period: 60d, interval: 1h
+2025-08-09 00:59:55.712 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 XPO 的 413 条K线数据
+2025-08-09 00:59:55.712 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 XPO 数据: 日线 251 条, 小时线 413 条
+2025-08-09 00:59:55.712 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: ZS, period: 1y, interval: 1d
+2025-08-09 00:59:56.120 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 ZS 的 251 条K线数据
+2025-08-09 00:59:56.120 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: ZS, period: 60d, interval: 1h
+2025-08-09 00:59:56.585 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 ZS 的 413 条K线数据
+2025-08-09 00:59:56.585 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 ZS 数据: 日线 251 条, 小时线 413 条
+2025-08-09 00:59:56.586 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: PINS, period: 1y, interval: 1d
+2025-08-09 00:59:57.012 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 PINS 的 251 条K线数据
+2025-08-09 00:59:57.013 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: PINS, period: 60d, interval: 1h
+2025-08-09 00:59:57.467 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 PINS 的 413 条K线数据
+2025-08-09 00:59:57.467 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 PINS 数据: 日线 251 条, 小时线 413 条
+2025-08-09 00:59:57.467 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: PLTR, period: 1y, interval: 1d
+2025-08-09 00:59:57.873 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 PLTR 的 251 条K线数据
+2025-08-09 00:59:57.874 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: PLTR, period: 60d, interval: 1h
+2025-08-09 00:59:58.362 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 PLTR 的 413 条K线数据
+2025-08-09 00:59:58.362 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 PLTR 数据: 日线 251 条, 小时线 413 条
+2025-08-09 00:59:58.363 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: FNGU, period: 1y, interval: 1d
+2025-08-09 00:59:58.772 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 FNGU 的 118 条K线数据
+2025-08-09 00:59:58.772 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: FNGU, period: 60d, interval: 1h
+2025-08-09 00:59:59.207 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 FNGU 的 214 条K线数据
+2025-08-09 00:59:59.208 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 FNGU 数据: 日线 118 条, 小时线 214 条
+2025-08-09 00:59:59.208 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: COIN, period: 1y, interval: 1d
+2025-08-09 00:59:59.631 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 COIN 的 251 条K线数据
+2025-08-09 00:59:59.632 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: COIN, period: 60d, interval: 1h
+2025-08-09 01:00:00.147 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 COIN 的 413 条K线数据
+2025-08-09 01:00:00.148 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 COIN 数据: 日线 251 条, 小时线 413 条
+2025-08-09 01:00:00.148 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: SOXL, period: 1y, interval: 1d
+2025-08-09 01:00:00.632 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 SOXL 的 251 条K线数据
+2025-08-09 01:00:00.633 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: SOXL, period: 60d, interval: 1h
+2025-08-09 01:00:01.177 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 SOXL 的 413 条K线数据
+2025-08-09 01:00:01.177 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 SOXL 数据: 日线 251 条, 小时线 413 条
+2025-08-09 01:00:01.177 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: MRAI, period: 1y, interval: 1d
+2025-08-09 01:00:01.612 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 MRAI 的 251 条K线数据
+2025-08-09 01:00:01.613 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: MRAI, period: 60d, interval: 1h
+2025-08-09 01:00:02.025 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 MRAI 的 142 条K线数据
+2025-08-09 01:00:02.025 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 MRAI 数据: 日线 251 条, 小时线 142 条
+2025-08-09 01:00:02.026 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: ETHE, period: 1y, interval: 1d
+2025-08-09 01:00:02.442 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 ETHE 的 251 条K线数据
+2025-08-09 01:00:02.443 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: ETHE, period: 60d, interval: 1h
+2025-08-09 01:00:02.920 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 ETHE 的 413 条K线数据
+2025-08-09 01:00:02.920 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 ETHE 数据: 日线 251 条, 小时线 413 条
+2025-08-09 01:00:02.920 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: TNA, period: 1y, interval: 1d
+2025-08-09 01:00:03.377 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 TNA 的 251 条K线数据
+2025-08-09 01:00:03.377 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: TNA, period: 60d, interval: 1h
+2025-08-09 01:00:03.852 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 TNA 的 413 条K线数据
+2025-08-09 01:00:03.852 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 TNA 数据: 日线 251 条, 小时线 413 条
+2025-08-09 01:00:03.853 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: NU, period: 1y, interval: 1d
+2025-08-09 01:00:04.260 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 NU 的 251 条K线数据
+2025-08-09 01:00:04.261 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: NU, period: 60d, interval: 1h
+2025-08-09 01:00:04.715 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 NU 的 413 条K线数据
+2025-08-09 01:00:04.715 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 NU 数据: 日线 251 条, 小时线 413 条
+2025-08-09 01:00:04.715 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: AMZU, period: 1y, interval: 1d
+2025-08-09 01:00:05.138 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 AMZU 的 251 条K线数据
+2025-08-09 01:00:05.138 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: AMZU, period: 60d, interval: 1h
+2025-08-09 01:00:05.602 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 AMZU 的 413 条K线数据
+2025-08-09 01:00:05.602 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 AMZU 数据: 日线 251 条, 小时线 413 条
+2025-08-09 01:00:05.602 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: TGTX, period: 1y, interval: 1d
+2025-08-09 01:00:06.013 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 TGTX 的 251 条K线数据
+2025-08-09 01:00:06.013 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: TGTX, period: 60d, interval: 1h
+2025-08-09 01:00:06.468 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 TGTX 的 413 条K线数据
+2025-08-09 01:00:06.469 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 TGTX 数据: 日线 251 条, 小时线 413 条
+2025-08-09 01:00:06.469 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: TSLY, period: 1y, interval: 1d
+2025-08-09 01:00:06.894 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 TSLY 的 251 条K线数据
+2025-08-09 01:00:06.896 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: TSLY, period: 60d, interval: 1h
+2025-08-09 01:00:07.423 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 TSLY 的 413 条K线数据
+2025-08-09 01:00:07.424 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 TSLY 数据: 日线 251 条, 小时线 413 条
+2025-08-09 01:00:07.424 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: BITX, period: 1y, interval: 1d
+2025-08-09 01:00:07.878 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 BITX 的 251 条K线数据
+2025-08-09 01:00:07.879 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: BITX, period: 60d, interval: 1h
+2025-08-09 01:00:08.415 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 BITX 的 413 条K线数据
+2025-08-09 01:00:08.422 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 BITX 数据: 日线 251 条, 小时线 413 条
+2025-08-09 01:00:08.423 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: IBIT, period: 1y, interval: 1d
+2025-08-09 01:00:08.851 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 IBIT 的 251 条K线数据
+2025-08-09 01:00:08.851 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: IBIT, period: 60d, interval: 1h
+2025-08-09 01:00:09.390 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 IBIT 的 413 条K线数据
+2025-08-09 01:00:09.390 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 IBIT 数据: 日线 251 条, 小时线 413 条
+2025-08-09 01:00:09.390 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: GDXU, period: 1y, interval: 1d
+2025-08-09 01:00:10.324 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 GDXU 的 251 条K线数据
+2025-08-09 01:00:10.324 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: GDXU, period: 60d, interval: 1h
+2025-08-09 01:00:10.895 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 GDXU 的 413 条K线数据
+2025-08-09 01:00:10.895 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 GDXU 数据: 日线 251 条, 小时线 413 条
+2025-08-09 01:00:10.896 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: TSLT, period: 1y, interval: 1d
+2025-08-09 01:00:11.320 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 TSLT 的 251 条K线数据
+2025-08-09 01:00:11.321 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: TSLT, period: 60d, interval: 1h
+2025-08-09 01:00:11.877 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 TSLT 的 413 条K线数据
+2025-08-09 01:00:11.878 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 TSLT 数据: 日线 251 条, 小时线 413 条
+2025-08-09 01:00:11.878 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: PTON, period: 1y, interval: 1d
+2025-08-09 01:00:12.311 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 PTON 的 251 条K线数据
+2025-08-09 01:00:12.312 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: PTON, period: 60d, interval: 1h
+2025-08-09 01:00:12.777 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 PTON 的 413 条K线数据
+2025-08-09 01:00:12.777 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 PTON 数据: 日线 251 条, 小时线 413 条
+2025-08-09 01:00:12.777 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: CONY, period: 1y, interval: 1d
+2025-08-09 01:00:13.252 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 CONY 的 251 条K线数据
+2025-08-09 01:00:13.252 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: CONY, period: 60d, interval: 1h
+2025-08-09 01:00:13.748 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 CONY 的 413 条K线数据
+2025-08-09 01:00:13.748 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 CONY 数据: 日线 251 条, 小时线 413 条
+2025-08-09 01:00:13.748 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: SPYU, period: 1y, interval: 1d
+2025-08-09 01:00:14.267 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 SPYU 的 251 条K线数据
+2025-08-09 01:00:14.268 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: SPYU, period: 60d, interval: 1h
+2025-08-09 01:00:14.853 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 SPYU 的 413 条K线数据
+2025-08-09 01:00:14.854 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 SPYU 数据: 日线 251 条, 小时线 413 条
+2025-08-09 01:00:14.854 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: NTRP, period: 1y, interval: 1d
+2025-08-09 01:00:15.295 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 NTRP 的 251 条K线数据
+2025-08-09 01:00:15.296 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: NTRP, period: 60d, interval: 1h
+2025-08-09 01:00:15.781 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 NTRP 的 357 条K线数据
+2025-08-09 01:00:15.782 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 NTRP 数据: 日线 251 条, 小时线 357 条
+2025-08-09 01:00:15.782 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: AHG, period: 1y, interval: 1d
+2025-08-09 01:00:16.313 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 AHG 的 251 条K线数据
+2025-08-09 01:00:16.314 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: AHG, period: 60d, interval: 1h
+2025-08-09 01:00:16.773 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 AHG 的 279 条K线数据
+2025-08-09 01:00:16.773 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 AHG 数据: 日线 251 条, 小时线 279 条
+2025-08-09 01:00:16.774 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: HSBC, period: 1y, interval: 1d
+2025-08-09 01:00:17.291 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 HSBC 的 251 条K线数据
+2025-08-09 01:00:17.291 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: HSBC, period: 60d, interval: 1h
+2025-08-09 01:00:17.754 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 HSBC 的 413 条K线数据
+2025-08-09 01:00:17.755 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 HSBC 数据: 日线 251 条, 小时线 413 条
+2025-08-09 01:00:17.755 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: IBKR, period: 1y, interval: 1d
+2025-08-09 01:00:18.232 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 IBKR 的 251 条K线数据
+2025-08-09 01:00:18.233 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: IBKR, period: 60d, interval: 1h
+2025-08-09 01:00:18.716 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 IBKR 的 413 条K线数据
+2025-08-09 01:00:18.716 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 IBKR 数据: 日线 251 条, 小时线 413 条
+2025-08-09 01:00:18.716 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: ABBV, period: 1y, interval: 1d
+2025-08-09 01:00:19.215 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 ABBV 的 251 条K线数据
+2025-08-09 01:00:19.216 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: ABBV, period: 60d, interval: 1h
+2025-08-09 01:00:19.717 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 ABBV 的 413 条K线数据
+2025-08-09 01:00:19.717 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 ABBV 数据: 日线 251 条, 小时线 413 条
+2025-08-09 01:00:19.717 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: FCX, period: 1y, interval: 1d
+2025-08-09 01:00:20.196 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 FCX 的 251 条K线数据
+2025-08-09 01:00:20.196 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: FCX, period: 60d, interval: 1h
+2025-08-09 01:00:20.643 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 FCX 的 413 条K线数据
+2025-08-09 01:00:20.644 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 FCX 数据: 日线 251 条, 小时线 413 条
+2025-08-09 01:00:20.644 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: DASH, period: 1y, interval: 1d
+2025-08-09 01:00:21.054 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 DASH 的 251 条K线数据
+2025-08-09 01:00:21.054 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: DASH, period: 60d, interval: 1h
+2025-08-09 01:00:21.543 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 DASH 的 413 条K线数据
+2025-08-09 01:00:21.543 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 DASH 数据: 日线 251 条, 小时线 413 条
+2025-08-09 01:00:21.544 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: ORCL, period: 1y, interval: 1d
+2025-08-09 01:00:21.995 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 ORCL 的 251 条K线数据
+2025-08-09 01:00:21.996 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: ORCL, period: 60d, interval: 1h
+2025-08-09 01:00:22.492 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 ORCL 的 413 条K线数据
+2025-08-09 01:00:22.493 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 ORCL 数据: 日线 251 条, 小时线 413 条
+2025-08-09 01:00:22.493 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: AMZN, period: 1y, interval: 1d
+2025-08-09 01:00:22.947 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 AMZN 的 251 条K线数据
+2025-08-09 01:00:22.947 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: AMZN, period: 60d, interval: 1h
+2025-08-09 01:00:23.422 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 AMZN 的 413 条K线数据
+2025-08-09 01:00:23.422 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 AMZN 数据: 日线 251 条, 小时线 413 条
+2025-08-09 01:00:23.423 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: CWEB, period: 1y, interval: 1d
+2025-08-09 01:00:23.869 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 CWEB 的 251 条K线数据
+2025-08-09 01:00:23.869 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: CWEB, period: 60d, interval: 1h
+2025-08-09 01:00:24.332 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 CWEB 的 413 条K线数据
+2025-08-09 01:00:24.332 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 CWEB 数据: 日线 251 条, 小时线 413 条
+2025-08-09 01:00:24.333 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: NVDX, period: 1y, interval: 1d
+2025-08-09 01:00:24.853 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 NVDX 的 251 条K线数据
+2025-08-09 01:00:24.854 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: NVDX, period: 60d, interval: 1h
+2025-08-09 01:00:25.345 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 NVDX 的 413 条K线数据
+2025-08-09 01:00:25.346 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 NVDX 数据: 日线 251 条, 小时线 413 条
+2025-08-09 01:00:25.346 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: SMMT, period: 1y, interval: 1d
+2025-08-09 01:00:25.781 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 SMMT 的 251 条K线数据
+2025-08-09 01:00:25.782 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: SMMT, period: 60d, interval: 1h
+2025-08-09 01:00:26.260 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 SMMT 的 413 条K线数据
+2025-08-09 01:00:26.261 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 SMMT 数据: 日线 251 条, 小时线 413 条
+2025-08-09 01:00:26.261 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: TARK, period: 1y, interval: 1d
+2025-08-09 01:00:26.694 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 TARK 的 251 条K线数据
+2025-08-09 01:00:26.694 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: TARK, period: 60d, interval: 1h
+2025-08-09 01:00:27.140 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 TARK 的 413 条K线数据
+2025-08-09 01:00:27.140 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 TARK 数据: 日线 251 条, 小时线 413 条
+2025-08-09 01:00:27.140 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: TMDX, period: 1y, interval: 1d
+2025-08-09 01:00:27.549 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 TMDX 的 251 条K线数据
+2025-08-09 01:00:27.550 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: TMDX, period: 60d, interval: 1h
+2025-08-09 01:00:28.016 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 TMDX 的 413 条K线数据
+2025-08-09 01:00:28.016 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 TMDX 数据: 日线 251 条, 小时线 413 条
+2025-08-09 01:00:28.017 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: LI, period: 1y, interval: 1d
+2025-08-09 01:00:28.423 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 LI 的 251 条K线数据
+2025-08-09 01:00:28.423 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: LI, period: 60d, interval: 1h
+2025-08-09 01:00:28.874 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 LI 的 413 条K线数据
+2025-08-09 01:00:28.874 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 LI 数据: 日线 251 条, 小时线 413 条
+2025-08-09 01:00:28.875 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: ANY, period: 1y, interval: 1d
+2025-08-09 01:00:29.278 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 ANY 的 251 条K线数据
+2025-08-09 01:00:29.279 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: ANY, period: 60d, interval: 1h
+2025-08-09 01:00:29.746 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 ANY 的 413 条K线数据
+2025-08-09 01:00:29.746 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 ANY 数据: 日线 251 条, 小时线 413 条
+2025-08-09 01:00:29.747 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: QS, period: 1y, interval: 1d
+2025-08-09 01:00:30.150 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 QS 的 251 条K线数据
+2025-08-09 01:00:30.151 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: QS, period: 60d, interval: 1h
+2025-08-09 01:00:30.630 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 QS 的 413 条K线数据
+2025-08-09 01:00:30.631 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 QS 数据: 日线 251 条, 小时线 413 条
+2025-08-09 01:00:30.631 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: SOXS, period: 1y, interval: 1d
+2025-08-09 01:00:31.093 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 SOXS 的 251 条K线数据
+2025-08-09 01:00:31.094 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: SOXS, period: 60d, interval: 1h
+2025-08-09 01:00:31.580 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 SOXS 的 413 条K线数据
+2025-08-09 01:00:31.580 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 SOXS 数据: 日线 251 条, 小时线 413 条
+2025-08-09 01:00:31.581 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: MNSO, period: 1y, interval: 1d
+2025-08-09 01:00:32.018 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 MNSO 的 251 条K线数据
+2025-08-09 01:00:32.019 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: MNSO, period: 60d, interval: 1h
+2025-08-09 01:00:32.515 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 MNSO 的 413 条K线数据
+2025-08-09 01:00:32.515 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 MNSO 数据: 日线 251 条, 小时线 413 条
+2025-08-09 01:00:32.515 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: LLY, period: 1y, interval: 1d
+2025-08-09 01:00:33.041 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 LLY 的 251 条K线数据
+2025-08-09 01:00:33.043 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: LLY, period: 60d, interval: 1h
+2025-08-09 01:00:33.579 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 LLY 的 413 条K线数据
+2025-08-09 01:00:33.579 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 LLY 数据: 日线 251 条, 小时线 413 条
+2025-08-09 01:00:33.579 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: LIST2090, period: 1y, interval: 1d
+$LIST2090: possibly delisted; no price data found  (period=1y) (Yahoo error = "No data found, symbol may be delisted")
+2025-08-09 01:00:34.982 | WARNING  | app.core.market_data.yahoo_provider:get_stock_data:36 - 未获取到股票 LIST2090 的数据
+2025-08-09 01:00:34.983 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: LIST2090, period: 60d, interval: 1h
+$LIST2090: possibly delisted; no price data found  (period=60d) (Yahoo error = "No data found, symbol may be delisted")
+2025-08-09 01:00:35.772 | WARNING  | app.core.market_data.yahoo_provider:get_stock_data:36 - 未获取到股票 LIST2090 的数据
+2025-08-09 01:00:35.773 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 LIST2090 数据: 日线 0 条, 小时线 0 条
+2025-08-09 01:00:35.773 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: UPRO, period: 1y, interval: 1d
+2025-08-09 01:00:36.223 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 UPRO 的 251 条K线数据
+2025-08-09 01:00:36.224 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: UPRO, period: 60d, interval: 1h
+2025-08-09 01:00:36.790 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 UPRO 的 413 条K线数据
+2025-08-09 01:00:36.791 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 UPRO 数据: 日线 251 条, 小时线 413 条
+2025-08-09 01:00:36.791 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: XPEV, period: 1y, interval: 1d
+2025-08-09 01:00:37.219 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 XPEV 的 251 条K线数据
+2025-08-09 01:00:37.220 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: XPEV, period: 60d, interval: 1h
+2025-08-09 01:00:37.678 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 XPEV 的 413 条K线数据
+2025-08-09 01:00:37.678 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 XPEV 数据: 日线 251 条, 小时线 413 条
+2025-08-09 01:00:37.679 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: YANG, period: 1y, interval: 1d
+2025-08-09 01:00:38.109 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 YANG 的 251 条K线数据
+2025-08-09 01:00:38.109 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: YANG, period: 60d, interval: 1h
+2025-08-09 01:00:38.571 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 YANG 的 413 条K线数据
+2025-08-09 01:00:38.571 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 YANG 数据: 日线 251 条, 小时线 413 条
+2025-08-09 01:00:38.571 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: NKDMAIN, period: 1y, interval: 1d
+$NKDMAIN: possibly delisted; no price data found  (period=1y) (Yahoo error = "No data found, symbol may be delisted")
+2025-08-09 01:00:39.946 | WARNING  | app.core.market_data.yahoo_provider:get_stock_data:36 - 未获取到股票 NKDMAIN 的数据
+2025-08-09 01:00:39.946 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: NKDMAIN, period: 60d, interval: 1h
+$NKDMAIN: possibly delisted; no price data found  (period=60d) (Yahoo error = "No data found, symbol may be delisted")
+2025-08-09 01:00:40.732 | WARNING  | app.core.market_data.yahoo_provider:get_stock_data:36 - 未获取到股票 NKDMAIN 的数据
+2025-08-09 01:00:40.732 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 NKDMAIN 数据: 日线 0 条, 小时线 0 条
+2025-08-09 01:00:40.732 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: OPEN, period: 1y, interval: 1d
+2025-08-09 01:00:41.133 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 OPEN 的 251 条K线数据
+2025-08-09 01:00:41.133 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: OPEN, period: 60d, interval: 1h
+2025-08-09 01:00:41.639 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 OPEN 的 413 条K线数据
+2025-08-09 01:00:41.640 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 OPEN 数据: 日线 251 条, 小时线 413 条
+2025-08-09 01:00:41.640 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: SMCI, period: 1y, interval: 1d
+2025-08-09 01:00:42.064 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 SMCI 的 251 条K线数据
+2025-08-09 01:00:42.064 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: SMCI, period: 60d, interval: 1h
+2025-08-09 01:00:42.574 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 SMCI 的 413 条K线数据
+2025-08-09 01:00:42.574 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 SMCI 数据: 日线 251 条, 小时线 413 条
+2025-08-09 01:00:42.574 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: UCO, period: 1y, interval: 1d
+2025-08-09 01:00:42.979 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 UCO 的 251 条K线数据
+2025-08-09 01:00:42.979 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: UCO, period: 60d, interval: 1h
+2025-08-09 01:00:43.429 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 UCO 的 413 条K线数据
+2025-08-09 01:00:43.430 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 UCO 数据: 日线 251 条, 小时线 413 条
+2025-08-09 01:00:43.430 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: MMM, period: 1y, interval: 1d
+2025-08-09 01:00:43.935 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 MMM 的 251 条K线数据
+2025-08-09 01:00:43.936 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: MMM, period: 60d, interval: 1h
+2025-08-09 01:00:44.381 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 MMM 的 413 条K线数据
+2025-08-09 01:00:44.382 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 MMM 数据: 日线 251 条, 小时线 413 条
+2025-08-09 01:00:44.382 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: GDX, period: 1y, interval: 1d
+2025-08-09 01:00:44.820 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 GDX 的 251 条K线数据
+2025-08-09 01:00:44.820 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: GDX, period: 60d, interval: 1h
+2025-08-09 01:00:45.264 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 GDX 的 413 条K线数据
+2025-08-09 01:00:45.264 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 GDX 数据: 日线 251 条, 小时线 413 条
+2025-08-09 01:00:45.264 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: TAN, period: 1y, interval: 1d
+2025-08-09 01:00:45.703 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 TAN 的 251 条K线数据
+2025-08-09 01:00:45.703 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: TAN, period: 60d, interval: 1h
+2025-08-09 01:00:46.166 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 TAN 的 413 条K线数据
+2025-08-09 01:00:46.166 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 TAN 数据: 日线 251 条, 小时线 413 条
+2025-08-09 01:00:46.166 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: NAIL, period: 1y, interval: 1d
+2025-08-09 01:00:46.591 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 NAIL 的 251 条K线数据
+2025-08-09 01:00:46.591 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: NAIL, period: 60d, interval: 1h
+2025-08-09 01:00:47.050 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 NAIL 的 413 条K线数据
+2025-08-09 01:00:47.050 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 NAIL 数据: 日线 251 条, 小时线 413 条
+2025-08-09 01:00:47.050 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: PRAX, period: 1y, interval: 1d
+2025-08-09 01:00:47.537 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 PRAX 的 251 条K线数据
+2025-08-09 01:00:47.537 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: PRAX, period: 60d, interval: 1h
+2025-08-09 01:00:47.971 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 PRAX 的 413 条K线数据
+2025-08-09 01:00:47.971 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 PRAX 数据: 日线 251 条, 小时线 413 条
+2025-08-09 01:00:47.971 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: NVO, period: 1y, interval: 1d
+2025-08-09 01:00:48.459 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 NVO 的 251 条K线数据
+2025-08-09 01:00:48.459 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: NVO, period: 60d, interval: 1h
+2025-08-09 01:00:49.021 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 NVO 的 413 条K线数据
+2025-08-09 01:00:49.022 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 NVO 数据: 日线 251 条, 小时线 413 条
+2025-08-09 01:00:49.022 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: NEUP, period: 1y, interval: 1d
+2025-08-09 01:00:49.474 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 NEUP 的 251 条K线数据
+2025-08-09 01:00:49.474 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: NEUP, period: 60d, interval: 1h
+2025-08-09 01:00:49.947 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 NEUP 的 370 条K线数据
+2025-08-09 01:00:49.947 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 NEUP 数据: 日线 251 条, 小时线 370 条
+2025-08-09 01:00:49.947 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: AEHR, period: 1y, interval: 1d
+2025-08-09 01:00:50.353 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 AEHR 的 251 条K线数据
+2025-08-09 01:00:50.353 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: AEHR, period: 60d, interval: 1h
+2025-08-09 01:00:50.903 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 AEHR 的 413 条K线数据
+2025-08-09 01:00:50.904 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 AEHR 数据: 日线 251 条, 小时线 413 条
+2025-08-09 01:00:50.905 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: AIXI, period: 1y, interval: 1d
+2025-08-09 01:00:51.337 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 AIXI 的 251 条K线数据
+2025-08-09 01:00:51.337 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: AIXI, period: 60d, interval: 1h
+2025-08-09 01:00:51.806 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 AIXI 的 411 条K线数据
+2025-08-09 01:00:51.806 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 AIXI 数据: 日线 251 条, 小时线 411 条
+2025-08-09 01:00:51.806 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: SIGA, period: 1y, interval: 1d
+2025-08-09 01:00:52.327 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 SIGA 的 251 条K线数据
+2025-08-09 01:00:52.327 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: SIGA, period: 60d, interval: 1h
+2025-08-09 01:00:52.794 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 SIGA 的 413 条K线数据
+2025-08-09 01:00:52.795 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 SIGA 数据: 日线 251 条, 小时线 413 条
+2025-08-09 01:00:52.795 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: SYM, period: 1y, interval: 1d
+2025-08-09 01:00:53.208 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 SYM 的 251 条K线数据
+2025-08-09 01:00:53.208 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: SYM, period: 60d, interval: 1h
+2025-08-09 01:00:53.653 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 SYM 的 413 条K线数据
+2025-08-09 01:00:53.653 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 SYM 数据: 日线 251 条, 小时线 413 条
+2025-08-09 01:00:53.653 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: KSCP, period: 1y, interval: 1d
+2025-08-09 01:00:54.069 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 KSCP 的 251 条K线数据
+2025-08-09 01:00:54.069 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: KSCP, period: 60d, interval: 1h
+2025-08-09 01:00:54.509 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 KSCP 的 413 条K线数据
+2025-08-09 01:00:54.509 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 KSCP 数据: 日线 251 条, 小时线 413 条
+2025-08-09 01:00:54.510 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: UPWK, period: 1y, interval: 1d
+2025-08-09 01:00:54.963 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 UPWK 的 251 条K线数据
+2025-08-09 01:00:54.964 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: UPWK, period: 60d, interval: 1h
+2025-08-09 01:00:55.414 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 UPWK 的 413 条K线数据
+2025-08-09 01:00:55.415 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 UPWK 数据: 日线 251 条, 小时线 413 条
+2025-08-09 01:00:55.415 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: ANET, period: 1y, interval: 1d
+2025-08-09 01:00:55.833 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 ANET 的 251 条K线数据
+2025-08-09 01:00:55.833 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: ANET, period: 60d, interval: 1h
+2025-08-09 01:00:56.336 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 ANET 的 413 条K线数据
+2025-08-09 01:00:56.336 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 ANET 数据: 日线 251 条, 小时线 413 条
+2025-08-09 01:00:56.336 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: VRT, period: 1y, interval: 1d
+2025-08-09 01:00:56.783 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 VRT 的 251 条K线数据
+2025-08-09 01:00:56.783 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: VRT, period: 60d, interval: 1h
+2025-08-09 01:00:57.253 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 VRT 的 413 条K线数据
+2025-08-09 01:00:57.253 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 VRT 数据: 日线 251 条, 小时线 413 条
+2025-08-09 01:00:57.253 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: GTM, period: 1y, interval: 1d
+2025-08-09 01:00:57.715 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 GTM 的 251 条K线数据
+2025-08-09 01:00:57.716 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: GTM, period: 60d, interval: 1h
+2025-08-09 01:00:58.157 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 GTM 的 413 条K线数据
+2025-08-09 01:00:58.158 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 GTM 数据: 日线 251 条, 小时线 413 条
+2025-08-09 01:00:58.158 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: AMSC, period: 1y, interval: 1d
+2025-08-09 01:00:58.567 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 AMSC 的 251 条K线数据
+2025-08-09 01:00:58.568 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: AMSC, period: 60d, interval: 1h
+2025-08-09 01:00:59.045 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 AMSC 的 413 条K线数据
+2025-08-09 01:00:59.045 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 AMSC 数据: 日线 251 条, 小时线 413 条
+2025-08-09 01:00:59.045 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: URA, period: 1y, interval: 1d
+2025-08-09 01:00:59.540 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 URA 的 251 条K线数据
+2025-08-09 01:00:59.540 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: URA, period: 60d, interval: 1h
+2025-08-09 01:00:59.982 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 URA 的 413 条K线数据
+2025-08-09 01:00:59.982 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 URA 数据: 日线 251 条, 小时线 413 条
+2025-08-09 01:00:59.982 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: VERI, period: 1y, interval: 1d
+2025-08-09 01:01:00.410 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 VERI 的 251 条K线数据
+2025-08-09 01:01:00.410 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: VERI, period: 60d, interval: 1h
+2025-08-09 01:01:00.941 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 VERI 的 413 条K线数据
+2025-08-09 01:01:00.942 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 VERI 数据: 日线 251 条, 小时线 413 条
+2025-08-09 01:01:00.942 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: APLS, period: 1y, interval: 1d
+2025-08-09 01:01:01.368 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 APLS 的 251 条K线数据
+2025-08-09 01:01:01.368 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: APLS, period: 60d, interval: 1h
+2025-08-09 01:01:01.853 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 APLS 的 413 条K线数据
+2025-08-09 01:01:01.854 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 APLS 数据: 日线 251 条, 小时线 413 条
+2025-08-09 01:01:01.854 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: SCO, period: 1y, interval: 1d
+2025-08-09 01:01:02.264 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 SCO 的 251 条K线数据
+2025-08-09 01:01:02.265 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: SCO, period: 60d, interval: 1h
+2025-08-09 01:01:02.876 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 SCO 的 413 条K线数据
+2025-08-09 01:01:02.876 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 SCO 数据: 日线 251 条, 小时线 413 条
+2025-08-09 01:01:02.876 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: ICL, period: 1y, interval: 1d
+2025-08-09 01:01:03.339 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 ICL 的 251 条K线数据
+2025-08-09 01:01:03.340 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: ICL, period: 60d, interval: 1h
+2025-08-09 01:01:03.807 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 ICL 的 413 条K线数据
+2025-08-09 01:01:03.807 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 ICL 数据: 日线 251 条, 小时线 413 条
+2025-08-09 01:01:03.808 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: RXRX, period: 1y, interval: 1d
+2025-08-09 01:01:04.224 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 RXRX 的 251 条K线数据
+2025-08-09 01:01:04.224 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: RXRX, period: 60d, interval: 1h
+2025-08-09 01:01:04.730 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 RXRX 的 413 条K线数据
+2025-08-09 01:01:04.730 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 RXRX 数据: 日线 251 条, 小时线 413 条
+2025-08-09 01:01:04.731 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: LYFT, period: 1y, interval: 1d
+2025-08-09 01:01:05.139 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 LYFT 的 251 条K线数据
+2025-08-09 01:01:05.139 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: LYFT, period: 60d, interval: 1h
+2025-08-09 01:01:05.587 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 LYFT 的 413 条K线数据
+2025-08-09 01:01:05.587 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 LYFT 数据: 日线 251 条, 小时线 413 条
+2025-08-09 01:01:05.587 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: GDTC, period: 1y, interval: 1d
+2025-08-09 01:01:05.983 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 GDTC 的 251 条K线数据
+2025-08-09 01:01:05.984 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: GDTC, period: 60d, interval: 1h
+2025-08-09 01:01:06.439 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 GDTC 的 180 条K线数据
+2025-08-09 01:01:06.440 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 GDTC 数据: 日线 251 条, 小时线 180 条
+2025-08-09 01:01:06.440 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: LCID, period: 1y, interval: 1d
+2025-08-09 01:01:06.851 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 LCID 的 251 条K线数据
+2025-08-09 01:01:06.852 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: LCID, period: 60d, interval: 1h
+2025-08-09 01:01:07.349 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 LCID 的 413 条K线数据
+2025-08-09 01:01:07.351 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 LCID 数据: 日线 251 条, 小时线 413 条
+2025-08-09 01:01:07.352 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: ROKU, period: 1y, interval: 1d
+2025-08-09 01:01:07.801 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 ROKU 的 251 条K线数据
+2025-08-09 01:01:07.803 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: ROKU, period: 60d, interval: 1h
+2025-08-09 01:01:08.280 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 ROKU 的 413 条K线数据
+2025-08-09 01:01:08.281 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 ROKU 数据: 日线 251 条, 小时线 413 条
+2025-08-09 01:01:08.281 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: MTLS, period: 1y, interval: 1d
+2025-08-09 01:01:08.693 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 MTLS 的 251 条K线数据
+2025-08-09 01:01:08.694 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: MTLS, period: 60d, interval: 1h
+2025-08-09 01:01:09.171 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 MTLS 的 412 条K线数据
+2025-08-09 01:01:09.171 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 MTLS 数据: 日线 251 条, 小时线 412 条
+2025-08-09 01:01:09.171 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: VERV, period: 1y, interval: 1d
+2025-08-09 01:01:09.608 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 VERV 的 240 条K线数据
+2025-08-09 01:01:09.609 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: VERV, period: 60d, interval: 1h
+2025-08-09 01:01:10.066 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 VERV 的 339 条K线数据
+2025-08-09 01:01:10.066 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 VERV 数据: 日线 240 条, 小时线 339 条
+2025-08-09 01:01:10.066 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: AA, period: 1y, interval: 1d
+2025-08-09 01:01:10.636 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 AA 的 251 条K线数据
+2025-08-09 01:01:10.637 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: AA, period: 60d, interval: 1h
+2025-08-09 01:01:11.097 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 AA 的 413 条K线数据
+2025-08-09 01:01:11.097 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 AA 数据: 日线 251 条, 小时线 413 条
+2025-08-09 01:01:11.097 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: IWL, period: 1y, interval: 1d
+2025-08-09 01:01:11.531 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 IWL 的 251 条K线数据
+2025-08-09 01:01:11.532 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: IWL, period: 60d, interval: 1h
+2025-08-09 01:01:11.993 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 IWL 的 412 条K线数据
+2025-08-09 01:01:11.994 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 IWL 数据: 日线 251 条, 小时线 412 条
+2025-08-09 01:01:11.994 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: DIS, period: 1y, interval: 1d
+2025-08-09 01:01:12.494 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 DIS 的 251 条K线数据
+2025-08-09 01:01:12.495 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: DIS, period: 60d, interval: 1h
+2025-08-09 01:01:12.936 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 DIS 的 413 条K线数据
+2025-08-09 01:01:12.936 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 DIS 数据: 日线 251 条, 小时线 413 条
+2025-08-09 01:01:12.937 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: KLIP, period: 1y, interval: 1d
+2025-08-09 01:01:13.371 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 KLIP 的 251 条K线数据
+2025-08-09 01:01:13.371 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: KLIP, period: 60d, interval: 1h
+2025-08-09 01:01:13.809 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 KLIP 的 397 条K线数据
+2025-08-09 01:01:13.809 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 KLIP 数据: 日线 251 条, 小时线 397 条
+2025-08-09 01:01:13.809 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: .SPX, period: 1y, interval: 1d
+$.SPX: possibly delisted; no price data found  (period=1y) (Yahoo error = "No data found, symbol may be delisted")
+2025-08-09 01:01:15.176 | WARNING  | app.core.market_data.yahoo_provider:get_stock_data:36 - 未获取到股票 .SPX 的数据
+2025-08-09 01:01:15.176 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: .SPX, period: 60d, interval: 1h
+$.SPX: possibly delisted; no price data found  (period=60d) (Yahoo error = "No data found, symbol may be delisted")
+2025-08-09 01:01:15.970 | WARNING  | app.core.market_data.yahoo_provider:get_stock_data:36 - 未获取到股票 .SPX 的数据
+2025-08-09 01:01:15.970 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 .SPX 数据: 日线 0 条, 小时线 0 条
+2025-08-09 01:01:15.970 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: SRPT, period: 1y, interval: 1d
+2025-08-09 01:01:16.375 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 SRPT 的 251 条K线数据
+2025-08-09 01:01:16.376 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: SRPT, period: 60d, interval: 1h
+2025-08-09 01:01:16.831 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 SRPT 的 413 条K线数据
+2025-08-09 01:01:16.831 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 SRPT 数据: 日线 251 条, 小时线 413 条
+2025-08-09 01:01:16.831 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: PLUG, period: 1y, interval: 1d
+2025-08-09 01:01:17.247 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 PLUG 的 251 条K线数据
+2025-08-09 01:01:17.247 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: PLUG, period: 60d, interval: 1h
+2025-08-09 01:01:17.710 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 PLUG 的 413 条K线数据
+2025-08-09 01:01:17.711 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 PLUG 数据: 日线 251 条, 小时线 413 条
+2025-08-09 01:01:17.711 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: AAP, period: 1y, interval: 1d
+2025-08-09 01:01:18.140 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 AAP 的 251 条K线数据
+2025-08-09 01:01:18.140 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: AAP, period: 60d, interval: 1h
+2025-08-09 01:01:18.602 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 AAP 的 413 条K线数据
+2025-08-09 01:01:18.602 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 AAP 数据: 日线 251 条, 小时线 413 条
+2025-08-09 01:01:18.602 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: PERI, period: 1y, interval: 1d
+2025-08-09 01:01:19.191 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 PERI 的 251 条K线数据
+2025-08-09 01:01:19.194 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: PERI, period: 60d, interval: 1h
+2025-08-09 01:01:19.664 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 PERI 的 413 条K线数据
+2025-08-09 01:01:19.664 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 PERI 数据: 日线 251 条, 小时线 413 条
+2025-08-09 01:01:19.665 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: YINN, period: 1y, interval: 1d
+2025-08-09 01:01:20.105 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 YINN 的 251 条K线数据
+2025-08-09 01:01:20.106 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: YINN, period: 60d, interval: 1h
+2025-08-09 01:01:20.573 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 YINN 的 413 条K线数据
+2025-08-09 01:01:20.573 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 YINN 数据: 日线 251 条, 小时线 413 条
+2025-08-09 01:01:20.573 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: HOTH, period: 1y, interval: 1d
+2025-08-09 01:01:21.214 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 HOTH 的 251 条K线数据
+2025-08-09 01:01:21.214 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: HOTH, period: 60d, interval: 1h
+2025-08-09 01:01:21.712 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 HOTH 的 413 条K线数据
+2025-08-09 01:01:21.712 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 HOTH 数据: 日线 251 条, 小时线 413 条
+2025-08-09 01:01:21.712 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: NEUE, period: 1y, interval: 1d
+2025-08-09 01:01:22.148 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 NEUE 的 251 条K线数据
+2025-08-09 01:01:22.148 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: NEUE, period: 60d, interval: 1h
+2025-08-09 01:01:22.605 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 NEUE 的 225 条K线数据
+2025-08-09 01:01:22.605 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 NEUE 数据: 日线 251 条, 小时线 225 条
+2025-08-09 01:01:22.605 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: BSX, period: 1y, interval: 1d
+2025-08-09 01:01:23.011 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 BSX 的 251 条K线数据
+2025-08-09 01:01:23.011 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: BSX, period: 60d, interval: 1h
+2025-08-09 01:01:23.468 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 BSX 的 413 条K线数据
+2025-08-09 01:01:23.468 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 BSX 数据: 日线 251 条, 小时线 413 条
+2025-08-09 01:01:23.469 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: GDXJ, period: 1y, interval: 1d
+2025-08-09 01:01:23.911 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 GDXJ 的 251 条K线数据
+2025-08-09 01:01:23.912 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: GDXJ, period: 60d, interval: 1h
+2025-08-09 01:01:24.413 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 GDXJ 的 413 条K线数据
+2025-08-09 01:01:24.413 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 GDXJ 数据: 日线 251 条, 小时线 413 条
+2025-08-09 01:01:24.414 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: LAES, period: 1y, interval: 1d
+2025-08-09 01:01:24.867 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 LAES 的 251 条K线数据
+2025-08-09 01:01:24.867 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: LAES, period: 60d, interval: 1h
+2025-08-09 01:01:25.325 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 LAES 的 413 条K线数据
+2025-08-09 01:01:25.325 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 LAES 数据: 日线 251 条, 小时线 413 条
+2025-08-09 01:01:25.325 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: EWBC, period: 1y, interval: 1d
+2025-08-09 01:01:25.800 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 EWBC 的 251 条K线数据
+2025-08-09 01:01:25.801 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: EWBC, period: 60d, interval: 1h
+2025-08-09 01:01:26.275 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 EWBC 的 413 条K线数据
+2025-08-09 01:01:26.278 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 EWBC 数据: 日线 251 条, 小时线 413 条
+2025-08-09 01:01:26.278 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: ADI, period: 1y, interval: 1d
+2025-08-09 01:01:26.711 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 ADI 的 251 条K线数据
+2025-08-09 01:01:26.711 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: ADI, period: 60d, interval: 1h
+2025-08-09 01:01:27.163 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 ADI 的 413 条K线数据
+2025-08-09 01:01:27.163 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 ADI 数据: 日线 251 条, 小时线 413 条
+2025-08-09 01:01:27.163 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: TECX, period: 1y, interval: 1d
+2025-08-09 01:01:27.579 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 TECX 的 251 条K线数据
+2025-08-09 01:01:27.579 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: TECX, period: 60d, interval: 1h
+2025-08-09 01:01:28.027 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 TECX 的 413 条K线数据
+2025-08-09 01:01:28.027 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 TECX 数据: 日线 251 条, 小时线 413 条
+2025-08-09 01:01:28.027 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: RIGL, period: 1y, interval: 1d
+2025-08-09 01:01:28.438 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 RIGL 的 251 条K线数据
+2025-08-09 01:01:28.439 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: RIGL, period: 60d, interval: 1h
+2025-08-09 01:01:28.957 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 RIGL 的 413 条K线数据
+2025-08-09 01:01:28.957 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 RIGL 数据: 日线 251 条, 小时线 413 条
+2025-08-09 01:01:28.958 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: IMMP, period: 1y, interval: 1d
+2025-08-09 01:01:29.366 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 IMMP 的 251 条K线数据
+2025-08-09 01:01:29.367 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: IMMP, period: 60d, interval: 1h
+2025-08-09 01:01:29.808 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 IMMP 的 405 条K线数据
+2025-08-09 01:01:29.808 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 IMMP 数据: 日线 251 条, 小时线 405 条
+2025-08-09 01:01:29.808 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: LMFA, period: 1y, interval: 1d
+2025-08-09 01:01:30.229 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 LMFA 的 251 条K线数据
+2025-08-09 01:01:30.230 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: LMFA, period: 60d, interval: 1h
+2025-08-09 01:01:30.671 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 LMFA 的 401 条K线数据
+2025-08-09 01:01:30.671 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 LMFA 数据: 日线 251 条, 小时线 401 条
+2025-08-09 01:01:30.671 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: MWG, period: 1y, interval: 1d
+2025-08-09 01:01:31.079 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 MWG 的 251 条K线数据
+2025-08-09 01:01:31.080 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: MWG, period: 60d, interval: 1h
+2025-08-09 01:01:31.529 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 MWG 的 316 条K线数据
+2025-08-09 01:01:31.529 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 MWG 数据: 日线 251 条, 小时线 316 条
+2025-08-09 01:01:31.529 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: NUGT, period: 1y, interval: 1d
+2025-08-09 01:01:31.994 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 NUGT 的 251 条K线数据
+2025-08-09 01:01:31.994 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: NUGT, period: 60d, interval: 1h
+2025-08-09 01:01:32.566 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 NUGT 的 413 条K线数据
+2025-08-09 01:01:32.566 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 NUGT 数据: 日线 251 条, 小时线 413 条
+2025-08-09 01:01:32.566 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: DPST, period: 1y, interval: 1d
+2025-08-09 01:01:33.022 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 DPST 的 251 条K线数据
+2025-08-09 01:01:33.023 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: DPST, period: 60d, interval: 1h
+2025-08-09 01:01:33.520 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 DPST 的 413 条K线数据
+2025-08-09 01:01:33.524 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 DPST 数据: 日线 251 条, 小时线 413 条
+2025-08-09 01:01:33.525 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: CARG, period: 1y, interval: 1d
+2025-08-09 01:01:33.937 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 CARG 的 251 条K线数据
+2025-08-09 01:01:33.938 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: CARG, period: 60d, interval: 1h
+2025-08-09 01:01:34.412 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 CARG 的 413 条K线数据
+2025-08-09 01:01:34.413 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 CARG 数据: 日线 251 条, 小时线 413 条
+2025-08-09 01:01:34.414 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: ALLR, period: 1y, interval: 1d
+2025-08-09 01:01:34.827 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 ALLR 的 251 条K线数据
+2025-08-09 01:01:34.827 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: ALLR, period: 60d, interval: 1h
+2025-08-09 01:01:35.281 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 ALLR 的 413 条K线数据
+2025-08-09 01:01:35.281 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 ALLR 数据: 日线 251 条, 小时线 413 条
+2025-08-09 01:01:35.281 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: NBTX, period: 1y, interval: 1d
+2025-08-09 01:01:35.790 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 NBTX 的 251 条K线数据
+2025-08-09 01:01:35.790 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: NBTX, period: 60d, interval: 1h
+2025-08-09 01:01:36.257 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 NBTX 的 212 条K线数据
+2025-08-09 01:01:36.258 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 NBTX 数据: 日线 251 条, 小时线 212 条
+2025-08-09 01:01:36.258 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: CVNA, period: 1y, interval: 1d
+2025-08-09 01:01:36.668 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 CVNA 的 251 条K线数据
+2025-08-09 01:01:36.668 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: CVNA, period: 60d, interval: 1h
+2025-08-09 01:01:37.145 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 CVNA 的 413 条K线数据
+2025-08-09 01:01:37.145 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 CVNA 数据: 日线 251 条, 小时线 413 条
+2025-08-09 01:01:37.145 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: ORIC, period: 1y, interval: 1d
+2025-08-09 01:01:37.562 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 ORIC 的 251 条K线数据
+2025-08-09 01:01:37.562 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: ORIC, period: 60d, interval: 1h
+2025-08-09 01:01:38.009 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 ORIC 的 413 条K线数据
+2025-08-09 01:01:38.009 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 ORIC 数据: 日线 251 条, 小时线 413 条
+2025-08-09 01:01:38.009 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: ARWR, period: 1y, interval: 1d
+2025-08-09 01:01:38.423 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 ARWR 的 251 条K线数据
+2025-08-09 01:01:38.423 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: ARWR, period: 60d, interval: 1h
+2025-08-09 01:01:38.877 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 ARWR 的 413 条K线数据
+2025-08-09 01:01:38.877 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 ARWR 数据: 日线 251 条, 小时线 413 条
+2025-08-09 01:01:38.878 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: PATH, period: 1y, interval: 1d
+2025-08-09 01:01:39.334 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 PATH 的 251 条K线数据
+2025-08-09 01:01:39.334 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: PATH, period: 60d, interval: 1h
+2025-08-09 01:01:39.876 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 PATH 的 413 条K线数据
+2025-08-09 01:01:39.876 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 PATH 数据: 日线 251 条, 小时线 413 条
+2025-08-09 01:01:39.876 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: BYND, period: 1y, interval: 1d
+2025-08-09 01:01:40.361 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 BYND 的 251 条K线数据
+2025-08-09 01:01:40.361 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: BYND, period: 60d, interval: 1h
+2025-08-09 01:01:40.821 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 BYND 的 413 条K线数据
+2025-08-09 01:01:40.822 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 BYND 数据: 日线 251 条, 小时线 413 条
+2025-08-09 01:01:40.822 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: ALK, period: 1y, interval: 1d
+2025-08-09 01:01:41.274 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 ALK 的 251 条K线数据
+2025-08-09 01:01:41.274 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: ALK, period: 60d, interval: 1h
+2025-08-09 01:01:41.726 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 ALK 的 413 条K线数据
+2025-08-09 01:01:41.727 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 ALK 数据: 日线 251 条, 小时线 413 条
+2025-08-09 01:01:41.727 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: PDD, period: 1y, interval: 1d
+2025-08-09 01:01:42.138 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 PDD 的 251 条K线数据
+2025-08-09 01:01:42.139 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: PDD, period: 60d, interval: 1h
+2025-08-09 01:01:42.618 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 PDD 的 413 条K线数据
+2025-08-09 01:01:42.618 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 PDD 数据: 日线 251 条, 小时线 413 条
+2025-08-09 01:01:42.618 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: XBI, period: 1y, interval: 1d
+2025-08-09 01:01:43.060 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 XBI 的 251 条K线数据
+2025-08-09 01:01:43.060 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: XBI, period: 60d, interval: 1h
+2025-08-09 01:01:43.524 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 XBI 的 413 条K线数据
+2025-08-09 01:01:43.525 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 XBI 数据: 日线 251 条, 小时线 413 条
+2025-08-09 01:01:43.525 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: LIST2116, period: 1y, interval: 1d
+INFO:     Waiting for background tasks to complete. (CTRL+C to force quit)
+$LIST2116: possibly delisted; no price data found  (period=1y) (Yahoo error = "No data found, symbol may be delisted")
+2025-08-09 01:01:45.094 | WARNING  | app.core.market_data.yahoo_provider:get_stock_data:36 - 未获取到股票 LIST2116 的数据
+2025-08-09 01:01:45.095 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: LIST2116, period: 60d, interval: 1h
+$LIST2116: possibly delisted; no price data found  (period=60d) (Yahoo error = "No data found, symbol may be delisted")
+2025-08-09 01:01:45.946 | WARNING  | app.core.market_data.yahoo_provider:get_stock_data:36 - 未获取到股票 LIST2116 的数据
+2025-08-09 01:01:45.947 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 LIST2116 数据: 日线 0 条, 小时线 0 条
+2025-08-09 01:01:45.947 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: IMUX, period: 1y, interval: 1d
+2025-08-09 01:01:46.378 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 IMUX 的 251 条K线数据
+2025-08-09 01:01:46.378 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: IMUX, period: 60d, interval: 1h
+2025-08-09 01:01:46.978 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 IMUX 的 413 条K线数据
+2025-08-09 01:01:46.980 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 IMUX 数据: 日线 251 条, 小时线 413 条
+2025-08-09 01:01:46.980 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: MP, period: 1y, interval: 1d
+2025-08-09 01:01:47.398 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 MP 的 251 条K线数据
+2025-08-09 01:01:47.399 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: MP, period: 60d, interval: 1h
+2025-08-09 01:01:47.883 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 MP 的 413 条K线数据
+2025-08-09 01:01:47.884 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 MP 数据: 日线 251 条, 小时线 413 条
+2025-08-09 01:01:47.885 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: DAL, period: 1y, interval: 1d
+2025-08-09 01:01:48.382 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 DAL 的 251 条K线数据
+2025-08-09 01:01:48.383 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: DAL, period: 60d, interval: 1h
+2025-08-09 01:01:48.855 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 DAL 的 413 条K线数据
+2025-08-09 01:01:48.855 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 DAL 数据: 日线 251 条, 小时线 413 条
+2025-08-09 01:01:48.856 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: NCLH, period: 1y, interval: 1d
+2025-08-09 01:01:49.272 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 NCLH 的 251 条K线数据
+2025-08-09 01:01:49.273 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: NCLH, period: 60d, interval: 1h
+2025-08-09 01:01:49.732 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 NCLH 的 413 条K线数据
+2025-08-09 01:01:49.732 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 NCLH 数据: 日线 251 条, 小时线 413 条
+2025-08-09 01:01:49.732 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: JEPI, period: 1y, interval: 1d
+2025-08-09 01:01:50.165 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 JEPI 的 251 条K线数据
+2025-08-09 01:01:50.166 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: JEPI, period: 60d, interval: 1h
+2025-08-09 01:01:50.654 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 JEPI 的 413 条K线数据
+2025-08-09 01:01:50.655 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 JEPI 数据: 日线 251 条, 小时线 413 条
+2025-08-09 01:01:50.656 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: W, period: 1y, interval: 1d
+2025-08-09 01:01:51.208 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 W 的 251 条K线数据
+2025-08-09 01:01:51.209 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: W, period: 60d, interval: 1h
+2025-08-09 01:01:51.693 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 W 的 413 条K线数据
+2025-08-09 01:01:51.693 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 W 数据: 日线 251 条, 小时线 413 条
+2025-08-09 01:01:51.693 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: SCHW, period: 1y, interval: 1d
+2025-08-09 01:01:52.257 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 SCHW 的 251 条K线数据
+2025-08-09 01:01:52.257 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: SCHW, period: 60d, interval: 1h
+2025-08-09 01:01:52.732 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 SCHW 的 413 条K线数据
+2025-08-09 01:01:52.732 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 SCHW 数据: 日线 251 条, 小时线 413 条
+2025-08-09 01:01:52.732 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: VZ, period: 1y, interval: 1d
+2025-08-09 01:01:53.214 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 VZ 的 251 条K线数据
+2025-08-09 01:01:53.214 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: VZ, period: 60d, interval: 1h
+2025-08-09 01:01:53.680 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 VZ 的 413 条K线数据
+2025-08-09 01:01:53.680 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 VZ 数据: 日线 251 条, 小时线 413 条
+2025-08-09 01:01:53.680 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: TLT, period: 1y, interval: 1d
+2025-08-09 01:01:54.152 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 TLT 的 251 条K线数据
+2025-08-09 01:01:54.152 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: TLT, period: 60d, interval: 1h
+2025-08-09 01:01:54.694 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 TLT 的 413 条K线数据
+2025-08-09 01:01:54.694 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 TLT 数据: 日线 251 条, 小时线 413 条
+2025-08-09 01:01:54.695 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: INDO, period: 1y, interval: 1d
+2025-08-09 01:01:55.107 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 INDO 的 251 条K线数据
+2025-08-09 01:01:55.107 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: INDO, period: 60d, interval: 1h
+2025-08-09 01:01:55.619 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 INDO 的 413 条K线数据
+2025-08-09 01:01:55.620 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 INDO 数据: 日线 251 条, 小时线 413 条
+2025-08-09 01:01:55.620 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: MAXN, period: 1y, interval: 1d
+2025-08-09 01:01:56.061 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 MAXN 的 251 条K线数据
+2025-08-09 01:01:56.062 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: MAXN, period: 60d, interval: 1h
+2025-08-09 01:01:56.534 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 MAXN 的 413 条K线数据
+2025-08-09 01:01:56.534 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 MAXN 数据: 日线 251 条, 小时线 413 条
+2025-08-09 01:01:56.534 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: .VIX, period: 1y, interval: 1d
+$.VIX: possibly delisted; no price data found  (period=1y) (Yahoo error = "No data found, symbol may be delisted")
+2025-08-09 01:01:58.017 | WARNING  | app.core.market_data.yahoo_provider:get_stock_data:36 - 未获取到股票 .VIX 的数据
+2025-08-09 01:01:58.018 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: .VIX, period: 60d, interval: 1h
+$.VIX: possibly delisted; no price data found  (period=60d) (Yahoo error = "No data found, symbol may be delisted")
+2025-08-09 01:01:58.809 | WARNING  | app.core.market_data.yahoo_provider:get_stock_data:36 - 未获取到股票 .VIX 的数据
+2025-08-09 01:01:58.809 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 .VIX 数据: 日线 0 条, 小时线 0 条
+2025-08-09 01:01:58.809 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: GOTU, period: 1y, interval: 1d
+2025-08-09 01:01:59.224 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 GOTU 的 251 条K线数据
+2025-08-09 01:01:59.225 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: GOTU, period: 60d, interval: 1h
+2025-08-09 01:01:59.778 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 GOTU 的 413 条K线数据
+2025-08-09 01:01:59.778 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 GOTU 数据: 日线 251 条, 小时线 413 条
+2025-08-09 01:01:59.778 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: HUYA, period: 1y, interval: 1d
+2025-08-09 01:02:00.258 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 HUYA 的 251 条K线数据
+2025-08-09 01:02:00.259 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: HUYA, period: 60d, interval: 1h
+2025-08-09 01:02:01.012 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 HUYA 的 413 条K线数据
+2025-08-09 01:02:01.013 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 HUYA 数据: 日线 251 条, 小时线 413 条
+2025-08-09 01:02:01.016 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: BZ, period: 1y, interval: 1d
+2025-08-09 01:02:01.456 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 BZ 的 251 条K线数据
+2025-08-09 01:02:01.456 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: BZ, period: 60d, interval: 1h
+2025-08-09 01:02:01.945 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 BZ 的 413 条K线数据
+2025-08-09 01:02:01.946 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 BZ 数据: 日线 251 条, 小时线 413 条
+2025-08-09 01:02:01.946 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: CWST, period: 1y, interval: 1d
+2025-08-09 01:02:02.394 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 CWST 的 251 条K线数据
+2025-08-09 01:02:02.395 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: CWST, period: 60d, interval: 1h
+2025-08-09 01:02:02.840 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 CWST 的 413 条K线数据
+2025-08-09 01:02:02.840 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 CWST 数据: 日线 251 条, 小时线 413 条
+2025-08-09 01:02:02.841 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: AMT, period: 1y, interval: 1d
+2025-08-09 01:02:03.569 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 AMT 的 251 条K线数据
+2025-08-09 01:02:03.569 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: AMT, period: 60d, interval: 1h
+2025-08-09 01:02:04.075 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 AMT 的 413 条K线数据
+2025-08-09 01:02:04.075 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 AMT 数据: 日线 251 条, 小时线 413 条
+2025-08-09 01:02:04.076 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: AGO, period: 1y, interval: 1d
+2025-08-09 01:02:04.545 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 AGO 的 251 条K线数据
+2025-08-09 01:02:04.545 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: AGO, period: 60d, interval: 1h
+2025-08-09 01:02:05.103 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 AGO 的 413 条K线数据
+2025-08-09 01:02:05.104 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 AGO 数据: 日线 251 条, 小时线 413 条
+2025-08-09 01:02:05.104 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: ETR, period: 1y, interval: 1d
+2025-08-09 01:02:05.631 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 ETR 的 251 条K线数据
+2025-08-09 01:02:05.632 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: ETR, period: 60d, interval: 1h
+2025-08-09 01:02:06.085 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 ETR 的 413 条K线数据
+2025-08-09 01:02:06.085 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 ETR 数据: 日线 251 条, 小时线 413 条
+2025-08-09 01:02:06.085 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: WSC, period: 1y, interval: 1d
+2025-08-09 01:02:06.514 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 WSC 的 251 条K线数据
+2025-08-09 01:02:06.520 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: WSC, period: 60d, interval: 1h
+2025-08-09 01:02:07.024 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 WSC 的 413 条K线数据
+2025-08-09 01:02:07.025 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 WSC 数据: 日线 251 条, 小时线 413 条
+2025-08-09 01:02:07.025 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: RSG, period: 1y, interval: 1d
+2025-08-09 01:02:07.490 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 RSG 的 251 条K线数据
+2025-08-09 01:02:07.491 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: RSG, period: 60d, interval: 1h
+2025-08-09 01:02:08.010 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 RSG 的 413 条K线数据
+2025-08-09 01:02:08.010 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 RSG 数据: 日线 251 条, 小时线 413 条
+2025-08-09 01:02:08.011 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: CE, period: 1y, interval: 1d
+2025-08-09 01:02:08.463 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 CE 的 251 条K线数据
+2025-08-09 01:02:08.463 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: CE, period: 60d, interval: 1h
+2025-08-09 01:02:08.946 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 CE 的 413 条K线数据
+2025-08-09 01:02:08.946 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 CE 数据: 日线 251 条, 小时线 413 条
+2025-08-09 01:02:08.946 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: DOC, period: 1y, interval: 1d
+2025-08-09 01:02:09.424 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 DOC 的 251 条K线数据
+2025-08-09 01:02:09.424 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: DOC, period: 60d, interval: 1h
+2025-08-09 01:02:09.993 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 DOC 的 413 条K线数据
+2025-08-09 01:02:09.993 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 DOC 数据: 日线 251 条, 小时线 413 条
+2025-08-09 01:02:09.993 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: FIS, period: 1y, interval: 1d
+2025-08-09 01:02:10.438 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 FIS 的 251 条K线数据
+2025-08-09 01:02:10.438 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: FIS, period: 60d, interval: 1h
+2025-08-09 01:02:10.937 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 FIS 的 413 条K线数据
+2025-08-09 01:02:10.939 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 FIS 数据: 日线 251 条, 小时线 413 条
+2025-08-09 01:02:10.940 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: DDL, period: 1y, interval: 1d
+2025-08-09 01:02:11.393 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 DDL 的 251 条K线数据
+2025-08-09 01:02:11.394 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: DDL, period: 60d, interval: 1h
+2025-08-09 01:02:11.894 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 DDL 的 413 条K线数据
+2025-08-09 01:02:11.895 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 DDL 数据: 日线 251 条, 小时线 413 条
+2025-08-09 01:02:11.895 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: AWK, period: 1y, interval: 1d
+2025-08-09 01:02:12.407 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 AWK 的 251 条K线数据
+2025-08-09 01:02:12.416 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: AWK, period: 60d, interval: 1h
+2025-08-09 01:02:12.952 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 AWK 的 413 条K线数据
+2025-08-09 01:02:12.953 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 AWK 数据: 日线 251 条, 小时线 413 条
+2025-08-09 01:02:12.953 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: UNH, period: 1y, interval: 1d
+2025-08-09 01:02:13.442 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 UNH 的 251 条K线数据
+2025-08-09 01:02:13.444 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: UNH, period: 60d, interval: 1h
+2025-08-09 01:02:13.959 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 UNH 的 413 条K线数据
+2025-08-09 01:02:13.960 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 UNH 数据: 日线 251 条, 小时线 413 条
+2025-08-09 01:02:13.962 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: UNP, period: 1y, interval: 1d
+2025-08-09 01:02:14.552 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 UNP 的 251 条K线数据
+2025-08-09 01:02:14.553 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: UNP, period: 60d, interval: 1h
+2025-08-09 01:02:15.203 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 UNP 的 413 条K线数据
+2025-08-09 01:02:15.204 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 UNP 数据: 日线 251 条, 小时线 413 条
+2025-08-09 01:02:15.205 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: MCO, period: 1y, interval: 1d
+2025-08-09 01:02:15.721 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 MCO 的 251 条K线数据
+2025-08-09 01:02:15.721 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: MCO, period: 60d, interval: 1h
+2025-08-09 01:02:16.235 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 MCO 的 413 条K线数据
+2025-08-09 01:02:16.236 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 MCO 数据: 日线 251 条, 小时线 413 条
+2025-08-09 01:02:16.236 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: MCK, period: 1y, interval: 1d
+2025-08-09 01:02:16.697 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 MCK 的 251 条K线数据
+2025-08-09 01:02:16.697 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: MCK, period: 60d, interval: 1h
+2025-08-09 01:02:17.171 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 MCK 的 413 条K线数据
+2025-08-09 01:02:17.171 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 MCK 数据: 日线 251 条, 小时线 413 条
+2025-08-09 01:02:17.171 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: COST, period: 1y, interval: 1d
+2025-08-09 01:02:17.653 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 COST 的 251 条K线数据
+2025-08-09 01:02:17.653 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: COST, period: 60d, interval: 1h
+2025-08-09 01:02:18.206 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 COST 的 413 条K线数据
+2025-08-09 01:02:18.206 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 COST 数据: 日线 251 条, 小时线 413 条
+2025-08-09 01:02:18.207 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: SCI, period: 1y, interval: 1d
+2025-08-09 01:02:18.696 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 SCI 的 251 条K线数据
+2025-08-09 01:02:18.696 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: SCI, period: 60d, interval: 1h
+2025-08-09 01:02:19.177 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 SCI 的 413 条K线数据
+2025-08-09 01:02:19.177 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 SCI 数据: 日线 251 条, 小时线 413 条
+2025-08-09 01:02:19.178 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: TMO, period: 1y, interval: 1d
+2025-08-09 01:02:19.667 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 TMO 的 251 条K线数据
+2025-08-09 01:02:19.668 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: TMO, period: 60d, interval: 1h
+2025-08-09 01:02:20.151 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 TMO 的 413 条K线数据
+2025-08-09 01:02:20.151 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 TMO 数据: 日线 251 条, 小时线 413 条
+2025-08-09 01:02:20.152 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: NEE, period: 1y, interval: 1d
+2025-08-09 01:02:20.635 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 NEE 的 251 条K线数据
+2025-08-09 01:02:20.636 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: NEE, period: 60d, interval: 1h
+2025-08-09 01:02:21.191 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 NEE 的 413 条K线数据
+2025-08-09 01:02:21.192 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 NEE 数据: 日线 251 条, 小时线 413 条
+2025-08-09 01:02:21.193 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: WM, period: 1y, interval: 1d
+2025-08-09 01:02:21.724 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 WM 的 251 条K线数据
+2025-08-09 01:02:21.726 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: WM, period: 60d, interval: 1h
+2025-08-09 01:02:22.261 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 WM 的 413 条K线数据
+2025-08-09 01:02:22.262 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 WM 数据: 日线 251 条, 小时线 413 条
+2025-08-09 01:02:22.262 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: ARBE, period: 1y, interval: 1d
+2025-08-09 01:02:22.689 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 ARBE 的 251 条K线数据
+2025-08-09 01:02:22.689 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: ARBE, period: 60d, interval: 1h
+2025-08-09 01:02:23.226 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 ARBE 的 413 条K线数据
+2025-08-09 01:02:23.227 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 ARBE 数据: 日线 251 条, 小时线 413 条
+2025-08-09 01:02:23.227 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: ATHM, period: 1y, interval: 1d
+2025-08-09 01:02:23.736 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 ATHM 的 251 条K线数据
+2025-08-09 01:02:23.737 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: ATHM, period: 60d, interval: 1h
+2025-08-09 01:02:24.225 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 ATHM 的 413 条K线数据
+2025-08-09 01:02:24.232 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 ATHM 数据: 日线 251 条, 小时线 413 条
+2025-08-09 01:02:24.234 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: RTX, period: 1y, interval: 1d
+2025-08-09 01:02:24.761 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 RTX 的 251 条K线数据
+2025-08-09 01:02:24.762 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: RTX, period: 60d, interval: 1h
+2025-08-09 01:02:25.423 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 RTX 的 413 条K线数据
+2025-08-09 01:02:25.424 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 RTX 数据: 日线 251 条, 小时线 413 条
+2025-08-09 01:02:25.427 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: UNG, period: 1y, interval: 1d
+2025-08-09 01:02:25.888 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 UNG 的 251 条K线数据
+2025-08-09 01:02:25.889 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: UNG, period: 60d, interval: 1h
+2025-08-09 01:02:26.474 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 UNG 的 413 条K线数据
+2025-08-09 01:02:26.475 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 UNG 数据: 日线 251 条, 小时线 413 条
+2025-08-09 01:02:26.475 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: BYON, period: 1y, interval: 1d
+2025-08-09 01:02:26.912 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 BYON 的 251 条K线数据
+2025-08-09 01:02:26.913 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: BYON, period: 60d, interval: 1h
+2025-08-09 01:02:27.411 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 BYON 的 413 条K线数据
+2025-08-09 01:02:27.411 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 BYON 数据: 日线 251 条, 小时线 413 条
+2025-08-09 01:02:27.412 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: SOXX, period: 1y, interval: 1d
+2025-08-09 01:02:27.872 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 SOXX 的 251 条K线数据
+2025-08-09 01:02:27.873 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: SOXX, period: 60d, interval: 1h
+2025-08-09 01:02:28.395 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 SOXX 的 413 条K线数据
+2025-08-09 01:02:28.397 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 SOXX 数据: 日线 251 条, 小时线 413 条
+2025-08-09 01:02:28.397 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: BOTZ, period: 1y, interval: 1d
+2025-08-09 01:02:28.863 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 BOTZ 的 251 条K线数据
+2025-08-09 01:02:28.865 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: BOTZ, period: 60d, interval: 1h
+2025-08-09 01:02:29.355 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 BOTZ 的 413 条K线数据
+2025-08-09 01:02:29.355 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 BOTZ 数据: 日线 251 条, 小时线 413 条
+2025-08-09 01:02:29.356 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: NET, period: 1y, interval: 1d
+2025-08-09 01:02:29.772 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 NET 的 251 条K线数据
+2025-08-09 01:02:29.772 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: NET, period: 60d, interval: 1h
+2025-08-09 01:02:30.221 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 NET 的 413 条K线数据
+2025-08-09 01:02:30.221 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 NET 数据: 日线 251 条, 小时线 413 条
+2025-08-09 01:02:30.221 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: DKNG, period: 1y, interval: 1d
+2025-08-09 01:02:30.631 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 DKNG 的 251 条K线数据
+2025-08-09 01:02:30.632 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: DKNG, period: 60d, interval: 1h
+2025-08-09 01:02:31.089 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 DKNG 的 413 条K线数据
+2025-08-09 01:02:31.089 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 DKNG 数据: 日线 251 条, 小时线 413 条
+2025-08-09 01:02:31.089 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: BOIL, period: 1y, interval: 1d
+2025-08-09 01:02:31.504 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 BOIL 的 251 条K线数据
+2025-08-09 01:02:31.505 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: BOIL, period: 60d, interval: 1h
+2025-08-09 01:02:31.969 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 BOIL 的 413 条K线数据
+2025-08-09 01:02:31.969 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 BOIL 数据: 日线 251 条, 小时线 413 条
+2025-08-09 01:02:31.970 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: OXY, period: 1y, interval: 1d
+2025-08-09 01:02:32.451 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 OXY 的 251 条K线数据
+2025-08-09 01:02:32.451 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: OXY, period: 60d, interval: 1h
+2025-08-09 01:02:32.906 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 OXY 的 413 条K线数据
+2025-08-09 01:02:32.907 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 OXY 数据: 日线 251 条, 小时线 413 条
+2025-08-09 01:02:32.907 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: LABU, period: 1y, interval: 1d
+2025-08-09 01:02:33.333 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 LABU 的 251 条K线数据
+2025-08-09 01:02:33.333 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: LABU, period: 60d, interval: 1h
+2025-08-09 01:02:33.792 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 LABU 的 413 条K线数据
+2025-08-09 01:02:33.792 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 LABU 数据: 日线 251 条, 小时线 413 条
+2025-08-09 01:02:33.793 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: TXN, period: 1y, interval: 1d
+2025-08-09 01:02:34.286 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 TXN 的 251 条K线数据
+2025-08-09 01:02:34.287 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: TXN, period: 60d, interval: 1h
+2025-08-09 01:02:34.741 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 TXN 的 413 条K线数据
+2025-08-09 01:02:34.742 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 TXN 数据: 日线 251 条, 小时线 413 条
+2025-08-09 01:02:34.742 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: ICG, period: 1y, interval: 1d
+2025-08-09 01:02:35.158 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 ICG 的 251 条K线数据
+2025-08-09 01:02:35.158 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: ICG, period: 60d, interval: 1h
+2025-08-09 01:02:35.594 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 ICG 的 398 条K线数据
+2025-08-09 01:02:35.594 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 ICG 数据: 日线 251 条, 小时线 398 条
+2025-08-09 01:02:35.594 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: MU, period: 1y, interval: 1d
+2025-08-09 01:02:36.093 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 MU 的 251 条K线数据
+2025-08-09 01:02:36.093 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: MU, period: 60d, interval: 1h
+2025-08-09 01:02:36.721 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 MU 的 413 条K线数据
+2025-08-09 01:02:36.728 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 MU 数据: 日线 251 条, 小时线 413 条
+2025-08-09 01:02:36.732 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: JWN, period: 1y, interval: 1d
+$JWN: possibly delisted; no price data found  (period=1y) (Yahoo error = "No data found, symbol may be delisted")
+2025-08-09 01:02:38.199 | WARNING  | app.core.market_data.yahoo_provider:get_stock_data:36 - 未获取到股票 JWN 的数据
+2025-08-09 01:02:38.202 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: JWN, period: 60d, interval: 1h
+$JWN: possibly delisted; no price data found  (period=60d) (Yahoo error = "No data found, symbol may be delisted")
+2025-08-09 01:02:39.005 | WARNING  | app.core.market_data.yahoo_provider:get_stock_data:36 - 未获取到股票 JWN 的数据
+2025-08-09 01:02:39.005 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 JWN 数据: 日线 0 条, 小时线 0 条
+2025-08-09 01:02:39.005 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: UVXY, period: 1y, interval: 1d
+2025-08-09 01:02:39.463 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 UVXY 的 251 条K线数据
+2025-08-09 01:02:39.464 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: UVXY, period: 60d, interval: 1h
+2025-08-09 01:02:40.048 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 UVXY 的 413 条K线数据
+2025-08-09 01:02:40.048 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 UVXY 数据: 日线 251 条, 小时线 413 条
+2025-08-09 01:02:40.049 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: CHPT, period: 1y, interval: 1d
+2025-08-09 01:02:40.565 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 CHPT 的 251 条K线数据
+2025-08-09 01:02:40.566 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: CHPT, period: 60d, interval: 1h
+2025-08-09 01:02:41.094 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 CHPT 的 413 条K线数据
+2025-08-09 01:02:41.095 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 CHPT 数据: 日线 251 条, 小时线 413 条
+2025-08-09 01:02:41.095 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: NIO, period: 1y, interval: 1d
+2025-08-09 01:02:41.599 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 NIO 的 251 条K线数据
+2025-08-09 01:02:41.600 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: NIO, period: 60d, interval: 1h
+2025-08-09 01:02:42.065 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 NIO 的 413 条K线数据
+2025-08-09 01:02:42.065 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 NIO 数据: 日线 251 条, 小时线 413 条
+2025-08-09 01:02:42.065 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: SQQQ, period: 1y, interval: 1d
+2025-08-09 01:02:42.574 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 SQQQ 的 251 条K线数据
+2025-08-09 01:02:42.574 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: SQQQ, period: 60d, interval: 1h
+2025-08-09 01:02:43.056 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 SQQQ 的 413 条K线数据
+2025-08-09 01:02:43.056 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 SQQQ 数据: 日线 251 条, 小时线 413 条
+2025-08-09 01:02:43.057 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: NTRB, period: 1y, interval: 1d
+2025-08-09 01:02:43.464 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 NTRB 的 251 条K线数据
+2025-08-09 01:02:43.465 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: NTRB, period: 60d, interval: 1h
+2025-08-09 01:02:43.913 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 NTRB 的 404 条K线数据
+2025-08-09 01:02:43.914 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 NTRB 数据: 日线 251 条, 小时线 404 条
+2025-08-09 01:02:43.914 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: LVMHF, period: 1y, interval: 1d
+2025-08-09 01:02:44.335 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 LVMHF 的 251 条K线数据
+2025-08-09 01:02:44.335 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: LVMHF, period: 60d, interval: 1h
+2025-08-09 01:02:44.774 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 LVMHF 的 308 条K线数据
+2025-08-09 01:02:44.775 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 LVMHF 数据: 日线 251 条, 小时线 308 条
+2025-08-09 01:02:44.775 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: BA, period: 1y, interval: 1d
+2025-08-09 01:02:45.280 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 BA 的 251 条K线数据
+2025-08-09 01:02:45.280 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: BA, period: 60d, interval: 1h
+2025-08-09 01:02:45.743 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 BA 的 413 条K线数据
+2025-08-09 01:02:45.743 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 BA 数据: 日线 251 条, 小时线 413 条
+2025-08-09 01:02:45.743 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: HD, period: 1y, interval: 1d
+2025-08-09 01:02:46.210 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 HD 的 251 条K线数据
+2025-08-09 01:02:46.210 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: HD, period: 60d, interval: 1h
+2025-08-09 01:02:46.682 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 HD 的 413 条K线数据
+2025-08-09 01:02:46.682 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 HD 数据: 日线 251 条, 小时线 413 条
+2025-08-09 01:02:46.683 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: CHWY, period: 1y, interval: 1d
+2025-08-09 01:02:47.118 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 CHWY 的 251 条K线数据
+2025-08-09 01:02:47.118 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: CHWY, period: 60d, interval: 1h
+2025-08-09 01:02:47.551 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 CHWY 的 413 条K线数据
+2025-08-09 01:02:47.552 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 CHWY 数据: 日线 251 条, 小时线 413 条
+2025-08-09 01:02:47.552 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: ADBE, period: 1y, interval: 1d
+2025-08-09 01:02:48.000 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 ADBE 的 251 条K线数据
+2025-08-09 01:02:48.001 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: ADBE, period: 60d, interval: 1h
+2025-08-09 01:02:48.523 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 ADBE 的 413 条K线数据
+2025-08-09 01:02:48.523 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 ADBE 数据: 日线 251 条, 小时线 413 条
+2025-08-09 01:02:48.524 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: AVGO, period: 1y, interval: 1d
+2025-08-09 01:02:49.062 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 AVGO 的 251 条K线数据
+2025-08-09 01:02:49.062 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: AVGO, period: 60d, interval: 1h
+2025-08-09 01:02:50.194 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 AVGO 的 413 条K线数据
+2025-08-09 01:02:50.194 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 AVGO 数据: 日线 251 条, 小时线 413 条
+2025-08-09 01:02:50.195 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: SPGI, period: 1y, interval: 1d
+2025-08-09 01:02:50.805 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 SPGI 的 251 条K线数据
+2025-08-09 01:02:50.805 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: SPGI, period: 60d, interval: 1h
+2025-08-09 01:02:51.353 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 SPGI 的 413 条K线数据
+2025-08-09 01:02:51.362 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 SPGI 数据: 日线 251 条, 小时线 413 条
+2025-08-09 01:02:51.364 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: PFE, period: 1y, interval: 1d
+2025-08-09 01:02:51.960 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 PFE 的 251 条K线数据
+2025-08-09 01:02:51.962 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: PFE, period: 60d, interval: 1h
+2025-08-09 01:02:52.678 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 PFE 的 413 条K线数据
+2025-08-09 01:02:52.678 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 PFE 数据: 日线 251 条, 小时线 413 条
+2025-08-09 01:02:52.679 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: IWB, period: 1y, interval: 1d
+2025-08-09 01:02:53.350 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 IWB 的 251 条K线数据
+2025-08-09 01:02:53.351 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: IWB, period: 60d, interval: 1h
+2025-08-09 01:02:53.996 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 IWB 的 413 条K线数据
+2025-08-09 01:02:53.996 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 IWB 数据: 日线 251 条, 小时线 413 条
+2025-08-09 01:02:53.997 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: BILI, period: 1y, interval: 1d
+2025-08-09 01:02:54.506 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 BILI 的 251 条K线数据
+2025-08-09 01:02:54.507 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: BILI, period: 60d, interval: 1h
+2025-08-09 01:02:55.020 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 BILI 的 413 条K线数据
+2025-08-09 01:02:55.021 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 BILI 数据: 日线 251 条, 小时线 413 条
+2025-08-09 01:02:55.021 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: MOMO, period: 1y, interval: 1d
+2025-08-09 01:02:55.499 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 MOMO 的 251 条K线数据
+2025-08-09 01:02:55.503 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: MOMO, period: 60d, interval: 1h
+2025-08-09 01:02:55.975 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 MOMO 的 413 条K线数据
+2025-08-09 01:02:55.976 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 MOMO 数据: 日线 251 条, 小时线 413 条
+2025-08-09 01:02:55.976 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: JNJ, period: 1y, interval: 1d
+2025-08-09 01:02:56.598 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 JNJ 的 251 条K线数据
+2025-08-09 01:02:56.599 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: JNJ, period: 60d, interval: 1h
+2025-08-09 01:02:57.113 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 JNJ 的 413 条K线数据
+2025-08-09 01:02:57.114 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 JNJ 数据: 日线 251 条, 小时线 413 条
+2025-08-09 01:02:57.115 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: ABT, period: 1y, interval: 1d
+2025-08-09 01:02:57.790 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 ABT 的 251 条K线数据
+2025-08-09 01:02:57.791 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: ABT, period: 60d, interval: 1h
+2025-08-09 01:02:58.327 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 ABT 的 413 条K线数据
+2025-08-09 01:02:58.327 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 ABT 数据: 日线 251 条, 小时线 413 条
+2025-08-09 01:02:58.327 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: DIDIY, period: 1y, interval: 1d
+2025-08-09 01:02:58.752 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 DIDIY 的 251 条K线数据
+2025-08-09 01:02:58.752 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: DIDIY, period: 60d, interval: 1h
+2025-08-09 01:02:59.221 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 DIDIY 的 412 条K线数据
+2025-08-09 01:02:59.221 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 DIDIY 数据: 日线 251 条, 小时线 412 条
+2025-08-09 01:02:59.221 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: TSM, period: 1y, interval: 1d
+2025-08-09 01:02:59.776 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 TSM 的 251 条K线数据
+2025-08-09 01:02:59.776 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: TSM, period: 60d, interval: 1h
+2025-08-09 01:03:00.327 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 TSM 的 413 条K线数据
+2025-08-09 01:03:00.327 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 TSM 数据: 日线 251 条, 小时线 413 条
+2025-08-09 01:03:00.327 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: IWO, period: 1y, interval: 1d
+2025-08-09 01:03:01.071 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 IWO 的 251 条K线数据
+2025-08-09 01:03:01.073 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: IWO, period: 60d, interval: 1h
+2025-08-09 01:03:02.815 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 IWO 的 413 条K线数据
+2025-08-09 01:03:02.816 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 IWO 数据: 日线 251 条, 小时线 413 条
+2025-08-09 01:03:02.816 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: LIST2432, period: 1y, interval: 1d
+$LIST2432: possibly delisted; no price data found  (period=1y) (Yahoo error = "No data found, symbol may be delisted")
+2025-08-09 01:03:04.555 | WARNING  | app.core.market_data.yahoo_provider:get_stock_data:36 - 未获取到股票 LIST2432 的数据
+2025-08-09 01:03:04.555 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: LIST2432, period: 60d, interval: 1h
+$LIST2432: possibly delisted; no price data found  (period=60d) (Yahoo error = "No data found, symbol may be delisted")
+2025-08-09 01:03:05.721 | WARNING  | app.core.market_data.yahoo_provider:get_stock_data:36 - 未获取到股票 LIST2432 的数据
+2025-08-09 01:03:05.721 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 LIST2432 数据: 日线 0 条, 小时线 0 条
+2025-08-09 01:03:05.722 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: F, period: 1y, interval: 1d
+2025-08-09 01:03:06.350 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 F 的 251 条K线数据
+2025-08-09 01:03:06.362 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: F, period: 60d, interval: 1h
+2025-08-09 01:03:07.041 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 F 的 413 条K线数据
+2025-08-09 01:03:07.043 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 F 数据: 日线 251 条, 小时线 413 条
+2025-08-09 01:03:07.047 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: ONC, period: 1y, interval: 1d
+2025-08-09 01:03:07.667 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 ONC 的 251 条K线数据
+2025-08-09 01:03:07.668 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: ONC, period: 60d, interval: 1h
+2025-08-09 01:03:08.182 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 ONC 的 413 条K线数据
+2025-08-09 01:03:08.183 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 ONC 数据: 日线 251 条, 小时线 413 条
+2025-08-09 01:03:08.184 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: FUTU, period: 1y, interval: 1d
+2025-08-09 01:03:08.660 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 FUTU 的 251 条K线数据
+2025-08-09 01:03:08.660 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: FUTU, period: 60d, interval: 1h
+2025-08-09 01:03:10.045 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 FUTU 的 413 条K线数据
+2025-08-09 01:03:10.046 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 FUTU 数据: 日线 251 条, 小时线 413 条
+2025-08-09 01:03:10.046 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: BABA, period: 1y, interval: 1d
+2025-08-09 01:03:10.713 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 BABA 的 251 条K线数据
+2025-08-09 01:03:10.714 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: BABA, period: 60d, interval: 1h
+2025-08-09 01:03:11.484 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 BABA 的 413 条K线数据
+2025-08-09 01:03:11.487 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 BABA 数据: 日线 251 条, 小时线 413 条
+2025-08-09 01:03:11.487 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: TME, period: 1y, interval: 1d
+2025-08-09 01:03:11.956 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 TME 的 251 条K线数据
+2025-08-09 01:03:11.957 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: TME, period: 60d, interval: 1h
+2025-08-09 01:03:12.658 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 TME 的 413 条K线数据
+2025-08-09 01:03:12.659 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 TME 数据: 日线 251 条, 小时线 413 条
+2025-08-09 01:03:12.662 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: BIDU, period: 1y, interval: 1d
+2025-08-09 01:03:13.130 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 BIDU 的 251 条K线数据
+2025-08-09 01:03:13.131 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: BIDU, period: 60d, interval: 1h
+2025-08-09 01:03:13.689 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 BIDU 的 413 条K线数据
+2025-08-09 01:03:13.689 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 BIDU 数据: 日线 251 条, 小时线 413 条
+2025-08-09 01:03:13.690 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: MDA, period: 1y, interval: 1d
+$MDA: possibly delisted; no price data found  (period=1y)
+2025-08-09 01:03:14.129 | WARNING  | app.core.market_data.yahoo_provider:get_stock_data:36 - 未获取到股票 MDA 的数据
+2025-08-09 01:03:14.130 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: MDA, period: 60d, interval: 1h
+$MDA: possibly delisted; no price data found  (period=60d)
+2025-08-09 01:03:14.545 | WARNING  | app.core.market_data.yahoo_provider:get_stock_data:36 - 未获取到股票 MDA 的数据
+2025-08-09 01:03:14.546 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 MDA 数据: 日线 0 条, 小时线 0 条
+2025-08-09 01:03:14.546 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: CNYHKD, period: 1y, interval: 1d
+$CNYHKD: possibly delisted; no price data found  (period=1y) (Yahoo error = "No data found, symbol may be delisted")
+2025-08-09 01:03:16.199 | WARNING  | app.core.market_data.yahoo_provider:get_stock_data:36 - 未获取到股票 CNYHKD 的数据
+2025-08-09 01:03:16.202 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: CNYHKD, period: 60d, interval: 1h
+$CNYHKD: possibly delisted; no price data found  (period=60d) (Yahoo error = "No data found, symbol may be delisted")
+2025-08-09 01:03:17.137 | WARNING  | app.core.market_data.yahoo_provider:get_stock_data:36 - 未获取到股票 CNYHKD 的数据
+2025-08-09 01:03:17.137 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 CNYHKD 数据: 日线 0 条, 小时线 0 条
+2025-08-09 01:03:17.138 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: HKDUSD, period: 1y, interval: 1d
+$HKDUSD: possibly delisted; no price data found  (period=1y) (Yahoo error = "No data found, symbol may be delisted")
+2025-08-09 01:03:18.992 | WARNING  | app.core.market_data.yahoo_provider:get_stock_data:36 - 未获取到股票 HKDUSD 的数据
+2025-08-09 01:03:18.993 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: HKDUSD, period: 60d, interval: 1h
+$HKDUSD: possibly delisted; no price data found  (period=60d) (Yahoo error = "No data found, symbol may be delisted")
+2025-08-09 01:03:19.946 | WARNING  | app.core.market_data.yahoo_provider:get_stock_data:36 - 未获取到股票 HKDUSD 的数据
+2025-08-09 01:03:19.946 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 HKDUSD 数据: 日线 0 条, 小时线 0 条
+2025-08-09 01:03:19.947 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: HKDCNY, period: 1y, interval: 1d
+$HKDCNY: possibly delisted; no price data found  (period=1y) (Yahoo error = "No data found, symbol may be delisted")
+2025-08-09 01:03:21.857 | WARNING  | app.core.market_data.yahoo_provider:get_stock_data:36 - 未获取到股票 HKDCNY 的数据
+2025-08-09 01:03:21.858 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: HKDCNY, period: 60d, interval: 1h
+$HKDCNY: possibly delisted; no price data found  (period=60d) (Yahoo error = "No data found, symbol may be delisted")
+2025-08-09 01:03:22.681 | WARNING  | app.core.market_data.yahoo_provider:get_stock_data:36 - 未获取到股票 HKDCNY 的数据
+2025-08-09 01:03:22.682 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 HKDCNY 数据: 日线 0 条, 小时线 0 条
+2025-08-09 01:03:22.685 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: HKDCNH, period: 1y, interval: 1d
+$HKDCNH: possibly delisted; no price data found  (period=1y) (Yahoo error = "No data found, symbol may be delisted")
+2025-08-09 01:03:24.552 | WARNING  | app.core.market_data.yahoo_provider:get_stock_data:36 - 未获取到股票 HKDCNH 的数据
+2025-08-09 01:03:24.553 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: HKDCNH, period: 60d, interval: 1h
+$HKDCNH: possibly delisted; no price data found  (period=60d) (Yahoo error = "No data found, symbol may be delisted")
+2025-08-09 01:03:25.470 | WARNING  | app.core.market_data.yahoo_provider:get_stock_data:36 - 未获取到股票 HKDCNH 的数据
+2025-08-09 01:03:25.470 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 HKDCNH 数据: 日线 0 条, 小时线 0 条
+2025-08-09 01:03:25.471 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: USDCNY, period: 1y, interval: 1d
+$USDCNY: possibly delisted; no price data found  (period=1y) (Yahoo error = "No data found, symbol may be delisted")
+2025-08-09 01:03:27.431 | WARNING  | app.core.market_data.yahoo_provider:get_stock_data:36 - 未获取到股票 USDCNY 的数据
+2025-08-09 01:03:27.431 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: USDCNY, period: 60d, interval: 1h
+$USDCNY: possibly delisted; no price data found  (period=60d) (Yahoo error = "No data found, symbol may be delisted")
+2025-08-09 01:03:28.597 | WARNING  | app.core.market_data.yahoo_provider:get_stock_data:36 - 未获取到股票 USDCNY 的数据
+2025-08-09 01:03:28.598 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 USDCNY 数据: 日线 0 条, 小时线 0 条
+2025-08-09 01:03:28.599 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: 09880, period: 1y, interval: 1d
+$09880: possibly delisted; no price data found  (period=1y) (Yahoo error = "No data found, symbol may be delisted")
+2025-08-09 01:03:30.081 | WARNING  | app.core.market_data.yahoo_provider:get_stock_data:36 - 未获取到股票 09880 的数据
+2025-08-09 01:03:30.082 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: 09880, period: 60d, interval: 1h
+$09880: possibly delisted; no price data found  (period=60d) (Yahoo error = "No data found, symbol may be delisted")
+2025-08-09 01:03:30.937 | WARNING  | app.core.market_data.yahoo_provider:get_stock_data:36 - 未获取到股票 09880 的数据
+2025-08-09 01:03:30.937 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 09880 数据: 日线 0 条, 小时线 0 条
+2025-08-09 01:03:30.938 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: 02172, period: 1y, interval: 1d
+$02172: possibly delisted; no price data found  (period=1y) (Yahoo error = "No data found, symbol may be delisted")
+2025-08-09 01:03:32.346 | WARNING  | app.core.market_data.yahoo_provider:get_stock_data:36 - 未获取到股票 02172 的数据
+2025-08-09 01:03:32.346 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: 02172, period: 60d, interval: 1h
+$02172: possibly delisted; no price data found  (period=60d) (Yahoo error = "No data found, symbol may be delisted")
+2025-08-09 01:03:33.206 | WARNING  | app.core.market_data.yahoo_provider:get_stock_data:36 - 未获取到股票 02172 的数据
+2025-08-09 01:03:33.207 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 02172 数据: 日线 0 条, 小时线 0 条
+2025-08-09 01:03:33.207 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: 09660, period: 1y, interval: 1d
+$09660: possibly delisted; no price data found  (period=1y) (Yahoo error = "No data found, symbol may be delisted")
+2025-08-09 01:03:34.597 | WARNING  | app.core.market_data.yahoo_provider:get_stock_data:36 - 未获取到股票 09660 的数据
+2025-08-09 01:03:34.597 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: 09660, period: 60d, interval: 1h

@@ -31,6 +31,7 @@ export default function DataSyncManager() {
   const [dataStats, setDataStats] = useState<DataStatistics | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [lastSyncResult, setLastSyncResult] = useState<SyncResult | null>(null);
+  const [failedList, setFailedList] = useState<string[]>([]);
   const [watchlistCount, setWatchlistCount] = useState(0);
 
   // 获取同步状态
@@ -49,6 +50,23 @@ export default function DataSyncManager() {
     }
   };
 
+  // 获取最近一次同步结果（包含失败详情）
+  const fetchLastResult = async () => {
+    try {
+      const res = await apiGet(API_ENDPOINTS.SYNC_LAST_RESULT);
+      const data = await res.json();
+      if (data?.success) {
+        const lr = data.data;
+        setLastSyncResult({ success: lr?.status === 'completed', message: lr?.status || 'unknown', sync_result: lr });
+        const details = lr?.details || {};
+        const failed = Object.keys(details).filter(sym => details[sym]?.success === false);
+        setFailedList(failed);
+      }
+    } catch (e) {
+      // ignore
+    }
+  };
+
   // 触发数据同步
   const triggerSync = async (forceFullSync: boolean = false) => {
     setIsLoading(true);
@@ -62,6 +80,7 @@ export default function DataSyncManager() {
         // 同步开始后，定期检查状态
         setTimeout(() => {
           fetchSyncStatus();
+          fetchLastResult();
         }, 2000);
       }
     } catch (error) {
@@ -79,6 +98,7 @@ export default function DataSyncManager() {
   useEffect(() => {
     setMounted(true);
     fetchSyncStatus();
+    fetchLastResult();
 
     // 定期刷新状态
     const interval = setInterval(fetchSyncStatus, 30000); // 30秒刷新一次
@@ -211,6 +231,44 @@ export default function DataSyncManager() {
               <div>日线记录: {lastSyncResult.sync_result.daily_records} 条</div>
               <div>小时线记录: {lastSyncResult.sync_result.hourly_records} 条</div>
               <div>耗时: {lastSyncResult.sync_result.duration_seconds} 秒</div>
+              {failedList.length > 0 && (
+                <div className="mt-2">
+                  <div className="text-red-700 font-medium">失败股票（{failedList.length}）:</div>
+                  <div className="mt-1 max-h-24 overflow-y-auto text-red-700">
+                    {failedList.join(', ')}
+                  </div>
+                  <div className="mt-2 flex gap-2">
+                    <button
+                      onClick={async () => {
+                        try {
+                          const r = await apiPost(API_ENDPOINTS.SYNC_RETRY_FAILED(false));
+                          const d = await r.json();
+                          if (d?.success) {
+                            setTimeout(() => { fetchSyncStatus(); fetchLastResult(); }, 2000);
+                          }
+                        } catch {}
+                      }}
+                      className="px-3 py-1 bg-orange-600 hover:bg-orange-700 text-white rounded"
+                    >
+                      重试失败（增量）
+                    </button>
+                    <button
+                      onClick={async () => {
+                        try {
+                          const r = await apiPost(API_ENDPOINTS.SYNC_RETRY_FAILED(true));
+                          const d = await r.json();
+                          if (d?.success) {
+                            setTimeout(() => { fetchSyncStatus(); fetchLastResult(); }, 2000);
+                          }
+                        } catch {}
+                      }}
+                      className="px-3 py-1 border border-orange-600 text-orange-700 hover:bg-orange-50 rounded"
+                    >
+                      重试失败（全量）
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           )}
         </div>

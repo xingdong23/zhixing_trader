@@ -25,6 +25,8 @@ class DataSyncService:
         self.stock_repository = stock_repository
         self.kline_repository = kline_repository
         self.is_syncing = False
+        # 最近一次同步结果（内存保存，便于前端查看失败详情/重试）
+        self._last_result: Optional[Dict[str, any]] = None
     
     async def sync_all_watchlist_data(self, force_full_sync: bool = False) -> Dict[str, any]:
         """
@@ -108,19 +110,73 @@ class DataSyncService:
                        f"日线 {sync_results['daily_records']} 条, "
                        f"小时线 {sync_results['hourly_records']} 条, "
                        f"耗时 {sync_duration:.1f}秒")
-            
+            # 保存最后一次结果
+            self._last_result = sync_results
             return sync_results
             
         except Exception as e:
             logger.error(f"数据同步失败: {e}")
-            return {
+            self._last_result = {
                 "status": "failed",
                 "error": str(e),
                 "end_time": datetime.now().isoformat()
             }
+            return self._last_result
         
         finally:
             self.is_syncing = False
+
+    async def sync_specific_symbols(self, symbols: List[str], force_full_sync: bool = False) -> Dict[str, any]:
+        """只同步指定股票清单（用于重试失败项）"""
+        if self.is_syncing:
+            return {"status": "skipped", "reason": "sync_in_progress"}
+
+        self.is_syncing = True
+        sync_start_time = datetime.now()
+        try:
+            results = {
+                "total_stocks": len(symbols),
+                "success_stocks": 0,
+                "failed_stocks": 0,
+                "daily_records": 0,
+                "hourly_records": 0,
+                "sync_type": "full" if force_full_sync else "incremental",
+                "start_time": sync_start_time.isoformat(),
+                "details": {},
+            }
+            for symbol in symbols:
+                try:
+                    stock_result = await self._sync_single_stock(symbol, force_full_sync)
+                    results["details"][symbol] = stock_result
+                    if stock_result.get("success"):
+                        results["success_stocks"] += 1
+                        results["daily_records"] += stock_result.get("daily_count", 0)
+                        results["hourly_records"] += stock_result.get("hourly_count", 0)
+                    else:
+                        results["failed_stocks"] += 1
+                    await asyncio.sleep(0.2)
+                except Exception as e:
+                    results["failed_stocks"] += 1
+                    results["details"][symbol] = {"success": False, "error": str(e), "daily_count": 0, "hourly_count": 0}
+
+            sync_end_time = datetime.now()
+            duration = (sync_end_time - sync_start_time).total_seconds()
+            results.update({
+                "status": "completed",
+                "end_time": sync_end_time.isoformat(),
+                "duration_seconds": round(duration, 2),
+                "success_rate": round((results["success_stocks"] / max(1, len(symbols))) * 100, 1),
+            })
+            self._last_result = results
+            return results
+        except Exception as e:
+            self._last_result = {"status": "failed", "error": str(e), "end_time": datetime.now().isoformat()}
+            return self._last_result
+        finally:
+            self.is_syncing = False
+
+    def get_last_result(self) -> Dict[str, any]:
+        return self._last_result or {"status": "none"}
     
     async def _sync_single_stock(self, symbol: str, force_full_sync: bool) -> Dict[str, any]:
         """同步单只股票数据"""
