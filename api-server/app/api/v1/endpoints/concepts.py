@@ -25,8 +25,14 @@ async def get_concepts() -> Dict[str, Any]:
             concepts = []
             for concept_db in concept_dbs:
                 # 获取该概念关联的股票
+                # 兼容历史数据：有的关系表使用了概念表自增 id（如 '1'），
+                # 现标准使用 ConceptDB.concept_id（如 'concept_1_xxx'）。两者都纳入。
+                from sqlalchemy import or_
                 relations = session.query(ConceptStockRelationDB).filter(
-                    ConceptStockRelationDB.concept_id == concept_db.concept_id
+                    or_(
+                        ConceptStockRelationDB.concept_id == concept_db.concept_id,
+                        ConceptStockRelationDB.concept_id == str(concept_db.id)
+                    )
                 ).all()
 
                 # 获取股票详细信息
