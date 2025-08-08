@@ -234,18 +234,7 @@ export function useMarketData(): UseMarketDataResult {
       const numericId = strategyId.includes('ema55_strategy') ? 1 :
                        strategyId.includes('strategy_') ? parseInt(strategyId.split('_').pop() || '1') : 1;
 
-      const response = await apiPost(API_ENDPOINTS.STRATEGY_EXECUTE(numericId.toString()), {
-        stocks: state.stocks.map(stock => ({
-          symbol: stock.symbol,
-          name: stock.name,
-          currentPrice: stock.currentPrice,
-          priceChange: stock.priceChange,
-          priceChangePercent: stock.priceChangePercent,
-          volume: stock.volume,
-          tags: stock.tags
-          // conceptIds 字段已移除，概念关联通过 concept_stock_relations 表管理
-        }))
-      });
+      const response = await apiPost(API_ENDPOINTS.STRATEGY_EXECUTE(numericId.toString()));
 
       if (!response.ok) {
         throw new Error(`策略执行失败: ${response.status}`);

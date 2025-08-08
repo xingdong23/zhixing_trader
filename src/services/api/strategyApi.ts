@@ -72,7 +72,7 @@ export class StrategyApiService extends BaseApiClient {
    * 运行单个策略
    */
   async runStrategy(id: string): Promise<ApiResponse<SelectedStock[]>> {
-    return this.post<SelectedStock[]>(`/api/strategies/${id}/run`);
+    return this.post<SelectedStock[]>(`/api/strategies/${id}/execute`);
   }
   
   /**

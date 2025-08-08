@@ -2,9 +2,28 @@
 import requests
 import json
 
+CANDIDATES = ['http://127.0.0.1:3001','http://localhost:3001','http://0.0.0.0:3001']
+BASE_URL = None
+
+def pick_base_url():
+    global BASE_URL
+    for url in CANDIDATES:
+        try:
+            r = requests.get(f"{url}/api/health", timeout=2)
+            if r.status_code == 200:
+                BASE_URL = url
+                print(f"Using {BASE_URL}")
+                return
+        except Exception:
+            pass
+    raise RuntimeError('no reachable BASE_URL in candidates')
+
 def test_api():
     # 测试获取股票列表
-    response = requests.get('http://127.0.0.1:8000/api/v1/stocks/')
+    pick_base_url()
+    health = requests.get(f'{BASE_URL}/api/health', timeout=3)
+    print(f'GET /api/health - Status: {health.status_code}')
+    response = requests.get(f'{BASE_URL}/api/v1/stocks/', timeout=5)
     print(f'GET /api/v1/stocks/ - Status: {response.status_code}')
     
     if response.status_code == 200:
@@ -27,8 +46,8 @@ def test_api():
                     'notes': '测试更新 - 已彻底移除 fundamental_tags 字段'
                 }
                 
-                update_response = requests.put(f'http://127.0.0.1:8000/api/v1/stocks/{symbol}', 
-                                             json=update_data)
+                update_response = requests.put(f'{BASE_URL}/api/v1/stocks/{symbol}', 
+                                             json=update_data, timeout=5)
                 print(f'PUT /api/v1/stocks/{symbol} - Status: {update_response.status_code}')
                 
                 if update_response.status_code == 200:

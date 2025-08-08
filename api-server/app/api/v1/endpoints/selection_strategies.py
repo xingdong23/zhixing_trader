@@ -5,8 +5,8 @@ from typing import Dict, Any, List
 from datetime import datetime
 from fastapi import APIRouter, HTTPException, Depends
 from loguru import logger
-from app.database import db_service
-from app.models import SelectionStrategyDB
+from ....database import db_service
+from ....models import SelectionStrategyDB
 
 router = APIRouter()
 

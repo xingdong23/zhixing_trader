@@ -17,7 +17,7 @@ export interface ServiceConfig {
 
 /** 默认服务配置 */
 export const DEFAULT_SERVICE_CONFIG: ServiceConfig = {
-  baseUrl: process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000',
+  baseUrl: process.env.NEXT_PUBLIC_API_BASE_URL || 'http://127.0.0.1:3001/api/v1',
   timeout: 10000,
   retryAttempts: 3,
   retryDelay: 1000,

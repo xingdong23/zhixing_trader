@@ -38,37 +38,34 @@ async def lifespan(app: FastAPI):
     # 启动时
     logger.info("🚀 Starting Zhixing Trader API Server...")
 
+    task = None
     try:
-        # 确保目录存在
         import os
         os.makedirs("data", exist_ok=True)
         os.makedirs("logs", exist_ok=True)
 
-        # 初始化依赖注入容器
         container.initialize()
 
-        # 启动后台任务
         task = asyncio.create_task(background_tasks())
 
         logger.info("✅ API Server started successfully")
-
         yield
 
     except Exception as e:
-        logger.error(f"❌ Failed to start server: {e}")
+        logger.exception(f"❌ Failed to start server: {e}")
         raise
 
     finally:
-        # 关闭时
         logger.info("🛑 Shutting down API Server...")
-
-        # 取消后台任务
-        if 'task' in locals():
-            task.cancel()
-
-        # 关闭数据库连接
-        db_service.close()
-
+        try:
+            if task:
+                task.cancel()
+        except Exception:
+            logger.exception("Cancel background task error")
+        try:
+            db_service.close()
+        except Exception:
+            logger.exception("DB close error")
         logger.info("✅ API Server shutdown completed")
 
 
@@ -116,6 +113,22 @@ async def health_check():
     }
 
 
+# 调试端点
+@app.get("/api/debug/echo")
+async def debug_echo():
+    import os, sys, socket
+    return {
+        "success": True,
+        "data": {
+            "cwd": os.getcwd(),
+            "sys_path": sys.path,
+            "host_config": settings.api_host,
+            "port_config": settings.api_port,
+            "hostname": socket.gethostname(),
+            "ips": socket.gethostbyname_ex(socket.gethostname())[2],
+        },
+    }
+
 # API状态
 @app.get("/api/status")
 async def get_status():
@@ -154,6 +167,11 @@ async def catch_all(path: str):
         status_code=404,
         detail=f"Route /{path} not found"
     )
+
+# 处理OPTIONS请求（确保返回适当的CORS头由中间件添加）
+@app.options("/{path:path}")
+async def options_handler(path: str):
+    return {"ok": True}
 
 
 # 启动服务器

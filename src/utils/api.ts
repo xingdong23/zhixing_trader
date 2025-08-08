@@ -10,12 +10,19 @@ import { API_CONFIG, API_ENDPOINTS } from '../constants';
  * @returns 完整的API URL
  */
 export function buildApiUrl(endpoint: string, useVersion: boolean = true): string {
-  const baseUrl = useVersion ? API_CONFIG.BASE_URL : API_CONFIG.BASE_URL_NO_VERSION;
-  
+  // 统一在浏览器环境走Next同源API路由，避免CORS；SSR/Node侧直连后端
+  const isBrowser = typeof window !== 'undefined';
+
   // 确保endpoint以/开头
   const normalizedEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
-  
-  // 如果使用版本号，直接拼接；否则需要添加/api/v1
+
+  if (isBrowser) {
+    // 走Next API代理，例如 /api/concepts → src/app/api/concepts/route.ts
+    return `/api${normalizedEndpoint}`;
+  }
+
+  // 服务器端渲染或脚本环境直连后端
+  const baseUrl = useVersion ? API_CONFIG.BASE_URL : API_CONFIG.BASE_URL_NO_VERSION;
   if (useVersion) {
     return `${baseUrl}${normalizedEndpoint}`;
   } else {

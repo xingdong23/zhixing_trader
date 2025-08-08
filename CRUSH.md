@@ -5,7 +5,7 @@ Repository quick facts
 - Backend: Python FastAPI service in api-server/ with pytest tests.
 
 Build/run/lint/test
-- Frontend dev: npm run dev
+- Frontend dev: NEXT_PUBLIC_API_BASE_URL=http://127.0.0.1:3001/api/v1 npm run dev
 - Frontend build: npm run build
 - Frontend start: npm start
 - Frontend lint (all): npm run lint
