@@ -5928,3 +5928,45 @@ INFO:     127.0.0.1:57191 - "GET /api/v1/data/sync/status HTTP/1.1" 200 OK
 INFO:     127.0.0.1:57287 - "GET /api/v1/data/sync/status HTTP/1.1" 200 OK
 INFO:     127.0.0.1:57287 - "GET /api/v1/data/sync/status HTTP/1.1" 200 OK
 INFO:     127.0.0.1:57550 - "GET /api/v1/data/sync/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57811 - "GET /api/v1/data/sync/status HTTP/1.1" 200 OK
+WARNING:  WatchFiles detected changes in 'app/api/v1/endpoints/concepts.py', 'app/api/v1/endpoints/stocks.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+2025-08-08 23:59:42.020 | INFO     | app.main:lifespan:59 - 🛑 Shutting down API Server...
+2025-08-08 23:59:42.026 | INFO     | app.database:close:1002 - Database connection closed
+2025-08-08 23:59:42.027 | INFO     | app.main:lifespan:69 - ✅ API Server shutdown completed
+INFO:     Application shutdown complete.
+INFO:     Finished server process [21852]
+2025-08-08 23:59:43.172 | INFO     | app.database:init_database:52 - Database initialized: sqlite:///./data/zhixing_trader.db
+INFO:     Started server process [24038]
+INFO:     Waiting for application startup.
+2025-08-08 23:59:43.949 | INFO     | app.main:lifespan:39 - 🚀 Starting Zhixing Trader API Server...
+2025-08-08 23:59:43.949 | INFO     | app.core.container:initialize:32 - 初始化依赖注入容器...
+2025-08-08 23:59:43.960 | WARNING  | app.core.analysis.technical_analyzer:<module>:16 - TA-Lib not available, using simplified implementation
+2025-08-08 23:59:43.960 | INFO     | app.core.strategy.engine:register_strategy:34 - 注册策略: id=1, name=EMA55回踩企稳策略
+2025-08-08 23:59:43.960 | INFO     | app.services.strategy_service:_load_enabled_strategies_from_db:53 - 策略已加载: id=1, type=ema55_pullback, name=EMA55 回踩
+2025-08-08 23:59:43.960 | INFO     | app.core.container:initialize:55 - 依赖注入容器初始化完成
+2025-08-08 23:59:43.961 | INFO     | app.main:lifespan:51 - ✅ API Server started successfully
+2025-08-08 23:59:43.961 | DEBUG    | app.main:background_tasks:24 - 🔄 系统状态检查
+INFO:     Application startup complete.
+INFO:     127.0.0.1:58175 - "GET /api/v1/data/sync/status HTTP/1.1" 200 OK
+2025-08-09 00:00:18.069 | INFO     | app.api.v1.endpoints.concepts:init_sample_data:90 - 概念数据已存在，无需初始化示例数据
+INFO:     127.0.0.1:58395 - "POST /api/v1/concepts/init-sample-data HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58396 - "GET /api/v1/concepts/?page=1&page_size=20 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58396 - "GET /api/v1/strategies/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58395 - "GET /api/v1/stocks/?page=1&page_size=20 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58898 - "GET /api/v1/data/sync/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58898 - "GET /api/v1/data/sync/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58927 - "GET /api/v1/concepts/?page=1&page_size=20 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58928 - "GET /api/v1/stocks/?page=1&page_size=20 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58927 - "GET /api/v1/stocks/?page=1&page_size=20 HTTP/1.1" 200 OK
+2025-08-09 00:05:35.096 | INFO     | app.api.v1.endpoints.concepts:init_sample_data:90 - 概念数据已存在，无需初始化示例数据
+INFO:     127.0.0.1:60677 - "POST /api/v1/concepts/init-sample-data HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60678 - "GET /api/v1/concepts/?page=1&page_size=20 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60677 - "GET /api/v1/strategies/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60678 - "GET /api/v1/stocks/?page=1&page_size=20 HTTP/1.1" 200 OK
+2025-08-09 00:06:41.720 | INFO     | app.api.v1.endpoints.concepts:init_sample_data:90 - 概念数据已存在，无需初始化示例数据
+INFO:     127.0.0.1:61150 - "POST /api/v1/concepts/init-sample-data HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61151 - "GET /api/v1/concepts/?page=1&page_size=20 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61150 - "GET /api/v1/strategies/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61151 - "GET /api/v1/stocks/?page=1&page_size=20 HTTP/1.1" 200 OK

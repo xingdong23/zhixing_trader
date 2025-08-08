@@ -6,6 +6,7 @@
 import React from 'react';
 import { Stock, StockSelectionStrategy } from '@/types';
 import { MarketTabId } from './MarketTabs';
+import { useMarketData } from './MarketDataManager';
 
 // 导入各个功能模块组件
 import { StockPool } from '../StockPool';
@@ -147,6 +148,8 @@ export function MarketContent({
   isLoading = false,
   className = ''
 }: MarketContentProps) {
+  // 获取分页状态（来源于 MarketDataManager）
+  const { state, actions } = useMarketData();
   // 如果正在加载，显示加载状态
   if (isLoading) {
     return (
@@ -164,6 +167,16 @@ export function MarketContent({
           <TabErrorBoundary tabId="pool">
             <StockPool
               stocks={stocks}
+              page={state.page}
+              pageSize={state.pageSize}
+              total={state.total}
+              totalPages={state.totalPages}
+              onPageChange={async (p) => {
+                await actions.fetchStocks({ page: p });
+              }}
+              onPageSizeChange={async (s) => {
+                await actions.fetchStocks({ page: 1, pageSize: s });
+              }}
               onAddStock={onAddStock}
               onUpdateStock={onUpdateStock}
               onDeleteStock={onDeleteStock}

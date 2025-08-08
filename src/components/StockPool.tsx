@@ -40,6 +40,13 @@ interface StockPoolProps {
   onDeleteStock: (id: string) => void;
   onSelectStock: (stock: Stock) => void; // 选中股票用于制定交易计划
   onViewDetail: (stock: Stock) => void; // 查看股票详情
+  // 分页
+  page?: number;
+  pageSize?: number;
+  total?: number;
+  totalPages?: number;
+  onPageChange?: (page: number) => void;
+  onPageSizeChange?: (size: number) => void;
 }
 
 export function StockPool({
@@ -48,7 +55,13 @@ export function StockPool({
   onUpdateStock,
   onDeleteStock,
   onSelectStock,
-  onViewDetail
+  onViewDetail,
+  page = 1,
+  pageSize = 20,
+  total = 0,
+  totalPages = 0,
+  onPageChange,
+  onPageSizeChange
 }: StockPoolProps) {
   // 调试信息
   console.log('🔍 StockPool: 接收到的stocks数据:', stocks);
@@ -227,7 +240,7 @@ export function StockPool({
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-lg font-medium text-gray-900">股票池</h2>
-          <p className="text-sm text-gray-600 mt-1">第1页股票列表 股票池总共{stats.totalStocks}只股票</p>
+          <p className="text-sm text-gray-600 mt-1">第{page}页 / 共{totalPages}页 · 共{total}只股票</p>
         </div>
         <button
           onClick={() => setShowAddForm(true)}
@@ -316,7 +329,7 @@ export function StockPool({
                 : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
             }`}
           >
-            全部 ({updatedStocks.length})
+            全部 ({total || updatedStocks.length})
           </button>
 
           {/* 概念标签按钮 */}
@@ -342,9 +355,7 @@ export function StockPool({
           ))}
         </div>
 
-        <div className="mt-2 text-sm text-gray-600">
-          显示 {filteredStocks.length} / {stats.totalStocks} 只股票
-        </div>
+        <div className="mt-2 text-sm text-gray-600">显示 {filteredStocks.length} / {total || stats.totalStocks} 只股票</div>
       </div>
 
 
@@ -388,6 +399,35 @@ export function StockPool({
           }}
         />
       )}
+
+      {/* 分页控件 */}
+      <div className="mt-4 flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <button
+            className="px-3 py-1 border rounded disabled:opacity-50"
+            disabled={page <= 1}
+            onClick={() => onPageChange && onPageChange(page - 1)}
+          >上一页</button>
+          <span className="text-sm text-gray-600">{page} / {Math.max(totalPages, 1)}</span>
+          <button
+            className="px-3 py-1 border rounded disabled:opacity-50"
+            disabled={page >= totalPages}
+            onClick={() => onPageChange && onPageChange(page + 1)}
+          >下一页</button>
+        </div>
+        <div className="flex items-center gap-2">
+          <span className="text-sm text-gray-600">每页</span>
+          <select
+            value={pageSize}
+            onChange={(e) => onPageSizeChange && onPageSizeChange(parseInt(e.target.value, 10))}
+            className="p-1 border rounded text-sm"
+          >
+            {[20, 50, 100].map(size => (
+              <option key={size} value={size}>{size}</option>
+            ))}
+          </select>
+        </div>
+      </div>
     </div>
   );
 }

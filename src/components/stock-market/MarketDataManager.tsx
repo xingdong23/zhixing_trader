@@ -15,14 +15,22 @@ export interface MarketDataState {
   isInitialized: boolean;
   lastUpdated: Date | null;
   error: string | null;
+  // 分页
+  page: number;
+  pageSize: number;
+  total: number;
+  totalPages: number;
 }
 
 export interface MarketDataActions {
   // 股票操作
-  fetchStocks: () => Promise<void>;
+  fetchStocks: (opts?: { page?: number; pageSize?: number; conceptId?: string }) => Promise<void>;
   addStock: (stockData: Omit<Stock, 'id' | 'addedAt' | 'updatedAt'>) => Promise<void>;
   updateStock: (id: string, stockData: Partial<Stock>) => Promise<void>;
   deleteStock: (id: string) => Promise<void>;
+  // 分页操作
+  changePage: (page: number) => Promise<void>;
+  changePageSize: (pageSize: number) => Promise<void>;
   
   // 策略操作
   createStrategy: (strategyData: Omit<StockSelectionStrategy, 'id' | 'createdAt' | 'updatedAt'>) => void;
@@ -86,7 +94,11 @@ export function useMarketData(): UseMarketDataResult {
     isLoading: false,
     isInitialized: false,
     lastUpdated: null,
-    error: null
+    error: null,
+    page: 1,
+    pageSize: 20,
+    total: 0,
+    totalPages: 0
   });
 
   // 初始化概念数据
@@ -106,13 +118,19 @@ export function useMarketData(): UseMarketDataResult {
   }, []);
 
   // 获取股票数据
-  const fetchStocks = useCallback(async () => {
+  const fetchStocks = useCallback(async (opts?: { page?: number; pageSize?: number; conceptId?: string }) => {
     setState(prev => ({ ...prev, isLoading: true, error: null }));
     
     try {
       console.log('🔄 开始从API获取股票数据...');
-      console.log('📍 请求URL:', API_ENDPOINTS.STOCKS);
-      const response = await apiGet(API_ENDPOINTS.STOCKS);
+      const page = opts?.page ?? state.page;
+      const pageSize = opts?.pageSize ?? state.pageSize;
+      const conceptId = opts?.conceptId;
+      const qs = new URLSearchParams({ page: String(page), pageSize: String(pageSize) });
+      if (conceptId) qs.set('concept_id', conceptId);
+      const endpoint = `${API_ENDPOINTS.STOCKS}?${qs.toString()}`;
+      console.log('📍 请求URL:', endpoint);
+      const response = await apiGet(endpoint);
       
       console.log('📡 API响应状态:', response.status, response.statusText);
       
@@ -130,7 +148,11 @@ export function useMarketData(): UseMarketDataResult {
             stocks: apiStocks,
             isLoading: false,
             lastUpdated: new Date(),
-            error: null
+            error: null,
+            page: result.data.page ?? page,
+            pageSize: result.data.pageSize ?? pageSize,
+            total: result.data.total ?? apiStocks.length,
+            totalPages: result.data.totalPages ?? Math.ceil((result.data.total ?? apiStocks.length) / (result.data.pageSize ?? pageSize))
           }));
           
           console.log(`✅ 从API获取到 ${apiStocks.length} 只股票`);
@@ -150,7 +172,16 @@ export function useMarketData(): UseMarketDataResult {
         error: error instanceof Error ? error.message : '获取股票数据失败'
       }));
     }
-  }, []);
+  }, [state.page, state.pageSize]);
+
+  const changePage = useCallback(async (page: number) => {
+    await fetchStocks({ page });
+  }, [fetchStocks]);
+
+  const changePageSize = useCallback(async (pageSize: number) => {
+    // 切到第1页
+    await fetchStocks({ page: 1, pageSize });
+  }, [fetchStocks]);
 
   // 从后端获取策略列表
   const fetchStrategies = useCallback(async () => {
