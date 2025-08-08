@@ -196,3 +196,28 @@ INFO:     127.0.0.1:51883 - "GET /api/v1/stocks/ HTTP/1.1" 200 OK
 INFO:     127.0.0.1:51884 - "GET /api/v1/strategies/ HTTP/1.1" 200 OK
 INFO:     127.0.0.1:51883 - "GET /api/v1/strategies/ HTTP/1.1" 200 OK
 INFO:     127.0.0.1:51883 - "GET /api/v1/stocks/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52831 - "GET /api/v1/concepts/ HTTP/1.1" 200 OK
+2025-08-08 21:45:32.412 | INFO     | app.api.v1.endpoints.concepts:init_sample_data:78 - 概念数据已存在，无需初始化示例数据
+INFO:     127.0.0.1:52832 - "POST /api/v1/concepts/init-sample-data HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52832 - "GET /api/v1/strategies/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52831 - "GET /api/v1/stocks/ HTTP/1.1" 200 OK
+WARNING:  WatchFiles detected changes in 'app/api/v1/endpoints/stocks.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+2025-08-08 22:08:31.224 | INFO     | app.main:lifespan:59 - 🛑 Shutting down API Server...
+2025-08-08 22:08:31.245 | INFO     | app.database:close:1002 - Database connection closed
+2025-08-08 22:08:31.246 | INFO     | app.main:lifespan:69 - ✅ API Server shutdown completed
+INFO:     Application shutdown complete.
+INFO:     Finished server process [41647]
+2025-08-08 22:08:32.389 | INFO     | app.database:init_database:52 - Database initialized: sqlite:///./data/zhixing_trader.db
+INFO:     Started server process [74645]
+INFO:     Waiting for application startup.
+2025-08-08 22:08:33.252 | INFO     | app.main:lifespan:39 - 🚀 Starting Zhixing Trader API Server...
+2025-08-08 22:08:33.252 | INFO     | app.core.container:initialize:32 - 初始化依赖注入容器...
+2025-08-08 22:08:33.264 | WARNING  | app.core.analysis.technical_analyzer:<module>:16 - TA-Lib not available, using simplified implementation
+2025-08-08 22:08:33.264 | INFO     | app.core.strategy.engine:register_strategy:34 - 注册策略: id=1, name=EMA55回踩企稳策略
+2025-08-08 22:08:33.264 | INFO     | app.services.strategy_service:_load_enabled_strategies_from_db:53 - 策略已加载: id=1, type=ema55_pullback, name=EMA55 回踩
+2025-08-08 22:08:33.264 | INFO     | app.core.container:initialize:55 - 依赖注入容器初始化完成
+2025-08-08 22:08:33.264 | INFO     | app.main:lifespan:51 - ✅ API Server started successfully
+2025-08-08 22:08:33.264 | DEBUG    | app.main:background_tasks:24 - 🔄 系统状态检查
+INFO:     Application startup complete.

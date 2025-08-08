@@ -68,7 +68,17 @@ export function WatchlistImporter({ onImportComplete }: WatchlistImporterProps) 
 
   // 解析CSV文件
   const parseCSV = (csvText: string): ImportedStock[] => {
-    return parseStandardCSV(csvText);
+    // 优先尝试标准格式；若缺少列，则回退到富途导出格式解析
+    try {
+      return parseStandardCSV(csvText);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : '';
+      if (message.includes('CSV文件缺少必需的列')) {
+        const futuParsed = parseFutuCSV(csvText);
+        if (futuParsed.length > 0) return futuParsed;
+      }
+      throw err;
+    }
   };
 
   // 解析标准CSV格式
@@ -156,6 +166,82 @@ export function WatchlistImporter({ onImportComplete }: WatchlistImporterProps) 
     return stocks;
   };
 
+  // 解析富途导出的CSV（中文表头），常见列：代码, 名称, 市场, 所属行业, 价格, 涨跌幅
+  const parseFutuCSV = (csvText: string): ImportedStock[] => {
+    const lines = csvText.trim().split('\n');
+    if (lines.length < 2) {
+      throw new Error('CSV文件格式错误：至少需要标题行和一行数据');
+    }
+
+    // 兼容带 BOM 的文件
+    const rawHeader = lines[0].replace(/^\uFEFF/, '');
+    const headers = rawHeader.split(',').map(h => h.trim());
+
+    // 定位中文表头索引
+    const idx = {
+      code: headers.findIndex(h => ['代码', '股票代码', '证券代码', 'symbol'].includes(h.toLowerCase() || h)),
+      name: headers.findIndex(h => ['名称', '股票名称', '证券名称', 'name'].includes(h.toLowerCase() || h)),
+      market: headers.findIndex(h => ['市场', '交易所', 'market'].includes(h.toLowerCase() || h)),
+      industry: headers.findIndex(h => ['所属行业', '行业', '板块', 'industry'].includes(h.toLowerCase() || h)),
+      price: headers.findIndex(h => ['价格', '现价', 'price'].includes(h.toLowerCase() || h)),
+      changePercent: headers.findIndex(h => ['涨跌幅', '涨幅', 'changepercent', 'change_percent'].includes(h.toLowerCase() || h)),
+      volume: headers.findIndex(h => ['成交量', 'volume'].includes(h.toLowerCase() || h)),
+      turnover: headers.findIndex(h => ['成交额', 'turnover'].includes(h.toLowerCase() || h)),
+    };
+
+    if (idx.code === -1 || idx.name === -1) {
+      // 仍无法解析
+      throw new Error('CSV文件缺少必需的列: symbol/name (支持中文表头：代码/名称)');
+    }
+
+    const toMarket = (val?: string): MarketType => {
+      const v = (val || '').toUpperCase();
+      if (v.includes('US') || v.includes('NASDAQ') || v.includes('NYSE') || v.includes('美')) return MarketType.US;
+      if (v.includes('HK') || v.includes('港')) return MarketType.HK;
+      if (v.includes('SH') || v.includes('SZ') || v.includes('BJ') || v.includes('沪') || v.includes('深') || v.includes('北')) return MarketType.CN;
+      return MarketType.US;
+    };
+
+    const now = new Date();
+    const stocks: ImportedStock[] = [];
+    for (let i = 1; i < lines.length; i++) {
+      const values = lines[i].split(',').map(v => v.trim().replace(/^"|"$/g, ''));
+      if (values.length < 2) continue;
+
+      const symbol = values[idx.code] || '';
+      const name = values[idx.name] || '';
+      if (!symbol || !name) continue;
+
+      const market = idx.market !== -1 ? toMarket(values[idx.market]) : MarketType.US;
+      const industryName = idx.industry !== -1 ? values[idx.industry] : undefined;
+
+      const stock: ImportedStock = {
+        id: `futu_${Date.now()}_${Math.random().toString(36).substr(2, 8)}`,
+        createdAt: now,
+        updatedAt: now,
+        tags: ['富途导入'],
+        notes: '从富途CSV导入',
+        symbol,
+        name,
+        market,
+        industry: industryName ? { id: industryName, name: industryName, description: '', stockCount: 0 } : undefined,
+        price: idx.price !== -1 ? (parseFloat(values[idx.price]) || 0) : 0,
+        change: 0,
+        changePercent: idx.changePercent !== -1 ? (parseFloat(values[idx.changePercent].replace('%','')) || 0) : 0,
+        volume: idx.volume !== -1 ? (parseInt(values[idx.volume]) || 0) : 0,
+        turnover: idx.turnover !== -1 ? (parseFloat(values[idx.turnover]) || 0) : 0,
+        high: 0,
+        low: 0,
+        open: 0,
+        preClose: 0,
+      };
+
+      stocks.push(stock);
+    }
+
+    return stocks;
+  };
+
   // 处理文件上传
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -180,13 +266,14 @@ export function WatchlistImporter({ onImportComplete }: WatchlistImporterProps) 
 
       try {
         // 发送到后端API保存到数据库
-        const response = await apiPost('/stocks/import', {
+        const response = await apiPost(API_ENDPOINTS.STOCKS_IMPORT, {
            stocks: stocks.map(stock => ({
              code: stock.symbol,
              name: stock.name,
              market: stock.market || 'US',
-             group_id: stock.industry?.id || 'default',
-             group_name: stock.industry?.name || '未分类'
+              // 将行业名“所属行业”传到后端，后端会按预置概念进行分类映射
+              group_id: stock.industry?.id || 'default',
+              group_name: stock.industry?.name || '未分类'
            }))
          });
 

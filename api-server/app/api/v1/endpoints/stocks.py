@@ -8,7 +8,7 @@ from loguru import logger
 from ....core.container import container
 from ....repositories.stock_repository import StockRepository
 from ....database import db_service
-from ....models import ConceptStockRelationDB
+from ....models import ConceptDB, ConceptStockRelationDB, StockDB
 
 router = APIRouter()
 
@@ -122,6 +122,117 @@ async def add_stock(
         raise HTTPException(status_code=500, detail="添加股票失败")
 
 
+@router.post("/import")
+async def import_stocks(payload: Dict[str, Any]) -> Dict[str, Any]:
+    """批量导入股票并根据行业映射到预置概念。"""
+    try:
+        stocks: List[Dict[str, Any]] = payload.get("stocks", [])
+        if not isinstance(stocks, list) or not stocks:
+            raise HTTPException(status_code=400, detail="缺少stocks数组")
+
+        # 预置概念集合
+        base_concepts = [
+            "机器人", "核能", "航天无人机", "量子", "ai 算力", "电池", "能源", "生物科技", "软件",
+            "金融科技", "加密资产", "稀土", "消费", "ai 流程", "安全", "房地产", "矿产", "其他"
+        ]
+
+        concept_map: Dict[str, str] = {}
+        with db_service.get_session() as session:
+            # 确保概念存在
+            for name in base_concepts:
+                existing = session.query(ConceptDB).filter(ConceptDB.name == name, ConceptDB.is_active == True).first()
+                if not existing:
+                    from datetime import datetime
+                    cid = f"concept_{name}_{int(datetime.now().timestamp())}"
+                    c = ConceptDB(concept_id=cid, name=name, description="", category="custom", stock_count=0, is_active=True)
+                    session.add(c)
+                    session.commit()
+                    session.refresh(c)
+                    concept_map[name] = c.concept_id
+                else:
+                    concept_map[name] = existing.concept_id
+
+        def map_industry_to_concept(industry: str) -> str:
+            text = (industry or "").lower()
+            rules = [
+                ("机器人", ["机器人", "robot"]),
+                ("核能", ["核", "nuclear"]),
+                ("航天无人机", ["航天", "无人机", "aero", "drone", "space"]),
+                ("量子", ["量子", "quantum"]),
+                ("ai 算力", ["ai", "算力", "gpu", "accelerator", "chip", "nvidia"]),
+                ("电池", ["电池", "battery", "锂", "li-ion"]),
+                ("能源", ["能源", "energy", "oil", "gas", "光伏", "太阳能", "风电", "renewable"]),
+                ("生物科技", ["生物", "医药", "制药", "biotech", "pharma"]),
+                ("软件", ["软件", "software", "saas", "cloud"]),
+                ("金融科技", ["金融", "fintech", "支付", "银行科技"]),
+                ("加密资产", ["加密", "crypto", "区块链", "bitcoin", "btc"]),
+                ("稀土", ["稀土", "rare earth"]),
+                ("消费", ["消费", "retail", "电商", "食品", "apparel"]),
+                ("ai 流程", ["流程", "rpa", "自动化", "automation", "workflow", "bpm"]),
+                ("安全", ["安全", "security", "网络安全", "cyber"]),
+                ("房地产", ["房地产", "地产", "reit", "property", "real estate"]),
+                ("矿产", ["矿", "采矿", "金属", "steel", "copper", "aluminum", "mining"]),
+            ]
+            for concept_name, keywords in rules:
+                for kw in keywords:
+                    if kw in text:
+                        return concept_name
+            return "其他"
+
+        added = 0
+        updated = 0
+        relations_added = 0
+
+        with db_service.get_session() as session:
+            for item in stocks:
+                code = (item.get("code") or item.get("symbol") or "").strip().upper()
+                name = item.get("name") or ""
+                market = item.get("market") or "US"
+                industry_name = item.get("group_name") or item.get("industry") or ""
+                if not code or not name:
+                    continue
+
+                existing = session.query(StockDB).filter(StockDB.code == code).first()
+                if existing:
+                    existing.name = name
+                    existing.market = market
+                    existing.is_active = True
+                    updated += 1
+                else:
+                    session.add(StockDB(code=code, name=name, market=market, is_active=True))
+                    added += 1
+                session.commit()
+
+                concept_name = map_industry_to_concept(industry_name)
+                cid = concept_map.get(concept_name)
+                if cid:
+                    exists_rel = session.query(ConceptStockRelationDB).filter(
+                        ConceptStockRelationDB.concept_id == cid,
+                        ConceptStockRelationDB.stock_code == code
+                    ).first()
+                    if not exists_rel:
+                        session.add(ConceptStockRelationDB(concept_id=cid, stock_code=code, weight=1.0, is_primary=False))
+                        relations_added += 1
+                        c = session.query(ConceptDB).filter(ConceptDB.concept_id == cid).first()
+                        if c:
+                            c.stock_count = (c.stock_count or 0) + 1
+                session.commit()
+
+        return {
+            "success": True,
+            "data": {
+                "added_count": added,
+                "updated_count": updated,
+                "relations_added": relations_added,
+            },
+            "message": "批量导入完成"
+        }
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"批量导入股票失败: {e}")
+        raise HTTPException(status_code=500, detail="批量导入股票失败")
 @router.delete("/{symbol}")
 async def delete_stock(
     symbol: str,

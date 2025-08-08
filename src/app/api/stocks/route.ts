@@ -34,8 +34,8 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     
     const response = await fetch(
-      // 后端FastAPI路由为 /api/v1/stocks/（需要末尾斜杠）
-      getBackendApiUrl('stocks/'),
+      // 后端FastAPI路由为 /api/v1/stocks/import（批量导入）
+      getBackendApiUrl('stocks/import'),
       createFetchConfig('POST', body)
     );
 

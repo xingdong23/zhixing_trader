@@ -155,3 +155,22 @@
  GET /api/strategies 200 in 9ms
  GET /api/stocks 200 in 14ms
  ✓ Compiled in 479ms (967 modules)
+ ✓ Compiled in 473ms (942 modules)
+🎯 StockMarketRefactored 组件正在渲染... [v2.0]
+🔍 StockPool: 接收到的stocks数据: []
+🔍 StockPool: stocks数量: 0
+ GET / 200 in 334ms
+ ✓ Compiled /favicon.ico in 83ms (525 modules)
+ ✓ Compiled (529 modules)
+ GET /favicon.ico 200 in 277ms
+ GET /api/concepts 200 in 338ms
+ POST /api/concepts/init-sample-data 200 in 344ms
+ ✓ Compiled /api/strategies in 59ms (531 modules)
+ ✓ Compiled (533 modules)
+ GET /api/strategies 200 in 231ms
+ GET /api/stocks 200 in 234ms
+ ✓ Compiled in 3.8s (942 modules)
+ ✓ Compiled in 562ms (942 modules)
+ GET / 200 in 346ms
+ ✓ Compiled in 784ms (942 modules)
+ GET / 200 in 86ms
