@@ -121,8 +121,31 @@ export function SelectionStrategies({
       const taskId = startData?.data?.task_id;
       if (!taskId) throw new Error('启动任务失败');
 
-      // 2) 轮询任务状态并在按钮旁展示简单进度（标题）
-      // 轮询任务状态并更新进度
+      // 2) 启动状态轮询，实时更新进度条
+      (async () => {
+        try {
+          while (true) {
+            const r = await apiGet(`/strategies/exec/status?task_id=${taskId}`);
+            if (!r.ok) break;
+            const d = await r.json();
+            const st = d?.data;
+            if (st) {
+              setProgressByStrategy(prev => ({
+                ...prev,
+                [strategy.id]: {
+                  percent: st.percent ?? 0,
+                  current: st.current_symbol ?? null,
+                  state: st.state,
+                }
+              }));
+              if (["completed", "failed", "not_found"].includes(st.state)) break;
+            }
+            await new Promise(res => setTimeout(res, 1000));
+          }
+        } catch {}
+      })();
+
+      // 等待任务完成
       const status = await pollApi(`/strategies/exec/status?task_id=${taskId}`, { intervalMs: 1000, timeoutMs: 600000 });
       console.log('策略任务完成:', status);
 
@@ -298,6 +321,7 @@ export function SelectionStrategies({
                         strategy={strategy}
                         isRunning={runningStrategy === strategy.id}
                         results={strategyResults[strategy.id]}
+                        progress={progressByStrategy[strategy.id]}
                         onRun={() => handleRunStrategy(strategy)}
                         onToggle={() => handleToggleStrategy(strategy)}
                         onEdit={() => handleEditStrategy(strategy)}
@@ -323,6 +347,7 @@ function StrategyCard({
   strategy,
   isRunning,
   results,
+  progress,
   onRun,
   onToggle,
   onEdit,
@@ -332,6 +357,7 @@ function StrategyCard({
   strategy: StockSelectionStrategy;
   isRunning: boolean;
   results?: StockSelectionResult[];
+  progress?: { percent: number; current: string | null; state: string };
   onRun: () => void;
   onToggle: () => void;
   onEdit: () => void;
@@ -401,13 +427,13 @@ function StrategyCard({
               <div className="w-48 bg-gray-200 rounded h-2 overflow-hidden">
                 <div
                   className="bg-blue-600 h-2 transition-all"
-                  style={{ width: `${progressByStrategy[strategy.id]?.percent ?? 0}%` }}
+                  style={{ width: `${progress?.percent ?? 0}%` }}
                 />
               </div>
               <div className="mt-1 flex justify-between">
-                <span>{progressByStrategy[strategy.id]?.percent ?? 0}%</span>
-                <span className="truncate max-w-[8rem]" title={progressByStrategy[strategy.id]?.current ?? ''}>
-                  {progressByStrategy[strategy.id]?.current ?? ''}
+                <span>{progress?.percent ?? 0}%</span>
+                <span className="truncate max-w-[8rem]" title={progress?.current ?? ''}>
+                  {progress?.current ?? ''}
                 </span>
               </div>
             </div>

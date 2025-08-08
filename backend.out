@@ -16256,3 +16256,283 @@ $02172: possibly delisted; no price data found  (period=60d) (Yahoo error = "No 
 $09660: possibly delisted; no price data found  (period=1y) (Yahoo error = "No data found, symbol may be delisted")
 2025-08-09 01:03:34.597 | WARNING  | app.core.market_data.yahoo_provider:get_stock_data:36 - 未获取到股票 09660 的数据
 2025-08-09 01:03:34.597 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: 09660, period: 60d, interval: 1h
+$09660: possibly delisted; no price data found  (period=60d) (Yahoo error = "No data found, symbol may be delisted")
+2025-08-09 01:03:35.378 | WARNING  | app.core.market_data.yahoo_provider:get_stock_data:36 - 未获取到股票 09660 的数据
+2025-08-09 01:03:35.379 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 09660 数据: 日线 0 条, 小时线 0 条
+2025-08-09 01:03:35.379 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: 06060, period: 1y, interval: 1d
+$06060: possibly delisted; no price data found  (period=1y) (Yahoo error = "No data found, symbol may be delisted")
+2025-08-09 01:03:36.825 | WARNING  | app.core.market_data.yahoo_provider:get_stock_data:36 - 未获取到股票 06060 的数据
+2025-08-09 01:03:36.827 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: 06060, period: 60d, interval: 1h
+$06060: possibly delisted; no price data found  (period=60d) (Yahoo error = "No data found, symbol may be delisted")
+2025-08-09 01:03:37.935 | WARNING  | app.core.market_data.yahoo_provider:get_stock_data:36 - 未获取到股票 06060 的数据
+2025-08-09 01:03:37.936 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 06060 数据: 日线 0 条, 小时线 0 条
+2025-08-09 01:03:37.936 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: 00522, period: 1y, interval: 1d
+$00522: possibly delisted; no price data found  (period=1y) (Yahoo error = "No data found, symbol may be delisted")
+2025-08-09 01:03:40.306 | WARNING  | app.core.market_data.yahoo_provider:get_stock_data:36 - 未获取到股票 00522 的数据
+2025-08-09 01:03:40.306 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: 00522, period: 60d, interval: 1h
+$00522: possibly delisted; no price data found  (period=60d) (Yahoo error = "No data found, symbol may be delisted")
+2025-08-09 01:03:41.323 | WARNING  | app.core.market_data.yahoo_provider:get_stock_data:36 - 未获取到股票 00522 的数据
+2025-08-09 01:03:41.323 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 00522 数据: 日线 0 条, 小时线 0 条
+2025-08-09 01:03:41.323 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: 02252, period: 1y, interval: 1d
+$02252: possibly delisted; no price data found  (period=1y) (Yahoo error = "No data found, symbol may be delisted")
+2025-08-09 01:03:43.012 | WARNING  | app.core.market_data.yahoo_provider:get_stock_data:36 - 未获取到股票 02252 的数据
+2025-08-09 01:03:43.013 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: 02252, period: 60d, interval: 1h
+$02252: possibly delisted; no price data found  (period=60d) (Yahoo error = "No data found, symbol may be delisted")
+2025-08-09 01:03:44.222 | WARNING  | app.core.market_data.yahoo_provider:get_stock_data:36 - 未获取到股票 02252 的数据
+2025-08-09 01:03:44.222 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 02252 数据: 日线 0 条, 小时线 0 条
+2025-08-09 01:03:44.222 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: 00290, period: 1y, interval: 1d
+$00290: possibly delisted; no price data found  (period=1y) (Yahoo error = "No data found, symbol may be delisted")
+2025-08-09 01:03:46.075 | WARNING  | app.core.market_data.yahoo_provider:get_stock_data:36 - 未获取到股票 00290 的数据
+2025-08-09 01:03:46.075 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: 00290, period: 60d, interval: 1h
+$00290: possibly delisted; no price data found  (period=60d) (Yahoo error = "No data found, symbol may be delisted")
+2025-08-09 01:03:46.876 | WARNING  | app.core.market_data.yahoo_provider:get_stock_data:36 - 未获取到股票 00290 的数据
+2025-08-09 01:03:46.876 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 00290 数据: 日线 0 条, 小时线 0 条
+2025-08-09 01:03:46.876 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: 02611, period: 1y, interval: 1d
+$02611: possibly delisted; no price data found  (period=1y) (Yahoo error = "No data found, symbol may be delisted")
+2025-08-09 01:03:48.660 | WARNING  | app.core.market_data.yahoo_provider:get_stock_data:36 - 未获取到股票 02611 的数据
+2025-08-09 01:03:48.660 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: 02611, period: 60d, interval: 1h
+$02611: possibly delisted; no price data found  (period=60d) (Yahoo error = "No data found, symbol may be delisted")
+2025-08-09 01:03:49.784 | WARNING  | app.core.market_data.yahoo_provider:get_stock_data:36 - 未获取到股票 02611 的数据
+2025-08-09 01:03:49.785 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 02611 数据: 日线 0 条, 小时线 0 条
+2025-08-09 01:03:49.786 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: 01318, period: 1y, interval: 1d
+$01318: possibly delisted; no price data found  (period=1y) (Yahoo error = "No data found, symbol may be delisted")
+2025-08-09 01:03:51.860 | WARNING  | app.core.market_data.yahoo_provider:get_stock_data:36 - 未获取到股票 01318 的数据
+2025-08-09 01:03:51.861 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: 01318, period: 60d, interval: 1h
+$01318: possibly delisted; no price data found  (period=60d) (Yahoo error = "No data found, symbol may be delisted")
+2025-08-09 01:03:52.992 | WARNING  | app.core.market_data.yahoo_provider:get_stock_data:36 - 未获取到股票 01318 的数据
+2025-08-09 01:03:52.995 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 01318 数据: 日线 0 条, 小时线 0 条
+2025-08-09 01:03:52.996 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: 06069, period: 1y, interval: 1d
+$06069: possibly delisted; no price data found  (period=1y) (Yahoo error = "No data found, symbol may be delisted")
+2025-08-09 01:03:54.512 | WARNING  | app.core.market_data.yahoo_provider:get_stock_data:36 - 未获取到股票 06069 的数据
+2025-08-09 01:03:54.513 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: 06069, period: 60d, interval: 1h
+$06069: possibly delisted; no price data found  (period=60d) (Yahoo error = "No data found, symbol may be delisted")
+2025-08-09 01:03:55.377 | WARNING  | app.core.market_data.yahoo_provider:get_stock_data:36 - 未获取到股票 06069 的数据
+2025-08-09 01:03:55.377 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 06069 数据: 日线 0 条, 小时线 0 条
+2025-08-09 01:03:55.378 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: 09868, period: 1y, interval: 1d
+$09868: possibly delisted; no price data found  (period=1y) (Yahoo error = "No data found, symbol may be delisted")
+2025-08-09 01:03:56.812 | WARNING  | app.core.market_data.yahoo_provider:get_stock_data:36 - 未获取到股票 09868 的数据
+2025-08-09 01:03:56.812 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: 09868, period: 60d, interval: 1h
+$09868: possibly delisted; no price data found  (period=60d) (Yahoo error = "No data found, symbol may be delisted")
+2025-08-09 01:03:57.627 | WARNING  | app.core.market_data.yahoo_provider:get_stock_data:36 - 未获取到股票 09868 的数据
+2025-08-09 01:03:57.628 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 09868 数据: 日线 0 条, 小时线 0 条
+2025-08-09 01:03:57.628 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: 03068, period: 1y, interval: 1d
+$03068: possibly delisted; no price data found  (period=1y) (Yahoo error = "No data found, symbol may be delisted")
+2025-08-09 01:03:59.483 | WARNING  | app.core.market_data.yahoo_provider:get_stock_data:36 - 未获取到股票 03068 的数据
+2025-08-09 01:03:59.484 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: 03068, period: 60d, interval: 1h
+$03068: possibly delisted; no price data found  (period=60d) (Yahoo error = "No data found, symbol may be delisted")
+2025-08-09 01:04:00.400 | WARNING  | app.core.market_data.yahoo_provider:get_stock_data:36 - 未获取到股票 03068 的数据
+2025-08-09 01:04:00.401 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 03068 数据: 日线 0 条, 小时线 0 条
+2025-08-09 01:04:00.401 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: 03066, period: 1y, interval: 1d
+$03066: possibly delisted; no price data found  (period=1y) (Yahoo error = "No data found, symbol may be delisted")
+2025-08-09 01:04:01.819 | WARNING  | app.core.market_data.yahoo_provider:get_stock_data:36 - 未获取到股票 03066 的数据
+2025-08-09 01:04:01.820 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: 03066, period: 60d, interval: 1h
+$03066: possibly delisted; no price data found  (period=60d) (Yahoo error = "No data found, symbol may be delisted")
+2025-08-09 01:04:02.658 | WARNING  | app.core.market_data.yahoo_provider:get_stock_data:36 - 未获取到股票 03066 的数据
+2025-08-09 01:04:02.658 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 03066 数据: 日线 0 条, 小时线 0 条
+2025-08-09 01:04:02.658 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: 09988, period: 1y, interval: 1d
+$09988: possibly delisted; no price data found  (period=1y) (Yahoo error = "No data found, symbol may be delisted")
+2025-08-09 01:04:04.134 | WARNING  | app.core.market_data.yahoo_provider:get_stock_data:36 - 未获取到股票 09988 的数据
+2025-08-09 01:04:04.136 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: 09988, period: 60d, interval: 1h
+$09988: possibly delisted; no price data found  (period=60d) (Yahoo error = "No data found, symbol may be delisted")
+2025-08-09 01:04:04.942 | WARNING  | app.core.market_data.yahoo_provider:get_stock_data:36 - 未获取到股票 09988 的数据
+2025-08-09 01:04:04.943 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 09988 数据: 日线 0 条, 小时线 0 条
+2025-08-09 01:04:04.944 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: 01478, period: 1y, interval: 1d
+$01478: possibly delisted; no price data found  (period=1y) (Yahoo error = "No data found, symbol may be delisted")
+2025-08-09 01:04:06.331 | WARNING  | app.core.market_data.yahoo_provider:get_stock_data:36 - 未获取到股票 01478 的数据
+2025-08-09 01:04:06.331 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: 01478, period: 60d, interval: 1h
+$01478: possibly delisted; no price data found  (period=60d) (Yahoo error = "No data found, symbol may be delisted")
+2025-08-09 01:04:07.143 | WARNING  | app.core.market_data.yahoo_provider:get_stock_data:36 - 未获取到股票 01478 的数据
+2025-08-09 01:04:07.144 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 01478 数据: 日线 0 条, 小时线 0 条
+2025-08-09 01:04:07.144 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: 01801, period: 1y, interval: 1d
+$01801: possibly delisted; no price data found  (period=1y) (Yahoo error = "No data found, symbol may be delisted")
+2025-08-09 01:04:08.591 | WARNING  | app.core.market_data.yahoo_provider:get_stock_data:36 - 未获取到股票 01801 的数据
+2025-08-09 01:04:08.591 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: 01801, period: 60d, interval: 1h
+$01801: possibly delisted; no price data found  (period=60d) (Yahoo error = "No data found, symbol may be delisted")
+2025-08-09 01:04:09.453 | WARNING  | app.core.market_data.yahoo_provider:get_stock_data:36 - 未获取到股票 01801 的数据
+2025-08-09 01:04:09.453 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 01801 数据: 日线 0 条, 小时线 0 条
+2025-08-09 01:04:09.453 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: 06098, period: 1y, interval: 1d
+$06098: possibly delisted; no price data found  (period=1y) (Yahoo error = "No data found, symbol may be delisted")
+2025-08-09 01:04:10.955 | WARNING  | app.core.market_data.yahoo_provider:get_stock_data:36 - 未获取到股票 06098 的数据
+2025-08-09 01:04:10.956 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: 06098, period: 60d, interval: 1h
+$06098: possibly delisted; no price data found  (period=60d) (Yahoo error = "No data found, symbol may be delisted")
+2025-08-09 01:04:11.742 | WARNING  | app.core.market_data.yahoo_provider:get_stock_data:36 - 未获取到股票 06098 的数据
+2025-08-09 01:04:11.743 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 06098 数据: 日线 0 条, 小时线 0 条
+2025-08-09 01:04:11.744 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: 00451, period: 1y, interval: 1d
+$00451: possibly delisted; no price data found  (period=1y) (Yahoo error = "No data found, symbol may be delisted")
+2025-08-09 01:04:13.165 | WARNING  | app.core.market_data.yahoo_provider:get_stock_data:36 - 未获取到股票 00451 的数据
+2025-08-09 01:04:13.165 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: 00451, period: 60d, interval: 1h
+$00451: possibly delisted; no price data found  (period=60d) (Yahoo error = "No data found, symbol may be delisted")
+2025-08-09 01:04:13.958 | WARNING  | app.core.market_data.yahoo_provider:get_stock_data:36 - 未获取到股票 00451 的数据
+2025-08-09 01:04:13.959 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 00451 数据: 日线 0 条, 小时线 0 条
+2025-08-09 01:04:13.961 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: 06610, period: 1y, interval: 1d
+$06610: possibly delisted; no price data found  (period=1y) (Yahoo error = "No data found, symbol may be delisted")
+2025-08-09 01:04:15.356 | WARNING  | app.core.market_data.yahoo_provider:get_stock_data:36 - 未获取到股票 06610 的数据
+2025-08-09 01:04:15.357 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: 06610, period: 60d, interval: 1h
+$06610: possibly delisted; no price data found  (period=60d) (Yahoo error = "No data found, symbol may be delisted")
+2025-08-09 01:04:16.274 | WARNING  | app.core.market_data.yahoo_provider:get_stock_data:36 - 未获取到股票 06610 的数据
+2025-08-09 01:04:16.275 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 06610 数据: 日线 0 条, 小时线 0 条
+2025-08-09 01:04:16.277 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: 03908, period: 1y, interval: 1d
+🎯 知行交易后端启动脚本 (重构版)
+==================================================
+✅ Python版本: 3.9.6 (default, Apr 30 2025, 02:07:17) 
+[Clang 17.0.0 (clang-1700.0.13.5)]
+✅ 发现虚拟环境
+🚀 启动知行交易后端服务...
+❌ 服务器启动失败: Command '['venv/bin/python', '-m', 'uvicorn', 'app.main:app', '--host', '0.0.0.0', '--port', '8000', '--reload']' died with <Signals.SIGKILL: 9>.
+$03908: possibly delisted; no price data found  (period=1y) (Yahoo error = "No data found, symbol may be delisted")
+2025-08-09 01:04:17.671 | WARNING  | app.core.market_data.yahoo_provider:get_stock_data:36 - 未获取到股票 03908 的数据
+2025-08-09 01:04:17.672 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: 03908, period: 60d, interval: 1h
+$03908: possibly delisted; no price data found  (period=60d) (Yahoo error = "No data found, symbol may be delisted")
+2025-08-09 01:04:18.460 | WARNING  | app.core.market_data.yahoo_provider:get_stock_data:36 - 未获取到股票 03908 的数据
+2025-08-09 01:04:18.460 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 03908 数据: 日线 0 条, 小时线 0 条
+2025-08-09 01:04:18.461 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: 07552, period: 1y, interval: 1d
+$07552: possibly delisted; no price data found  (period=1y) (Yahoo error = "No data found, symbol may be delisted")
+2025-08-09 01:04:20.070 | WARNING  | app.core.market_data.yahoo_provider:get_stock_data:36 - 未获取到股票 07552 的数据
+2025-08-09 01:04:20.070 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: 07552, period: 60d, interval: 1h
+$07552: possibly delisted; no price data found  (period=60d) (Yahoo error = "No data found, symbol may be delisted")
+2025-08-09 01:04:20.859 | WARNING  | app.core.market_data.yahoo_provider:get_stock_data:36 - 未获取到股票 07552 的数据
+2025-08-09 01:04:20.860 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 07552 数据: 日线 0 条, 小时线 0 条
+2025-08-09 01:04:20.861 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: 09987, period: 1y, interval: 1d
+$09987: possibly delisted; no price data found  (period=1y) (Yahoo error = "No data found, symbol may be delisted")
+2025-08-09 01:04:22.312 | WARNING  | app.core.market_data.yahoo_provider:get_stock_data:36 - 未获取到股票 09987 的数据
+2025-08-09 01:04:22.313 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: 09987, period: 60d, interval: 1h
+$09987: possibly delisted; no price data found  (period=60d) (Yahoo error = "No data found, symbol may be delisted")
+2025-08-09 01:04:23.154 | WARNING  | app.core.market_data.yahoo_provider:get_stock_data:36 - 未获取到股票 09987 的数据
+2025-08-09 01:04:23.155 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 09987 数据: 日线 0 条, 小时线 0 条
+2025-08-09 01:04:23.155 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: 03032, period: 1y, interval: 1d
+$03032: possibly delisted; no price data found  (period=1y) (Yahoo error = "No data found, symbol may be delisted")
+2025-08-09 01:04:24.534 | WARNING  | app.core.market_data.yahoo_provider:get_stock_data:36 - 未获取到股票 03032 的数据
+2025-08-09 01:04:24.536 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: 03032, period: 60d, interval: 1h
+$03032: possibly delisted; no price data found  (period=60d) (Yahoo error = "No data found, symbol may be delisted")
+2025-08-09 01:04:25.334 | WARNING  | app.core.market_data.yahoo_provider:get_stock_data:36 - 未获取到股票 03032 的数据
+2025-08-09 01:04:25.335 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 03032 数据: 日线 0 条, 小时线 0 条
+2025-08-09 01:04:25.335 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: 09896, period: 1y, interval: 1d
+$09896: possibly delisted; no price data found  (period=1y) (Yahoo error = "No data found, symbol may be delisted")
+2025-08-09 01:04:26.704 | WARNING  | app.core.market_data.yahoo_provider:get_stock_data:36 - 未获取到股票 09896 的数据
+2025-08-09 01:04:26.704 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: 09896, period: 60d, interval: 1h
+$09896: possibly delisted; no price data found  (period=60d) (Yahoo error = "No data found, symbol may be delisted")
+2025-08-09 01:04:27.584 | WARNING  | app.core.market_data.yahoo_provider:get_stock_data:36 - 未获取到股票 09896 的数据
+2025-08-09 01:04:27.585 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 09896 数据: 日线 0 条, 小时线 0 条
+2025-08-09 01:04:27.586 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: 02390, period: 1y, interval: 1d
+$02390: possibly delisted; no price data found  (period=1y) (Yahoo error = "No data found, symbol may be delisted")
+2025-08-09 01:04:29.371 | WARNING  | app.core.market_data.yahoo_provider:get_stock_data:36 - 未获取到股票 02390 的数据
+2025-08-09 01:04:29.371 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: 02390, period: 60d, interval: 1h
+$02390: possibly delisted; no price data found  (period=60d) (Yahoo error = "No data found, symbol may be delisted")
+2025-08-09 01:04:30.238 | WARNING  | app.core.market_data.yahoo_provider:get_stock_data:36 - 未获取到股票 02390 的数据
+2025-08-09 01:04:30.238 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 02390 数据: 日线 0 条, 小时线 0 条
+2025-08-09 01:04:30.238 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: 02255, period: 1y, interval: 1d
+$02255: possibly delisted; no price data found  (period=1y) (Yahoo error = "No data found, symbol may be delisted")
+2025-08-09 01:04:31.690 | WARNING  | app.core.market_data.yahoo_provider:get_stock_data:36 - 未获取到股票 02255 的数据
+2025-08-09 01:04:31.691 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: 02255, period: 60d, interval: 1h
+$02255: possibly delisted; no price data found  (period=60d) (Yahoo error = "No data found, symbol may be delisted")
+2025-08-09 01:04:32.501 | WARNING  | app.core.market_data.yahoo_provider:get_stock_data:36 - 未获取到股票 02255 的数据
+2025-08-09 01:04:32.502 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 02255 数据: 日线 0 条, 小时线 0 条
+2025-08-09 01:04:32.502 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: 01833, period: 1y, interval: 1d
+$01833: possibly delisted; no price data found  (period=1y) (Yahoo error = "No data found, symbol may be delisted")
+2025-08-09 01:04:33.925 | WARNING  | app.core.market_data.yahoo_provider:get_stock_data:36 - 未获取到股票 01833 的数据
+2025-08-09 01:04:33.925 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: 01833, period: 60d, interval: 1h
+$01833: possibly delisted; no price data found  (period=60d) (Yahoo error = "No data found, symbol may be delisted")
+2025-08-09 01:04:34.984 | WARNING  | app.core.market_data.yahoo_provider:get_stock_data:36 - 未获取到股票 01833 的数据
+2025-08-09 01:04:34.984 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 01833 数据: 日线 0 条, 小时线 0 条
+2025-08-09 01:04:34.985 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: 07226, period: 1y, interval: 1d
+$07226: possibly delisted; no price data found  (period=1y) (Yahoo error = "No data found, symbol may be delisted")
+2025-08-09 01:04:36.616 | WARNING  | app.core.market_data.yahoo_provider:get_stock_data:36 - 未获取到股票 07226 的数据
+2025-08-09 01:04:36.618 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: 07226, period: 60d, interval: 1h
+$07226: possibly delisted; no price data found  (period=60d) (Yahoo error = "No data found, symbol may be delisted")
+2025-08-09 01:04:37.405 | WARNING  | app.core.market_data.yahoo_provider:get_stock_data:36 - 未获取到股票 07226 的数据
+2025-08-09 01:04:37.405 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 07226 数据: 日线 0 条, 小时线 0 条
+2025-08-09 01:04:37.405 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: 09866, period: 1y, interval: 1d
+$09866: possibly delisted; no price data found  (period=1y) (Yahoo error = "No data found, symbol may be delisted")
+2025-08-09 01:04:38.878 | WARNING  | app.core.market_data.yahoo_provider:get_stock_data:36 - 未获取到股票 09866 的数据
+2025-08-09 01:04:38.879 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: 09866, period: 60d, interval: 1h
+$09866: possibly delisted; no price data found  (period=60d) (Yahoo error = "No data found, symbol may be delisted")
+2025-08-09 01:04:39.682 | WARNING  | app.core.market_data.yahoo_provider:get_stock_data:36 - 未获取到股票 09866 的数据
+2025-08-09 01:04:39.682 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 09866 数据: 日线 0 条, 小时线 0 条
+2025-08-09 01:04:39.683 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: 00763, period: 1y, interval: 1d
+$00763: possibly delisted; no price data found  (period=1y) (Yahoo error = "No data found, symbol may be delisted")
+2025-08-09 01:04:41.053 | WARNING  | app.core.market_data.yahoo_provider:get_stock_data:36 - 未获取到股票 00763 的数据
+2025-08-09 01:04:41.054 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: 00763, period: 60d, interval: 1h
+$00763: possibly delisted; no price data found  (period=60d) (Yahoo error = "No data found, symbol may be delisted")
+2025-08-09 01:04:41.874 | WARNING  | app.core.market_data.yahoo_provider:get_stock_data:36 - 未获取到股票 00763 的数据
+2025-08-09 01:04:41.874 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 00763 数据: 日线 0 条, 小时线 0 条
+2025-08-09 01:04:41.874 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: 02015, period: 1y, interval: 1d
+$02015: possibly delisted; no price data found  (period=1y) (Yahoo error = "No data found, symbol may be delisted")
+2025-08-09 01:04:43.318 | WARNING  | app.core.market_data.yahoo_provider:get_stock_data:36 - 未获取到股票 02015 的数据
+2025-08-09 01:04:43.319 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: 02015, period: 60d, interval: 1h
+$02015: possibly delisted; no price data found  (period=60d) (Yahoo error = "No data found, symbol may be delisted")
+2025-08-09 01:04:44.113 | WARNING  | app.core.market_data.yahoo_provider:get_stock_data:36 - 未获取到股票 02015 的数据
+2025-08-09 01:04:44.113 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 02015 数据: 日线 0 条, 小时线 0 条
+2025-08-09 01:04:44.114 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: 00020, period: 1y, interval: 1d
+$00020: possibly delisted; no price data found  (period=1y) (Yahoo error = "No data found, symbol may be delisted")
+2025-08-09 01:04:45.535 | WARNING  | app.core.market_data.yahoo_provider:get_stock_data:36 - 未获取到股票 00020 的数据
+2025-08-09 01:04:45.535 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: 00020, period: 60d, interval: 1h
+$00020: possibly delisted; no price data found  (period=60d) (Yahoo error = "No data found, symbol may be delisted")
+2025-08-09 01:04:46.321 | WARNING  | app.core.market_data.yahoo_provider:get_stock_data:36 - 未获取到股票 00020 的数据
+2025-08-09 01:04:46.321 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 00020 数据: 日线 0 条, 小时线 0 条
+2025-08-09 01:04:46.321 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: 00981, period: 1y, interval: 1d
+$00981: possibly delisted; no price data found  (period=1y) (Yahoo error = "No data found, symbol may be delisted")
+2025-08-09 01:04:47.695 | WARNING  | app.core.market_data.yahoo_provider:get_stock_data:36 - 未获取到股票 00981 的数据
+2025-08-09 01:04:47.696 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: 00981, period: 60d, interval: 1h
+$00981: possibly delisted; no price data found  (period=60d) (Yahoo error = "No data found, symbol may be delisted")
+2025-08-09 01:04:48.480 | WARNING  | app.core.market_data.yahoo_provider:get_stock_data:36 - 未获取到股票 00981 的数据
+2025-08-09 01:04:48.480 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 00981 数据: 日线 0 条, 小时线 0 条
+2025-08-09 01:04:48.480 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: 00241, period: 1y, interval: 1d
+$00241: possibly delisted; no price data found  (period=1y) (Yahoo error = "No data found, symbol may be delisted")
+2025-08-09 01:04:50.134 | WARNING  | app.core.market_data.yahoo_provider:get_stock_data:36 - 未获取到股票 00241 的数据
+2025-08-09 01:04:50.134 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: 00241, period: 60d, interval: 1h
+$00241: possibly delisted; no price data found  (period=60d) (Yahoo error = "No data found, symbol may be delisted")
+2025-08-09 01:04:50.923 | WARNING  | app.core.market_data.yahoo_provider:get_stock_data:36 - 未获取到股票 00241 的数据
+2025-08-09 01:04:50.924 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 00241 数据: 日线 0 条, 小时线 0 条
+2025-08-09 01:04:50.924 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: 800000, period: 1y, interval: 1d
+$800000: possibly delisted; no price data found  (period=1y) (Yahoo error = "No data found, symbol may be delisted")
+2025-08-09 01:04:52.296 | WARNING  | app.core.market_data.yahoo_provider:get_stock_data:36 - 未获取到股票 800000 的数据
+2025-08-09 01:04:52.296 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: 800000, period: 60d, interval: 1h
+$800000: possibly delisted; no price data found  (period=60d) (Yahoo error = "No data found, symbol may be delisted")
+2025-08-09 01:04:53.084 | WARNING  | app.core.market_data.yahoo_provider:get_stock_data:36 - 未获取到股票 800000 的数据
+2025-08-09 01:04:53.084 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 800000 数据: 日线 0 条, 小时线 0 条
+2025-08-09 01:04:53.084 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: CNMAIN, period: 1y, interval: 1d
+$CNMAIN: possibly delisted; no price data found  (period=1y) (Yahoo error = "No data found, symbol may be delisted")
+2025-08-09 01:04:54.457 | WARNING  | app.core.market_data.yahoo_provider:get_stock_data:36 - 未获取到股票 CNMAIN 的数据
+2025-08-09 01:04:54.458 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: CNMAIN, period: 60d, interval: 1h
+$CNMAIN: possibly delisted; no price data found  (period=60d) (Yahoo error = "No data found, symbol may be delisted")
+2025-08-09 01:04:55.239 | WARNING  | app.core.market_data.yahoo_provider:get_stock_data:36 - 未获取到股票 CNMAIN 的数据
+2025-08-09 01:04:55.239 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 CNMAIN 数据: 日线 0 条, 小时线 0 条
+2025-08-09 01:04:55.239 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: UNI, period: 1y, interval: 1d
+$UNI: possibly delisted; no price data found  (period=1y)
+2025-08-09 01:04:55.616 | WARNING  | app.core.market_data.yahoo_provider:get_stock_data:36 - 未获取到股票 UNI 的数据
+2025-08-09 01:04:55.617 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: UNI, period: 60d, interval: 1h
+$UNI: possibly delisted; no price data found  (period=60d)
+2025-08-09 01:04:55.992 | WARNING  | app.core.market_data.yahoo_provider:get_stock_data:36 - 未获取到股票 UNI 的数据
+2025-08-09 01:04:55.992 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 UNI 数据: 日线 0 条, 小时线 0 条
+2025-08-09 01:04:55.992 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: LU0889565833, period: 1y, interval: 1d
+2025-08-09 01:04:56.448 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 LU0889565833 的 236 条K线数据
+2025-08-09 01:04:56.449 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: LU0889565833, period: 60d, interval: 1h
+2025-08-09 01:04:56.852 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 LU0889565833 的 55 条K线数据
+2025-08-09 01:04:56.853 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 LU0889565833 数据: 日线 236 条, 小时线 55 条
+2025-08-09 01:04:56.853 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: HK0000720786, period: 1y, interval: 1d
+2025-08-09 01:04:57.264 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 HK0000720786 的 241 条K线数据
+2025-08-09 01:04:57.264 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: HK0000720786, period: 60d, interval: 1h
+2025-08-09 01:04:57.655 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 HK0000720786 的 57 条K线数据
+2025-08-09 01:04:57.656 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 HK0000720786 数据: 日线 241 条, 小时线 57 条
+2025-08-09 01:04:57.656 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: HK0000165453, period: 1y, interval: 1d
+2025-08-09 01:04:58.161 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 HK0000165453 的 243 条K线数据
+2025-08-09 01:04:58.161 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: HK0000165453, period: 60d, interval: 1h
+2025-08-09 01:04:58.618 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:56 - 成功获取股票 HK0000165453 的 58 条K线数据
+2025-08-09 01:04:58.619 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 HK0000165453 数据: 日线 243 条, 小时线 58 条
+2025-08-09 01:04:58.619 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: US10Y, period: 1y, interval: 1d
+$US10Y: possibly delisted; no price data found  (period=1y) (Yahoo error = "No data found, symbol may be delisted")
+2025-08-09 01:05:00.268 | WARNING  | app.core.market_data.yahoo_provider:get_stock_data:36 - 未获取到股票 US10Y 的数据
+2025-08-09 01:05:00.268 | DEBUG    | app.core.market_data.yahoo_provider:get_stock_data:25 - 获取股票数据: US10Y, period: 60d, interval: 1h
+$US10Y: possibly delisted; no price data found  (period=60d) (Yahoo error = "No data found, symbol may be delisted")
+2025-08-09 01:05:01.261 | WARNING  | app.core.market_data.yahoo_provider:get_stock_data:36 - 未获取到股票 US10Y 的数据
+2025-08-09 01:05:01.261 | DEBUG    | app.core.strategy.engine:execute_strategy:71 - 获取股票 US10Y 数据: 日线 0 条, 小时线 0 条
+2025-08-09 01:05:01.471 | ERROR    | app.core.strategy.ema55_pullback.strategy:execute:57 - 分析股票 CWEB 时发生错误: 'EMA55PullbackStrategy' object has no attribute '_get_confidence'
+2025-08-09 01:05:01.500 | ERROR    | app.core.strategy.ema55_pullback.strategy:execute:57 - 分析股票 ICL 时发生错误: 'EMA55PullbackStrategy' object has no attribute '_get_confidence'
+2025-08-09 01:05:01.535 | ERROR    | app.core.strategy.ema55_pullback.strategy:execute:57 - 分析股票 TMO 时发生错误: 'EMA55PullbackStrategy' object has no attribute '_get_confidence'
+2025-08-09 01:05:01.554 | INFO     | app.core.strategy.engine:execute_strategy:76 - 策略 EMA55回踩企稳策略 执行完成，筛选出 0 只股票
+INFO:     Waiting for application shutdown.
+2025-08-09 01:05:01.758 | INFO     | app.main:lifespan:59 - 🛑 Shutting down API Server...
+2025-08-09 01:05:01.765 | INFO     | app.database:close:1002 - Database connection closed
+2025-08-09 01:05:01.769 | INFO     | app.main:lifespan:69 - ✅ API Server shutdown completed
+INFO:     Application shutdown complete.
+INFO:     Finished server process [75183]
