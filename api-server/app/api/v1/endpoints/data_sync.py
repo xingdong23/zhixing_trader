@@ -9,14 +9,14 @@ from loguru import logger
 
 from ....services.data_sync_service import DataSyncService
 from ....core.market_data.yahoo_provider import YahooFinanceProvider
-from ....repositories.memory_stock_repository import MemoryStockRepository
+from ....repositories.stock_repository import StockRepository
 from ....repositories.kline_repository import KLineRepository
 
 router = APIRouter()
 
 # 创建服务实例
 yahoo_provider = YahooFinanceProvider(rate_limit_delay=0.2)
-stock_repository = MemoryStockRepository()
+stock_repository = StockRepository()
 kline_repository = KLineRepository()
 data_sync_service = DataSyncService(yahoo_provider, stock_repository, kline_repository)
 
@@ -134,93 +134,7 @@ async def cleanup_old_data(
         )
 
 
-@router.get("/sync/test")
-async def test_sync_single_stock(
-    symbol: str = Query(..., description="股票代码"),
-    timeframe: str = Query("1d", description="时间周期")
-) -> Dict[str, Any]:
-    """测试单只股票数据同步"""
-    try:
-        logger.info(f"🧪 测试同步股票 {symbol} 数据")
-        
-        # 获取数据
-        if timeframe == "1d":
-            data = await yahoo_provider.get_stock_data(symbol, "30d", "1d")
-        elif timeframe == "1h":
-            data = await yahoo_provider.get_stock_data(symbol, "7d", "1h")
-        else:
-            raise HTTPException(status_code=400, detail="不支持的时间周期")
-        
-        if not data:
-            return {
-                "success": False,
-                "message": f"未能获取股票 {symbol} 的数据"
-            }
-        
-        # 保存数据
-        saved_count = await data_sync_service._save_kline_data(symbol, data, timeframe)
-        
-        return {
-            "success": True,
-            "symbol": symbol,
-            "timeframe": timeframe,
-            "fetched_count": len(data),
-            "saved_count": saved_count,
-            "sample_data": {
-                "first": {
-                    "datetime": data[0].datetime.isoformat(),
-                    "close": data[0].close
-                } if data else None,
-                "last": {
-                    "datetime": data[-1].datetime.isoformat(),
-                    "close": data[-1].close
-                } if data else None
-            },
-            "test_time": datetime.now().isoformat()
-        }
-        
-    except HTTPException:
-        raise
-    except Exception as e:
-        logger.error(f"测试同步失败: {e}")
-        raise HTTPException(
-            status_code=500,
-            detail=f"测试同步失败: {str(e)}"
-        )
+## 删除测试接口，保持整洁
 
 
-@router.get("/sync/schedule")
-async def get_sync_schedule() -> Dict[str, Any]:
-    """获取同步计划配置"""
-    return {
-        "success": True,
-        "schedule_config": {
-            "enabled": False,  # TODO: 从配置读取
-            "daily_sync_time": "09:00",  # 每天9点同步
-            "weekend_sync": False,  # 周末不同步
-            "incremental_sync": True,  # 默认增量同步
-            "full_sync_frequency": "weekly",  # 每周全量同步一次
-        },
-        "next_scheduled_sync": None,  # TODO: 计算下次同步时间
-        "timezone": "Asia/Shanghai"
-    }
-
-
-@router.post("/sync/schedule")
-async def update_sync_schedule(
-    enabled: bool = Query(True, description="是否启用定时同步"),
-    daily_time: str = Query("09:00", description="每日同步时间"),
-    weekend_sync: bool = Query(False, description="是否周末同步")
-) -> Dict[str, Any]:
-    """更新同步计划配置"""
-    # TODO: 实现定时任务配置
-    return {
-        "success": True,
-        "message": "同步计划配置已更新",
-        "config": {
-            "enabled": enabled,
-            "daily_sync_time": daily_time,
-            "weekend_sync": weekend_sync,
-            "updated_time": datetime.now().isoformat()
-        }
-    }
+## 删除计划配置接口，待未来引入调度器后再实现

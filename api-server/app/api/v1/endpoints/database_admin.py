@@ -7,14 +7,14 @@ from typing import Dict, Any, List, Optional
 from datetime import datetime, timedelta
 from loguru import logger
 
-from ....repositories.memory_kline_repository import MemoryKLineRepository
-from ....repositories.memory_stock_repository import MemoryStockRepository
+from ....repositories.kline_repository import KLineRepository
+from ....repositories.stock_repository import StockRepository
 
 router = APIRouter()
 
 # 创建仓库实例
-kline_repository = MemoryKLineRepository()
-stock_repository = MemoryStockRepository()
+kline_repository = KLineRepository()
+stock_repository = StockRepository()
 
 
 @router.get("/overview")
