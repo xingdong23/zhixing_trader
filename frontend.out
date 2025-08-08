@@ -520,3 +520,44 @@
  ✓ Compiled in 417ms (932 modules)
  ✓ Compiled in 598ms (932 modules)
  ✓ Compiled in 480ms (932 modules)
+🎯 StockMarketRefactored 组件正在渲染... [v2.0]
+🔍 StockPool: 接收到的stocks数据: []
+🔍 StockPool: stocks数量: 0
+ GET / 200 in 295ms
+ ✓ Compiled /favicon.ico in 249ms (520 modules)
+ ✓ Compiled (524 modules)
+ GET /favicon.ico 200 in 569ms
+ POST /api/concepts/init-sample-data 200 in 589ms
+ ✓ Compiled /api/strategies in 58ms (526 modules)
+ GET /api/concepts 200 in 675ms
+ ✓ Compiled (528 modules)
+ GET /api/stocks?page=1&pageSize=20 200 in 169ms
+ GET /api/strategies 200 in 169ms
+ GET /api/stocks?page=2&pageSize=20 200 in 71ms
+ GET /api/stocks?page=3&pageSize=20 200 in 249ms
+ GET /api/stocks?page=1&pageSize=20&concept_id=27 200 in 62ms
+ GET /api/concepts 200 in 85ms
+🎯 StockMarketRefactored 组件正在渲染... [v2.0]
+🔍 StockPool: 接收到的stocks数据: []
+🔍 StockPool: stocks数量: 0
+ GET / 200 in 230ms
+ GET /favicon.ico 200 in 23ms
+ GET /api/concepts 200 in 160ms
+ POST /api/concepts/init-sample-data 200 in 161ms
+ GET /api/stocks?page=1&pageSize=20 200 in 17ms
+ GET /api/strategies 200 in 18ms
+ ✓ Compiled /_not-found in 459ms (963 modules)
+ GET /.well-known/appspecific/com.chrome.devtools.json 404 in 526ms
+🎯 StockMarketRefactored 组件正在渲染... [v2.0]
+🔍 StockPool: 接收到的stocks数据: []
+🔍 StockPool: stocks数量: 0
+ GET / 200 in 172ms
+ GET /.well-known/appspecific/com.chrome.devtools.json 404 in 88ms
+ GET /favicon.ico 200 in 28ms
+ POST /api/concepts/init-sample-data 200 in 75ms
+ GET /api/concepts 200 in 293ms
+ GET /api/strategies 200 in 156ms
+ GET /api/stocks?page=1&pageSize=20 200 in 162ms
+ ✓ Compiled in 658ms (932 modules)
+ ✓ Compiled /api/concepts in 59ms (520 modules)
+ GET /api/concepts 200 in 207ms

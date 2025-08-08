@@ -172,43 +172,22 @@ export function StockPool({
 
   // usedFundamentalTags 已移除，概念通过关联表管理
 
-  // 概念数据状态
+  // 概念数据状态（直接使用后端返回的 stock_count，而不是用当前页股票二次统计）
   const [availableConcepts, setAvailableConcepts] = useState<Array<Concept & { stockCount: number }>>([]);
 
-  // 异步获取概念数据和关联关系
   useEffect(() => {
-    const fetchConceptsAndRelations = async () => {
+    const syncConcepts = async () => {
       try {
-        const concepts = await ConceptService.getConcepts();
-        const relations = await ConceptService.getConceptRelations();
-
-        const conceptsWithCount = concepts.map(concept => {
-          // 从关联关系中计算实际的股票数量
-          const relatedStockCodes = relations
-            .filter(rel => rel.conceptId === concept.id)
-            .map(rel => rel.stockId);
-
-          // 匹配当前股票池中的股票（使用symbol字段匹配stock_code）
-          const stockCount = updatedStocks.filter(stock =>
-            relatedStockCodes.includes(stock.symbol)
-          ).length;
-
-          return {
-            ...concept,
-            stockCount
-          };
-        });
-
-        setAvailableConcepts(conceptsWithCount);
-        console.log('✅ 概念数据更新完成:', conceptsWithCount.length, '个概念');
-      } catch (error) {
-        console.error('获取概念数据失败:', error);
+        const list = await ConceptService.getConcepts();
+        const normalized = list.map(c => ({ ...c, stockCount: c.stockCount ?? 0 }));
+        setAvailableConcepts(normalized);
+      } catch (e) {
+        console.error('获取概念失败:', e);
         setAvailableConcepts([]);
       }
     };
-
-    fetchConceptsAndRelations();
-  }, [updatedStocks]);
+    syncConcepts();
+  }, [concepts]);
 
   const handleAddStock = (stockData: Omit<Stock, 'id' | 'addedAt' | 'updatedAt'>) => {
     onAddStock(stockData);
@@ -324,7 +303,7 @@ export function StockPool({
         <div className="flex flex-wrap gap-2">
           {/* 全部概念按钮 */}
           <button
-            onClick={() => setSelectedConcept('')}
+            onClick={() => { setSelectedConcept(''); if (onConceptChange) onConceptChange(''); }}
             className={`px-3 py-1 rounded-full text-sm transition-colors ${
               selectedConcept === ''
                 ? 'bg-blue-500 text-white'
