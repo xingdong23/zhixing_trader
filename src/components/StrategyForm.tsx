@@ -192,7 +192,7 @@ export function StrategyForm({ strategy, onSave, onCancel }: StrategyFormProps) 
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+      <div className="bg-surface rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
         <form onSubmit={handleSubmit}>
           {/* 表单头部 */}
           <div className="flex items-center justify-between p-6 border-b">

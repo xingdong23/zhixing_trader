@@ -30,14 +30,39 @@ class DatabaseService:
         """初始化数据库"""
         try:
             # 确保数据目录存在
-            db_path = settings.database_url.replace("sqlite:///", "")
-            os.makedirs(os.path.dirname(db_path), exist_ok=True)
+            # 若为SQLite确保目录存在；MySQL等无需处理
+            if settings.database_url.startswith("sqlite"):
+                db_path = settings.database_url.replace("sqlite:///", "")
+                os.makedirs(os.path.dirname(db_path), exist_ok=True)
             
+            # 创建数据库（MySQL场景）
+            if settings.database_url.startswith("mysql"):
+                try:
+                    from sqlalchemy.engine.url import make_url
+                    from sqlalchemy import text
+                    url = make_url(settings.database_url)
+                    db_name = url.database
+                    server_url = url.set(database=None)
+                    server_engine = create_engine(server_url)
+                    with server_engine.connect().execution_options(isolation_level="AUTOCOMMIT") as conn:
+                        conn.execute(text(f"CREATE DATABASE IF NOT EXISTS `{db_name}` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci"))
+                except Exception as e:
+                    logger.error(f"Failed to ensure MySQL database exists: {e}")
+                    raise
+
             # 创建数据库引擎
-            self.engine = create_engine(
-                settings.database_url,
-                connect_args={"check_same_thread": False}  # SQLite特定配置
-            )
+            if settings.database_url.startswith("sqlite"):
+                self.engine = create_engine(
+                    settings.database_url,
+                    connect_args={"check_same_thread": False}
+                )
+            else:
+                # MySQL等数据库
+                self.engine = create_engine(
+                    settings.database_url,
+                    pool_pre_ping=True,
+                    pool_recycle=3600,
+                )
             
             # 创建会话工厂
             self.SessionLocal = sessionmaker(

@@ -42,13 +42,16 @@ def main():
 
     try:
         # 启动FastAPI服务器
+        env = os.environ.copy()
+        # 若未显式配置，则默认连接本地MySQL（用户提供）
+        env.setdefault("DATABASE_URL", "mysql+pymysql://root:Cz159csa@127.0.0.1:3306/zhixing_trader?charset=utf8mb4")
         subprocess.run([
             str(python_exe), "-m", "uvicorn",
             "app.main:app",
             "--host", "0.0.0.0",
             "--port", "8000",
             "--reload"
-        ], check=True)
+        ], check=True, env=env)
     except KeyboardInterrupt:
         print("\n🛑 服务器已停止")
     except subprocess.CalledProcessError as e:

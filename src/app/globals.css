@@ -1,17 +1,74 @@
 @import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap');
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* 现代极客金融风格色彩主题 */
+  --primary: #00d4aa;      /* 青绿色 - 科技感 */
+  --primary-light: #7fffd4; /* 浅青绿 */
+  --primary-dark: #00a085;  /* 深青绿 */
+  
+  --secondary: #1e293b;    /* 深蓝灰 - 专业感 */
+  --secondary-light: #334155;
+  --secondary-dark: #0f172a;
+  
+  --accent: #f59e0b;       /* 琥珀色 - 警示/重要 */
+  --accent-light: #fbbf24;
+  --accent-dark: #d97706;
+  
+  --success: #10b981;      /* 绿色 - 盈利 */
+  --success-light: #34d399;
+  --success-dark: #059669;
+  
+  --danger: #ef4444;       /* 红色 - 亏损 */
+  --danger-light: #f87171;
+  --danger-dark: #dc2626;
+  
+  --warning: #f59e0b;      /* 橙色 - 警告 */
+  --warning-light: #fbbf24;
+  --warning-dark: #d97706;
+  
+  --info: #3b82f6;         /* 蓝色 - 信息 */
+  --info-light: #60a5fa;
+  --info-dark: #2563eb;
+  
+  --background: #0a0a0a;   /* 纯黑背景 - 更好的对比度 */
+  --surface: #1a1a1a;      /* 深灰卡片背景 */
+  --surface-light: #2a2a2a;
+  --surface-dark: #0a0a0a;
+  
+  --border: #333333;       /* 边框色 */
+  --border-light: #444444;
+  --border-dark: #1a1a1a;
+  
+  --text-primary: #ffffff; /* 主文本 - 提高亮度 */
+  --text-secondary: #cbd5e1; /* 次要文本 - 提高对比度 */
+  --text-muted: #94a3b8;   /* 静态文本 */
+  --text-inverse: #0f172a;  /* 反色文本 */
+  
+  /* 字体定义 */
+  --font-mono: 'Fira Code', 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  --font-sans: 'Inter', 'SF Pro Display', 'Segoe UI', 'Roboto', sans-serif;
+  
+  /* 阴影和光效 */
+  --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+  --shadow-glow: 0 0 20px rgba(0, 212, 170, 0.3);
+  --shadow-primary: 0 0 15px rgba(0, 212, 170, 0.2);
+  
+  /* 玻璃拟态 */
+  --glass-bg: rgba(30, 41, 59, 0.6);
+  --glass-border: rgba(51, 65, 85, 0.5);
+  --glass-backdrop: blur(12px);
+  
+  /* 动画时长 */
+  --transition-fast: 150ms;
+  --transition-normal: 300ms;
+  --transition-slow: 500ms;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
 
+/* 深色模式优化 */
 @media (prefers-color-scheme: dark) {
   :root {
     --background: #0a0a0a;
@@ -19,8 +76,301 @@
   }
 }
 
+/* 基础样式 */
 body {
   background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* 滚动条样式 */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--surface-dark);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 4px;
+  transition: background var(--transition-normal);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--border-light);
+}
+
+/* 选择文本样式 */
+::selection {
+  background: var(--primary-light);
+  color: var(--text-inverse);
+}
+
+/* 焦点样式 */
+*:focus {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+/* 玻璃拟态效果 */
+.glass-effect {
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-backdrop);
+  -webkit-backdrop-filter: var(--glass-backdrop);
+  border: 1px solid var(--glass-border);
+}
+
+/* 霓虹发光效果 */
+.neon-glow {
+  box-shadow: 0 0 20px rgba(0, 212, 170, 0.3);
+}
+
+.neon-border {
+  position: relative;
+  background: var(--surface);
+  border-radius: 8px;
+}
+
+.neon-border::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(45deg, var(--primary), var(--accent));
+  border-radius: 8px;
+  opacity: 0.7;
+  z-index: -1;
+  filter: blur(12px);
+  transition: opacity var(--transition-normal);
+}
+
+.neon-border:hover::before {
+  opacity: 1;
+}
+
+/* 数据展示样式 */
+.data-mono {
+  font-family: var(--font-mono);
+  font-weight: 500;
+  letter-spacing: 0.05em;
+}
+
+/* 卡片通用样式 */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 2rem;
+  transition: all var(--transition-normal);
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+}
+
+.card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--primary), transparent);
+  opacity: 0.3;
+}
+
+.card:hover {
+  border-color: var(--primary);
+  box-shadow: 0 12px 48px rgba(0, 212, 170, 0.2);
+  transform: translateY(-4px);
+}
+
+.card::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, transparent, rgba(0, 212, 170, 0.1), transparent);
+  opacity: 0;
+  transition: opacity var(--transition-normal);
+  pointer-events: none;
+}
+
+.card:hover::after {
+  opacity: 1;
+}
+
+/* 按钮样式 */
+.btn {
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.875rem;
+  transition: all var(--transition-normal);
+  border: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  color: var(--text-inverse);
+  box-shadow: 0 4px 12px rgba(0, 212, 170, 0.3);
+}
+
+.btn-primary:hover {
+  background: linear-gradient(135deg, var(--primary-light), var(--primary));
+  box-shadow: 0 6px 20px rgba(0, 212, 170, 0.4);
+  transform: translateY(-2px);
+}
+
+.btn-secondary {
+  background: var(--surface);
+  color: var(--text-primary);
+  border: 2px solid var(--border);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.btn-secondary:hover {
+  background: var(--surface-light);
+  border-color: var(--primary);
+  box-shadow: 0 4px 12px rgba(0, 212, 170, 0.2);
+  transform: translateY(-1px);
+}
+
+/* 动画效果 */
+@keyframes pulse-glow {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 1; }
+}
+
+.pulse-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+/* 加载动画 */
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+/* 响应式字体 */
+.text-responsive {
+  font-size: clamp(0.875rem, 2vw, 1rem);
+}
+
+/* 渐变背景 */
+.gradient-bg {
+  background: linear-gradient(135deg, var(--surface) 0%, var(--surface-dark) 100%);
+}
+
+/* 数据高亮 */
+.data-positive {
+  color: var(--success);
+  font-weight: 600;
+  text-shadow: 0 0 8px rgba(16, 185, 129, 0.3);
+}
+
+.data-negative {
+  color: var(--danger);
+  font-weight: 600;
+  text-shadow: 0 0 8px rgba(239, 68, 68, 0.3);
+}
+
+.data-neutral {
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+/* 输入框样式 */
+input, textarea, select {
+  background: var(--surface);
+  border: 2px solid var(--border);
+  border-radius: 8px;
+  color: var(--text-primary);
+  font-size: 0.875rem;
+  padding: 0.75rem 1rem;
+  transition: all var(--transition-normal);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+input:focus, textarea:focus, select:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(0, 212, 170, 0.2), inset 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+input::placeholder, textarea::placeholder {
+  color: var(--text-muted);
+  opacity: 0.7;
+}
+
+/* 表格样式 */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--surface);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+}
+
+th, td {
+  padding: 1rem;
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+}
+
+th {
+  background: var(--surface-dark);
+  color: var(--text-primary);
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  letter-spacing: 0.05em;
+}
+
+tr:hover {
+  background: var(--surface-light);
+}
+
+/* 标签样式 */
+.tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  background: var(--surface-light);
+  color: var(--text-primary);
+  border: 1px solid var(--border);
+  transition: all var(--transition-normal);
+}
+
+.tag:hover {
+  background: var(--primary);
+  color: var(--text-inverse);
+  border-color: var(--primary);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 212, 170, 0.3);
 }

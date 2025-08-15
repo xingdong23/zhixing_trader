@@ -153,17 +153,15 @@ export function MarketContent({
   onTabChange,
   onRefreshData,
   isLoading = false,
-  className = ''
+  className = '',
+  page = 1,
+  pageSize = 20,
+  total = 0,
+  totalPages = 0,
+  onPageChange,
+  onPageSizeChange,
+  onConceptFilterChange
 }: MarketContentProps) {
-  const {
-    page = 1,
-    pageSize = 20,
-    total = 0,
-    totalPages = 0,
-    onPageChange,
-    onPageSizeChange,
-    onConceptFilterChange
-  } = arguments[0] as any;
   // 如果正在加载，显示加载状态
   if (isLoading) {
     return (

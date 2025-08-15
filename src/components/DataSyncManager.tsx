@@ -128,7 +128,7 @@ export default function DataSyncManager() {
   // 避免hydration错误
   if (!mounted) {
     return (
-      <div className="bg-white rounded-lg shadow-sm border p-6">
+      <div className="bg-surface rounded-lg border border-border p-6">
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-xl font-semibold text-gray-900">数据同步管理</h2>
           <div className="text-sm font-medium text-gray-600">加载中...</div>
@@ -148,7 +148,7 @@ export default function DataSyncManager() {
   }
 
   return (
-    <div className="bg-white rounded-lg shadow-sm border p-6">
+    <div className="bg-surface rounded-lg border border-border p-6">
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-xl font-semibold text-gray-900">数据同步管理</h2>
         <div className={`text-sm font-medium ${getSyncStatusColor()}`}>

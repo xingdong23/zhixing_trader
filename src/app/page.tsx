@@ -63,46 +63,41 @@ export default function Home() {
 
   // 主应用界面
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* 顶部导航 */}
-      <TopNavigation
-        currentModule={currentModule}
-        onModuleChange={handleModuleChange}
-        onSettings={handleShowSettings}
-      />
-
+    <TopNavigation
+      currentModule={currentModule}
+      onModuleChange={handleModuleChange}
+      onSettings={handleShowSettings}
+    >
       {/* 主内容区域 */}
-      <div>
-        {currentModule === 'market' && (
-          <StockMarket
-            onCreateTradingPlan={handleCreateTradingPlanFromStock}
-          />
-        )}
+      {currentModule === 'market' && (
+        <StockMarket
+          onCreateTradingPlan={handleCreateTradingPlanFromStock}
+        />
+      )}
 
-        {currentModule === 'trading' && (
-          <TradingManagement
-            activePlans={appState.activePlans}
-            activeRecords={appState.activeRecords}
-            playbooks={appState.playbooks}
-            createPlanAction={() => {}}
-            updatePlanAction={updateTradingPlan}
-            addRecordAction={addTradeRecord}
-            selectedStock={selectedStock}
-          />
-        )}
+      {currentModule === 'trading' && (
+        <TradingManagement
+          activePlans={appState.activePlans}
+          activeRecords={appState.activeRecords}
+          playbooks={appState.playbooks}
+          createPlanAction={() => {}}
+          updatePlanAction={updateTradingPlan}
+          addRecordAction={addTradeRecord}
+          selectedStock={selectedStock}
+        />
+      )}
 
-        {currentModule === 'insights' && (
-          <IntelligentReview
-            tradingStats={appState.tradingStats}
-            completedPlans={appState.activePlans.filter(p => p.status === 'closed')}
-            completedRecords={appState.activeRecords.filter(r => r.status === 'closed')}
-            insights={appState.insights}
-            playbooks={appState.playbooks}
-            onAddPlaybook={addPlaybook}
-            onDeletePlaybook={deletePlaybook}
-          />
-        )}
-      </div>
+      {currentModule === 'insights' && (
+        <IntelligentReview
+          tradingStats={appState.tradingStats}
+          completedPlans={appState.activePlans.filter(p => p.status === 'closed')}
+          completedRecords={appState.activeRecords.filter(r => r.status === 'closed')}
+          insights={appState.insights}
+          playbooks={appState.playbooks}
+          onAddPlaybook={addPlaybook}
+          onDeletePlaybook={deletePlaybook}
+        />
+      )}
 
       {/* 通知系统 */}
       <NotificationSystem
@@ -111,6 +106,6 @@ export default function Home() {
         settings={appState.settings}
         onUpdateSettings={updateSettings}
       />
-    </div>
+    </TopNavigation>
   );
 }

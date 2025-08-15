@@ -8,7 +8,6 @@ import { Stock } from '@/types';
 import { StockDetail } from '../StockDetail';
 
 // 导入子组件
-import { MarketOverview } from './MarketOverview';
 import { MarketTabs, MarketTabId } from './MarketTabs';
 import { MarketContent } from './MarketContent';
 import { useMarketData } from './MarketDataManager';
@@ -111,40 +110,33 @@ export function StockMarketRefactored({
   }
   
   return (
-    <div className={`max-w-7xl mx-auto p-6 space-y-6 ${className}`}>
+    <div className={`space-y-6 ${className}`}>
       {/* 错误提示 */}
       {error && (
-        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+        <div className="card neon-border border-danger/30 bg-danger/5">
           <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-2">
-              <div className="w-4 h-4 bg-red-500 rounded-full"></div>
-              <span className="text-red-800 font-medium">数据加载失败</span>
+            <div className="flex items-center space-x-3">
+              <div className="w-4 h-4 bg-danger rounded-full animate-pulse"></div>
+              <span className="text-danger font-medium data-mono">数据加载失败</span>
             </div>
             <button
               onClick={handleClearError}
-              className="text-red-600 hover:text-red-700 text-sm"
+              className="text-danger hover:text-danger-light text-sm transition-colors"
             >
               关闭
             </button>
           </div>
-          <p className="text-red-600 text-sm mt-2">{error}</p>
+          <p className="text-danger/80 text-sm mt-2 data-mono">{error}</p>
           <div className="mt-3">
             <button
               onClick={handleRefreshData}
-              className="px-3 py-1 bg-red-600 text-white text-sm rounded hover:bg-red-700 transition-colors"
+              className="btn btn-primary"
             >
               重试
             </button>
           </div>
         </div>
       )}
-      
-      {/* 市场概览 */}
-      <MarketOverview
-        stats={stats}
-        isLoading={isLoading}
-        onRefresh={handleRefreshData}
-      />
       
       {/* 功能标签页 */}
       <MarketTabs
@@ -214,7 +206,6 @@ export const StockMarketRefactoredDocs = {
   },
   
   features: [
-    '市场概览统计展示',
     '多标签页功能切换',
     '统一的数据状态管理',
     '错误处理和重试机制',
@@ -224,7 +215,6 @@ export const StockMarketRefactoredDocs = {
   ],
   
   subComponents: [
-    'MarketOverview - 市场概览组件',
     'MarketTabs - 标签页导航组件',
     'MarketContent - 内容渲染组件',
     'useMarketData - 数据管理Hook'

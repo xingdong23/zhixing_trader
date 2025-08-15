@@ -233,7 +233,7 @@ export function StockPool({
       </div>
 
       {/* 搜索功能 */}
-      <div className="bg-white border border-gray-200 rounded p-3">
+      <div className="bg-surface border border-border rounded p-3">
         <div className="flex items-center space-x-4">
           <button className="px-3 py-1 bg-blue-600 text-white text-sm rounded hover:bg-blue-700">
             搜索 股票池
@@ -257,7 +257,7 @@ export function StockPool({
       </div>
 
       {/* 基础筛选条件 */}
-      <div className="bg-white border border-gray-200 rounded p-3">
+      <div className="bg-surface border border-border rounded p-3">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           {/* 基本面筛选已移除，概念通过关联表管理 */}
 
@@ -296,7 +296,7 @@ export function StockPool({
       </div>
 
       {/* 概念标签筛选 */}
-      <div className="bg-white border border-gray-200 rounded p-3">
+      <div className="bg-surface border border-border rounded p-3">
         <div className="mb-2">
           <span className="text-sm font-medium text-gray-700">概念筛选：</span>
         </div>
@@ -348,7 +348,7 @@ export function StockPool({
       {/* 股票列表 */}
       <div className="space-y-4">
         {filteredStocks.length === 0 ? (
-          <div className="text-center py-12 bg-white border border-gray-200 rounded">
+          <div className="text-center py-12 bg-surface border border-border rounded">
             <p className="text-gray-500 mb-2">暂无股票数据</p>
             <button
               onClick={() => setShowAddForm(true)}
@@ -466,7 +466,7 @@ function StockCard({
   };
 
   return (
-    <div className="bg-white border border-gray-200 rounded p-4">
+    <div className="bg-surface border border-border rounded p-4">
       <div className="flex items-start justify-between">
         {/* 左侧：股票信息 */}
         <div className="flex-1">
@@ -676,7 +676,7 @@ function StockForm({
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded p-4 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+      <div className="bg-surface rounded p-4 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
         <h2 className="text-lg font-medium text-gray-900 mb-4">
           {stock ? '编辑股票' : '添加股票'}
         </h2>

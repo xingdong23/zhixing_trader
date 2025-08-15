@@ -1,11 +1,11 @@
-// 【知行交易】股票市场概览组件
+// 【知行交易】股票市场概览组件 - 现代极客金融风格
 // 显示股票池、策略和机会的统计信息
 
 'use client';
 
 import React from 'react';
+import { BarChart3, Target, Filter, TrendingUp, RefreshCw } from 'lucide-react';
 import { Card, CardHeader, CardContent, CardTitle } from '@/components/ui';
-import { BarChart3, Target, Filter, TrendingUp } from 'lucide-react';
 
 // 类型定义
 export interface MarketStats {
@@ -26,29 +26,48 @@ interface StatCardProps {
   icon: React.ComponentType<{ className?: string }>;
   value: number;
   label: string;
-  color?: 'blue' | 'green' | 'orange' | 'purple';
+  color?: 'primary' | 'success' | 'warning' | 'info';
   isLoading?: boolean;
 }
 
-function StatCard({ icon: Icon, value, label, color = 'blue', isLoading }: StatCardProps) {
+function StatCard({ icon: Icon, value, label, color = 'primary', isLoading }: StatCardProps) {
   const colorClasses = {
-    blue: 'text-blue-600',
-    green: 'text-green-600',
-    orange: 'text-orange-600',
-    purple: 'text-purple-600'
+    primary: 'text-primary',
+    success: 'text-success',
+    warning: 'text-warning',
+    info: 'text-info'
+  };
+
+  const bgClasses = {
+    primary: 'bg-primary/10',
+    success: 'bg-success/10',
+    warning: 'bg-warning/10',
+    info: 'bg-info/10'
   };
 
   return (
-    <div className="text-center p-4">
-      <div className="flex items-center justify-center mb-2">
-        <Icon className={`w-5 h-5 ${colorClasses[color]} mr-2`} />
-        {isLoading ? (
-          <div className="w-8 h-8 bg-gray-200 animate-pulse rounded"></div>
-        ) : (
-          <p className="text-2xl font-semibold text-gray-900">{formatNumber(value)}</p>
-        )}
+    <div className="card neon-border hover:border-primary/50 transition-all duration-300 group">
+      <div className="flex items-center justify-between mb-4">
+        <div className={`w-12 h-12 rounded-lg ${bgClasses[color]} flex items-center justify-center group-hover:scale-110 transition-transform duration-200`}>
+          <Icon className={`w-6 h-6 ${colorClasses[color]}`} />
+        </div>
+        <div className="text-right">
+          {isLoading ? (
+            <div className="w-16 h-8 bg-surface-light animate-pulse rounded"></div>
+          ) : (
+            <div className="text-2xl font-bold data-mono text-primary group-hover:text-primary-light transition-colors">
+              {formatNumber(value)}
+            </div>
+          )}
+        </div>
       </div>
-      <p className="text-sm text-gray-600">{label}</p>
+      <div className="flex items-center justify-between">
+        <span className="text-sm font-medium text-text-secondary">{label}</span>
+        <div className="flex items-center space-x-1">
+          <div className={`w-2 h-2 rounded-full ${colorClasses[color]} animate-pulse`}></div>
+          <span className="text-xs text-text-muted">活跃</span>
+        </div>
+      </div>
     </div>
   );
 }
@@ -66,107 +85,124 @@ function formatNumber(num: number): string {
 
 // 主组件
 export function MarketOverview({ stats, isLoading = false, onRefresh }: MarketOverviewProps) {
+  const strategyActivationRate = stats.totalStrategies > 0 
+    ? Math.round((stats.activeStrategies / stats.totalStrategies) * 100)
+    : 0;
+  
+  const averageStocksPerStrategy = stats.activeStrategies > 0 
+    ? Math.round(stats.totalStocks / stats.activeStrategies)
+    : 0;
+  
+  const opportunityRate = stats.totalStocks > 0 
+    ? Math.round((stats.todayOpportunities / stats.totalStocks) * 100)
+    : 0;
+
   return (
-    <Card className="mb-6">
-      <CardHeader>
-        <div className="flex items-center justify-between">
-          <CardTitle>市场概览</CardTitle>
-          {onRefresh && (
-            <button
-              onClick={onRefresh}
-              className="px-3 py-1 text-sm text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded transition-colors"
-              disabled={isLoading}
-            >
-              {isLoading ? '刷新中...' : '刷新'}
-            </button>
-          )}
+    <div className="space-y-6">
+      {/* 标题栏 */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-2xl font-bold text-primary">市场概览</h2>
+          <p className="text-sm text-text-secondary mt-1">实时监控投资组合和市场机会</p>
         </div>
-      </CardHeader>
-      <CardContent>
+        {onRefresh && (
+          <button
+            onClick={onRefresh}
+            className="btn btn-primary flex items-center space-x-2"
+            disabled={isLoading}
+          >
+            <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
+            <span>{isLoading ? '刷新中...' : '刷新数据'}</span>
+          </button>
+        )}
+      </div>
+      
+      {/* 统计卡片网格 */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <StatCard
+          icon={BarChart3}
+          value={stats.totalStocks}
+          label="股票池"
+          color="primary"
+          isLoading={isLoading}
+        />
+        <StatCard
+          icon={Filter}
+          value={stats.totalStrategies}
+          label="选股策略"
+          color="info"
+          isLoading={isLoading}
+        />
+        <StatCard
+          icon={Target}
+          value={stats.activeStrategies}
+          label="启用策略"
+          color="success"
+          isLoading={isLoading}
+        />
+        <StatCard
+          icon={TrendingUp}
+          value={stats.todayOpportunities}
+          label="今日机会"
+          color="warning"
+          isLoading={isLoading}
+        />
+      </div>
+      
+      {/* 快速洞察面板 */}
+      <div className="card glass-effect">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold text-gray-900">市场概览</h2>
-          {onRefresh && (
-            <button
-              onClick={onRefresh}
-              className="px-3 py-1 text-sm text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded transition-colors"
-              disabled={isLoading}
-            >
-              {isLoading ? '刷新中...' : '刷新'}
-            </button>
-          )}
+          <h3 className="text-lg font-semibold text-primary">快速洞察</h3>
+          <div className="flex items-center space-x-2">
+            <div className="w-2 h-2 bg-primary rounded-full animate-pulse"></div>
+            <span className="text-xs text-text-secondary">实时更新</span>
+          </div>
         </div>
         
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <StatCard
-            icon={BarChart3}
-            value={stats.totalStocks}
-            label="股票池"
-            color="blue"
-            isLoading={isLoading}
-          />
-          <StatCard
-            icon={Filter}
-            value={stats.totalStrategies}
-            label="选股策略"
-            color="green"
-            isLoading={isLoading}
-          />
-          <StatCard
-            icon={Target}
-            value={stats.activeStrategies}
-            label="启用策略"
-            color="orange"
-            isLoading={isLoading}
-          />
-          <StatCard
-            icon={TrendingUp}
-            value={stats.todayOpportunities}
-            label="今日机会"
-            color="purple"
-            isLoading={isLoading}
-          />
-        </div>
-        
-        {/* 快速洞察 */}
-        <div className="mt-6 pt-4 border-t border-gray-200">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-            <div className="text-center">
-              <span className="text-gray-600">策略启用率</span>
-              <div className="mt-1">
-                <span className="font-semibold text-gray-900">
-                  {stats.totalStrategies > 0 
-                    ? Math.round((stats.activeStrategies / stats.totalStrategies) * 100)
-                    : 0
-                  }%
-                </span>
-              </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="text-center p-4 rounded-lg bg-surface/50 border border-border/50">
+            <div className="text-sm text-text-secondary mb-2">策略启用率</div>
+            <div className="text-2xl font-bold data-mono text-primary">
+              {strategyActivationRate}%
             </div>
-            <div className="text-center">
-              <span className="text-gray-600">平均每策略股票</span>
-              <div className="mt-1">
-                <span className="font-semibold text-gray-900">
-                  {stats.activeStrategies > 0 
-                    ? Math.round(stats.totalStocks / stats.activeStrategies)
-                    : 0
-                  }
-                </span>
-              </div>
-            </div>
-            <div className="text-center">
-              <span className="text-gray-600">机会发现率</span>
-              <div className="mt-1">
-                <span className="font-semibold text-gray-900">
-                  {stats.totalStocks > 0 
-                    ? Math.round((stats.todayOpportunities / stats.totalStocks) * 100)
-                    : 0
-                  }%
-                </span>
+            <div className="mt-2">
+              <div className="w-full bg-surface rounded-full h-2">
+                <div 
+                  className="bg-primary h-2 rounded-full transition-all duration-500"
+                  style={{ width: `${strategyActivationRate}%` }}
+                ></div>
               </div>
             </div>
           </div>
+          
+          <div className="text-center p-4 rounded-lg bg-surface/50 border border-border/50">
+            <div className="text-sm text-text-secondary mb-2">平均每策略股票</div>
+            <div className="text-2xl font-bold data-mono text-info">
+              {averageStocksPerStrategy}
+            </div>
+            <div className="mt-2">
+              <span className="text-xs text-text-muted">
+                {stats.totalStocks} 股票 / {stats.activeStrategies} 策略
+              </span>
+            </div>
+          </div>
+          
+          <div className="text-center p-4 rounded-lg bg-surface/50 border border-border/50">
+            <div className="text-sm text-text-secondary mb-2">机会发现率</div>
+            <div className={`text-2xl font-bold data-mono ${
+              opportunityRate > 50 ? 'text-success' : opportunityRate > 20 ? 'text-warning' : 'text-danger'
+            }`}>
+              {opportunityRate}%
+            </div>
+            <div className="mt-2">
+              <span className="text-xs text-text-muted">
+                {stats.todayOpportunities} 机会 / {stats.totalStocks} 股票
+              </span>
+            </div>
+          </div>
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }
 

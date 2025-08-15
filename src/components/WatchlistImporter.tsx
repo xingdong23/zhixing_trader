@@ -264,7 +264,7 @@ export function WatchlistImporter({ onImportComplete }: WatchlistImporterProps) 
         symbol,
         name,
         market,
-        industry: industryName ? { id: industryName, name: industryName, description: '', stockCount: 0 } : undefined,
+        industry: industryName ? { id: industryName, name: industryName, description: '', stockCount: 0, createdAt: now, updatedAt: now } : undefined,
         price: idx.price !== -1 ? (parseFloat(values[idx.price]) || 0) : 0,
         change: 0,
         changePercent: idx.changePercent !== -1 ? (parseFloat(values[idx.changePercent].replace('%','')) || 0) : 0,

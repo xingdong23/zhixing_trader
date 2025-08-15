@@ -416,7 +416,8 @@ export function useMarketData(): UseMarketDataResult {
     state,
     actions: {
       fetchStocks,
-      fetchStrategies,
+      changePage,
+      changePageSize,
       addStock,
       updateStock,
       deleteStock,

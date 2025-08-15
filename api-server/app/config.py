@@ -21,7 +21,9 @@ class Settings(BaseSettings):
     debug: bool = True
     
     # 数据库配置
-    database_url: str = "sqlite:///./data/zhixing_trader.db"
+    # 默认使用SQLite；可通过环境变量切换为MySQL，例如：
+    # mysql+pymysql://root:password@127.0.0.1:3306/zhixing_trader
+    database_url: str = os.getenv("DATABASE_URL", "sqlite:///./data/zhixing_trader.db")
     
     # 日志配置
     log_level: str = "INFO"

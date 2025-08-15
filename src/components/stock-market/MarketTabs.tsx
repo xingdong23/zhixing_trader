@@ -90,7 +90,7 @@ function TabButton({ tab, isActive, onClick }: TabButtonProps) {
         ${
           isActive
             ? 'bg-blue-600 text-white border-blue-600 shadow-sm'
-            : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50 hover:border-gray-400 hover:shadow-sm'
+            : 'bg-surface text-text-secondary border-border hover:bg-surface-light hover:border-primary/30 hover:shadow-sm'
         }
       `}
       title={tab.description}
@@ -165,7 +165,7 @@ export function MarketTabs({
   className = ''
 }: MarketTabsProps) {
   return (
-    <div className={`bg-white border border-gray-200 rounded-lg ${className}`}>
+    <div className={`bg-surface border border-border rounded-lg ${className}`}>
       <div className="px-4 py-3 border-b border-gray-200">
         <div className="flex items-center justify-between">
           {/* 标签页导航 */}

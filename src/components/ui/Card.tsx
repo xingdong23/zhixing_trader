@@ -12,8 +12,8 @@ export function Card({ children, className, onClick, hover = false }: CardProps)
   return (
     <div
       className={cn(
-        'bg-white rounded-lg border border-gray-200 shadow-sm',
-        hover && 'hover:shadow-md transition-shadow duration-200',
+        'card',
+        hover && 'hover:shadow-lg hover:transform hover:scale-[1.02] transition-all duration-200',
         onClick && 'cursor-pointer',
         className
       )}
@@ -30,7 +30,7 @@ export interface CardHeaderProps {
 }
 
 export function CardHeader({ children, className }: CardHeaderProps) {
-  return <div className={cn('px-6 py-5 border-b border-slate-100/50', className)}>{children}</div>
+  return <div className={cn('flex items-center justify-between pb-4 mb-4 border-b border-border', className)}>{children}</div>
 }
 
 export interface CardContentProps {
@@ -39,7 +39,7 @@ export interface CardContentProps {
 }
 
 export function CardContent({ children, className }: CardContentProps) {
-  return <div className={cn('px-6 py-4', className)}>{children}</div>
+  return <div className={cn('', className)}>{children}</div>
 }
 
 export interface CardTitleProps {
@@ -48,7 +48,7 @@ export interface CardTitleProps {
 }
 
 export function CardTitle({ children, className }: CardTitleProps) {
-  return <h3 className={cn('text-lg font-semibold text-gray-900', className)}>{children}</h3>
+  return <h3 className={cn('text-xl font-bold text-primary', className)}>{children}</h3>
 }
 
 export interface CardDescriptionProps {
@@ -57,5 +57,5 @@ export interface CardDescriptionProps {
 }
 
 export function CardDescription({ children, className }: CardDescriptionProps) {
-  return <p className={cn('text-sm text-gray-600 mt-1', className)}>{children}</p>
+  return <p className={cn('text-sm text-text-secondary mt-1', className)}>{children}</p>
 }
