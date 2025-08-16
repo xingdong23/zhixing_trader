@@ -9,7 +9,7 @@ export interface TableProps {
 export function Table({ children, className }: TableProps) {
   return (
     <div className={cn('overflow-hidden rounded-lg', className)}>
-      <table className="w-full border-collapse bg-surface rounded-lg overflow-hidden shadow-lg">
+      <table className="w-full border-collapse">
         {children}
       </table>
     </div>
@@ -22,7 +22,7 @@ export interface TableHeaderProps {
 }
 
 export function TableHeader({ children, className }: TableHeaderProps) {
-  return <thead className={cn('bg-surface-dark', className)}>{children}</thead>
+  return <thead className={cn('', className)}>{children}</thead>
 }
 
 export interface TableBodyProps {
@@ -44,7 +44,7 @@ export function TableRow({ children, className, onClick }: TableRowProps) {
   return (
     <tr 
       className={cn(
-        'border-b border-border hover:bg-surface-light transition-colors duration-150',
+        'border-b hover:bg-[rgba(30,41,59,0.6)] transition-colors duration-150',
         onClick && 'cursor-pointer',
         className
       )}
@@ -63,7 +63,7 @@ export interface TableHeadProps {
 export function TableHead({ children, className }: TableHeadProps) {
   return (
     <th className={cn(
-      'px-6 py-4 text-left text-xs font-medium text-text-secondary uppercase tracking-wider',
+      'px-6 py-4 text-left text-xs font-medium text-[#94a3b8] uppercase tracking-wider',
       className
     )}>
       {children}
@@ -79,7 +79,7 @@ export interface TableCellProps {
 export function TableCell({ children, className }: TableCellProps) {
   return (
     <td className={cn(
-      'px-6 py-4 text-sm text-text-primary whitespace-nowrap',
+      'px-6 py-4 text-sm text-[#e2e8f0] whitespace-nowrap',
       className
     )}>
       {children}
@@ -95,7 +95,7 @@ export interface TableCaptionProps {
 export function TableCaption({ children, className }: TableCaptionProps) {
   return (
     <caption className={cn(
-      'mt-4 text-sm text-text-muted text-center',
+      'mt-4 text-sm text-[#94a3b8] text-center',
       className
     )}>
       {children}

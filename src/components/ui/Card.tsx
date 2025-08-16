@@ -30,7 +30,7 @@ export interface CardHeaderProps {
 }
 
 export function CardHeader({ children, className }: CardHeaderProps) {
-  return <div className={cn('flex items-center justify-between pb-4 mb-4 border-b border-border', className)}>{children}</div>
+  return <div className={cn('flex items-center justify-between pb-4 mb-4 border-b', className)}>{children}</div>
 }
 
 export interface CardContentProps {
@@ -48,7 +48,7 @@ export interface CardTitleProps {
 }
 
 export function CardTitle({ children, className }: CardTitleProps) {
-  return <h3 className={cn('text-xl font-bold text-primary', className)}>{children}</h3>
+  return <h3 className={cn('text-xl font-bold text-[#e2e8f0]', className)}>{children}</h3>
 }
 
 export interface CardDescriptionProps {
@@ -57,5 +57,5 @@ export interface CardDescriptionProps {
 }
 
 export function CardDescription({ children, className }: CardDescriptionProps) {
-  return <p className={cn('text-sm text-text-secondary mt-1', className)}>{children}</p>
+  return <p className={cn('text-sm text-[#94a3b8] mt-1', className)}>{children}</p>
 }

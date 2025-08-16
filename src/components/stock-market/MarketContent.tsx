@@ -6,6 +6,7 @@
 import React from 'react';
 import { Stock, StockSelectionStrategy } from '@/types';
 import { MarketTabId } from './MarketTabs';
+import { Plus } from 'lucide-react';
 
 // 导入各个功能模块组件
 import { StockPool } from '../StockPool';
@@ -82,16 +83,20 @@ class TabErrorBoundary extends React.Component<
     if (this.state.hasError) {
       return (
         <div className="p-8 text-center">
-          <div className="bg-red-50 border border-red-200 rounded-lg p-6">
-            <h3 className="text-lg font-semibold text-red-800 mb-2">
+          <div className="card">
+            <h3 className="text-lg font-semibold text-[#ef4444] mb-2">
               标签页加载失败
             </h3>
-            <p className="text-red-600 mb-4">
+            <p className="text-[#ef4444] mb-4">
               {this.state.error?.message || '未知错误'}
             </p>
             <button
               onClick={() => this.setState({ hasError: false, error: undefined })}
-              className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition-colors"
+              className="btn"
+              style={{
+                background: 'var(--danger)',
+                color: 'white'
+              }}
             >
               重试
             </button>
@@ -109,8 +114,8 @@ function LoadingState() {
   return (
     <div className="p-8 text-center">
       <div className="inline-flex items-center space-x-2">
-        <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
-        <span className="text-gray-600">加载中...</span>
+        <div className="loading-spinner"></div>
+        <span className="text-[#94a3b8]">加载中...</span>
       </div>
     </div>
   );
@@ -128,7 +133,7 @@ function EmptyState({ tabId }: { tabId: MarketTabId }) {
   };
 
   return (
-    <div className="p-8 text-center text-gray-500">
+    <div className="p-8 text-center text-[#94a3b8]">
       {messages[tabId]}
     </div>
   );
@@ -257,9 +262,45 @@ export function MarketContent({
     }
   };
 
+  // 统计信息
+  const stats = {
+    totalStocks: stocks.length,
+    totalStrategies: strategies.length,
+    activeStrategies: strategies.filter(s => s.isActive).length,
+  };
+
   return (
-    <div className={`mt-6 ${className}`}>
-      {renderTabContent()}
+    <div className={`space-y-6 ${className}`}>
+      {/* 统计信息 */}
+      <div className="flex items-center justify-between">
+        <div className="text-sm text-[#94a3b8]">
+          共 <span className="text-[#e2e8f0] font-medium">{stats.totalStocks}</span> 只股票，
+          <span className="text-[#e2e8f0] font-medium ml-1">{stats.activeStrategies}</span> 个策略运行中
+        </div>
+        <button className="btn btn-primary">
+          <Plus className="w-4 h-4" />
+          <span>添加股票</span>
+        </button>
+      </div>
+
+      {/* 标签云 */}
+      <div className="tag-cloud">
+        <div className="tag-grid">
+          {['科技股', '金融股', '新能源', '医药股', '消费股', '地产股', 'AI概念', '芯片股'].map((tag, index) => (
+            <div 
+              key={index} 
+              className="tag"
+            >
+              {tag}
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* 主要内容区域 */}
+      <div className="min-h-[400px]">
+        {renderTabContent()}
+      </div>
     </div>
   );
 }

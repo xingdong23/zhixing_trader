@@ -3,8 +3,7 @@
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui';
 import { Button } from '@/components/ui';
-import { Input } from '@/components/ui';
-import { Textarea } from '@/components/ui';
+import { Input, Textarea, Select } from '@/components/ui';
 
 interface TradingPlanData {
   stock_code: string;
@@ -172,44 +171,41 @@ export default function TradingPlanForm({ onPlanCreated }: TradingPlanFormProps)
               <label className="block text-sm font-medium mb-2">
                 计划类型 <span className="text-red-500">*</span>
               </label>
-              <select 
+              <Select 
                 value={formData.plan_type} 
                 onChange={(e) => handleInputChange('plan_type', e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
                 <option value="short_term">短线交易</option>
                 <option value="swing_trading">波段交易</option>
                 <option value="value_investment">价值投资</option>
-              </select>
+              </Select>
             </div>
             
             <div>
               <label className="block text-sm font-medium mb-2">
                 交易方向 <span className="text-red-500">*</span>
               </label>
-              <select 
+              <Select 
                 value={formData.trade_direction} 
                 onChange={(e) => handleInputChange('trade_direction', e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
                 <option value="buy">买入</option>
                 <option value="sell">卖出</option>
-              </select>
+              </Select>
             </div>
             
             <div>
               <label className="block text-sm font-medium mb-2">
                 交易类型 <span className="text-red-500">*</span>
               </label>
-              <select 
+              <Select 
                 value={formData.trade_type} 
                 onChange={(e) => handleInputChange('trade_type', e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
                 <option value="short_swing">短期波段 (1-7天)</option>
                 <option value="medium_swing">中期波段 (1-8周)</option>
                 <option value="long_investment">长期投资 (3个月+)</option>
-              </select>
+              </Select>
             </div>
           </div>
 
@@ -263,17 +259,16 @@ export default function TradingPlanForm({ onPlanCreated }: TradingPlanFormProps)
               <label className="block text-sm font-medium mb-2">
                 预期持有周期
               </label>
-              <select 
+              <Select 
                 value={formData.expected_hold_period} 
                 onChange={(e) => handleInputChange('expected_hold_period', e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
                 <option value="1-7天">1-7天</option>
                 <option value="1-4周">1-4周</option>
                 <option value="1-3月">1-3月</option>
                 <option value="3-12月">3-12月</option>
                 <option value="1年以上">1年以上</option>
-              </select>
+              </Select>
             </div>
           </div>
 

@@ -5,6 +5,7 @@
 
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui';
+import { Input, Textarea, Select, Button } from '@/components/ui';
 import { StockOpinion } from '@/types';
 import {
   Plus,
@@ -75,13 +76,13 @@ export function StockOpinions({
       {/* 添加观点按钮 */}
       <div className="flex justify-between items-center">
         <h3 className="text-lg font-medium text-gray-900">观点追踪</h3>
-        <button
+        <Button
           onClick={() => setShowAddForm(true)}
-          className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+          className="flex items-center space-x-2"
         >
           <Plus className="w-4 h-4" />
           <span>添加观点</span>
-        </button>
+        </Button>
       </div>
 
       {/* 观点列表 */}
@@ -91,12 +92,13 @@ export function StockOpinions({
             <CardContent className="p-8 text-center">
               <MessageSquare className="w-12 h-12 text-gray-400 mx-auto mb-4" />
               <p className="text-gray-500 mb-4">暂无观点记录</p>
-              <button
+              <Button
                 onClick={() => setShowAddForm(true)}
-                className="text-blue-600 hover:text-blue-700"
+                variant="ghost"
+                className="text-primary"
               >
                 添加第一个观点
-              </button>
+              </Button>
             </CardContent>
           </Card>
         ) : (
@@ -134,20 +136,24 @@ export function StockOpinions({
                     </div>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <button
+                    <Button
                       onClick={() => setEditingOpinion(opinion)}
-                      className="p-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors"
+                      variant="ghost"
+                      size="sm"
+                      className="p-2"
                       title="编辑"
                     >
                       <Edit3 className="w-4 h-4" />
-                    </button>
-                    <button
+                    </Button>
+                    <Button
                       onClick={() => onDeleteOpinion(opinion.id)}
-                      className="p-2 text-gray-600 hover:text-red-600 hover:bg-red-50 rounded transition-colors"
+                      variant="ghost"
+                      size="sm"
+                      className="p-2 text-danger hover:text-danger-dark"
                       title="删除"
                     >
                       <Trash2 className="w-4 h-4" />
-                    </button>
+                    </Button>
                   </div>
                 </div>
               </CardHeader>
@@ -303,11 +309,10 @@ function OpinionForm({
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 观点来源
               </label>
-              <input
+              <Input
                 type="text"
                 value={formData.source}
                 onChange={(e) => setFormData({...formData, source: e.target.value})}
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 placeholder="如：MVP公众号、微信读书、某某大佬"
                 required
               />
@@ -316,11 +321,10 @@ function OpinionForm({
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 作者/分析师
               </label>
-              <input
+              <Input
                 type="text"
                 value={formData.author}
                 onChange={(e) => setFormData({...formData, author: e.target.value})}
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 placeholder="分析师姓名"
                 required
               />
@@ -332,11 +336,10 @@ function OpinionForm({
             <label className="block text-sm font-medium text-gray-700 mb-2">
               观点标题
             </label>
-            <input
+            <Input
               type="text"
               value={formData.title}
               onChange={(e) => setFormData({...formData, title: e.target.value})}
-              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               placeholder="简要描述这个观点"
               required
             />
@@ -347,11 +350,10 @@ function OpinionForm({
             <label className="block text-sm font-medium text-gray-700 mb-2">
               详细内容
             </label>
-            <textarea
+            <Textarea
               value={formData.content}
               onChange={(e) => setFormData({...formData, content: e.target.value})}
               rows={4}
-              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               placeholder="详细的观点分析内容..."
               required
             />
@@ -363,39 +365,36 @@ function OpinionForm({
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 观点类型
               </label>
-              <select
+              <Select
                 value={formData.type}
                 onChange={(e) => setFormData({...formData, type: e.target.value as any})}
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               >
                 <option value="technical">技术面</option>
                 <option value="fundamental">基本面</option>
                 <option value="mixed">综合分析</option>
-              </select>
+              </Select>
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 观点倾向
               </label>
-              <select
+              <Select
                 value={formData.sentiment}
                 onChange={(e) => setFormData({...formData, sentiment: e.target.value as any})}
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               >
                 <option value="bullish">看涨</option>
                 <option value="bearish">看跌</option>
                 <option value="neutral">中性</option>
-              </select>
+              </Select>
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 时间框架
               </label>
-              <input
+              <Input
                 type="text"
                 value={formData.timeframe}
                 onChange={(e) => setFormData({...formData, timeframe: e.target.value})}
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 placeholder="如：短期、中期、长期"
               />
             </div>
@@ -407,12 +406,11 @@ function OpinionForm({
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 目标价
               </label>
-              <input
+              <Input
                 type="number"
                 step="0.01"
                 value={formData.targetPrice}
                 onChange={(e) => setFormData({...formData, targetPrice: e.target.value})}
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 placeholder="目标价格"
               />
             </div>
@@ -420,12 +418,11 @@ function OpinionForm({
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 止损价
               </label>
-              <input
+              <Input
                 type="number"
                 step="0.01"
                 value={formData.stopLoss}
                 onChange={(e) => setFormData({...formData, stopLoss: e.target.value})}
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 placeholder="止损价格"
               />
             </div>
@@ -437,11 +434,10 @@ function OpinionForm({
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 标签 (用逗号分隔)
               </label>
-              <input
+              <Input
                 type="text"
                 value={formData.tags}
                 onChange={(e) => setFormData({...formData, tags: e.target.value})}
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 placeholder="如：金叉, 突破, 财报"
               />
             </div>
@@ -449,13 +445,12 @@ function OpinionForm({
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 信心度 (1-10)
               </label>
-              <input
+              <Input
                 type="range"
                 min="1"
                 max="10"
                 value={formData.confidence}
                 onChange={(e) => setFormData({...formData, confidence: Number(e.target.value)})}
-                className="w-full"
               />
               <div className="text-center text-sm text-gray-600 mt-1">
                 {formData.confidence}/10
@@ -465,19 +460,18 @@ function OpinionForm({
 
           {/* 按钮 */}
           <div className="flex justify-end space-x-3 pt-4">
-            <button
+            <Button
               type="button"
               onClick={onCancel}
-              className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+              variant="outline"
             >
               取消
-            </button>
-            <button
+            </Button>
+            <Button
               type="submit"
-              className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
             >
               {opinion ? '更新' : '添加'}
-            </button>
+            </Button>
           </div>
         </form>
       </div>
