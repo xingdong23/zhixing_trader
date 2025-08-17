@@ -134,7 +134,7 @@ export function TradingManagement({
   }
 
   return (
-    <div className="max-w-7xl mx-auto p-6 space-y-6">
+    <div className="space-y-6">
       {/* 操作按钮 */}
       <div className="flex justify-end">
         <button

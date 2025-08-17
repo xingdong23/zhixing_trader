@@ -61,16 +61,16 @@ export function TopNavigation({
   return (
     <div className="flex h-screen">
       {/* 左侧导航栏 */}
-      <div className="fixed left-0 top-0 w-[280px] h-screen bg-[rgba(15,23,42,0.95)] backdrop-blur-[20px] border-r border-[rgba(148,163,184,0.1)] z-[100] flex flex-col">
+      <div className="fixed left-0 top-0 w-64 md:w-[280px] h-screen bg-background/95 backdrop-blur-[20px] border-r border z-[100] flex flex-col lg:flex hidden">
         {/* Logo区域 */}
-        <div className="p-6 border-b border-[rgba(148,163,184,0.1)]">
+        <div className="p-6 border-b border">
           <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-gradient-to-br from-[#00ffd0] to-[#3b82f6] rounded-lg flex items-center justify-center">
-              <span className="text-[#0f172a] font-bold text-lg">知</span>
+            <div className="w-10 h-10 bg-gradient-to-br from-primary to-secondary rounded-lg flex items-center justify-center">
+              <span className="text-text-inverse font-bold text-lg">知</span>
             </div>
             <div>
-              <h1 className="text-xl font-bold text-[#e2e8f0]">知行交易</h1>
-              <p className="text-xs text-[#94a3b8]">智能投资平台</p>
+              <h1 className="text-xl font-bold text-text-primary">知行交易</h1>
+              <p className="text-xs text-text-muted">智能投资平台</p>
             </div>
           </div>
         </div>
@@ -79,7 +79,7 @@ export function TopNavigation({
         <nav className="flex-1 p-4 space-y-2">
           {/* 首页按钮 */}
           <button
-            className="w-full flex items-center space-x-3 p-3 rounded-lg text-[#cbd5e1] hover:text-[#e2e8f0] hover:bg-[rgba(30,41,59,0.6)] transition-all duration-200 group"
+            className="w-full flex items-center space-x-3 p-3 rounded-lg text-text-secondary hover:text-text-primary hover:bg-surface transition-all duration-200 group"
             title="返回首页"
           >
             <Home className="w-5 h-5" />
@@ -89,14 +89,14 @@ export function TopNavigation({
 
           {/* 主导航模块 */}
           <div className="space-y-1 pt-4">
-            <p className="text-xs text-[#64748b] uppercase tracking-wider px-3 mb-2">
+            <p className="text-xs text-text-muted uppercase tracking-wider px-3 mb-2">
               核心功能
             </p>
             
             {/* UI测试链接 */}
             <a
               href="/ui-test"
-              className="w-full flex items-center space-x-3 p-3 rounded-lg text-[#cbd5e1] hover:text-[#e2e8f0] hover:bg-[rgba(30,41,59,0.6)] transition-all duration-200 group"
+              className="w-full flex items-center space-x-3 p-3 rounded-lg text-text-secondary hover:text-text-primary hover:bg-surface transition-all duration-200 group"
               title="UI组件测试"
             >
               <Lightbulb className="w-5 h-5" />
@@ -114,12 +114,12 @@ export function TopNavigation({
                   onClick={() => onModuleChange(module.id)}
                   className={`w-full flex items-center space-x-3 p-3 rounded-lg transition-all duration-200 group relative overflow-hidden ${
                     isActive
-                      ? 'bg-[rgba(0,255,208,0.1)] text-[#00ffd0] border border-[rgba(0,255,208,0.3)]'
-                      : 'text-[#cbd5e1] hover:text-[#e2e8f0] hover:bg-[rgba(30,41,59,0.6)] hover:border-[rgba(0,255,208,0.3)]'
+                      ? 'bg-primary/10 text-primary border border-primary/30'
+                      : 'text-text-secondary hover:text-text-primary hover:bg-surface hover:border-primary/30'
                   }`}
                 >
                   <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
-                    isActive ? 'bg-[#00ffd0] text-[#0f172a]' : 'bg-[rgba(30,41,59,0.6)] text-[#94a3b8] group-hover:bg-[rgba(0,255,208,0.2)] group-hover:text-[#00ffd0]'
+                    isActive ? 'bg-primary text-text-inverse' : 'bg-surface text-text-muted group-hover:bg-primary/20 group-hover:text-primary'
                   }`}>
                     <Icon className="w-4 h-4" />
                   </div>
@@ -131,7 +131,7 @@ export function TopNavigation({
                   
                   {/* 活跃指示器 */}
                   {isActive && (
-                    <div className="absolute left-0 top-0 bottom-0 w-1 bg-[#00ffd0] rounded-r-lg" />
+                    <div className="absolute left-0 top-0 bottom-0 w-1 bg-primary rounded-r-lg" />
                   )}
                 </button>
               );
@@ -140,23 +140,23 @@ export function TopNavigation({
 
           {/* 系统状态 */}
           <div className="space-y-1 pt-4 border-t border-[rgba(148,163,184,0.1)]">
-            <p className="text-xs text-[#64748b] uppercase tracking-wider px-3 mb-2">
+            <p className="text-xs text-text-muted uppercase tracking-wider px-3 mb-2">
               系统状态
             </p>
             
-            <div className="p-3 rounded-lg bg-[rgba(30,41,59,0.6)] border border-[rgba(148,163,184,0.1)]">
+            <div className="p-3 rounded-lg bg-surface border border">
               <div className="flex items-center justify-between mb-2">
-                <span className="text-sm text-[#cbd5e1]">数据同步</span>
+                <span className="text-sm text-text-secondary">数据同步</span>
                 <div className="flex items-center space-x-1">
-                  <div className="w-2 h-2 bg-[#10b981] rounded-full animate-pulse"></div>
-                  <span className="text-xs text-[#10b981]">在线</span>
+                  <div className="w-2 h-2 bg-success rounded-full animate-pulse"></div>
+                  <span className="text-xs text-success">在线</span>
                 </div>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-sm text-[#cbd5e1]">策略运行</span>
+                <span className="text-sm text-text-secondary">策略运行</span>
                 <div className="flex items-center space-x-1">
-                  <div className="w-2 h-2 bg-[#f59e0b] rounded-full animate-pulse"></div>
-                  <span className="text-xs text-[#f59e0b]">运行中</span>
+                  <div className="w-2 h-2 bg-warning rounded-full animate-pulse"></div>
+                  <span className="text-xs text-warning">运行中</span>
                 </div>
               </div>
             </div>
@@ -164,10 +164,10 @@ export function TopNavigation({
         </nav>
 
         {/* 底部设置 */}
-        <div className="p-4 border-t border-[rgba(148,163,184,0.1)]">
+        <div className="p-4 border-t border">
           <button
             onClick={onSettings}
-            className="w-full flex items-center space-x-3 p-3 rounded-lg text-[#cbd5e1] hover:text-[#e2e8f0] hover:bg-[rgba(30,41,59,0.6)] transition-all duration-200 group"
+            className="w-full flex items-center space-x-3 p-3 rounded-lg text-text-secondary hover:text-text-primary hover:bg-surface transition-all duration-200 group"
             title="系统设置"
           >
             <Settings className="w-5 h-5" />
@@ -178,24 +178,24 @@ export function TopNavigation({
       </div>
 
       {/* 右侧主内容区域 */}
-      <div className="flex-1 flex flex-col ml-[280px]">
+      <div className="flex-1 flex flex-col ml-16 lg:ml-64 xl:ml-[280px]">
         {/* 顶部状态栏 */}
-        <div className="h-12 bg-[rgba(15,23,42,0.6)] border-b border-[rgba(148,163,184,0.1)] flex items-center justify-between px-6">
+        <div className="h-12 bg-background/60 border-b border flex items-center justify-between px-4 md:px-6">
           <div className="flex items-center space-x-4">
-            <div className="text-sm text-[#94a3b8] font-mono">
+            <div className="text-sm text-text-muted font-mono">
               2025-08-15 14:30:25
             </div>
             <div className="flex items-center space-x-2">
-              <Activity className="w-4 h-4 text-[#10b981]" />
-              <span className="text-sm text-[#10b981]">市场活跃</span>
+              <Activity className="w-4 h-4 text-success" />
+              <span className="text-sm text-success">市场活跃</span>
             </div>
           </div>
           
           <div className="flex items-center space-x-3">
-            <button className="px-3 py-1.5 bg-[rgba(59,130,246,0.1)] border border-[rgba(59,130,246,0.2)] rounded-lg text-[#3b82f6] text-sm hover:bg-[rgba(59,130,246,0.2)] transition-all">
+            <button className="px-3 py-1.5 bg-info/10 border border-info/20 rounded-lg text-info text-sm hover:bg-info/20 transition-all">
               设置
             </button>
-            <button className="px-3 py-1.5 bg-[rgba(59,130,246,0.1)] border border-[rgba(59,130,246,0.2)] rounded-lg text-[#3b82f6] text-sm hover:bg-[rgba(59,130,246,0.2)] transition-all">
+            <button className="px-3 py-1.5 bg-info/10 border border-info/20 rounded-lg text-info text-sm hover:bg-info/20 transition-all">
               通知
             </button>
           </div>
@@ -203,7 +203,7 @@ export function TopNavigation({
 
         {/* 主内容区域 */}
         <div className="flex-1 p-6 overflow-auto">
-          <div className="h-full card p-6">
+          <div className="h-full">
             {children}
           </div>
         </div>

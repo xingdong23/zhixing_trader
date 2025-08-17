@@ -182,17 +182,15 @@ body {
   letter-spacing: 0.05em;
 }
 
-/* 现代卡片通用样式 */
+/* 现代卡片基础样式 - 为UI组件提供基础样式支持 */
 .card {
   background: rgba(30, 41, 59, 0.4);
   backdrop-filter: blur(20px);
   border: 1px solid rgba(148, 163, 184, 0.1);
   border-radius: 16px;
-  padding: 1.5rem;
   transition: all var(--transition-normal);
   position: relative;
   overflow: hidden;
-  cursor: pointer;
 }
 
 .card:hover {
@@ -202,20 +200,18 @@ body {
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
 }
 
-/* 股票卡片特定样式 */
-.stock-card {
+/* 特殊卡片样式增强 */
+.neon-card {
   background: rgba(30, 41, 59, 0.4);
   backdrop-filter: blur(20px);
   border: 1px solid rgba(148, 163, 184, 0.1);
   border-radius: 16px;
-  padding: 1.5rem;
   transition: all var(--transition-normal);
   position: relative;
   overflow: hidden;
-  cursor: pointer;
 }
 
-.stock-card:hover {
+.neon-card:hover {
   background: rgba(30, 41, 59, 0.6);
   border-color: rgba(0, 255, 208, 0.3);
   transform: translateY(-2px);

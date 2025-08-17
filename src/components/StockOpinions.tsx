@@ -44,19 +44,19 @@ export function StockOpinions({
 
   const getSentimentIcon = (sentiment: string) => {
     switch (sentiment) {
-      case 'bullish': return <TrendingUp className="w-4 h-4 text-green-600" />;
-      case 'bearish': return <TrendingDown className="w-4 h-4 text-red-600" />;
-      case 'neutral': return <Minus className="w-4 h-4 text-gray-600" />;
+      case 'bullish': return <TrendingUp className="w-4 h-4 text-success" />;
+      case 'bearish': return <TrendingDown className="w-4 h-4 text-danger" />;
+      case 'neutral': return <Minus className="w-4 h-4 text-secondary" />;
       default: return null;
     }
   };
 
   const getSentimentColor = (sentiment: string) => {
     switch (sentiment) {
-      case 'bullish': return 'text-green-600 bg-green-50 border-green-200';
-      case 'bearish': return 'text-red-600 bg-red-50 border-red-200';
-      case 'neutral': return 'text-gray-600 bg-gray-50 border-gray-200';
-      default: return 'text-gray-600 bg-gray-50 border-gray-200';
+      case 'bullish': return 'text-success bg-success/20 border-success';
+      case 'bearish': return 'text-danger bg-danger/20 border-danger';
+      case 'neutral': return 'text-text-secondary bg-surface border-border';
+      default: return 'text-text-secondary bg-surface border-border';
     }
   };
 
@@ -72,10 +72,10 @@ export function StockOpinions({
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       {/* 添加观点按钮 */}
       <div className="flex justify-between items-center">
-        <h3 className="text-lg font-medium text-gray-900">观点追踪</h3>
+        <h3 className="text-xl font-bold text-text-primary">观点追踪</h3>
         <Button
           onClick={() => setShowAddForm(true)}
           className="flex items-center space-x-2"
@@ -88,144 +88,138 @@ export function StockOpinions({
       {/* 观点列表 */}
       <div className="space-y-4">
         {opinions.length === 0 ? (
-          <Card>
-            <CardContent className="p-8 text-center">
-              <MessageSquare className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-              <p className="text-gray-500 mb-4">暂无观点记录</p>
-              <Button
-                onClick={() => setShowAddForm(true)}
-                variant="ghost"
-                className="text-primary"
-              >
-                添加第一个观点
-              </Button>
-            </CardContent>
-          </Card>
+          <div className="text-center py-12">
+            <MessageSquare className="w-12 h-12 text-text-secondary mx-auto mb-4" />
+            <p className="text-text-secondary mb-4">暂无观点记录</p>
+            <Button
+              onClick={() => setShowAddForm(true)}
+              variant="outline"
+            >
+              添加第一个观点
+            </Button>
+          </div>
         ) : (
           opinions.map((opinion) => (
-            <Card key={opinion.id} className="border-l-4 border-l-blue-500">
-              <CardHeader className="pb-3">
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <div className="flex items-center space-x-2 mb-2">
-                      {getSentimentIcon(opinion.sentiment)}
-                      <span className={`px-2 py-1 rounded-full text-xs border ${getSentimentColor(opinion.sentiment)}`}>
-                        {opinion.sentiment === 'bullish' ? '看涨' : 
-                         opinion.sentiment === 'bearish' ? '看跌' : '中性'}
-                      </span>
-                      <span className="text-sm text-gray-500">
-                        来源: {opinion.source}
-                      </span>
-                    </div>
-                    <CardTitle className="text-lg">{opinion.title}</CardTitle>
-                    <div className="flex items-center space-x-4 text-sm text-gray-600 mt-2">
-                      <div className="flex items-center space-x-1">
-                        <User className="w-4 h-4" />
-                        <span>{opinion.author}</span>
-                      </div>
-                      <div className="flex items-center space-x-1">
-                        <Calendar className="w-4 h-4" />
-                        <span>{opinion.createdAt.toLocaleDateString()}</span>
-                      </div>
-                      {opinion.timeframe && (
-                        <div className="flex items-center space-x-1">
-                          <Clock className="w-4 h-4" />
-                          <span>{opinion.timeframe}</span>
-                        </div>
-                      )}
-                    </div>
+            <div key={opinion.id} className="border-l-4 border-l-blue-500 bg-surface/40 backdrop-blur-sm border border-border/50 rounded-lg p-6 hover:bg-surface/60 transition-all duration-200">
+              <div className="flex items-start justify-between mb-4">
+                <div className="flex-1">
+                  <div className="flex items-center space-x-2 mb-2">
+                    {getSentimentIcon(opinion.sentiment)}
+                    <span className={`px-2 py-1 rounded-full text-xs border ${getSentimentColor(opinion.sentiment)}`}>
+                      {opinion.sentiment === 'bullish' ? '看涨' : 
+                       opinion.sentiment === 'bearish' ? '看跌' : '中性'}
+                    </span>
+                    <span className="text-sm text-text-secondary">
+                      来源: {opinion.source}
+                    </span>
                   </div>
-                  <div className="flex items-center space-x-2">
-                    <Button
-                      onClick={() => setEditingOpinion(opinion)}
-                      variant="ghost"
-                      size="sm"
-                      className="p-2"
-                      title="编辑"
-                    >
-                      <Edit3 className="w-4 h-4" />
-                    </Button>
-                    <Button
-                      onClick={() => onDeleteOpinion(opinion.id)}
-                      variant="ghost"
-                      size="sm"
-                      className="p-2 text-danger hover:text-danger-dark"
-                      title="删除"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </Button>
+                  <h3 className="text-lg font-semibold text-text-primary">{opinion.title}</h3>
+                  <div className="flex items-center space-x-4 text-sm text-text-secondary mt-2">
+                    <div className="flex items-center space-x-1">
+                      <User className="w-4 h-4" />
+                      <span>{opinion.author}</span>
+                    </div>
+                    <div className="flex items-center space-x-1">
+                      <Calendar className="w-4 h-4" />
+                      <span>{opinion.createdAt.toLocaleDateString()}</span>
+                    </div>
+                    {opinion.timeframe && (
+                      <div className="flex items-center space-x-1">
+                        <Clock className="w-4 h-4" />
+                        <span>{opinion.timeframe}</span>
+                      </div>
+                    )}
                   </div>
                 </div>
-              </CardHeader>
-              <CardContent>
-                <p className="text-gray-700 mb-4">{opinion.content}</p>
-                
-                {/* 价格预期 */}
-                {(opinion.targetPrice || opinion.stopLoss) && (
-                  <div className="grid grid-cols-2 gap-4 mb-4 p-3 bg-gray-50 rounded-lg">
-                    {opinion.targetPrice && (
-                      <div className="flex items-center space-x-2">
-                        <Target className="w-4 h-4 text-green-600" />
-                        <span className="text-sm">目标价: ${opinion.targetPrice}</span>
-                      </div>
-                    )}
-                    {opinion.stopLoss && (
-                      <div className="flex items-center space-x-2">
-                        <Shield className="w-4 h-4 text-red-600" />
-                        <span className="text-sm">止损价: ${opinion.stopLoss}</span>
-                      </div>
-                    )}
-                  </div>
-                )}
-
-                {/* 技术面分析 */}
-                {opinion.technicalAnalysis && (
-                  <div className="mb-4 p-3 bg-blue-50 rounded-lg">
-                    <h4 className="font-medium text-blue-900 mb-2">技术面分析</h4>
-                    <p className="text-sm text-blue-800 mb-2">{opinion.technicalAnalysis.trend}</p>
-                    {opinion.technicalAnalysis.support.length > 0 && (
-                      <p className="text-sm text-blue-700">
-                        支撑位: {opinion.technicalAnalysis.support.join(', ')}
-                      </p>
-                    )}
-                    {opinion.technicalAnalysis.resistance.length > 0 && (
-                      <p className="text-sm text-blue-700">
-                        阻力位: {opinion.technicalAnalysis.resistance.join(', ')}
-                      </p>
-                    )}
-                  </div>
-                )}
-
-                {/* 基本面分析 */}
-                {opinion.fundamentalAnalysis && (
-                  <div className="mb-4 p-3 bg-green-50 rounded-lg">
-                    <h4 className="font-medium text-green-900 mb-2">基本面分析</h4>
-                    <p className="text-sm text-green-800 mb-2">{opinion.fundamentalAnalysis.valuation}</p>
-                    <p className="text-sm text-green-800">{opinion.fundamentalAnalysis.growth}</p>
-                  </div>
-                )}
-
-                {/* 标签和信心度 */}
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-2">
-                    {opinion.tags.map((tag, index) => (
-                      <span
-                        key={index}
-                        className="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded-full"
-                      >
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
-                  <div className="flex items-center space-x-1">
-                    <span className="text-sm text-gray-600">信心度:</span>
-                    <div className="flex space-x-1">
-                      {getConfidenceStars(opinion.confidence)}
+                <div className="flex items-center space-x-2">
+                  <Button
+                    onClick={() => setEditingOpinion(opinion)}
+                    variant="ghost"
+                    size="sm"
+                    className="p-2"
+                    title="编辑"
+                  >
+                    <Edit3 className="w-4 h-4" />
+                  </Button>
+                  <Button
+                    onClick={() => onDeleteOpinion(opinion.id)}
+                    variant="danger"
+                    size="sm"
+                    className="p-2"
+                    title="删除"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </Button>
+                </div>
+              </div>
+              
+              <p className="text-text-primary mb-4">{opinion.content}</p>
+              
+              {/* 价格预期 */}
+              {(opinion.targetPrice || opinion.stopLoss) && (
+                <div className="grid grid-cols-2 gap-4 mb-4 p-3 bg-surface/60 rounded-lg border border-border/30">
+                  {opinion.targetPrice && (
+                    <div className="flex items-center space-x-2">
+                      <Target className="w-4 h-4 text-success" />
+                      <span className="text-sm text-text-primary">目标价: ${opinion.targetPrice}</span>
                     </div>
+                  )}
+                  {opinion.stopLoss && (
+                    <div className="flex items-center space-x-2">
+                      <Shield className="w-4 h-4 text-danger" />
+                      <span className="text-sm text-text-primary">止损价: ${opinion.stopLoss}</span>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* 技术面分析 */}
+              {opinion.technicalAnalysis && (
+                <div className="mb-4 p-3 bg-surface/60 rounded-lg border border-primary/20">
+                  <h4 className="font-medium text-primary mb-2">技术面分析</h4>
+                  <p className="text-sm text-text-primary mb-2">{opinion.technicalAnalysis.trend}</p>
+                  {opinion.technicalAnalysis.support.length > 0 && (
+                    <p className="text-sm text-text-secondary">
+                      支撑位: {opinion.technicalAnalysis.support.join(', ')}
+                    </p>
+                  )}
+                  {opinion.technicalAnalysis.resistance.length > 0 && (
+                    <p className="text-sm text-text-secondary">
+                      阻力位: {opinion.technicalAnalysis.resistance.join(', ')}
+                    </p>
+                  )}
+                </div>
+              )}
+
+              {/* 基本面分析 */}
+              {opinion.fundamentalAnalysis && (
+                <div className="mb-4 p-3 bg-surface/60 rounded-lg border border-success/20">
+                  <h4 className="font-medium text-success mb-2">基本面分析</h4>
+                  <p className="text-sm text-text-primary mb-2">{opinion.fundamentalAnalysis.valuation}</p>
+                  <p className="text-sm text-text-primary">{opinion.fundamentalAnalysis.growth}</p>
+                </div>
+              )}
+
+              {/* 标签和信心度 */}
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-2">
+                  {opinion.tags.map((tag, index) => (
+                    <span
+                      key={index}
+                      className="px-2 py-1 bg-surface/60 text-text-secondary text-xs rounded-full border border-border/30"
+                    >
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+                <div className="flex items-center space-x-1">
+                  <span className="text-sm text-text-secondary">信心度:</span>
+                  <div className="flex space-x-1">
+                    {getConfidenceStars(opinion.confidence)}
                   </div>
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
           ))
         )}
       </div>
@@ -296,9 +290,9 @@ function OpinionForm({
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-        <h2 className="text-xl font-bold text-gray-900 mb-4">
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
+      <div className="bg-surface/95 backdrop-blur-lg rounded-xl p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto border border-border/50 shadow-2xl">
+        <h2 className="text-xl font-bold text-text-primary mb-4">
           {opinion ? '编辑观点' : '添加观点'}
         </h2>
 
@@ -306,7 +300,7 @@ function OpinionForm({
           {/* 基础信息 */}
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-text-primary mb-2">
                 观点来源
               </label>
               <Input
@@ -318,7 +312,7 @@ function OpinionForm({
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-text-primary mb-2">
                 作者/分析师
               </label>
               <Input
@@ -333,7 +327,7 @@ function OpinionForm({
 
           {/* 观点标题 */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-text-primary mb-2">
               观点标题
             </label>
             <Input
@@ -347,7 +341,7 @@ function OpinionForm({
 
           {/* 观点内容 */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-text-primary mb-2">
               详细内容
             </label>
             <Textarea
@@ -362,7 +356,7 @@ function OpinionForm({
           {/* 观点类型和情绪 */}
           <div className="grid grid-cols-3 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-text-primary mb-2">
                 观点类型
               </label>
               <Select
@@ -375,7 +369,7 @@ function OpinionForm({
               </Select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-text-primary mb-2">
                 观点倾向
               </label>
               <Select
@@ -388,7 +382,7 @@ function OpinionForm({
               </Select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-text-primary mb-2">
                 时间框架
               </label>
               <Input
@@ -403,7 +397,7 @@ function OpinionForm({
           {/* 价格预期 */}
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-text-primary mb-2">
                 目标价
               </label>
               <Input
@@ -415,7 +409,7 @@ function OpinionForm({
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-text-primary mb-2">
                 止损价
               </label>
               <Input
@@ -431,7 +425,7 @@ function OpinionForm({
           {/* 标签和信心度 */}
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-text-primary mb-2">
                 标签 (用逗号分隔)
               </label>
               <Input
@@ -442,7 +436,7 @@ function OpinionForm({
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-text-primary mb-2">
                 信心度 (1-10)
               </label>
               <Input
@@ -452,7 +446,7 @@ function OpinionForm({
                 value={formData.confidence}
                 onChange={(e) => setFormData({...formData, confidence: Number(e.target.value)})}
               />
-              <div className="text-center text-sm text-gray-600 mt-1">
+              <div className="text-center text-sm text-text-secondary mt-1">
                 {formData.confidence}/10
               </div>
             </div>

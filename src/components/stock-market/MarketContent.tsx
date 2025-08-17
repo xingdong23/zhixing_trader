@@ -83,7 +83,7 @@ class TabErrorBoundary extends React.Component<
     if (this.state.hasError) {
       return (
         <div className="p-8 text-center">
-          <div className="card">
+          <div className="card p-6">
             <h3 className="text-lg font-semibold text-[#ef4444] mb-2">
               标签页加载失败
             </h3>

@@ -46,7 +46,7 @@ function StatCard({ icon: Icon, value, label, color = 'primary', isLoading }: St
   };
 
   return (
-    <div className="card neon-border hover:border-primary/50 transition-all duration-300 group">
+    <div className="card neon-border hover:border-primary/50 transition-all duration-300 group p-6">
       <div className="flex items-center justify-between mb-4">
         <div className={`w-12 h-12 rounded-lg ${bgClasses[color]} flex items-center justify-center group-hover:scale-110 transition-transform duration-200`}>
           <Icon className={`w-6 h-6 ${colorClasses[color]}`} />
@@ -150,7 +150,7 @@ export function MarketOverview({ stats, isLoading = false, onRefresh }: MarketOv
       </div>
       
       {/* 快速洞察面板 */}
-      <div className="card glass-effect">
+      <div className="card glass-effect p-6">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-lg font-semibold text-primary">快速洞察</h3>
           <div className="flex items-center space-x-2">

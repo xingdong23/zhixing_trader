@@ -57,9 +57,9 @@ function OpinionCard({
 }) {
   const getSentimentIcon = (sentiment: string) => {
     switch (sentiment) {
-      case 'bullish': return <TrendingUp className="w-4 h-4 text-green-500" />;
-      case 'bearish': return <TrendingDown className="w-4 h-4 text-red-500" />;
-      case 'neutral': return <Minus className="w-4 h-4 text-gray-500" />;
+      case 'bullish': return <TrendingUp className="w-4 h-4 text-success" />;
+      case 'bearish': return <TrendingDown className="w-4 h-4 text-danger" />;
+      case 'neutral': return <Minus className="w-4 h-4 text-secondary" />;
       default: return null;
     }
   };
@@ -75,23 +75,23 @@ function OpinionCard({
 
   const getSentimentColor = (sentiment: string) => {
     switch (sentiment) {
-      case 'bullish': return 'text-green-600 bg-green-50 border-green-200';
-      case 'bearish': return 'text-red-600 bg-red-50 border-red-200';
-      case 'neutral': return 'text-gray-600 bg-gray-50 border-gray-200';
-      default: return 'text-gray-600 bg-gray-50 border-gray-200';
+      case 'bullish': return 'text-success bg-success/10 border-success/20';
+      case 'bearish': return 'text-danger bg-danger/10 border-danger/20';
+      case 'neutral': return 'text-secondary bg-secondary/10 border-secondary/20';
+      default: return 'text-secondary bg-secondary/10 border-secondary/20';
     }
   };
 
   const getPriceGuidanceIcon = (type: PriceGuidanceType) => {
     switch (type) {
-      case PriceGuidanceType.BUY_POINT: return <TrendingUp className="w-3 h-3 text-green-500" />;
-      case PriceGuidanceType.SELL_POINT: return <TrendingDown className="w-3 h-3 text-red-500" />;
-      case PriceGuidanceType.STOP_LOSS: return <Shield className="w-3 h-3 text-red-500" />;
-      case PriceGuidanceType.TAKE_PROFIT: return <Target className="w-3 h-3 text-green-500" />;
-      case PriceGuidanceType.SUPPORT_LEVEL: return <TrendingUp className="w-3 h-3 text-blue-500" />;
-      case PriceGuidanceType.RESISTANCE_LEVEL: return <TrendingDown className="w-3 h-3 text-orange-500" />;
-      case PriceGuidanceType.TARGET_PRICE: return <DollarSign className="w-3 h-3 text-purple-500" />;
-      default: return <DollarSign className="w-3 h-3 text-gray-500" />;
+      case PriceGuidanceType.BUY_POINT: return <TrendingUp className="w-3 h-3 text-success" />;
+      case PriceGuidanceType.SELL_POINT: return <TrendingDown className="w-3 h-3 text-danger" />;
+      case PriceGuidanceType.STOP_LOSS: return <Shield className="w-3 h-3 text-danger" />;
+      case PriceGuidanceType.TAKE_PROFIT: return <Target className="w-3 h-3 text-success" />;
+      case PriceGuidanceType.SUPPORT_LEVEL: return <TrendingUp className="w-3 h-3 text-info" />;
+      case PriceGuidanceType.RESISTANCE_LEVEL: return <TrendingDown className="w-3 h-3 text-warning" />;
+      case PriceGuidanceType.TARGET_PRICE: return <DollarSign className="w-3 h-3 text-accent" />;
+      default: return <DollarSign className="w-3 h-3 text-secondary" />;
     }
   };
 
@@ -110,10 +110,10 @@ function OpinionCard({
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
-      case 'high': return 'text-red-600 bg-red-50';
-      case 'medium': return 'text-yellow-600 bg-yellow-50';
-      case 'low': return 'text-gray-600 bg-gray-50';
-      default: return 'text-gray-600 bg-gray-50';
+      case 'high': return 'text-danger bg-danger/10';
+      case 'medium': return 'text-warning bg-warning/10';
+      case 'low': return 'text-secondary bg-secondary/10';
+      default: return 'text-secondary bg-secondary/10';
     }
   };
 
@@ -126,17 +126,17 @@ function OpinionCard({
             <div className="flex items-center space-x-3 mb-2">
               {expert && (
                 <div className="flex items-center space-x-2">
-                  <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                    <User className="w-4 h-4 text-blue-600" />
+                  <div className="w-8 h-8 bg-info/10 rounded-full flex items-center justify-center">
+                    <User className="w-4 h-4 text-info" />
                   </div>
                   <div>
-                    <p className="font-medium text-gray-900 text-sm">{expert.name}</p>
+                    <p className="font-medium text-text-primary text-sm">{expert.name}</p>
                     {expert.title && (
-                      <p className="text-xs text-gray-500">{expert.title}</p>
+                      <p className="text-xs text-text-muted">{expert.title}</p>
                     )}
                   </div>
                   {expert.isVerified && (
-                    <Award className="w-4 h-4 text-blue-500" />
+                    <Award className="w-4 h-4 text-accent" />
                   )}
                 </div>
               )}
@@ -153,7 +153,7 @@ function OpinionCard({
               </span>
             </div>
 
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">{opinion.title}</h3>
+            <h3 className="text-lg font-semibold text-text-primary mb-2">{opinion.title}</h3>
           </div>
 
           {/* 右侧：操作按钮 */}
@@ -162,8 +162,8 @@ function OpinionCard({
               onClick={onToggleBookmark}
               className={`p-2 rounded-lg transition-colors ${
                 opinion.isBookmarked
-                  ? 'text-orange-600 bg-orange-50 hover:bg-orange-100'
-                  : 'text-gray-400 hover:text-orange-600 hover:bg-orange-50'
+                  ? 'text-accent bg-accent/10 hover:bg-accent/20'
+                  : 'text-text-muted hover:text-accent hover:bg-accent/10'
               }`}
               title={opinion.isBookmarked ? '取消收藏' : '收藏'}
             >
@@ -171,14 +171,14 @@ function OpinionCard({
             </button>
             <button
               onClick={onEdit}
-              className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+              className="p-2 text-text-muted hover:text-info hover:bg-info/10 rounded-lg transition-colors"
               title="编辑"
             >
               <Edit3 className="w-4 h-4" />
             </button>
             <button
               onClick={onDelete}
-              className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+              className="p-2 text-text-muted hover:text-danger hover:bg-danger/10 rounded-lg transition-colors"
               title="删除"
             >
               <Trash2 className="w-4 h-4" />
@@ -188,29 +188,29 @@ function OpinionCard({
 
         {/* 意见内容 */}
         <div className="mb-4">
-          <p className="text-gray-700 leading-relaxed">{opinion.content}</p>
+          <p className="text-text-secondary leading-relaxed">{opinion.content}</p>
         </div>
 
         {/* 价格指导 */}
         {opinion.priceGuidances.length > 0 && (
           <div className="mb-4">
-            <h4 className="text-sm font-medium text-gray-900 mb-2 flex items-center">
-              <Target className="w-4 h-4 mr-1 text-blue-500" />
+            <h4 className="text-sm font-medium text-text-primary mb-2 flex items-center">
+              <Target className="w-4 h-4 mr-1 text-info" />
               价格指导
             </h4>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
               {opinion.priceGuidances.map((guidance, index) => (
-                <div key={index} className="flex items-center justify-between p-2 bg-gray-50 rounded-lg">
+                <div key={index} className="flex items-center justify-between p-2 bg-surface rounded-lg">
                   <div className="flex items-center space-x-2">
                     {getPriceGuidanceIcon(guidance.type)}
-                    <span className="text-sm text-gray-700">{getPriceGuidanceLabel(guidance.type)}</span>
+                    <span className="text-sm text-text-secondary">{getPriceGuidanceLabel(guidance.type)}</span>
                   </div>
                   <div className="text-right">
-                    <p className="text-sm font-medium text-gray-900">${guidance.price}</p>
+                    <p className="text-sm font-medium text-text-primary">${guidance.price}</p>
                     <p className={`text-xs ${
-                      guidance.confidence === 'high' ? 'text-green-600' :
-                      guidance.confidence === 'medium' ? 'text-yellow-600' :
-                      'text-gray-600'
+                      guidance.confidence === 'high' ? 'text-success' :
+                      guidance.confidence === 'medium' ? 'text-warning' :
+                      'text-secondary'
                     }`}>
                       {guidance.confidence === 'high' ? '高信心' :
                        guidance.confidence === 'medium' ? '中信心' : '低信心'}
@@ -225,8 +225,8 @@ function OpinionCard({
         {/* K线图截图 */}
         {opinion.chartImages.length > 0 && (
           <div className="mb-4">
-            <h4 className="text-sm font-medium text-gray-900 mb-2 flex items-center">
-              <Image className="w-4 h-4 mr-1 text-green-500" />
+            <h4 className="text-sm font-medium text-text-primary mb-2 flex items-center">
+              <Image className="w-4 h-4 mr-1 text-success" />
               K线图分析
             </h4>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
@@ -235,7 +235,7 @@ function OpinionCard({
                   key={index}
                   src={image}
                   alt={`K线图 ${index + 1}`}
-                  className="w-full h-32 object-cover rounded-lg border border-gray-200"
+                  className="w-full h-32 object-cover rounded-lg border border"
                 />
               ))}
             </div>
@@ -249,7 +249,7 @@ function OpinionCard({
               {opinion.tags.map((tag, index) => (
                 <span
                   key={index}
-                  className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full"
+                  className="px-2 py-1 bg-info/10 text-info text-xs rounded-full"
                 >
                   {tag}
                 </span>
@@ -259,7 +259,7 @@ function OpinionCard({
         )}
 
         {/* 底部信息 */}
-        <div className="flex items-center justify-between text-sm text-gray-500 pt-4 border-t border-gray-100">
+        <div className="flex items-center justify-between text-sm text-text-muted pt-4 border-t border">
           <div className="flex items-center space-x-4">
             <div className="flex items-center space-x-1">
               <Calendar className="w-4 h-4" />
@@ -278,7 +278,7 @@ function OpinionCard({
               href={opinion.sourceUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center space-x-1 text-blue-600 hover:text-blue-700"
+              className="flex items-center space-x-1 text-info hover:text-info-light"
             >
               <span>查看原文</span>
               <ExternalLink className="w-3 h-3" />
@@ -288,8 +288,8 @@ function OpinionCard({
 
         {/* 用户备注 */}
         {opinion.userNotes && (
-          <div className="mt-3 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
-            <p className="text-sm text-yellow-800">
+          <div className="mt-3 p-3 bg-warning/10 border border-warning/20 rounded-lg">
+            <p className="text-sm text-warning">
               <strong>我的备注：</strong>{opinion.userNotes}
             </p>
           </div>

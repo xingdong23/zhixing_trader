@@ -40,9 +40,9 @@ export function StockDetail({
 
   const getWatchLevelIcon = (level: string) => {
     switch (level) {
-      case 'high': return <Star className="w-4 h-4 text-orange-500 fill-current" />;
-      case 'medium': return <Star className="w-4 h-4 text-gray-400" />;
-      case 'low': return <StarOff className="w-4 h-4 text-gray-300" />;
+      case 'high': return <Star className="w-4 h-4 text-accent fill-current" />;
+      case 'medium': return <Star className="w-4 h-4 text-text-muted" />;
+      case 'low': return <StarOff className="w-4 h-4 text-text-muted" />;
       default: return null;
     }
   };
@@ -57,8 +57,8 @@ export function StockDetail({
   };
 
   const getPriceChangeColor = (change?: number) => {
-    if (!change) return 'text-gray-500';
-    return change >= 0 ? 'text-green-600' : 'text-red-600';
+    if (!change) return 'text-text-muted';
+    return change >= 0 ? 'text-success' : 'text-danger';
   };
 
   const getPriceChangeIcon = (change?: number) => {
@@ -115,30 +115,30 @@ export function StockDetail({
   ];
 
   return (
-    <div className="max-w-7xl mx-auto p-6 space-y-6">
+    <div className="space-y-6">
       {/* 页面标题 */}
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-4">
           <button
             onClick={onBack}
-            className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
+            className="p-2 text-text-secondary hover:text-text-primary hover:bg-surface rounded-lg transition-colors"
           >
             <ArrowLeft className="w-5 h-5" />
           </button>
           <div className="flex items-center space-x-3">
             <span className="text-2xl">{getMarketFlag(stock.market)}</span>
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">
+              <h1 className="text-3xl font-bold text-text-primary">
                 {stock.symbol}
               </h1>
-              <p className="text-gray-600">{stock.name}</p>
+              <p className="text-text-secondary">{stock.name}</p>
             </div>
             {getWatchLevelIcon(stock.tags.watchLevel)}
           </div>
         </div>
         <button
           onClick={() => onCreateTradingPlan(stock)}
-          className="flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+          className="flex items-center px-6 py-3 bg-primary text-text-inverse rounded-lg hover:bg-primary-light transition-colors"
         >
           <BarChart3 className="w-5 h-5 mr-2" />
           制定交易计划
@@ -151,14 +151,14 @@ export function StockDetail({
           <CardContent className="p-6">
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
               <div>
-                <p className="text-sm text-gray-600 mb-1">当前价格</p>
-                <p className="text-3xl font-bold text-gray-900">
+                <p className="text-sm text-text-secondary mb-1">当前价格</p>
+                <p className="text-3xl font-bold text-text-primary">
                   ${stock.currentPrice.toFixed(2)}
                 </p>
               </div>
               {stock.priceChange && (
                 <div>
-                  <p className="text-sm text-gray-600 mb-1">涨跌幅</p>
+                  <p className="text-sm text-text-secondary mb-1">涨跌幅</p>
                   <div className={`flex items-center space-x-2 ${getPriceChangeColor(stock.priceChange)}`}>
                     {getPriceChangeIcon(stock.priceChange)}
                     <span className="text-xl font-bold">
@@ -174,21 +174,21 @@ export function StockDetail({
               )}
               {stock.volume && (
                 <div>
-                  <p className="text-sm text-gray-600 mb-1">成交量</p>
+                  <p className="text-sm text-text-secondary mb-1">成交量</p>
                   <div className="flex items-center space-x-2">
-                    <Volume2 className="w-4 h-4 text-gray-500" />
-                    <span className="text-xl font-bold text-gray-900">
+                    <Volume2 className="w-4 h-4 text-text-muted" />
+                    <span className="text-xl font-bold text-text-primary">
                       {(stock.volume / 1000000).toFixed(1)}M
                     </span>
                   </div>
                 </div>
               )}
               <div>
-                <p className="text-sm text-gray-600 mb-1">市值规模</p>
+                <p className="text-sm text-text-secondary mb-1">市值规模</p>
                 <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                  stock.tags.marketCap === 'large' ? 'bg-blue-100 text-blue-800' :
-                  stock.tags.marketCap === 'mid' ? 'bg-green-100 text-green-800' :
-                  'bg-orange-100 text-orange-800'
+                  stock.tags.marketCap === 'large' ? 'bg-info/10 text-info' :
+                  stock.tags.marketCap === 'mid' ? 'bg-success/10 text-success' :
+                  'bg-warning/10 text-warning'
                 }`}>
                   {stock.tags.marketCap === 'large' ? '大盘股' :
                    stock.tags.marketCap === 'mid' ? '中盘股' : '小盘股'}
@@ -200,7 +200,7 @@ export function StockDetail({
       )}
 
       {/* 标签页导航 */}
-      <div className="border-b border-gray-200">
+      <div className="border-b border">
         <nav className="flex space-x-8">
           {tabs.map(tab => {
             const Icon = tab.icon;
@@ -210,14 +210,14 @@ export function StockDetail({
                 onClick={() => setCurrentTab(tab.id as any)}
                 className={`flex items-center py-2 px-1 border-b-2 font-medium text-sm transition-colors ${
                   currentTab === tab.id
-                    ? 'border-blue-500 text-blue-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                    ? 'border-primary text-primary'
+                    : 'border-transparent text-text-muted hover:text-text-secondary hover:border'
                 }`}
               >
                 <Icon className="w-4 h-4 mr-2" />
                 {tab.label}
                 {tab.count !== undefined && tab.count > 0 && (
-                  <span className="ml-2 bg-blue-100 text-blue-600 text-xs px-2 py-1 rounded-full">
+                  <span className="ml-2 bg-primary/10 text-primary text-xs px-2 py-1 rounded-full">
                     {tab.count}
                   </span>
                 )}
@@ -228,7 +228,7 @@ export function StockDetail({
       </div>
 
       {/* 标签页内容 */}
-      <div className="mt-6">
+      <div>
         {currentTab === 'overview' && (
           <StockOverview stock={stock} onUpdateStock={onUpdateStock} />
         )}
@@ -261,40 +261,40 @@ function StockOverview({
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center">
-            <Info className="w-5 h-5 mr-2 text-blue-500" />
+            <Info className="w-5 h-5 mr-2 text-info" />
             基本信息
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <h4 className="font-medium text-gray-900 mb-3">股票信息</h4>
+              <h4 className="font-medium text-text-primary mb-3">股票信息</h4>
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between">
-                  <span className="text-gray-600">股票代码:</span>
-                  <span className="font-medium">{stock.symbol}</span>
+                  <span className="text-text-secondary">股票代码:</span>
+                  <span className="font-medium text-text-primary">{stock.symbol}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-600">股票名称:</span>
-                  <span className="font-medium">{stock.name}</span>
+                  <span className="text-text-secondary">股票名称:</span>
+                  <span className="font-medium text-text-primary">{stock.name}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-600">交易市场:</span>
-                  <span className="font-medium">
+                  <span className="text-text-secondary">交易市场:</span>
+                  <span className="font-medium text-text-primary">
                     {stock.market === 'US' ? '美股' :
                      stock.market === 'HK' ? '港股' : 'A股'}
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-600">市值规模:</span>
-                  <span className="font-medium">
+                  <span className="text-text-secondary">市值规模:</span>
+                  <span className="font-medium text-text-primary">
                     {stock.tags.marketCap === 'large' ? '大盘股' :
                      stock.tags.marketCap === 'mid' ? '中盘股' : '小盘股'}
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-600">关注程度:</span>
-                  <span className="font-medium">
+                  <span className="text-text-secondary">关注程度:</span>
+                  <span className="font-medium text-text-primary">
                     {stock.tags.watchLevel === 'high' ? '重点关注' :
                      stock.tags.watchLevel === 'medium' ? '一般关注' : '观察中'}
                   </span>
@@ -303,15 +303,15 @@ function StockOverview({
             </div>
 
             <div>
-              <h4 className="font-medium text-gray-900 mb-3">时间信息</h4>
+              <h4 className="font-medium text-text-primary mb-3">时间信息</h4>
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between">
-                  <span className="text-gray-600">添加时间:</span>
-                  <span className="font-medium">{stock.addedAt.toLocaleDateString()}</span>
+                  <span className="text-text-secondary">添加时间:</span>
+                  <span className="font-medium text-text-primary">{stock.addedAt.toLocaleDateString()}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-600">更新时间:</span>
-                  <span className="font-medium">{stock.updatedAt.toLocaleDateString()}</span>
+                  <span className="text-text-secondary">更新时间:</span>
+                  <span className="font-medium text-text-primary">{stock.updatedAt.toLocaleDateString()}</span>
                 </div>
               </div>
             </div>
@@ -323,7 +323,7 @@ function StockOverview({
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center">
-            <Tag className="w-5 h-5 mr-2 text-green-500" />
+            <Tag className="w-5 h-5 mr-2 text-success" />
             行业标签
           </CardTitle>
         </CardHeader>
@@ -332,7 +332,7 @@ function StockOverview({
             {stock.tags.industry.map((tag, index) => (
               <span
                 key={index}
-                className="px-3 py-1 bg-blue-100 text-blue-800 text-sm rounded-full"
+                className="px-3 py-1 bg-info/10 text-info text-sm rounded-full"
               >
                 {tag}
               </span>
@@ -345,7 +345,7 @@ function StockOverview({
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center">
-            <BarChart3 className="w-5 h-5 mr-2 text-purple-500" />
+            <BarChart3 className="w-5 h-5 mr-2 text-accent" />
             概念标签
           </CardTitle>
         </CardHeader>
@@ -355,13 +355,13 @@ function StockOverview({
               stock.conceptIds.map((conceptId, index) => (
                 <span
                   key={index}
-                  className="px-3 py-1 bg-purple-100 text-purple-800 text-sm rounded-full"
+                  className="px-3 py-1 bg-accent/10 text-accent text-sm rounded-full"
                 >
                   {conceptId}
                 </span>
               ))
             ) : (
-              <span className="text-gray-500 text-sm">暂无概念标签</span>
+              <span className="text-text-muted text-sm">暂无概念标签</span>
             )}
           </div>
         </CardContent>
@@ -372,12 +372,12 @@ function StockOverview({
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center">
-              <MessageSquare className="w-5 h-5 mr-2 text-orange-500" />
+              <MessageSquare className="w-5 h-5 mr-2 text-warning" />
               备注信息
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-gray-700 leading-relaxed">{stock.notes}</p>
+            <p className="text-text-secondary leading-relaxed">{stock.notes}</p>
           </CardContent>
         </Card>
       )}

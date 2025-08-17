@@ -176,12 +176,12 @@ export function SelectionStrategies({
   const handleCancelForm = () => {};
 
   return (
-    <div className="max-w-7xl mx-auto p-6 space-y-6">
+    <div className="space-y-6">
       {/* 页面标题 */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">选股策略</h1>
-          <p className="text-gray-600 mt-2">管理和运行您的选股策略，发现投资机会</p>
+          <h1 className="text-3xl font-bold text-text-primary">选股策略</h1>
+          <p className="text-text-secondary mt-2">管理和运行您的选股策略，发现投资机会</p>
         </div>
         <div className="flex space-x-3" />
       </div>
@@ -192,10 +192,10 @@ export function SelectionStrategies({
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600">总策略数</p>
-                <p className="text-2xl font-bold text-gray-900">{stats.total}</p>
+                <p className="text-sm text-text-secondary">总策略数</p>
+                <p className="text-2xl font-bold text-text-primary">{stats.total}</p>
               </div>
-              <Filter className="w-8 h-8 text-blue-500" />
+              <Filter className="w-8 h-8 text-primary" />
             </div>
           </CardContent>
         </Card>
@@ -204,10 +204,10 @@ export function SelectionStrategies({
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600">启用策略</p>
-                <p className="text-2xl font-bold text-green-600">{stats.active}</p>
+                <p className="text-sm text-text-secondary">启用策略</p>
+                <p className="text-2xl font-bold text-success">{stats.active}</p>
               </div>
-              <CheckCircle className="w-8 h-8 text-green-500" />
+              <CheckCircle className="w-8 h-8 text-success" />
             </div>
           </CardContent>
         </Card>
@@ -216,10 +216,10 @@ export function SelectionStrategies({
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600">系统预设</p>
-                <p className="text-2xl font-bold text-purple-600">{stats.systemDefault}</p>
+                <p className="text-sm text-text-secondary">系统预设</p>
+                <p className="text-2xl font-bold text-accent">{stats.systemDefault}</p>
               </div>
-              <Award className="w-8 h-8 text-purple-500" />
+              <Award className="w-8 h-8 text-accent" />
             </div>
           </CardContent>
         </Card>
@@ -228,10 +228,10 @@ export function SelectionStrategies({
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600">自定义策略</p>
-                <p className="text-2xl font-bold text-orange-600">{stats.custom}</p>
+                <p className="text-sm text-text-secondary">自定义策略</p>
+                <p className="text-2xl font-bold text-warning">{stats.custom}</p>
               </div>
-              <Edit3 className="w-8 h-8 text-orange-500" />
+              <Edit3 className="w-8 h-8 text-warning" />
             </div>
           </CardContent>
         </Card>
@@ -241,7 +241,7 @@ export function SelectionStrategies({
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center">
-            <Search className="w-5 h-5 mr-2 text-gray-500" />
+            <Search className="w-5 h-5 mr-2 text-text-muted" />
             筛选策略
           </CardTitle>
         </CardHeader>
@@ -250,12 +250,12 @@ export function SelectionStrategies({
             {/* 搜索框 */}
             <div className="flex-1">
               <div className="relative">
-                <Search className="absolute left-3 top-3 w-4 h-4 text-gray-400" />
+                <Search className="absolute left-3 top-3 w-4 h-4 text-text-muted" />
                 <input
                   type="text"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full pl-10 pr-4 py-2 border border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
                   placeholder="搜索策略名称或描述..."
                 />
               </div>
@@ -266,7 +266,7 @@ export function SelectionStrategies({
               <select
                 value={selectedCategory}
                 onChange={(e) => setSelectedCategory(e.target.value)}
-                className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full p-2 border border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
               >
                 <option value="">所有类型</option>
                 {tradingTypeOptions.map(option => (
@@ -283,7 +283,7 @@ export function SelectionStrategies({
                 setSearchTerm('');
                 setSelectedCategory('');
               }}
-              className="px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+              className="px-4 py-2 text-text-secondary border border rounded-lg hover:bg-surface transition-colors"
             >
               清除筛选
             </button>
@@ -296,8 +296,8 @@ export function SelectionStrategies({
         {Object.keys(strategiesByCategory).length === 0 ? (
           <Card>
             <CardContent className="p-12 text-center">
-              <Filter className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-              <p className="text-gray-500 mb-2">暂无匹配的策略</p>
+              <Filter className="w-12 h-12 text-text-muted mx-auto mb-4" />
+              <p className="text-text-secondary mb-2">暂无匹配的策略</p>
             </CardContent>
           </Card>
         ) : (
@@ -309,7 +309,7 @@ export function SelectionStrategies({
               <Card key={tradingType}>
                 <CardHeader>
                   <CardTitle className="flex items-center">
-                    <TypeIcon className={`w-5 h-5 mr-2 text-${typeInfo.color}-500`} />
+                    <TypeIcon className={`w-5 h-5 mr-2 text-${typeInfo.color === 'blue' ? 'primary' : typeInfo.color === 'green' ? 'success' : typeInfo.color === 'indigo' ? 'accent' : 'text-muted'}`} />
                     {typeInfo.label} ({typeStrategies.length})
                   </CardTitle>
                 </CardHeader>
@@ -365,13 +365,13 @@ function StrategyCard({
   onDelete: () => void;
 }) {
   return (
-    <div className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+    <div className="border border rounded-lg p-4 hover:shadow-md transition-shadow">
       <div className="flex items-start justify-between mb-3">
         <div className="flex-1">
           <div className="flex items-center space-x-2 mb-1">
-            <h3 className="text-lg font-semibold text-gray-900">{strategy.name}</h3>
+            <h3 className="text-lg font-semibold text-text-primary">{strategy.name}</h3>
             {strategy.isSystemDefault && (
-              <span className="bg-purple-100 text-purple-800 text-xs px-2 py-1 rounded-full">
+              <span className="bg-accent/10 text-accent text-xs px-2 py-1 rounded-full">
                 系统
               </span>
             )}
@@ -390,10 +390,10 @@ function StrategyCard({
               </button>
             </div>
           </div>
-          <p className="text-sm text-gray-600 mb-3">{strategy.description}</p>
+          <p className="text-sm text-text-secondary mb-3">{strategy.description}</p>
 
           {/* 策略条件摘要 */}
-          <div className="space-y-1 text-xs text-gray-500">
+          <div className="space-y-1 text-xs text-text-muted">
             {strategy.conditions.technical.length > 0 && (
               <div>技术条件: {strategy.conditions.technical.length} 个</div>
             )}
@@ -413,10 +413,10 @@ function StrategyCard({
             disabled={isRunning || !strategy.isActive}
             className={`px-3 py-1 text-sm rounded transition-colors ${
               isRunning
-                ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                ? 'bg-surface text-text-muted cursor-not-allowed'
                 : strategy.isActive
-                ? 'bg-blue-600 text-white hover:bg-blue-700'
-                : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                ? 'bg-primary text-text-inverse hover:bg-primary-light'
+                : 'bg-surface text-text-muted cursor-not-allowed'
             }`}
           >
             {isRunning ? '运行中…' : '运行策略'}
@@ -424,15 +424,15 @@ function StrategyCard({
 
           {isRunning && (
             <div className="mt-2 text-xs text-gray-600">
-              <div className="w-48 bg-gray-200 rounded h-2 overflow-hidden">
+              <div className="w-48 bg-surface rounded h-2 overflow-hidden">
                 <div
-                  className="bg-blue-600 h-2 transition-all"
+                  className="bg-primary h-2 transition-all"
                   style={{ width: `${progress?.percent ?? 0}%` }}
                 />
               </div>
               <div className="mt-1 flex justify-between">
-                <span>{progress?.percent ?? 0}%</span>
-                <span className="truncate max-w-[8rem]" title={progress?.current ?? ''}>
+                <span className="text-text-primary">{progress?.percent ?? 0}%</span>
+                <span className="truncate max-w-[8rem] text-text-primary" title={progress?.current ?? ''}>
                   {progress?.current ?? ''}
                 </span>
               </div>
@@ -445,41 +445,41 @@ function StrategyCard({
 
       {/* 运行结果 */}
       {results && (
-        <div className="mt-4 p-3 bg-gray-50 rounded-lg">
+        <div className="mt-4 p-3 bg-surface rounded-lg">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-sm font-medium text-gray-700">
+            <span className="text-sm font-medium text-text-primary">
               选股结果 ({results.length} 只)
             </span>
-            <span className="text-xs text-gray-500">
+            <span className="text-xs text-text-muted">
               {new Date().toLocaleTimeString()}
             </span>
           </div>
 
           {results.length === 0 ? (
-            <p className="text-sm text-gray-500">暂无符合条件的股票</p>
+            <p className="text-sm text-text-secondary">暂无符合条件的股票</p>
           ) : (
             <div className="space-y-2">
               {results.slice(0, 3).map((result, index) => (
                 <div key={index} className="flex items-center justify-between text-sm">
                   <div className="flex items-center space-x-2">
-                    <span className="font-medium">{result.stock.symbol}</span>
-                    <span className="text-gray-600">{result.stock.name}</span>
+                    <span className="font-medium text-text-primary">{result.stock.symbol}</span>
+                    <span className="text-text-secondary">{result.stock.name}</span>
                   </div>
                   <div className="flex items-center space-x-2">
                     <span className={`px-2 py-1 rounded-full text-xs ${
-                      result.confidence === 'high' ? 'bg-green-100 text-green-800' :
-                      result.confidence === 'medium' ? 'bg-yellow-100 text-yellow-800' :
-                      'bg-gray-100 text-gray-800'
+                      result.confidence === 'high' ? 'bg-success/10 text-success' :
+                      result.confidence === 'medium' ? 'bg-warning/10 text-warning' :
+                      'bg-surface text-text-muted'
                     }`}>
                       {result.confidence === 'high' ? '高' :
                        result.confidence === 'medium' ? '中' : '低'}
                     </span>
-                    <span className="text-gray-500">{result.score}/100</span>
+                    <span className="text-text-muted">{result.score}/100</span>
                   </div>
                 </div>
               ))}
               {results.length > 3 && (
-                <p className="text-xs text-gray-500 text-center">
+                <p className="text-xs text-text-muted text-center">
                   还有 {results.length - 3} 只股票...
                 </p>
               )}

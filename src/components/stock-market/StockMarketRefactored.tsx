@@ -35,6 +35,12 @@ export function StockMarketRefactored({
   const { state, actions } = useMarketData();
   const { stocks, strategies, isLoading, error, page, pageSize, total, totalPages } = state;
   
+  // 调试信息
+  console.log('🎯 StockMarketRefactored: stocks数据:', stocks);
+  console.log('🎯 StockMarketRefactored: stocks数量:', stocks.length);
+  console.log('🎯 StockMarketRefactored: isLoading:', isLoading);
+  console.log('🎯 StockMarketRefactored: error:', error);
+  
   // 计算统计信息
   const stats = useMemo(() => {
     return {
@@ -113,7 +119,7 @@ export function StockMarketRefactored({
     <div className={`space-y-6 ${className}`}>
       {/* 错误提示 */}
       {error && (
-        <div className="card neon-border border-danger/30 bg-danger/5">
+        <div className="card neon-border border-danger/30 bg-danger/5 p-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
               <div className="w-4 h-4 bg-danger rounded-full animate-pulse"></div>

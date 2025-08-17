@@ -12,7 +12,7 @@ export function Card({ children, className, onClick, hover = false }: CardProps)
   return (
     <div
       className={cn(
-        'card',
+        'card p-6',
         hover && 'hover:shadow-lg hover:transform hover:scale-[1.02] transition-all duration-200',
         onClick && 'cursor-pointer',
         className
@@ -30,7 +30,7 @@ export interface CardHeaderProps {
 }
 
 export function CardHeader({ children, className }: CardHeaderProps) {
-  return <div className={cn('flex items-center justify-between pb-4 mb-4 border-b', className)}>{children}</div>
+  return <div className={cn('flex items-center justify-between pb-4 mb-4 border-b border-[rgba(148,163,184,0.1)]', className)}>{children}</div>
 }
 
 export interface CardContentProps {
