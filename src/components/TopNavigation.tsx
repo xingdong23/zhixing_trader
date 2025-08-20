@@ -207,7 +207,7 @@ export function TopNavigation({
         )}
 
         {/* 右侧主内容区域 */}
-        <div className="flex-1 flex flex-col overflow-hidden lg:ml-[280px]">
+        <div className="flex-1 flex flex-col overflow-hidden ml-0 lg:ml-[280px]">
         {/* 顶部状态栏 */}
         <div className="h-12 bg-background/60 border-b border flex items-center justify-between px-4 md:px-6 lg:pl-6">
           <div className="flex items-center space-x-4">

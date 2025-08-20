@@ -3,7 +3,88 @@
 /* 字体预加载 */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
 
-/* 字体显示优化 */
+/* ==================== 统一设计系统 ==================== */
+
+/* 样式重置和统一样式变量 */
+:root {
+  /* 统一色彩系统 */
+  --color-primary: #00ffd0;
+  --color-primary-light: #7fffd4;
+  --color-primary-dark: #00a085;
+  
+  --color-secondary: #3b82f6;
+  --color-secondary-light: #60a5fa;
+  --color-secondary-dark: #2563eb;
+  
+  --color-success: #10b981;
+  --color-success-light: #34d399;
+  --color-success-dark: #059669;
+  
+  --color-warning: #f59e0b;
+  --color-warning-light: #fbbf24;
+  --color-warning-dark: #d97706;
+  
+  --color-danger: #ef4444;
+  --color-danger-light: #f87171;
+  --color-danger-dark: #dc2626;
+  
+  --color-info: #3b82f6;
+  --color-info-light: #60a5fa;
+  --color-info-dark: #2563eb;
+  
+  /* 中性色彩 */
+  --color-white: #ffffff;
+  --color-slate-50: #f8fafc;
+  --color-slate-100: #f1f5f9;
+  --color-slate-200: #e2e8f0;
+  --color-slate-300: #cbd5e1;
+  --color-slate-400: #94a3b8;
+  --color-slate-500: #64748b;
+  --color-slate-600: #475569;
+  --color-slate-700: #334155;
+  --color-slate-800: #1e293b;
+  --color-slate-900: #0f172a;
+  --color-slate-950: #020617;
+  
+  /* 背景和表面 */
+  --bg-primary: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+  --bg-surface: rgba(30, 41, 59, 0.8);
+  --bg-surface-light: rgba(30, 41, 59, 0.6);
+  --bg-card: rgba(30, 41, 59, 0.5);
+  
+  /* 边框和分割线 */
+  --border-primary: rgba(148, 163, 184, 0.2);
+  --border-secondary: rgba(148, 163, 184, 0.1);
+  --border-accent: rgba(0, 255, 208, 0.3);
+  
+  /* 阴影 */
+  --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+  --shadow-glow: 0 0 20px rgba(0, 255, 208, 0.2);
+  
+  /* 圆角 */
+  --radius-sm: 0.375rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+  --radius-2xl: 1.5rem;
+  
+  /* 间距 */
+  --spacing-xs: 0.5rem;
+  --spacing-sm: 0.75rem;
+  --spacing-md: 1rem;
+  --spacing-lg: 1.5rem;
+  --spacing-xl: 2rem;
+  --spacing-2xl: 3rem;
+  
+  /* 动画 */
+  --transition-fast: 150ms;
+  --transition-normal: 200ms;
+  --transition-slow: 300ms;
+}
+
+/* 基础样式重置 */
 .font-sans {
   font-family: 'Inter', 'SF Pro Display', 'Segoe UI', 'Roboto', sans-serif;
   font-feature-settings: "cv02", "cv03", "cv04", "cv11";
@@ -107,16 +188,16 @@
 
 /* 基础样式 */
 body {
-  background: linear-gradient(135deg, var(--background) 0%, var(--surface-dark) 100%);
-  color: var(--text-primary);
-  font-family: var(--font-sans);
+  background: var(--bg-primary);
+  color: var(--color-white);
+  font-family: 'Inter', 'SF Pro Display', 'Segoe UI', 'Roboto', sans-serif;
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overflow-x: hidden;
   
   /* 字体加载优化 */
-  font-display: var(--font-display);
+  font-display: swap;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
 }
@@ -659,6 +740,156 @@ tr:hover {
   .mobile-full-width {
     width: 100%;
   }
+}
+
+/* ==================== 统一工具类 ==================== */
+
+/* 统一卡片样式 */
+.card-unified {
+  background: var(--bg-card);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--border-primary);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-md);
+  transition: all var(--transition-normal);
+}
+
+.card-unified:hover {
+  background: var(--bg-surface);
+  border-color: var(--border-accent);
+  box-shadow: var(--shadow-lg);
+  transform: translateY(-2px);
+}
+
+/* 统一按钮样式 */
+.btn-unified {
+  padding: 0.75rem 1.5rem;
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  font-size: 0.875rem;
+  transition: all var(--transition-normal);
+  border: 1px solid transparent;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.btn-unified-primary {
+  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-dark));
+  color: var(--color-slate-900);
+  box-shadow: 0 4px 12px rgba(0, 255, 208, 0.3);
+}
+
+.btn-unified-primary:hover {
+  background: linear-gradient(135deg, var(--color-primary-light), var(--color-primary));
+  box-shadow: 0 6px 20px rgba(0, 255, 208, 0.4);
+  transform: translateY(-2px);
+}
+
+.btn-unified-secondary {
+  background: var(--bg-surface);
+  color: var(--color-white);
+  border-color: var(--border-primary);
+  box-shadow: var(--shadow-sm);
+}
+
+.btn-unified-secondary:hover {
+  background: var(--bg-surface-light);
+  border-color: var(--color-primary);
+  box-shadow: 0 4px 12px rgba(0, 255, 208, 0.2);
+  transform: translateY(-1px);
+}
+
+/* 统一输入框样式 */
+.input-unified {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-primary);
+  border-radius: var(--radius-md);
+  color: var(--color-white);
+  font-size: 0.875rem;
+  transition: all var(--transition-normal);
+}
+
+.input-unified:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(0, 255, 208, 0.1);
+}
+
+.input-unified::placeholder {
+  color: var(--color-slate-400);
+}
+
+/* 统一状态标签 */
+.status-unified {
+  display: inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium border;
+}
+
+.status-unified-success {
+  background: rgba(16, 185, 129, 0.2);
+  color: var(--color-success);
+  border-color: rgba(16, 185, 129, 0.3);
+}
+
+.status-unified-warning {
+  background: rgba(245, 158, 11, 0.2);
+  color: var(--color-warning);
+  border-color: rgba(245, 158, 11, 0.3);
+}
+
+.status-unified-danger {
+  background: rgba(239, 68, 68, 0.2);
+  color: var(--color-danger);
+  border-color: rgba(239, 68, 68, 0.3);
+}
+
+.status-unified-info {
+  background: rgba(59, 130, 246, 0.2);
+  color: var(--color-info);
+  border-color: rgba(59, 130, 246, 0.3);
+}
+
+/* 统一表格样式 */
+.table-unified {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  background: var(--bg-card);
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  box-shadow: var(--shadow-md);
+}
+
+.table-unified th {
+  background: var(--bg-surface);
+  color: var(--color-slate-300);
+  font-weight: 600;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 1rem;
+  text-align: left;
+  border-bottom: 1px solid var(--border-primary);
+}
+
+.table-unified td {
+  padding: 1rem;
+  color: var(--color-white);
+  border-bottom: 1px solid var(--border-secondary);
+}
+
+.table-unified tr:hover {
+  background: var(--bg-surface-light);
+}
+
+.table-unified tr:last-child td {
+  border-bottom: none;
 }
 
 /* ==================== 设计系统扩展样式 ==================== */

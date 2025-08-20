@@ -5,177 +5,7 @@
 
 import React from 'react';
 import { cn } from '@/utils/cn';
-
-
-
-// ==================== 输入框组件 ====================
-
-interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
-  label?: string;
-  error?: string;
-  helperText?: string;
-  leftIcon?: React.ReactNode;
-  rightIcon?: React.ReactNode;
-}
-
-export const Input: React.FC<InputProps> = ({
-  label,
-  error,
-  helperText,
-  leftIcon,
-  rightIcon,
-  className,
-  ...props
-}) => {
-  return (
-    <div className="space-y-2">
-      {label && (
-        <label className="block text-sm font-medium text-text-primary">
-          {label}
-        </label>
-      )}
-      
-      <div className="relative">
-        {leftIcon && (
-          <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-text-muted">
-            {leftIcon}
-          </div>
-        )}
-        
-        <input
-          className={cn(
-            'w-full p-3 border border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent',
-            'bg-surface text-text-primary placeholder:text-text-muted',
-            leftIcon && 'pl-10',
-            rightIcon && 'pr-10',
-            error && 'border-danger focus:ring-danger',
-            className
-          )}
-          {...props}
-        />
-        
-        {rightIcon && (
-          <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-text-muted">
-            {rightIcon}
-          </div>
-        )}
-      </div>
-      
-      {(error || helperText) && (
-        <p className={cn('text-sm', error ? 'text-danger' : 'text-text-muted')}>
-          {error || helperText}
-        </p>
-      )}
-    </div>
-  );
-};
-
-// ==================== 选择框组件 ====================
-
-interface SelectProps extends React.SelectHTMLAttributes<HTMLSelectElement> {
-  label?: string;
-  error?: string;
-  helperText?: string;
-  options: { value: string; label: string }[];
-}
-
-export const Select: React.FC<SelectProps> = ({
-  label,
-  error,
-  helperText,
-  options,
-  className,
-  ...props
-}) => {
-  return (
-    <div className="space-y-2">
-      {label && (
-        <label className="block text-sm font-medium text-text-primary">
-          {label}
-        </label>
-      )}
-      
-      <select
-        className={cn(
-          'w-full p-3 border border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent',
-          'bg-surface text-text-primary',
-          error && 'border-danger focus:ring-danger',
-          className
-        )}
-        {...props}
-      >
-        {options.map((option) => (
-          <option key={option.value} value={option.value}>
-            {option.label}
-          </option>
-        ))}
-      </select>
-      
-      {(error || helperText) && (
-        <p className={cn('text-sm', error ? 'text-danger' : 'text-text-muted')}>
-          {error || helperText}
-        </p>
-      )}
-    </div>
-  );
-};
-
-// ==================== 状态标签组件 ====================
-
-interface StatusBadgeProps {
-  status: 'active' | 'inactive' | 'error' | 'warning' | 'success' | 'info' | 'updating';
-  text?: string;
-  className?: string;
-}
-
-export const StatusBadge: React.FC<StatusBadgeProps> = ({ 
-  status, 
-  text, 
-  className 
-}) => {
-  const statusConfig = {
-    active: { 
-      label: text || '活跃', 
-      className: 'bg-success/20 text-success' 
-    },
-    inactive: { 
-      label: text || '非活跃', 
-      className: 'bg-surface text-text-secondary' 
-    },
-    error: { 
-      label: text || '错误', 
-      className: 'bg-danger/20 text-danger' 
-    },
-    warning: { 
-      label: text || '警告', 
-      className: 'bg-warning/20 text-warning' 
-    },
-    success: { 
-      label: text || '成功', 
-      className: 'bg-success/20 text-success' 
-    },
-    info: { 
-      label: text || '信息', 
-      className: 'bg-info/20 text-info' 
-    },
-    updating: { 
-      label: text || '更新中', 
-      className: 'bg-info/20 text-info' 
-    }
-  };
-
-  const config = statusConfig[status];
-
-  return (
-    <span className={cn(
-      'inline-flex items-center px-2 py-1 rounded-full text-xs font-medium',
-      config.className,
-      className
-    )}>
-      {config.label}
-    </span>
-  );
-};
+import { Card, CardContent } from './Card';
 
 // ==================== 统计卡片组件 ====================
 
@@ -183,8 +13,8 @@ interface StatCardProps {
   title: string;
   value: string | number;
   change?: {
-    value: number;
     type: 'increase' | 'decrease';
+    value: number;
   };
   icon?: React.ReactNode;
   className?: string;
@@ -216,7 +46,7 @@ export const StatCard: React.FC<StatCardProps> = ({
             )}
           </div>
           {icon && (
-            <div className="p-2 bg-primary/10 rounded-lg">
+            <div className="text-primary">
               {icon}
             </div>
           )}
@@ -226,63 +56,124 @@ export const StatCard: React.FC<StatCardProps> = ({
   );
 };
 
-// ==================== 加载组件 ====================
+// ==================== 标签组件 ====================
 
-interface LoadingSpinnerProps {
+interface DesignTagProps {
+  variant?: 'default' | 'primary' | 'success' | 'warning' | 'danger';
   size?: 'sm' | 'md' | 'lg';
+  children: React.ReactNode;
   className?: string;
 }
 
-export const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({ 
-  size = 'md', 
-  className 
+export const DesignTag: React.FC<DesignTagProps> = ({
+  variant = 'default',
+  size = 'md',
+  children,
+  className
 }) => {
-  const sizeClasses = {
-    sm: 'w-4 h-4',
-    md: 'w-6 h-6',
-    lg: 'w-8 h-8'
+  const baseStyles = 'inline-flex items-center rounded-full font-medium';
+  
+  const variantStyles = {
+    default: 'bg-surface text-text-secondary border border-border',
+    primary: 'bg-primary/20 text-primary border border-primary/30',
+    success: 'bg-success/20 text-success border border-success/30',
+    warning: 'bg-warning/20 text-warning border border-warning/30',
+    danger: 'bg-danger/20 text-danger border border-danger/30'
+  };
+  
+  const sizeStyles = {
+    sm: 'px-2 py-1 text-xs',
+    md: 'px-3 py-1.5 text-sm',
+    lg: 'px-4 py-2 text-base'
   };
 
   return (
-    <div className={cn('animate-spin border-2 border-primary border-t-transparent rounded-full', sizeClasses[size], className)} />
+    <span className={cn(baseStyles, variantStyles[variant], sizeStyles[size], className)}>
+      {children}
+    </span>
   );
 };
 
-// ==================== 空状态组件 ====================
+// ==================== 徽章组件 ====================
 
-interface EmptyStateProps {
-  title: string;
-  description?: string;
-  action?: React.ReactNode;
-  icon?: React.ReactNode;
+interface DesignBadgeProps {
+  variant?: 'default' | 'primary' | 'success' | 'warning' | 'danger' | 'info';
+  children: React.ReactNode;
   className?: string;
 }
 
-export const EmptyState: React.FC<EmptyStateProps> = ({
-  title,
-  description,
-  action,
-  icon,
+export const DesignBadge: React.FC<DesignBadgeProps> = ({
+  variant = 'default',
+  children,
   className
 }) => {
+  const baseStyles = 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium';
+  
+  const variantStyles = {
+    default: 'bg-surface text-text-secondary',
+    primary: 'bg-primary/20 text-primary',
+    success: 'bg-success/20 text-success',
+    warning: 'bg-warning/20 text-warning',
+    danger: 'bg-danger/20 text-danger',
+    info: 'bg-info/20 text-info'
+  };
+
   return (
-    <div className={cn('text-center py-12', className)}>
-      {icon && (
-        <div className="mx-auto mb-4 text-text-muted">
-          {icon}
-        </div>
-      )}
-      <h3 className="text-lg font-medium text-text-primary mb-2">
-        {title}
-      </h3>
-      {description && (
-        <p className="text-text-muted mb-6">
-          {description}
-        </p>
-      )}
-      {action && (
-        <div className="mt-6">
-          {action}
+    <span className={cn(baseStyles, variantStyles[variant], className)}>
+      {children}
+    </span>
+  );
+};
+
+// ==================== 进度条组件 ====================
+
+interface DesignProgressBarProps {
+  value: number;
+  max?: number;
+  variant?: 'default' | 'primary' | 'success' | 'warning' | 'danger';
+  size?: 'sm' | 'md' | 'lg';
+  showLabel?: boolean;
+  className?: string;
+}
+
+export const DesignProgressBar: React.FC<DesignProgressBarProps> = ({
+  value,
+  max = 100,
+  variant = 'primary',
+  size = 'md',
+  showLabel = false,
+  className
+}) => {
+  const percentage = Math.min((value / max) * 100, 100);
+  
+  const baseStyles = 'w-full bg-surface rounded-full overflow-hidden';
+  
+  const sizeStyles = {
+    sm: 'h-2',
+    md: 'h-3',
+    lg: 'h-4'
+  };
+  
+  const variantStyles = {
+    default: 'bg-primary',
+    primary: 'bg-primary',
+    success: 'bg-success',
+    warning: 'bg-warning',
+    danger: 'bg-danger'
+  };
+
+  return (
+    <div className={cn(baseStyles, sizeStyles[size], className)}>
+      <div
+        className={cn(
+          'h-full rounded-full transition-all duration-300',
+          variantStyles[variant]
+        )}
+        style={{ width: `${percentage}%` }}
+      />
+      {showLabel && (
+        <div className="flex justify-center mt-1">
+          <span className="text-xs text-text-muted">{Math.round(percentage)}%</span>
         </div>
       )}
     </div>
@@ -292,15 +183,8 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
 // ==================== 导出所有组件 ====================
 
 export {
-  Button,
-  Card,
-  CardHeader,
-  CardContent,
-  CardTitle,
-  Input,
-  Select,
-  StatusBadge,
-  StatCard,
-  LoadingSpinner,
-  EmptyState
+  StatCard as Card,
+  DesignTag as Tag,
+  DesignBadge as Badge,
+  DesignProgressBar as ProgressBar
 };

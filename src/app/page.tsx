@@ -47,17 +47,23 @@ export default function Home() {
     setCurrentView('settings');
   };
 
-  // 如果显示设置页面
+  // 如果显示设置页面，也使用TopNavigation包装
   if (appState.currentView === 'settings') {
     return (
-      <SettingsPage
-        appState={appState}
-        onUpdateSettings={updateSettings}
-        onExportData={exportData}
-        onImportData={importData}
-        onClearAllData={clearAllData}
-        onBack={() => setCurrentView('dashboard')}
-      />
+      <TopNavigation
+        currentModule={currentModule}
+        onModuleChange={handleModuleChange}
+        onSettings={handleShowSettings}
+      >
+        <SettingsPage
+          appState={appState}
+          onUpdateSettings={updateSettings}
+          onExportData={exportData}
+          onImportData={importData}
+          onClearAllData={clearAllData}
+          onBack={() => setCurrentView('dashboard')}
+        />
+      </TopNavigation>
     );
   }
 

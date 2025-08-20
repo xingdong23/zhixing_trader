@@ -1,5 +1,5 @@
-// 【知行交易】股票数据列表组件
-// 显示股票数据列表，支持搜索、筛选和删除操作
+// 【知行交易】股票数据列表组件 - 重构版
+// 统一样式系统，解决样式混乱问题
 
 import React, { useState, useMemo } from 'react';
 import { Card } from '@/components/ui';
@@ -110,31 +110,31 @@ const getStatusInfo = (status: StockDataItem['status']) => {
     case 'active':
       return {
         label: '活跃',
-        className: 'bg-success/20 text-success',
+        className: 'bg-green-500/20 text-green-400 border-green-500/30',
         icon: '●',
       };
     case 'inactive':
       return {
         label: '非活跃',
-        className: 'bg-surface text-text-secondary',
+        className: 'bg-slate-700/50 text-slate-400 border-slate-600/30',
         icon: '○',
       };
     case 'error':
       return {
         label: '错误',
-        className: 'bg-danger/20 text-danger',
+        className: 'bg-red-500/20 text-red-400 border-red-500/30',
         icon: '✕',
       };
     case 'updating':
       return {
         label: '更新中',
-        className: 'bg-info/20 text-info',
+        className: 'bg-cyan-500/20 text-cyan-400 border-cyan-500/30',
         icon: '↻',
       };
     default:
       return {
         label: '未知',
-        className: 'bg-surface text-text-secondary',
+        className: 'bg-slate-700/50 text-slate-400 border-slate-600/30',
         icon: '?',
       };
   }
@@ -142,9 +142,9 @@ const getStatusInfo = (status: StockDataItem['status']) => {
 
 /** 获取质量评分颜色 */
 const getQualityScoreColor = (score: number): string => {
-  if (score >= 90) return 'text-success';
-  if (score >= 70) return 'text-warning';
-  return 'text-danger';
+  if (score >= 90) return 'text-green-400';
+  if (score >= 70) return 'text-yellow-400';
+  return 'text-red-400';
 };
 
 // ==================== 子组件 ====================
@@ -155,7 +155,7 @@ const StatusBadge: React.FC<{ status: StockDataItem['status'] }> = ({ status }) 
   
   return (
     <span className={cn(
-      'inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium',
+      'inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium border',
       statusInfo.className
     )}>
       <span className="text-xs">{statusInfo.icon}</span>
@@ -167,7 +167,7 @@ const StatusBadge: React.FC<{ status: StockDataItem['status'] }> = ({ status }) 
 /** 质量评分显示 */
 const QualityScore: React.FC<{ score?: number }> = ({ score }) => {
   if (score === undefined) {
-    return <span className="text-text-muted">--</span>;
+    return <span className="text-slate-400">--</span>;
   }
   
   const colorClass = getQualityScoreColor(score);
@@ -187,10 +187,10 @@ const DataStats: React.FC<{
 }> = ({ totalRecords, dailyRecords, hourlyRecords }) => {
   return (
     <div className="space-y-1">
-      <div className="text-sm font-medium">
+      <div className="text-sm font-medium text-white">
         总计: {formatNumber(totalRecords)}
       </div>
-      <div className="text-xs text-text-muted space-y-0.5">
+      <div className="text-xs text-slate-400 space-y-0.5">
         <div>日线: {formatNumber(dailyRecords)}</div>
         <div>小时: {formatNumber(hourlyRecords)}</div>
       </div>
@@ -219,19 +219,21 @@ const FilterControls: React.FC<{
   loading,
 }) => {
   return (
-    <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
+    <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center justify-between">
       <div className="flex flex-col sm:flex-row gap-3 flex-1">
-        <input
-          placeholder="搜索股票代码或名称..."
-          value={searchTerm}
-          onChange={(e: React.ChangeEvent<HTMLInputElement>) => onSearchChange(e.target.value)}
-          className="w-full sm:w-64 px-3 py-2 border border rounded-md"
-        />
+        <div className="relative flex-1">
+          <input
+            placeholder="搜索股票代码或名称..."
+            value={searchTerm}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => onSearchChange(e.target.value)}
+            className="w-full px-4 py-3 bg-slate-800 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all duration-200"
+          />
+        </div>
         
         <select
           value={statusFilter}
           onChange={(e: React.ChangeEvent<HTMLSelectElement>) => onStatusFilterChange(e.target.value)}
-          className="w-full sm:w-32 px-3 py-2 border border rounded-md"
+          className="px-4 py-3 bg-slate-800 border border-slate-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all duration-200 min-w-[120px]"
         >
           {STATUS_OPTIONS.map(opt => (
             <option key={opt.value} value={opt.value}>{opt.label}</option>
@@ -241,7 +243,7 @@ const FilterControls: React.FC<{
         <select
           value={industryFilter}
           onChange={(e: React.ChangeEvent<HTMLSelectElement>) => onIndustryFilterChange(e.target.value)}
-          className="w-full sm:w-32 px-3 py-2 border border rounded-md"
+          className="px-4 py-3 bg-slate-800 border border-slate-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all duration-200 min-w-[120px]"
         >
           {INDUSTRY_OPTIONS.map(opt => (
             <option key={opt.value} value={opt.value}>{opt.label}</option>
@@ -254,6 +256,7 @@ const FilterControls: React.FC<{
           variant="outline"
           size="sm"
           onClick={onRefresh}
+          className="px-4 py-3 bg-slate-800 border border-slate-600 text-white hover:bg-slate-700 hover:border-cyan-500 transition-all duration-200"
         >
           刷新
         </Button>
@@ -434,95 +437,119 @@ export const StockDataList: React.FC<StockDataListProps> = ({
   }
 
   return (
-    <div className={cn('space-y-6', className)}>
-      {/* 标题和筛选控件 */}
-      <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <h2 className="text-xl font-semibold text-text-primary">股票数据列表</h2>
-          <div className="text-sm text-text-secondary">
-            共 {filteredAndSortedData.length} 条记录
+    <div className={cn('min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-6', className)}>
+      <div className="max-w-7xl mx-auto">
+        {/* 标题和筛选控件 */}
+        <div className="mb-8">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+            <h2 className="text-2xl font-bold text-white">股票数据列表</h2>
+            <div className="text-sm text-slate-400 bg-slate-800/50 px-3 py-2 rounded-lg">
+              共 {filteredAndSortedData.length} 条记录
+            </div>
+          </div>
+          
+          <div className="bg-slate-800/50 backdrop-blur-sm border border-slate-700/50 rounded-xl p-6">
+            <FilterControls
+              searchTerm={searchTerm}
+              onSearchChange={setSearchTerm}
+              statusFilter={statusFilter}
+              onStatusFilterChange={setStatusFilter}
+              industryFilter={industryFilter}
+              onIndustryFilterChange={setIndustryFilter}
+              onRefresh={onRefresh}
+              loading={loading}
+            />
           </div>
         </div>
-        
-        <FilterControls
-          searchTerm={searchTerm}
-          onSearchChange={setSearchTerm}
-          statusFilter={statusFilter}
-          onStatusFilterChange={setStatusFilter}
-          industryFilter={industryFilter}
-          onIndustryFilterChange={setIndustryFilter}
-          onRefresh={onRefresh}
-          loading={loading}
-        />
-      </div>
 
-      {/* 数据表格 */}
-      <Card>
-        <div className="min-h-[400px]">
-          <div className="overflow-x-auto">
-            <table className="min-w-full text-sm">
-              <thead>
-                <tr className="text-left text-text-muted">
-                  <th className="py-2 px-3">股票代码</th>
-                  <th className="py-2 px-3">行业</th>
-                  <th className="py-2 px-3">数据统计</th>
-                  <th className="py-2 px-3">状态</th>
-                  <th className="py-2 px-3">质量评分</th>
-                  <th className="py-2 px-3">最后更新</th>
-                  <th className="py-2 px-3">操作</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredAndSortedData.length === 0 ? (
-                  <tr>
-                    <td colSpan={7} className="py-10 text-center text-text-muted">暂无股票数据</td>
+        {/* 数据表格 */}
+        <Card className="bg-slate-800/50 border-slate-700/50 backdrop-blur-sm">
+          <div className="min-h-[500px]">
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b border-slate-700">
+                    <th className="py-4 px-4 text-left text-sm font-medium text-slate-400 uppercase tracking-wider">股票代码</th>
+                    <th className="py-4 px-4 text-left text-sm font-medium text-slate-400 uppercase tracking-wider">行业</th>
+                    <th className="py-4 px-4 text-left text-sm font-medium text-slate-400 uppercase tracking-wider">数据统计</th>
+                    <th className="py-4 px-4 text-left text-sm font-medium text-slate-400 uppercase tracking-wider">状态</th>
+                    <th className="py-4 px-4 text-left text-sm font-medium text-slate-400 uppercase tracking-wider">质量评分</th>
+                    <th className="py-4 px-4 text-left text-sm font-medium text-slate-400 uppercase tracking-wider">最后更新</th>
+                    <th className="py-4 px-4 text-left text-sm font-medium text-slate-400 uppercase tracking-wider">操作</th>
                   </tr>
-                ) : (
-                  filteredAndSortedData.map((item) => (
-                    <tr key={item.symbol} className="border-t">
-                      <td className="py-2 px-3">
-                        <div className="space-y-1">
-                          <div className="font-medium text-text-primary">{item.symbol}</div>
-                          <div className="text-xs text-text-secondary">{item.name}</div>
-                        </div>
-                      </td>
-                      <td className="py-2 px-3">
-                        <span className="text-sm text-text-secondary">{item.industry}</span>
-                      </td>
-                      <td className="py-2 px-3">
-                        <DataStats totalRecords={item.totalRecords} dailyRecords={item.dailyRecords} hourlyRecords={item.hourlyRecords} />
-                      </td>
-                      <td className="py-2 px-3">
-                        <StatusBadge status={item.status} />
-                      </td>
-                      <td className="py-2 px-3">
-                        <QualityScore score={item.qualityScore} />
-                      </td>
-                      <td className="py-2 px-3">
-                        <span className="text-sm text-text-secondary">{formatDate(item.lastUpdated)}</span>
-                      </td>
-                      <td className="py-2 px-3">
-                        <div className="flex items-center gap-2">
-                          {onViewDetails && (
-                            <Button variant="ghost" size="sm" onClick={() => onViewDetails(item.symbol)}>
-                              查看
-                            </Button>
-                          )}
-                          {onDeleteStock && item.deletable !== false && (
-                            <Button variant="danger" size="sm" onClick={() => onDeleteStock(item.symbol)}>
-                              删除
-                            </Button>
-                          )}
+                </thead>
+                <tbody className="divide-y divide-slate-700">
+                  {filteredAndSortedData.length === 0 ? (
+                    <tr>
+                      <td colSpan={7} className="py-16 text-center text-slate-400">
+                        <div className="space-y-2">
+                          <div className="text-4xl opacity-50">📊</div>
+                          <div className="text-lg font-medium">暂无股票数据</div>
+                          <div className="text-sm">请添加股票数据开始使用</div>
                         </div>
                       </td>
                     </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
+                  ) : (
+                    filteredAndSortedData.map((item) => (
+                      <tr key={item.symbol} className="hover:bg-slate-700/30 transition-colors duration-150">
+                        <td className="py-4 px-4">
+                          <div className="space-y-1">
+                            <div className="font-medium text-white">{item.symbol}</div>
+                            <div className="text-sm text-slate-400">{item.name}</div>
+                          </div>
+                        </td>
+                        <td className="py-4 px-4">
+                          <span className="text-sm text-slate-300">{item.industry}</span>
+                        </td>
+                        <td className="py-4 px-4">
+                          <DataStats 
+                            totalRecords={item.totalRecords} 
+                            dailyRecords={item.dailyRecords} 
+                            hourlyRecords={item.hourlyRecords} 
+                          />
+                        </td>
+                        <td className="py-4 px-4">
+                          <StatusBadge status={item.status} />
+                        </td>
+                        <td className="py-4 px-4">
+                          <QualityScore score={item.qualityScore} />
+                        </td>
+                        <td className="py-4 px-4">
+                          <span className="text-sm text-slate-300">{formatDate(item.lastUpdated)}</span>
+                        </td>
+                        <td className="py-4 px-4">
+                          <div className="flex items-center gap-2">
+                            {onViewDetails && (
+                              <Button 
+                                variant="ghost" 
+                                size="sm" 
+                                onClick={() => onViewDetails(item.symbol)}
+                                className="text-cyan-400 hover:text-cyan-300 hover:bg-cyan-500/10 border-cyan-500/30"
+                              >
+                                查看
+                              </Button>
+                            )}
+                            {onDeleteStock && item.deletable !== false && (
+                              <Button 
+                                variant="danger" 
+                                size="sm" 
+                                onClick={() => onDeleteStock(item.symbol)}
+                                className="text-red-400 hover:text-red-300 hover:bg-red-500/10 border-red-500/30"
+                              >
+                                删除
+                              </Button>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
           </div>
-        </div>
-      </Card>
+        </Card>
+      </div>
     </div>
   );
 };
