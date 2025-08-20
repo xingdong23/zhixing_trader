@@ -712,27 +712,27 @@ function StockForm({
           {/* 基础信息 */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-text-primary mb-2">
                 股票代码 *
               </label>
               <input
                 type="text"
                 value={formData.symbol}
                 onChange={(e) => setFormData({...formData, symbol: e.target.value.toUpperCase()})}
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full p-3 border border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
                 placeholder="如：AAPL"
                 required
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-text-primary mb-2">
                 股票名称 *
               </label>
               <input
                 type="text"
                 value={formData.name}
                 onChange={(e) => setFormData({...formData, name: e.target.value})}
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full p-3 border border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
                 placeholder="如：苹果公司"
                 required
               />
@@ -741,13 +741,13 @@ function StockForm({
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-text-primary mb-2">
                 市场
               </label>
               <select
                 value={formData.market}
                 onChange={(e) => setFormData({...formData, market: e.target.value as any})}
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full p-3 border border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
               >
                 <option value="US">美股</option>
                 <option value="HK">港股</option>
@@ -755,7 +755,7 @@ function StockForm({
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-text-primary mb-2">
                 市值规模
               </label>
               <select
@@ -764,7 +764,7 @@ function StockForm({
                   ...formData,
                   tags: {...formData.tags, marketCap: e.target.value as any}
                 })}
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full p-3 border border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
               >
                 <option value="large">大盘股</option>
                 <option value="mid">中盘股</option>
@@ -772,7 +772,7 @@ function StockForm({
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-text-primary mb-2">
                 关注程度
               </label>
               <select
@@ -781,7 +781,7 @@ function StockForm({
                   ...formData,
                   tags: {...formData.tags, watchLevel: e.target.value as any}
                 })}
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full p-3 border border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
               >
                 <option value="high">重点关注</option>
                 <option value="medium">一般关注</option>

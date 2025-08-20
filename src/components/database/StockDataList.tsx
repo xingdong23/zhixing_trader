@@ -110,31 +110,31 @@ const getStatusInfo = (status: StockDataItem['status']) => {
     case 'active':
       return {
         label: '活跃',
-        className: 'bg-green-100 text-green-800',
+        className: 'bg-success/20 text-success',
         icon: '●',
       };
     case 'inactive':
       return {
         label: '非活跃',
-        className: 'bg-gray-100 text-gray-800',
+        className: 'bg-surface text-text-secondary',
         icon: '○',
       };
     case 'error':
       return {
         label: '错误',
-        className: 'bg-red-100 text-red-800',
+        className: 'bg-danger/20 text-danger',
         icon: '✕',
       };
     case 'updating':
       return {
         label: '更新中',
-        className: 'bg-blue-100 text-blue-800',
+        className: 'bg-info/20 text-info',
         icon: '↻',
       };
     default:
       return {
         label: '未知',
-        className: 'bg-gray-100 text-gray-800',
+        className: 'bg-surface text-text-secondary',
         icon: '?',
       };
   }
@@ -142,9 +142,9 @@ const getStatusInfo = (status: StockDataItem['status']) => {
 
 /** 获取质量评分颜色 */
 const getQualityScoreColor = (score: number): string => {
-  if (score >= 90) return 'text-green-600';
-  if (score >= 70) return 'text-yellow-600';
-  return 'text-red-600';
+  if (score >= 90) return 'text-success';
+  if (score >= 70) return 'text-warning';
+  return 'text-danger';
 };
 
 // ==================== 子组件 ====================
@@ -167,7 +167,7 @@ const StatusBadge: React.FC<{ status: StockDataItem['status'] }> = ({ status }) 
 /** 质量评分显示 */
 const QualityScore: React.FC<{ score?: number }> = ({ score }) => {
   if (score === undefined) {
-    return <span className="text-gray-400">--</span>;
+    return <span className="text-text-muted">--</span>;
   }
   
   const colorClass = getQualityScoreColor(score);
@@ -190,7 +190,7 @@ const DataStats: React.FC<{
       <div className="text-sm font-medium">
         总计: {formatNumber(totalRecords)}
       </div>
-      <div className="text-xs text-gray-600 space-y-0.5">
+      <div className="text-xs text-text-muted space-y-0.5">
         <div>日线: {formatNumber(dailyRecords)}</div>
         <div>小时: {formatNumber(hourlyRecords)}</div>
       </div>
@@ -225,13 +225,13 @@ const FilterControls: React.FC<{
           placeholder="搜索股票代码或名称..."
           value={searchTerm}
           onChange={(e: React.ChangeEvent<HTMLInputElement>) => onSearchChange(e.target.value)}
-          className="w-full sm:w-64 px-3 py-2 border border-gray-300 rounded-md"
+          className="w-full sm:w-64 px-3 py-2 border border rounded-md"
         />
         
         <select
           value={statusFilter}
           onChange={(e: React.ChangeEvent<HTMLSelectElement>) => onStatusFilterChange(e.target.value)}
-          className="w-full sm:w-32 px-3 py-2 border border-gray-300 rounded-md"
+          className="w-full sm:w-32 px-3 py-2 border border rounded-md"
         >
           {STATUS_OPTIONS.map(opt => (
             <option key={opt.value} value={opt.value}>{opt.label}</option>
@@ -241,7 +241,7 @@ const FilterControls: React.FC<{
         <select
           value={industryFilter}
           onChange={(e: React.ChangeEvent<HTMLSelectElement>) => onIndustryFilterChange(e.target.value)}
-          className="w-full sm:w-32 px-3 py-2 border border-gray-300 rounded-md"
+          className="w-full sm:w-32 px-3 py-2 border border rounded-md"
         >
           {INDUSTRY_OPTIONS.map(opt => (
             <option key={opt.value} value={opt.value}>{opt.label}</option>
@@ -334,8 +334,8 @@ export const StockDataList: React.FC<StockDataListProps> = ({
       sortable: true,
       render: (item: StockDataItem) => (
         <div className="space-y-1">
-          <div className="font-medium text-gray-900">{item.symbol}</div>
-          <div className="text-sm text-gray-600">{item.name}</div>
+          <div className="font-medium text-text-primary">{item.symbol}</div>
+          <div className="text-sm text-text-secondary">{item.name}</div>
         </div>
       ),
     },
@@ -344,7 +344,7 @@ export const StockDataList: React.FC<StockDataListProps> = ({
       title: '行业',
       sortable: true,
       render: (item: StockDataItem) => (
-        <span className="text-sm text-gray-700">{item.industry}</span>
+        <span className="text-sm text-text-secondary">{item.industry}</span>
       ),
     },
     {
@@ -376,7 +376,7 @@ export const StockDataList: React.FC<StockDataListProps> = ({
       title: '最后更新',
       sortable: true,
       render: (item: StockDataItem) => (
-        <span className="text-sm text-gray-600">
+        <span className="text-sm text-text-secondary">
           {formatDate(item.lastUpdated)}
         </span>
       ),
@@ -416,13 +416,13 @@ export const StockDataList: React.FC<StockDataListProps> = ({
     return (
       <Card className={cn('border-red-200', className)}>
         <div className="p-6 text-center">
-          <div className="text-red-600 mb-2">
+          <div className="text-danger mb-2">
             <svg className="w-12 h-12 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
           </div>
-          <h3 className="text-lg font-medium text-gray-900 mb-2">加载失败</h3>
-          <p className="text-sm text-gray-600 mb-4">{error}</p>
+          <h3 className="text-lg font-medium text-text-primary mb-2">加载失败</h3>
+          <p className="text-sm text-text-secondary mb-4">{error}</p>
           {onRefresh && (
             <Button onClick={onRefresh}>
               重试
@@ -438,8 +438,8 @@ export const StockDataList: React.FC<StockDataListProps> = ({
       {/* 标题和筛选控件 */}
       <div className="space-y-4">
         <div className="flex items-center justify-between">
-          <h2 className="text-xl font-semibold text-gray-900">股票数据列表</h2>
-          <div className="text-sm text-gray-600">
+          <h2 className="text-xl font-semibold text-text-primary">股票数据列表</h2>
+          <div className="text-sm text-text-secondary">
             共 {filteredAndSortedData.length} 条记录
           </div>
         </div>
@@ -462,7 +462,7 @@ export const StockDataList: React.FC<StockDataListProps> = ({
           <div className="overflow-x-auto">
             <table className="min-w-full text-sm">
               <thead>
-                <tr className="text-left text-gray-600">
+                <tr className="text-left text-text-muted">
                   <th className="py-2 px-3">股票代码</th>
                   <th className="py-2 px-3">行业</th>
                   <th className="py-2 px-3">数据统计</th>
@@ -475,19 +475,19 @@ export const StockDataList: React.FC<StockDataListProps> = ({
               <tbody>
                 {filteredAndSortedData.length === 0 ? (
                   <tr>
-                    <td colSpan={7} className="py-10 text-center text-gray-500">暂无股票数据</td>
+                    <td colSpan={7} className="py-10 text-center text-text-muted">暂无股票数据</td>
                   </tr>
                 ) : (
                   filteredAndSortedData.map((item) => (
                     <tr key={item.symbol} className="border-t">
                       <td className="py-2 px-3">
                         <div className="space-y-1">
-                          <div className="font-medium text-gray-900">{item.symbol}</div>
-                          <div className="text-xs text-gray-600">{item.name}</div>
+                          <div className="font-medium text-text-primary">{item.symbol}</div>
+                          <div className="text-xs text-text-secondary">{item.name}</div>
                         </div>
                       </td>
                       <td className="py-2 px-3">
-                        <span className="text-sm text-gray-700">{item.industry}</span>
+                        <span className="text-sm text-text-secondary">{item.industry}</span>
                       </td>
                       <td className="py-2 px-3">
                         <DataStats totalRecords={item.totalRecords} dailyRecords={item.dailyRecords} hourlyRecords={item.hourlyRecords} />
@@ -499,7 +499,7 @@ export const StockDataList: React.FC<StockDataListProps> = ({
                         <QualityScore score={item.qualityScore} />
                       </td>
                       <td className="py-2 px-3">
-                        <span className="text-sm text-gray-600">{formatDate(item.lastUpdated)}</span>
+                        <span className="text-sm text-text-secondary">{formatDate(item.lastUpdated)}</span>
                       </td>
                       <td className="py-2 px-3">
                         <div className="flex items-center gap-2">

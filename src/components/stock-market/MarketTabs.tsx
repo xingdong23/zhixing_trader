@@ -165,9 +165,9 @@ export function MarketTabs({
   className = ''
 }: MarketTabsProps) {
   return (
-    <div className={`space-y-6 ${className}`}>
-      {/* 标签页导航 */}
-      <div className="tab-nav">
+    <div className={`${className}`}>
+      {/* 标签页导航 - 使用负边距抵消父容器的内边距 */}
+      <div className="tab-nav -mx-4 lg:-mx-6 px-4 lg:px-6 mb-6">
         {DEFAULT_TABS.map(tab => {
           const Icon = tab.icon;
           const isActive = currentTab === tab.id;
@@ -187,7 +187,7 @@ export function MarketTabs({
       </div>
       
       {/* 搜索和操作区域 */}
-      <div className="flex items-center justify-between gap-6">
+      <div className="flex items-center justify-between gap-6 mb-6">
         {/* 搜索区域 */}
         <div className="flex-1">
           <div className="flex gap-3 mb-3">
@@ -247,7 +247,7 @@ export function MarketTabs({
       </div>
       
       {/* 筛选器 */}
-      <div className="filters">
+      <div className="filters mb-6">
         <select className="filter-select">
           <option>所有市场</option>
           <option>A股</option>

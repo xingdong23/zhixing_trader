@@ -114,8 +114,8 @@ export default function DataSyncManager() {
   const getSyncStatusColor = () => {
     if (syncStatus?.is_syncing) return 'text-blue-600';
     if (lastSyncResult?.success) return 'text-green-600';
-    if (lastSyncResult?.success === false) return 'text-red-600';
-    return 'text-gray-600';
+    if (lastSyncResult?.success === false) return 'text-danger';
+    return 'text-text-secondary';
   };
 
   const getSyncStatusText = () => {
@@ -130,15 +130,15 @@ export default function DataSyncManager() {
     return (
       <div className="bg-surface rounded-lg border border-border p-6">
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-xl font-semibold text-gray-900">数据同步管理</h2>
-          <div className="text-sm font-medium text-gray-600">加载中...</div>
+          <h2 className="text-xl font-semibold text-text-primary">数据同步管理</h2>
+          <div className="text-sm font-medium text-text-secondary">加载中...</div>
         </div>
         <div className="animate-pulse">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
             {[1, 2, 3, 4].map(i => (
-              <div key={i} className="bg-gray-50 rounded-lg p-4">
-                <div className="h-4 bg-gray-200 rounded mb-2"></div>
-                <div className="h-8 bg-gray-200 rounded"></div>
+              <div key={i} className="bg-surface rounded-lg p-4">
+                <div className="h-4 bg-border rounded mb-2"></div>
+                <div className="h-8 bg-border rounded"></div>
               </div>
             ))}
           </div>
@@ -150,7 +150,7 @@ export default function DataSyncManager() {
   return (
     <div className="bg-surface rounded-lg border border-border p-6">
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-xl font-semibold text-gray-900">数据同步管理</h2>
+        <h2 className="text-xl font-semibold text-text-primary">数据同步管理</h2>
         <div className={`text-sm font-medium ${getSyncStatusColor()}`}>
           {getSyncStatusText()}
         </div>
@@ -158,28 +158,28 @@ export default function DataSyncManager() {
 
       {/* 同步状态概览 */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-        <div className="bg-gray-50 rounded-lg p-4">
-          <div className="text-sm text-gray-600">自选股数量</div>
-          <div className="text-2xl font-bold text-gray-900">{watchlistCount}</div>
+        <div className="bg-surface rounded-lg p-4">
+          <div className="text-sm text-text-muted">自选股数量</div>
+          <div className="text-2xl font-bold text-text-primary">{watchlistCount}</div>
         </div>
         
-        <div className="bg-gray-50 rounded-lg p-4">
-          <div className="text-sm text-gray-600">K线记录</div>
-          <div className="text-2xl font-bold text-gray-900">
+        <div className="bg-surface rounded-lg p-4">
+          <div className="text-sm text-text-muted">K线记录</div>
+          <div className="text-2xl font-bold text-text-primary">
             {dataStats?.total_records || 0}
           </div>
         </div>
         
-        <div className="bg-gray-50 rounded-lg p-4">
-          <div className="text-sm text-gray-600">数据维度</div>
-          <div className="text-2xl font-bold text-gray-900">
+        <div className="bg-surface rounded-lg p-4">
+          <div className="text-sm text-text-muted">数据维度</div>
+          <div className="text-2xl font-bold text-text-primary">
             {dataStats?.timeframes?.length || 0}
           </div>
         </div>
         
-        <div className="bg-gray-50 rounded-lg p-4">
-          <div className="text-sm text-gray-600">最后同步</div>
-          <div className="text-sm font-medium text-gray-900">
+        <div className="bg-surface rounded-lg p-4">
+          <div className="text-sm text-text-muted">最后同步</div>
+          <div className="text-sm font-medium text-text-primary">
             {formatDateTime(syncStatus?.last_sync_time || null)}
           </div>
         </div>
@@ -190,7 +190,7 @@ export default function DataSyncManager() {
         <button
           onClick={() => triggerSync(false)}
           disabled={isLoading || syncStatus?.is_syncing}
-          className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
+          className="px-4 py-2 bg-primary hover:bg-primary-dark text-text-inverse rounded-lg disabled:bg-border disabled:cursor-not-allowed transition-colors"
         >
           {isLoading ? '启动中...' : '增量同步'}
         </button>
@@ -198,14 +198,14 @@ export default function DataSyncManager() {
         <button
           onClick={() => triggerSync(true)}
           disabled={isLoading || syncStatus?.is_syncing}
-          className="px-4 py-2 border border-blue-600 text-blue-600 hover:bg-blue-50 rounded-lg disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed transition-colors"
+          className="px-4 py-2 border border-primary text-primary hover:bg-primary/10 rounded-lg disabled:bg-border disabled:text-text-muted disabled:cursor-not-allowed transition-colors"
         >
           {isLoading ? '启动中...' : '全量同步'}
         </button>
 
         <button
           onClick={fetchSyncStatus}
-          className="px-4 py-2 border border-gray-300 text-gray-700 hover:bg-gray-50 rounded-lg transition-colors"
+          className="px-4 py-2 border border text-text-secondary hover:bg-surface rounded-lg transition-colors"
         >
           刷新状态
         </button>
@@ -225,7 +225,7 @@ export default function DataSyncManager() {
           </div>
           
           {lastSyncResult.sync_result && (
-            <div className="mt-2 text-xs text-gray-600">
+            <div className="mt-2 text-xs text-text-muted">
               <div>同步类型: {lastSyncResult.sync_result.sync_type}</div>
               <div>成功股票: {lastSyncResult.sync_result.success_stocks}/{lastSyncResult.sync_result.total_stocks}</div>
               <div>日线记录: {lastSyncResult.sync_result.daily_records} 条</div>
@@ -277,11 +277,11 @@ export default function DataSyncManager() {
       {/* 数据统计详情 */}
       {dataStats && (
         <div className="border-t pt-4">
-          <h3 className="text-sm font-medium text-gray-900 mb-3">数据详情</h3>
+          <h3 className="text-sm font-medium text-text-primary mb-3">数据详情</h3>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <div className="text-xs text-gray-600 mb-2">支持的时间维度</div>
+              <div className="text-xs text-text-muted mb-2">支持的时间维度</div>
               <div className="flex flex-wrap gap-1">
                 {dataStats.timeframes?.map(tf => (
                   <span key={tf} className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded">
@@ -292,8 +292,8 @@ export default function DataSyncManager() {
             </div>
             
             <div>
-              <div className="text-xs text-gray-600 mb-2">已同步股票 ({dataStats.symbols?.length || 0})</div>
-              <div className="text-xs text-gray-800 max-h-20 overflow-y-auto">
+              <div className="text-xs text-text-muted mb-2">已同步股票 ({dataStats.symbols?.length || 0})</div>
+              <div className="text-xs text-text-secondary max-h-20 overflow-y-auto">
                 {dataStats.symbols?.join(', ') || '暂无数据'}
               </div>
             </div>
@@ -303,8 +303,8 @@ export default function DataSyncManager() {
 
       {/* 同步说明 */}
       <div className="border-t pt-4 mt-4">
-        <h3 className="text-sm font-medium text-gray-900 mb-2">同步说明</h3>
-        <div className="text-xs text-gray-600 space-y-1">
+        <h3 className="text-sm font-medium text-text-primary mb-2">同步说明</h3>
+        <div className="text-xs text-text-secondary space-y-1">
           <div>• <strong>增量同步</strong>: 只下载最近30天日线和7天小时线数据，速度快</div>
           <div>• <strong>全量同步</strong>: 下载1年日线和60天小时线数据，数据完整</div>
           <div>• 建议每天开盘前进行增量同步，每周进行一次全量同步</div>

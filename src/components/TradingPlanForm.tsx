@@ -213,7 +213,7 @@ export default function TradingPlanForm({ onPlanCreated }: TradingPlanFormProps)
           <div>
             <label className="block text-sm font-medium mb-2">
               买入理由 <span className="text-red-500">*</span>
-              <span className="text-gray-500 text-xs">(至少10个字符，包含技术面、基本面、消息面分析)</span>
+              <span className="text-text-muted text-xs">(至少10个字符，包含技术面、基本面、消息面分析)</span>
             </label>
             <Textarea
               value={formData.buy_reason}
@@ -346,13 +346,13 @@ export default function TradingPlanForm({ onPlanCreated }: TradingPlanFormProps)
 
           {/* 消息提示 */}
           {error && (
-            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
+            <div className="bg-danger/10 border border-danger/30 text-danger px-4 py-3 rounded">
               <strong>错误：</strong> {error}
             </div>
           )}
           
           {success && (
-            <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded">
+            <div className="bg-success/10 border border-success/30 text-success px-4 py-3 rounded">
               <strong>成功：</strong> {success}
             </div>
           )}

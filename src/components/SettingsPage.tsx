@@ -5,6 +5,7 @@
 
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui';
+import { Button } from '@/components/ui';
 import { AppState } from '@/types';
 import { 
   Settings, 
@@ -80,21 +81,22 @@ export function SettingsPage({
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
+    <div className="min-h-screen bg-background p-6">
       <div className="max-w-4xl mx-auto">
         {/* 页面标题 */}
         <div className="mb-8 flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">系统设置</h1>
-            <p className="text-gray-600">管理您的交易系统配置和数据</p>
+            <h1 className="text-3xl font-bold text-text-primary mb-2">系统设置</h1>
+            <p className="text-text-secondary">管理您的交易系统配置和数据</p>
           </div>
-          <button
+          <Button
+            variant="ghost"
             onClick={onBack}
-            className="flex items-center px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors"
+            className="flex items-center"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
             返回仪表盘
-          </button>
+          </Button>
         </div>
 
         <div className="space-y-6">
@@ -109,27 +111,27 @@ export function SettingsPage({
             <CardContent className="space-y-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <h4 className="font-medium text-gray-900">启用通知</h4>
-                  <p className="text-sm text-gray-500">接收价格警报、心态提醒等通知</p>
+                  <h4 className="font-medium text-text-primary">启用通知</h4>
+                  <p className="text-sm text-text-muted">接收价格警报、心态提醒等通知</p>
                 </div>
                 <input
                   type="checkbox"
                   checked={appState.settings.notificationsEnabled}
                   onChange={(e) => onUpdateSettings({ notificationsEnabled: e.target.checked })}
-                  className="w-5 h-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                  className="w-5 h-5 text-primary border-border rounded focus:ring-primary"
                 />
               </div>
               
               <div className="flex items-center justify-between">
                 <div>
-                  <h4 className="font-medium text-gray-900">自动生成洞察</h4>
-                  <p className="text-sm text-gray-500">系统自动分析交易数据并生成个性化建议</p>
+                  <h4 className="font-medium text-text-primary">自动生成洞察</h4>
+                  <p className="text-sm text-text-muted">系统自动分析交易数据并生成个性化建议</p>
                 </div>
                 <input
                   type="checkbox"
                   checked={appState.settings.autoGenerateInsights}
                   onChange={(e) => onUpdateSettings({ autoGenerateInsights: e.target.checked })}
-                  className="w-5 h-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                  className="w-5 h-5 text-primary border-border rounded focus:ring-primary"
                 />
               </div>
             </CardContent>
@@ -146,7 +148,7 @@ export function SettingsPage({
             <CardContent>
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-text-primary mb-2">
                     纪律锁定冷却时间 (分钟)
                   </label>
                   <div className="flex items-center space-x-4">
@@ -161,11 +163,11 @@ export function SettingsPage({
                       })}
                       className="flex-1"
                     />
-                    <span className="text-sm font-medium text-gray-900 w-16">
+                    <span className="text-sm font-medium text-text-primary w-16">
                       {appState.settings.disciplineLockCooldown} 分钟
                     </span>
                   </div>
-                  <p className="text-sm text-gray-500 mt-2">
+                  <p className="text-sm text-text-muted mt-2">
                     开启纪律锁定后，修改止损价需要等待此时间才能确认，帮助避免情绪化决策
                   </p>
                 </div>
@@ -183,59 +185,59 @@ export function SettingsPage({
             </CardHeader>
             <CardContent className="space-y-4">
               {/* 数据统计 */}
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 p-4 bg-gray-50 rounded-lg">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 p-4 bg-surface rounded-lg">
                 <div className="text-center">
                   <p className="text-2xl font-bold text-blue-600">{appState.activePlans.length}</p>
-                  <p className="text-sm text-gray-500">活跃计划</p>
+                  <p className="text-sm text-text-muted">活跃计划</p>
                 </div>
                 <div className="text-center">
                   <p className="text-2xl font-bold text-green-600">{appState.activeRecords.length}</p>
-                  <p className="text-sm text-gray-500">交易记录</p>
+                  <p className="text-sm text-text-muted">交易记录</p>
                 </div>
                 <div className="text-center">
                   <p className="text-2xl font-bold text-purple-600">{appState.playbooks.length}</p>
-                  <p className="text-sm text-gray-500">交易剧本</p>
+                  <p className="text-sm text-text-muted">交易剧本</p>
                 </div>
                 <div className="text-center">
                   <p className="text-2xl font-bold text-orange-600">{appState.insights.length}</p>
-                  <p className="text-sm text-gray-500">智能洞察</p>
+                  <p className="text-sm text-text-muted">智能洞察</p>
                 </div>
               </div>
 
               {/* 导出数据 */}
-              <div className="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
+              <div className="flex items-center justify-between p-4 border border rounded-lg">
                 <div>
-                  <h4 className="font-medium text-gray-900">导出数据</h4>
-                  <p className="text-sm text-gray-500">将所有交易数据导出为JSON文件进行备份</p>
+                  <h4 className="font-medium text-text-primary">导出数据</h4>
+                  <p className="text-sm text-text-muted">将所有交易数据导出为JSON文件进行备份</p>
                 </div>
-                <button
+                <Button
                   onClick={onExportData}
-                  className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                  className="flex items-center"
                 >
                   <Download className="w-4 h-4 mr-2" />
                   导出
-                </button>
+                </Button>
               </div>
 
               {/* 导入数据 */}
-              <div className="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
+              <div className="flex items-center justify-between p-4 border border rounded-lg">
                 <div>
-                  <h4 className="font-medium text-gray-900">导入数据</h4>
-                  <p className="text-sm text-gray-500">从备份文件恢复交易数据</p>
+                  <h4 className="font-medium text-text-primary">导入数据</h4>
+                  <p className="text-sm text-text-muted">从备份文件恢复交易数据</p>
                 </div>
                 <div className="flex items-center space-x-3">
                   {importStatus !== 'idle' && (
                     <div className="flex items-center space-x-2">
                       {getStatusIcon(importStatus)}
                       <span className={`text-sm ${
-                        importStatus === 'success' ? 'text-green-600' : 
-                        importStatus === 'error' ? 'text-red-600' : 'text-blue-600'
+                        importStatus === 'success' ? 'text-success' : 
+                        importStatus === 'error' ? 'text-danger' : 'text-info'
                       }`}>
                         {importMessage}
                       </span>
                     </div>
                   )}
-                  <label className="flex items-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors cursor-pointer">
+                  <Button variant="success" className="flex items-center cursor-pointer">
                     <Upload className="w-4 h-4 mr-2" />
                     导入
                     <input
@@ -244,23 +246,24 @@ export function SettingsPage({
                       onChange={handleFileImport}
                       className="hidden"
                     />
-                  </label>
+                  </Button>
                 </div>
               </div>
 
               {/* 清除数据 */}
-              <div className="flex items-center justify-between p-4 border border-red-200 bg-red-50 rounded-lg">
+              <div className="flex items-center justify-between p-4 border border-danger/30 bg-danger/10 rounded-lg">
                 <div>
-                  <h4 className="font-medium text-red-900">清除所有数据</h4>
-                  <p className="text-sm text-red-600">⚠️ 危险操作：将删除所有交易数据，不可撤销</p>
+                  <h4 className="font-medium text-danger">清除所有数据</h4>
+                  <p className="text-sm text-danger">⚠️ 危险操作：将删除所有交易数据，不可撤销</p>
                 </div>
-                <button
+                <Button
+                  variant="danger"
                   onClick={handleClearData}
-                  className="flex items-center px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+                  className="flex items-center"
                 >
                   <Trash2 className="w-4 h-4 mr-2" />
                   清除
-                </button>
+                </Button>
               </div>
             </CardContent>
           </Card>
@@ -269,37 +272,37 @@ export function SettingsPage({
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center">
-                <Info className="w-5 h-5 mr-2 text-gray-500" />
+                <Info className="w-5 h-5 mr-2 text-text-muted" />
                 系统信息
               </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-3 text-sm">
                 <div className="flex justify-between">
-                  <span className="text-gray-600">应用版本</span>
+                  <span className="text-text-secondary">应用版本</span>
                   <span className="font-medium">知行交易 v1.0.0</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-600">数据最后更新</span>
+                  <span className="text-text-secondary">数据最后更新</span>
                   <span className="font-medium">
                     {new Date(appState.tradingStats.lastUpdated).toLocaleString()}
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-600">当前纪律分</span>
+                  <span className="text-text-secondary">当前纪律分</span>
                   <span className={`font-bold ${
-                    appState.tradingStats.disciplineScore >= 80 ? 'text-green-600' :
-                    appState.tradingStats.disciplineScore >= 60 ? 'text-yellow-600' : 'text-red-600'
+                    appState.tradingStats.disciplineScore >= 80 ? 'text-success' :
+                    appState.tradingStats.disciplineScore >= 60 ? 'text-warning' : 'text-danger'
                   }`}>
                     {appState.tradingStats.disciplineScore}/100
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-600">总交易数</span>
+                  <span className="text-text-secondary">总交易数</span>
                   <span className="font-medium">{appState.tradingStats.totalTrades} 笔</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-600">胜率</span>
+                  <span className="text-text-secondary">胜率</span>
                   <span className="font-medium">
                     {(appState.tradingStats.winRate * 100).toFixed(1)}%
                   </span>
@@ -319,23 +322,23 @@ export function SettingsPage({
             <CardContent>
               <div className="space-y-4">
                 <div>
-                  <h4 className="font-medium text-gray-900 mb-2">核心理念</h4>
-                  <p className="text-sm text-gray-600 leading-relaxed">
+                  <h4 className="font-medium text-text-primary mb-2">核心理念</h4>
+                  <p className="text-sm text-text-secondary leading-relaxed">
                     知行交易不是一个简单的交易记录工具，而是一个赋能交易者的"个人交易操作系统"。
                     它融合了战略规划、过程控制、心理干预和数据智能，旨在帮助用户克服最大的敌人——自己的人性弱点，
                     从而实现从随机交易到系统化交易的根本转变。
                   </p>
                 </div>
                 <div>
-                  <h4 className="font-medium text-gray-900 mb-2">设计哲学</h4>
-                  <ul className="text-sm text-gray-600 space-y-1">
+                  <h4 className="font-medium text-text-primary mb-2">设计哲学</h4>
+                  <ul className="text-sm text-text-secondary space-y-1">
                     <li>• 计划你的交易，交易你的计划</li>
                     <li>• 纪律比盈利更重要，成长比胜负更有价值</li>
                     <li>• 从此告别心惊胆战，让每一笔交易都成为你成长的基石</li>
                   </ul>
                 </div>
-                <div className="pt-4 border-t border-gray-200">
-                  <p className="text-xs text-gray-500 text-center">
+                <div className="pt-4 border-t border">
+                  <p className="text-xs text-text-muted text-center">
                     © 2024 知行交易 - 您的个人交易操作系统
                   </p>
                 </div>

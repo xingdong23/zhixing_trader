@@ -1,5 +1,24 @@
 @import "tailwindcss";
+
+/* 字体预加载 */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+/* 字体显示优化 */
+.font-sans {
+  font-family: 'Inter', 'SF Pro Display', 'Segoe UI', 'Roboto', sans-serif;
+  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  font-variation-settings: normal;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+}
+
+.font-mono {
+  font-family: 'JetBrains Mono', 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  font-feature-settings: "cv01", "cv02", "cv11";
+  font-variation-settings: normal;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+}
 
 :root {
   /* 知行交易 - 现代极客金融风格色彩主题 */
@@ -51,6 +70,9 @@
   --font-mono: 'JetBrains Mono', 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
   --font-sans: 'Inter', 'SF Pro Display', 'Segoe UI', 'Roboto', sans-serif;
   
+  /* 字体加载策略 */
+  --font-display: swap;
+  
   /* 阴影和光效 */
   --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.3);
   --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4);
@@ -71,10 +93,15 @@
 
 
 /* 深色模式优化 */
+/* 类名驱动的深色模式 */
+.dark {
+  /* 深色模式已经通过 CSS 变量实现，这里可以添加特定的深色模式样式 */
+}
+
+/* 系统深色模式偏好 */
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    /* 保持原有的深色主题变量，无需覆盖 */
   }
 }
 
@@ -87,6 +114,11 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overflow-x: hidden;
+  
+  /* 字体加载优化 */
+  font-display: var(--font-display);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
 }
 
 /* 全局渐变背景 */
@@ -183,7 +215,7 @@ body {
 }
 
 /* 现代卡片基础样式 - 为UI组件提供基础样式支持 */
-.card {
+.card, .neon-card {
   background: rgba(30, 41, 59, 0.4);
   backdrop-filter: blur(20px);
   border: 1px solid rgba(148, 163, 184, 0.1);
@@ -193,25 +225,7 @@ body {
   overflow: hidden;
 }
 
-.card:hover {
-  background: rgba(30, 41, 59, 0.6);
-  border-color: rgba(0, 255, 208, 0.3);
-  transform: translateY(-2px);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-}
-
-/* 特殊卡片样式增强 */
-.neon-card {
-  background: rgba(30, 41, 59, 0.4);
-  backdrop-filter: blur(20px);
-  border: 1px solid rgba(148, 163, 184, 0.1);
-  border-radius: 16px;
-  transition: all var(--transition-normal);
-  position: relative;
-  overflow: hidden;
-}
-
-.neon-card:hover {
+.card:hover, .neon-card:hover {
   background: rgba(30, 41, 59, 0.6);
   border-color: rgba(0, 255, 208, 0.3);
   transform: translateY(-2px);
@@ -261,20 +275,11 @@ body {
 }
 
 /* 动画效果 */
-@keyframes pulse-glow {
-  0%, 100% { opacity: 0.6; }
-  50% { opacity: 1; }
-}
-
 .pulse-glow {
   animation: pulse-glow 2s ease-in-out infinite;
 }
 
 /* 加载动画 */
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
-
 .animate-spin {
   animation: spin 1s linear infinite;
 }
@@ -654,4 +659,308 @@ tr:hover {
   .mobile-full-width {
     width: 100%;
   }
+}
+
+/* ==================== 设计系统扩展样式 ==================== */
+
+/* 霓虹发光效果 - 增强版 */
+.neon-glow-enhanced {
+  box-shadow: 
+    0 0 20px rgba(0, 255, 208, 0.3),
+    0 0 40px rgba(0, 255, 208, 0.1),
+    inset 0 0 20px rgba(0, 255, 208, 0.05);
+}
+
+.neon-glow-enhanced:hover {
+  box-shadow: 
+    0 0 30px rgba(0, 255, 208, 0.5),
+    0 0 60px rgba(0, 255, 208, 0.2),
+    inset 0 0 30px rgba(0, 255, 208, 0.1);
+}
+
+/* 玻璃态效果 - 增强版 */
+.glass-effect-enhanced {
+  background: rgba(30, 41, 59, 0.8);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+/* 按钮变体样式 */
+.btn-ghost {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+  transition: all var(--transition-normal);
+}
+
+.btn-ghost:hover {
+  background: var(--surface);
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+/* 状态标签样式 */
+.status-badge {
+  display: inline-flex items-center px-2 py-1 rounded-full text-xs font-medium;
+}
+
+.status-badge-success {
+  @apply bg-success/20 text-success;
+}
+
+.status-badge-warning {
+  @apply bg-warning/20 text-warning;
+}
+
+.status-badge-danger {
+  @apply bg-danger/20 text-danger;
+}
+
+.status-badge-info {
+  @apply bg-info/20 text-info;
+}
+
+/* 统计卡片样式 */
+.stat-card {
+  @apply bg-surface border border-border rounded-lg p-4;
+  transition: all var(--transition-normal);
+}
+
+.stat-card:hover {
+  @apply border-primary/30 shadow-lg;
+  transform: translateY(-2px);
+}
+
+/* 加载动画样式 */
+.loading-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(15, 23, 42, 0.8);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
+}
+
+/* 空状态样式 */
+.empty-state {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: var(--text-muted);
+}
+
+.empty-state-icon {
+  width: 4rem;
+  height: 4rem;
+  margin: 0 auto 1rem;
+  opacity: 0.5;
+}
+
+.empty-state-title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 0.5rem;
+}
+
+.empty-state-description {
+  color: var(--text-muted);
+  margin-bottom: 1.5rem;
+}
+
+/* 表单组件增强样式 */
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+.form-label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text-primary);
+  margin-bottom: 0.5rem;
+}
+
+.form-helper {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-top: 0.25rem;
+}
+
+.form-error {
+  font-size: 0.75rem;
+  color: var(--danger);
+  margin-top: 0.25rem;
+}
+
+/* 数据表格增强样式 */
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--surface);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+}
+
+.data-table th,
+.data-table td {
+  padding: 1rem;
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+}
+
+.data-table th {
+  background: var(--surface-dark);
+  color: var(--text-primary);
+  font-weight: 600;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.data-table tr:hover {
+  background: var(--surface-light);
+}
+
+.data-table .text-primary {
+  color: var(--text-primary);
+}
+
+.data-table .text-secondary {
+  color: var(--text-secondary);
+}
+
+.data-table .text-muted {
+  color: var(--text-muted);
+}
+
+/* 响应式表格 */
+@media (max-width: 768px) {
+  .data-table {
+    font-size: 0.875rem;
+  }
+  
+  .data-table th,
+  .data-table td {
+    padding: 0.75rem 0.5rem;
+  }
+}
+
+/* 工具类 */
+.text-truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.text-break {
+  word-break: break-word;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.text-left {
+  text-align: left;
+}
+
+.text-right {
+  text-align: right;
+}
+
+.flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.flex-between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.flex-column {
+  display: flex;
+  flex-direction: column;
+}
+
+.gap-1 { gap: 0.25rem; }
+.gap-2 { gap: 0.5rem; }
+.gap-3 { gap: 0.75rem; }
+.gap-4 { gap: 1rem; }
+.gap-6 { gap: 1.5rem; }
+
+.mb-1 { margin-bottom: 0.25rem; }
+.mb-2 { margin-bottom: 0.5rem; }
+.mb-3 { margin-bottom: 0.75rem; }
+.mb-4 { margin-bottom: 1rem; }
+.mb-6 { margin-bottom: 1.5rem; }
+
+.mt-1 { margin-top: 0.25rem; }
+.mt-2 { margin-top: 0.5rem; }
+.mt-3 { margin-top: 0.75rem; }
+.mt-4 { margin-top: 1rem; }
+.mt-6 { margin-top: 1.5rem; }
+
+.p-1 { padding: 0.25rem; }
+.p-2 { padding: 0.5rem; }
+.p-3 { padding: 0.75rem; }
+.p-4 { padding: 1rem; }
+.p-6 { padding: 1.5rem; }
+
+/* 动画工具类 */
+.animate-pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.animate-bounce {
+  animation: bounce 1s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: .5;
+  }
+}
+
+@keyframes bounce {
+  0%, 100% {
+    transform: translateY(-25%);
+    animation-timing-function: cubic-bezier(0.8, 0, 1, 1);
+  }
+  50% {
+    transform: none;
+    animation-timing-function: cubic-bezier(0, 0, 0.2, 1);
+  }
+}
+
+/* 渐变背景工具类 */
+.bg-gradient-primary {
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+}
+
+.bg-gradient-success {
+  background: linear-gradient(135deg, var(--success), var(--success-light));
+}
+
+.bg-gradient-danger {
+  background: linear-gradient(135deg, var(--danger), var(--danger-light));
+}
+
+.bg-gradient-warning {
+  background: linear-gradient(135deg, var(--warning), var(--warning-light));
 }
