@@ -3,7 +3,7 @@
 
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { 
   BarChart3, 
   TrendingUp, 
@@ -13,7 +13,9 @@ import {
   ChevronDown,
   Activity,
   Target,
-  Lightbulb
+  Lightbulb,
+  Menu,
+  X
 } from 'lucide-react';
 
 export type MainModule = 'market' | 'trading' | 'insights';
@@ -31,6 +33,7 @@ export function TopNavigation({
   onSettings,
   children
 }: TopNavigationProps) {
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const modules = [
     {
       id: 'market' as MainModule,
@@ -59,9 +62,24 @@ export function TopNavigation({
   ];
 
   return (
-    <div className="flex h-screen">
-      {/* 左侧导航栏 */}
-      <div className="fixed left-0 top-0 w-64 md:w-[280px] h-screen bg-background/95 backdrop-blur-[20px] border-r border z-[100] flex flex-col lg:flex hidden">
+    <div className="h-screen overflow-hidden">
+      {/* 移动端菜单按钮 */}
+      <button
+        onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+        className="lg:hidden fixed top-4 left-4 z-[110] p-2 bg-primary/10 backdrop-blur-md rounded-lg border border-primary/20 text-primary hover:bg-primary/20 transition-all"
+      >
+        {isSidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+      </button>
+
+      {/* 主布局容器 */}
+      <div className="flex h-full">
+        {/* 左侧导航栏 */}
+        <div className={`${
+          // 移动端样式
+          'fixed lg:relative'
+        } left-0 top-0 w-64 md:w-[280px] h-full bg-background/95 backdrop-blur-[20px] border-r border z-[100] lg:z-auto flex-shrink-0 transform transition-transform duration-300 ${
+          isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
+        } lg:translate-x-0`} id="sidebar">
         {/* Logo区域 */}
         <div className="p-6 border-b border">
           <div className="flex items-center space-x-3">
@@ -111,7 +129,10 @@ export function TopNavigation({
               return (
                 <button
                   key={module.id}
-                  onClick={() => onModuleChange(module.id)}
+                  onClick={() => {
+                    onModuleChange(module.id);
+                    setIsSidebarOpen(false);
+                  }}
                   className={`w-full flex items-center space-x-3 p-3 rounded-lg transition-all duration-200 group relative overflow-hidden ${
                     isActive
                       ? 'bg-primary/10 text-primary border border-primary/30'
@@ -175,12 +196,20 @@ export function TopNavigation({
             <ChevronDown className="w-4 h-4 ml-auto opacity-50" />
           </button>
         </div>
-      </div>
+        </div>
 
-      {/* 右侧主内容区域 */}
-      <div className="flex-1 flex flex-col ml-16 lg:ml-64 xl:ml-[280px]">
+        {/* 移动端遮罩层 */}
+        {isSidebarOpen && (
+          <div
+            className="lg:hidden fixed inset-0 bg-black/50 z-[90] backdrop-blur-sm"
+            onClick={() => setIsSidebarOpen(false)}
+          />
+        )}
+
+        {/* 右侧主内容区域 */}
+        <div className="flex-1 flex flex-col overflow-hidden lg:ml-[280px]">
         {/* 顶部状态栏 */}
-        <div className="h-12 bg-background/60 border-b border flex items-center justify-between px-4 md:px-6">
+        <div className="h-12 bg-background/60 border-b border flex items-center justify-between px-4 md:px-6 lg:pl-6">
           <div className="flex items-center space-x-4">
             <div className="text-sm text-text-muted font-mono">
               2025-08-15 14:30:25
@@ -202,11 +231,12 @@ export function TopNavigation({
         </div>
 
         {/* 主内容区域 */}
-        <div className="flex-1 p-6 overflow-auto">
-          <div className="h-full">
+        <div className="flex-1 p-4 lg:p-6 overflow-auto">
+          <div className="h-full max-w-7xl mx-auto">
             {children}
           </div>
         </div>
+      </div>
       </div>
     </div>
   );
