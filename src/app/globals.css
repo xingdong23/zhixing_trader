@@ -4,17 +4,17 @@
 
 /* CSS变量系统 */
 :root {
-  --primary: #00d4ff;
-  --primary-dark: #0099cc;
-  --success: #00ff88;
-  --danger: #ff4757;
-  --warning: #ffa726;
-  --bg-primary: #0f172a;
-  --bg-secondary: #1e293b;
-  --bg-card: rgba(255, 255, 255, 0.05);
-  --text-primary: #ffffff;
-  --text-secondary: #94a3b8;
-  --border: rgba(255, 255, 255, 0.1);
+  --primary: #3b82f6;
+  --primary-dark: #2563eb;
+  --success: #10b981;
+  --danger: #ef4444;
+  --warning: #f59e0b;
+  --bg-primary: #f8fafc;
+  --bg-secondary: #f1f5f9;
+  --bg-card: #ffffff;
+  --text-primary: #1f2937;
+  --text-secondary: #6b7280;
+  --border: #e5e7eb;
 }
 
 /* 基础重置 */
@@ -27,28 +27,27 @@
 body {
   font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   line-height: 1.6;
-  color: var(--text-primary);
-  background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
+  color: #1f2937;
+  background: #f8fafc;
   min-height: 100vh;
 }
 
-/* 毛玻璃效果 */
+/* 现代卡片效果 */
 .glass-card {
-  background: var(--bg-card);
-  backdrop-filter: blur(20px);
-  border: 1px solid var(--border);
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
   border-radius: 16px;
   box-shadow: 
-    0 8px 32px rgba(0, 0, 0, 0.3),
-    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    0 4px 16px rgba(0, 0, 0, 0.1),
+    0 1px 3px rgba(0, 0, 0, 0.05);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .glass-card:hover {
   transform: translateY(-4px);
   box-shadow: 
-    0 16px 48px rgba(0, 0, 0, 0.4),
-    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    0 12px 32px rgba(0, 0, 0, 0.15),
+    0 4px 8px rgba(0, 0, 0, 0.08);
 }
 
 /* 现代按钮系统 */

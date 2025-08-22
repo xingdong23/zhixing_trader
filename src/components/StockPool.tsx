@@ -164,12 +164,8 @@ export function StockPool({
           <h2 style={{ 
             fontSize: '28px', 
             fontWeight: '700', 
-            color: 'var(--text-primary)', 
-            margin: 0,
-            background: 'linear-gradient(135deg, var(--primary) 0%, var(--success) 100%)',
-            backgroundClip: 'text',
-            WebkitBackgroundClip: 'text',
-            WebkitTextFillColor: 'transparent'
+            color: 'var(--primary)', 
+            margin: 0
           }}>
             股票池
           </h2>
