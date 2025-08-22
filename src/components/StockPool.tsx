@@ -165,7 +165,7 @@ export function StockPool({
       </div>
 
       {/* 搜索功能 */}
-      <div className="card">
+      <div className="card" style={{ background: 'white', color: '#1f2937' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap' }}>
           <button className="btn btn-primary">搜索 股票池</button>
           <button className="btn btn-secondary">搜索 自选股</button>
@@ -199,7 +199,7 @@ export function StockPool({
       </div>
 
       {/* 基础筛选条件 */}
-      <div className="card">
+      <div className="card" style={{ background: 'white', color: '#1f2937' }}>
         <div style={{ 
           display: 'grid', 
           gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', 
@@ -249,7 +249,7 @@ export function StockPool({
       </div>
 
       {/* 概念标签筛选 */}
-      <div className="card">
+      <div className="card" style={{ background: 'white', color: '#1f2937' }}>
         <div style={{ marginBottom: '16px' }}>
           <span style={{ fontSize: '14px', fontWeight: '500', color: '#1f2937' }}>概念筛选：</span>
         </div>
@@ -307,7 +307,7 @@ export function StockPool({
       {/* 股票列表 */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
         {filteredStocks.length === 0 ? (
-          <div className="card" style={{ textAlign: 'center', padding: '48px 24px' }}>
+          <div className="card" style={{ background: 'white', color: '#1f2937', textAlign: 'center', padding: '48px 24px' }}>
             <p style={{ color: '#6b7280', marginBottom: '16px', fontSize: '18px' }}>暂无股票数据</p>
             <button
               onClick={() => setShowAddForm(true)}
@@ -333,7 +333,7 @@ export function StockPool({
       </div>
 
       {/* 分页控件 */}
-      <div className="card">
+      <div className="card" style={{ background: 'white', color: '#1f2937' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <button
@@ -433,7 +433,7 @@ function StockCard({
   };
 
   return (
-    <div className="card">
+    <div className="card" style={{ background: 'white', color: '#1f2937' }}>
       <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '16px' }}>
         {/* 左侧：股票信息 */}
         <div style={{ flex: 1 }}>

@@ -118,7 +118,8 @@ export function StockMarketRefactored({
       {error && (
         <div className="card" style={{
           border: '1px solid #fca5a5',
-          background: 'rgba(254, 226, 226, 0.5)',
+          background: 'white',
+          color: '#1f2937',
           padding: '24px'
         }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>

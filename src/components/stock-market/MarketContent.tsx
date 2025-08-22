@@ -78,7 +78,7 @@ class TabErrorBoundary extends React.Component<
     if (this.state.hasError) {
       return (
         <div style={{ padding: '32px', textAlign: 'center' }}>
-          <div className="card" style={{ padding: '24px' }}>
+          <div className="card" style={{ background: 'white', color: '#1f2937', padding: '24px' }}>
             <h3 style={{ fontSize: '18px', fontWeight: '600', color: '#ef4444', marginBottom: '8px' }}>
               标签页加载失败
             </h3>

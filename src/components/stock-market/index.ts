@@ -4,45 +4,23 @@
 // 主要组件导出
 export { MarketOverview } from './MarketOverview';
 export type { MarketStats, MarketOverviewProps } from './MarketOverview';
-export { marketOverviewUtils } from './MarketOverview';
 
 export { MarketTabs } from './MarketTabs';
 export type { MarketTabId, MarketTab, MarketTabsProps } from './MarketTabs';
-export { DEFAULT_TABS, marketTabsUtils, MARKET_TAB_IDS, MARKET_TAB_LABELS } from './MarketTabs';
+export { DEFAULT_TABS } from './MarketTabs';
 
 export { useMarketData } from './MarketDataManager';
 export type { MarketDataState, MarketDataActions, UseMarketDataResult } from './MarketDataManager';
-export { marketDataUtils } from './MarketDataManager';
 
 export { MarketContent } from './MarketContent';
 export type { MarketContentProps } from './MarketContent';
-export { marketContentUtils, TAB_DISPLAY_NAMES, TAB_DESCRIPTIONS } from './MarketContent';
 
 // 重构后的主组件
 export { StockMarketRefactored } from './StockMarketRefactored';
 export type { StockMarketProps } from './StockMarketRefactored';
 
-// 导入工具函数和组件
-import { marketDataUtils, useMarketData } from './MarketDataManager';
-import { marketOverviewUtils, MarketOverview } from './MarketOverview';
-import { marketTabsUtils, MarketTabId, MarketTabs } from './MarketTabs';
-import { marketContentUtils, MarketContent } from './MarketContent';
-
-// 工具函数和常量
+// 工具函数
 export const stockMarketUtils = {
-  // 数据管理
-  ...marketDataUtils,
-  
-  // 概览统计
-  ...marketOverviewUtils,
-  
-  // 标签页管理
-  ...marketTabsUtils,
-  
-  // 内容管理
-  ...marketContentUtils,
-  
-  // 通用工具
   formatStockSymbol: (symbol: string, market?: string) => {
     if (!market) return symbol;
     return `${symbol}.${market.toUpperCase()}`;
@@ -115,81 +93,5 @@ export const STOCK_MARKET_CONSTANTS = {
     high: '高关注',
     medium: '中关注',
     low: '低关注'
-  },
-  
-  // 状态颜色
-  STATUS_COLORS: {
-    success: 'text-green-600',
-    warning: 'text-yellow-600',
-    error: 'text-red-600',
-    info: 'text-blue-600',
-    default: 'text-gray-600'
-  },
-  
-  // 操作类型
-  ACTIONS: {
-    ADD: 'add',
-    UPDATE: 'update',
-    DELETE: 'delete',
-    VIEW: 'view',
-    SELECT: 'select',
-    RUN: 'run',
-    REFRESH: 'refresh'
   }
 };
-
-// 类型导出
-export type StockMarketModule = {
-  // 组件
-  MarketOverview: typeof MarketOverview;
-  MarketTabs: typeof MarketTabs;
-  MarketContent: typeof MarketContent;
-  
-  // Hooks
-  useMarketData: typeof useMarketData;
-  
-  // 工具类型
-  utils: typeof stockMarketUtils;
-  constants: typeof STOCK_MARKET_CONSTANTS;
-};
-
-// 版本信息
-export const STOCK_MARKET_VERSION = {
-  version: '2.0.0',
-  refactoredAt: new Date().toISOString(),
-  changes: [
-    '拆分大组件为多个专用子组件',
-    '引入统一的数据管理Hook',
-    '优化标签页切换和内容渲染',
-    '增强错误处理和加载状态',
-    '提供完整的工具函数库'
-  ],
-  components: [
-    'MarketOverview - 市场概览统计',
-    'MarketTabs - 功能标签页导航',
-    'MarketDataManager - 数据状态管理',
-    'MarketContent - 内容渲染管理',
-    'StockMarketRefactored - 重构后的主组件'
-  ]
-};
-
-// 默认配置
-export const defaultStockMarketConfig = {
-  initialTab: STOCK_MARKET_CONSTANTS.DEFAULT_TAB,
-  autoRefresh: true,
-  refreshInterval: STOCK_MARKET_CONSTANTS.REFRESH_INTERVAL,
-  enableErrorBoundary: true,
-  enableLoadingStates: true,
-  maxRetries: 3,
-  retryDelay: 1000
-};
-
-// 调试信息
-if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
-  (window as any).__STOCK_MARKET_DEBUG__ = {
-    version: STOCK_MARKET_VERSION,
-    utils: stockMarketUtils,
-    constants: STOCK_MARKET_CONSTANTS,
-    config: defaultStockMarketConfig
-  };
-}
