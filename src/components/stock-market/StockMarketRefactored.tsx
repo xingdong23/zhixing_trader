@@ -1,6 +1,3 @@
-// 【知行交易】重构后的股票市场主组件
-// 整合概览、标签页、数据管理和内容渲染的统一界面
-
 'use client';
 
 import React, { useState, useMemo } from 'react';
@@ -116,24 +113,44 @@ export function StockMarketRefactored({
   }
   
   return (
-    <div className={`space-y-6 ${className}`}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }} className={className}>
       {/* 错误提示 */}
       {error && (
-        <div className="card neon-border border-danger/30 bg-danger/5 p-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <div className="w-4 h-4 bg-danger rounded-full animate-pulse"></div>
-              <span className="text-danger font-medium data-mono">数据加载失败</span>
+        <div className="card" style={{
+          border: '1px solid #fca5a5',
+          background: 'rgba(254, 226, 226, 0.5)',
+          padding: '24px'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <div style={{
+                width: '16px',
+                height: '16px',
+                background: '#dc2626',
+                borderRadius: '50%',
+                animation: 'pulse 2s infinite'
+              }}></div>
+              <span style={{ color: '#dc2626', fontWeight: '500', fontFamily: 'monospace' }}>
+                数据加载失败
+              </span>
             </div>
             <button
               onClick={handleClearError}
-              className="text-danger hover:text-danger-light text-sm transition-colors"
+              style={{
+                color: '#dc2626',
+                background: 'transparent',
+                border: 'none',
+                fontSize: '14px',
+                cursor: 'pointer'
+              }}
             >
               关闭
             </button>
           </div>
-          <p className="text-danger/80 text-sm mt-2 data-mono">{error}</p>
-          <div className="mt-3">
+          <p style={{ color: 'rgba(220, 38, 38, 0.8)', fontSize: '14px', marginTop: '8px', fontFamily: 'monospace' }}>
+            {error}
+          </p>
+          <div style={{ marginTop: '12px' }}>
             <button
               onClick={handleRefreshData}
               className="btn btn-primary"
@@ -172,9 +189,9 @@ export function StockMarketRefactored({
         onDeleteStock={actions.deleteStock}
         onSelectStock={onCreateTradingPlan}
         onViewStockDetail={handleViewStockDetail}
-          onCreateStrategy={() => { /* 禁用创建 */ }}
-          onUpdateStrategy={() => { /* 禁用更新 */ }}
-          onDeleteStrategy={() => { /* 禁用删除 */ }}
+        onCreateStrategy={() => { /* 禁用创建 */ }}
+        onUpdateStrategy={() => { /* 禁用更新 */ }}
+        onDeleteStrategy={() => { /* 禁用删除 */ }}
         onRunStrategy={actions.runStrategy}
         onImportComplete={handleImportComplete}
         onConceptSelect={handleConceptSelect}
@@ -188,78 +205,3 @@ export function StockMarketRefactored({
 
 // 默认导出
 export default StockMarketRefactored;
-
-// 组件元数据
-StockMarketRefactored.displayName = 'StockMarketRefactored';
-
-// 组件文档
-export const StockMarketRefactoredDocs = {
-  name: 'StockMarketRefactored',
-  description: '重构后的股票市场主组件，整合了概览、标签页、数据管理和内容渲染',
-  version: '2.0.0',
-  
-  props: {
-    onCreateTradingPlan: {
-      type: '(stock: Stock) => void',
-      required: true,
-      description: '创建交易计划的回调函数'
-    },
-    className: {
-      type: 'string',
-      required: false,
-      description: '自定义CSS类名'
-    }
-  },
-  
-  features: [
-    '多标签页功能切换',
-    '统一的数据状态管理',
-    '错误处理和重试机制',
-    '加载状态和用户反馈',
-    '股票详情页面集成',
-    '策略执行和结果查看'
-  ],
-  
-  subComponents: [
-    'MarketTabs - 标签页导航组件',
-    'MarketContent - 内容渲染组件',
-    'useMarketData - 数据管理Hook'
-  ],
-  
-  usage: `
-    import { StockMarketRefactored } from '@/components/stock-market';
-    
-    function App() {
-      const handleCreateTradingPlan = (stock) => {
-        // 处理交易计划创建
-      };
-      
-      return (
-        <StockMarketRefactored 
-          onCreateTradingPlan={handleCreateTradingPlan}
-        />
-      );
-    }
-  `
-};
-
-// 性能优化建议
-export const StockMarketPerformanceTips = {
-  memoization: [
-    '使用 useMemo 缓存计算结果',
-    '使用 useCallback 缓存事件处理函数',
-    '避免在渲染过程中创建新对象'
-  ],
-  
-  dataManagement: [
-    '合理使用 useMarketData Hook',
-    '避免频繁的数据刷新',
-    '实现数据缓存和增量更新'
-  ],
-  
-  rendering: [
-    '使用错误边界处理组件错误',
-    '实现骨架屏提升加载体验',
-    '合理拆分组件避免过度渲染'
-  ]
-};
