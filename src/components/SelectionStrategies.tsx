@@ -5,7 +5,7 @@
 
 import React, { useState, useMemo, useEffect } from 'react';
 import { apiGet, apiPost, API_ENDPOINTS, pollApi } from '@/utils/api';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { StockSelectionStrategy, Stock, StockSelectionResult } from '@/types';
 // 创建/编辑功能已移除
 import {
@@ -461,3 +461,6 @@ function StrategyCard({
     </div>
   );
 }
+
+// 默认导出
+export default SelectionStrategies;

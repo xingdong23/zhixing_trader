@@ -1,8 +1,15 @@
+// 【知行交易】现代化市场分析组件
+// 专业金融系统 - 市场数据分析与管理
+
 'use client';
 
 import React, { useState, useMemo } from 'react';
 import { Stock } from '@/types';
 import { StockDetail } from '../StockDetail';
+import { Card, CardContent, CardHeader, CardTitle } from '../ui/Card';
+import { Button } from '../ui/Button';
+import { cn } from '@/utils/cn';
+import { AlertCircle, RefreshCw, Zap, TrendingUp, Target, BarChart3, X } from 'lucide-react';
 
 // 导入子组件
 import { MarketTabs, MarketTabId } from './MarketTabs';
@@ -20,7 +27,7 @@ export function StockMarketRefactored({
   onCreateTradingPlan, 
   className = '' 
 }: StockMarketProps) {
-  console.log('🎯 StockMarketRefactored 组件正在渲染... [v2.0]');
+  console.log('🎯 StockMarketRefactored 组件正在渲染... [v3.0]');
   
   // 状态管理
   const [currentTab, setCurrentTab] = useState<MarketTabId>('pool');
@@ -32,19 +39,21 @@ export function StockMarketRefactored({
   const { state, actions } = useMarketData();
   const { stocks, strategies, isLoading, error, page, pageSize, total, totalPages } = state;
   
-  // 调试信息
-  console.log('🎯 StockMarketRefactored: stocks数据:', stocks);
-  console.log('🎯 StockMarketRefactored: stocks数量:', stocks.length);
-  console.log('🎯 StockMarketRefactored: isLoading:', isLoading);
-  console.log('🎯 StockMarketRefactored: error:', error);
-  
   // 计算统计信息
   const stats = useMemo(() => {
+    // 使用Stock类型中的priceChangePercent属性
+    const gainers = stocks.filter(s => s.priceChangePercent && s.priceChangePercent > 0).length;
+    const losers = stocks.filter(s => s.priceChangePercent && s.priceChangePercent < 0).length;
+    
     return {
       totalStocks: stocks.length,
       totalStrategies: strategies.length,
       activeStrategies: strategies.filter(s => s.isActive).length,
-      todayOpportunities: 0 // 暂时移除选股结果功能
+      gainers,
+      losers,
+      avgGain: stocks.length > 0 
+        ? (stocks.reduce((sum, s) => sum + (s.priceChangePercent || 0), 0) / stocks.length).toFixed(2)
+        : '0.00'
     };
   }, [stocks, strategies]);
   
@@ -66,7 +75,6 @@ export function StockMarketRefactored({
     setIsRunningStrategies(true);
     try {
       await actions.runAllStrategies();
-      // 运行完成后切换到策略页面查看结果
       setCurrentTab('strategies');
     } finally {
       setIsRunningStrategies(false);
@@ -82,20 +90,15 @@ export function StockMarketRefactored({
   };
   
   const handleImportComplete = async (importedStocks: Stock[]) => {
-    // 导入完成后刷新数据
     await handleRefreshData();
-    // 切换到股票池查看结果
     setCurrentTab('pool');
   };
   
   const handleConceptSelect = (conceptId: string) => {
-    // 选择概念后可以在这里处理筛选逻辑
     console.log('选择概念:', conceptId);
-    // 切换到股票池查看相关股票
     setCurrentTab('pool');
   };
   
-  // 错误处理
   const handleClearError = () => {
     actions.clearError();
   };
@@ -113,53 +116,126 @@ export function StockMarketRefactored({
   }
   
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }} className={className}>
+    <div className={cn('space-y-6', className)}>
+      {/* 页面标题 */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold gradient-text">市场分析</h1>
+          <p className="text-text-secondary mt-1">智能选股与市场数据分析</p>
+        </div>
+        
+        {/* 快速操作按钮 */}
+        <div className="flex items-center gap-3">
+          <Button
+            variant="ghost"
+            onClick={handleRefreshData}
+            loading={isRefreshing}
+            leftIcon={<RefreshCw className="w-4 h-4" />}
+          >
+            刷新数据
+          </Button>
+          <Button
+            variant="primary"
+            onClick={handleRunAllStrategies}
+            loading={isRunningStrategies}
+            leftIcon={<Zap className="w-4 h-4" />}
+          >
+            执行策略
+          </Button>
+        </div>
+      </div>
+
+      {/* 统计概览 */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <Card variant="gradient">
+          <CardContent padding="md">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-text-secondary mb-1">股票总数</p>
+                <p className="text-2xl font-bold number">{stats.totalStocks}</p>
+                <p className="text-xs text-text-tertiary mt-1">已导入数据库</p>
+              </div>
+              <BarChart3 className="w-8 h-8 text-primary" />
+            </div>
+          </CardContent>
+        </Card>
+        
+        <Card variant="gradient">
+          <CardContent padding="md">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-text-secondary mb-1">上涨股数</p>
+                <p className="text-2xl font-bold number status-success">{stats.gainers}</p>
+                <p className="text-xs text-text-tertiary mt-1">今日上涨</p>
+              </div>
+              <TrendingUp className="w-8 h-8 text-success" />
+            </div>
+          </CardContent>
+        </Card>
+        
+        <Card variant="gradient">
+          <CardContent padding="md">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-text-secondary mb-1">活跃策略</p>
+                <p className="text-2xl font-bold number">{stats.activeStrategies}</p>
+                <p className="text-xs text-text-tertiary mt-1">正在运行</p>
+              </div>
+              <Target className="w-8 h-8 text-warning" />
+            </div>
+          </CardContent>
+        </Card>
+        
+        <Card variant="gradient">
+          <CardContent padding="md">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-text-secondary mb-1">平均涨幅</p>
+                <p className={cn(
+                  'text-2xl font-bold number',
+                  Number(stats.avgGain) > 0 ? 'status-success' : 
+                  Number(stats.avgGain) < 0 ? 'status-danger' : 'text-text-secondary'
+                )}>
+                  {Number(stats.avgGain) > 0 && '+'}{stats.avgGain}%
+                </p>
+                <p className="text-xs text-text-tertiary mt-1">今日平均</p>
+              </div>
+              <div className={cn(
+                'w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold',
+                Number(stats.avgGain) > 0 ? 'bg-success/20 text-success' :
+                Number(stats.avgGain) < 0 ? 'bg-danger/20 text-danger' :
+                'bg-text-tertiary/20 text-text-tertiary'
+              )}>
+                %
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
       {/* 错误提示 */}
       {error && (
-        <div className="card" style={{
-          border: '1px solid #fca5a5',
-          background: 'white',
-          color: '#1f2937',
-          padding: '24px'
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <div style={{
-                width: '16px',
-                height: '16px',
-                background: '#dc2626',
-                borderRadius: '50%',
-                animation: 'pulse 2s infinite'
-              }}></div>
-              <span style={{ color: '#dc2626', fontWeight: '500', fontFamily: 'monospace' }}>
-                数据加载失败
-              </span>
+        <Card variant="outline" className="border-danger">
+          <CardContent padding="md">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <AlertCircle className="w-5 h-5 text-danger" />
+                <div>
+                  <p className="font-medium text-danger">数据加载失败</p>
+                  <p className="text-sm text-text-secondary mt-1">{error}</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <Button variant="ghost" size="sm" onClick={handleRefreshData}>
+                  重试
+                </Button>
+                <Button variant="ghost" size="sm" onClick={handleClearError}>
+                  <X className="w-4 h-4" />
+                </Button>
+              </div>
             </div>
-            <button
-              onClick={handleClearError}
-              style={{
-                color: '#dc2626',
-                background: 'transparent',
-                border: 'none',
-                fontSize: '14px',
-                cursor: 'pointer'
-              }}
-            >
-              关闭
-            </button>
-          </div>
-          <p style={{ color: 'rgba(220, 38, 38, 0.8)', fontSize: '14px', marginTop: '8px', fontFamily: 'monospace' }}>
-            {error}
-          </p>
-          <div style={{ marginTop: '12px' }}>
-            <button
-              onClick={handleRefreshData}
-              className="btn btn-primary"
-            >
-              重试
-            </button>
-          </div>
-        </div>
+          </CardContent>
+        </Card>
       )}
       
       {/* 功能标签页 */}

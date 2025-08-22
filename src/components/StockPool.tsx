@@ -154,40 +154,18 @@ export function StockPool({
       padding: '0 8px'
     }}>
       {/* 页面标题 */}
-      <div className="glass-card animate-slide-up" style={{ 
-        display: 'flex', 
-        alignItems: 'center', 
-        justifyContent: 'space-between',
-        padding: '24px'
-      }}>
+      <div className="card p-6 flex items-center justify-between">
         <div>
-          <h2 style={{ 
-            fontSize: '28px', 
-            fontWeight: '700', 
-            color: 'var(--primary)', 
-            margin: 0
-          }}>
+          <h2 className="text-3xl font-bold gradient-text mb-1">
             股票池
           </h2>
-          <p style={{ 
-            fontSize: '14px', 
-            color: 'var(--text-secondary)', 
-            marginTop: '4px',
-            fontWeight: '500'
-          }}>
+          <p className="text-sm text-secondary">
             第{page}页 · 共{total}只股票 · {filteredStocks.length}只已筛选
           </p>
         </div>
         <button
           onClick={() => setShowAddForm(true)}
-          className="btn btn-primary"
-          style={{ 
-            display: 'flex', 
-            alignItems: 'center', 
-            gap: '8px',
-            fontSize: '14px',
-            fontWeight: '600'
-          }}
+          className="btn btn-primary flex items-center gap-2"
         >
           <Plus size={18} />
           <span>添加股票</span>
@@ -195,49 +173,28 @@ export function StockPool({
       </div>
 
       {/* 搜索和筛选 */}
-      <div className="glass-card animate-slide-up" style={{ padding: '24px' }}>
+      <div className="card p-6">
         {/* 搜索栏 */}
-        <div style={{ 
-          position: 'relative', 
-          marginBottom: '24px'
-        }}>
+        <div className="relative mb-6">
           <Search 
             size={20} 
-            style={{ 
-              position: 'absolute', 
-              left: '16px', 
-              top: '50%', 
-              transform: 'translateY(-50%)', 
-              color: 'var(--text-secondary)' 
-            }} 
+            className="absolute left-4 top-1/2 transform -translate-y-1/2 text-tertiary" 
           />
           <input
             type="text"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="input"
-            style={{
-              width: '100%',
-              paddingLeft: '48px',
-              fontSize: '16px',
-              height: '48px'
-            }}
+            className="input pl-12 h-12 text-base"
             placeholder="搜索股票代码或名称 (如: AAPL, 苹果, TSLA)"
           />
         </div>
 
         {/* 快速筛选 */}
-        <div style={{ 
-          display: 'grid', 
-          gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', 
-          gap: '16px',
-          marginBottom: '24px'
-        }}>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
           <select
             value={selectedMarket}
             onChange={(e) => setSelectedMarket(e.target.value)}
-            className="input"
-            style={{ height: '48px' }}
+            className="input h-12"
           >
             <option value="">所有市场</option>
             <option value="US">🇺🇸 美股</option>
@@ -248,8 +205,7 @@ export function StockPool({
           <select
             value={selectedWatchLevel}
             onChange={(e) => setSelectedWatchLevel(e.target.value)}
-            className="input"
-            style={{ height: '48px' }}
+            className="input h-12"
           >
             <option value="">所有关注度</option>
             <option value="high">⭐ 重点关注</option>
@@ -259,13 +215,7 @@ export function StockPool({
 
           <button
             onClick={clearFilters}
-            className="btn btn-secondary"
-            style={{ 
-              display: 'flex', 
-              alignItems: 'center', 
-              gap: '8px',
-              height: '48px'
-            }}
+            className="btn btn-secondary h-12 flex items-center justify-center gap-2"
           >
             <Filter size={16} />
             清除筛选
@@ -274,48 +224,20 @@ export function StockPool({
 
         {/* 概念标签 */}
         <div>
-          <div style={{ 
-            display: 'flex',
-            alignItems: 'center',
-            gap: '12px',
-            marginBottom: '16px' 
-          }}>
-            <span style={{ 
-              fontSize: '16px', 
-              fontWeight: '600', 
-              color: 'var(--text-primary)' 
-            }}>
+          <div className="flex items-center gap-3 mb-4">
+            <span className="text-lg font-semibold text-primary">
               概念筛选
             </span>
-            <div style={{
-              height: '1px',
-              flex: 1,
-              background: 'linear-gradient(90deg, var(--border) 0%, transparent 100%)'
-            }} />
+            <div className="h-px flex-1 bg-gradient-to-r from-border-primary to-transparent" />
           </div>
           
-          <div style={{ 
-            display: 'flex', 
-            flexWrap: 'wrap', 
-            gap: '12px',
-            marginBottom: '16px'
-          }}>
+          <div className="flex flex-wrap gap-3 mb-4">
             <button
               onClick={() => { 
                 setSelectedConcept(''); 
                 if (onConceptChange) onConceptChange(''); 
               }}
-              className="tag"
-              style={{
-                background: selectedConcept === '' 
-                  ? 'linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%)' 
-                  : 'rgba(255, 255, 255, 0.05)',
-                color: selectedConcept === '' ? '#0f172a' : 'var(--text-primary)',
-                border: selectedConcept === '' 
-                  ? 'none' 
-                  : '1px solid var(--border)',
-                fontWeight: '600'
-              }}
+              className={`tag ${selectedConcept === '' ? 'tag-primary' : ''}`}
             >
               全部 ({total || updatedStocks.length})
             </button>
@@ -333,9 +255,8 @@ export function StockPool({
                   background: selectedConcept === concept.id 
                     ? concept.color 
                     : `${concept.color}20`,
-                  color: selectedConcept === concept.id ? '#0f172a' : concept.color,
-                  border: `1px solid ${concept.color}`,
-                  fontWeight: '600'
+                  color: selectedConcept === concept.id ? 'var(--bg-primary)' : concept.color,
+                  borderColor: concept.color
                 }}
               >
                 {concept.name} ({concept.stockCount})

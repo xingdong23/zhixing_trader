@@ -1,23 +1,23 @@
 // 【知行交易】智能复盘模块
-// 整合复盘分析、洞察实验室、剧本管理等功能
+// 现代化复盘分析、洞察实验室、剧本管理功能
 
 'use client';
 
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui';
-import { InsightsLab } from './InsightsLab';
-import { PlaybookManager } from './PlaybookManager';
-import { TradeReview } from './TradeReview';
-import { TradingPlan, TradeRecord, InsightCard, TradingPlaybook, TradingStats } from '@/types';
+import { Button } from '@/components/ui/Button';
+import { cn } from '@/utils/cn';
 import {
   Brain,
   BookOpen,
   BarChart3,
   FileText,
   TrendingUp,
+  TrendingDown,
   Award,
   Target,
-  Lightbulb
+  Lightbulb,
+  ArrowLeft
 } from 'lucide-react';
 
 interface IntelligentReviewProps {
@@ -42,12 +42,13 @@ export function IntelligentReview({
   const [currentTab, setCurrentTab] = useState<'overview' | 'review' | 'insights' | 'playbooks'>('overview');
   const [selectedPlan, setSelectedPlan] = useState<TradingPlan | null>(null);
 
-  // 统计数据
+  // 统计数据 - 增强版
+  const totalPnL = completedRecords.reduce((sum, r) => sum + r.totalPnL, 0);
   const stats = {
     totalTrades: completedRecords.length,
     winRate: completedRecords.length > 0 ? 
       (completedRecords.filter(r => r.totalPnL > 0).length / completedRecords.length * 100) : 0,
-    totalPnL: completedRecords.reduce((sum, r) => sum + r.totalPnL, 0),
+    totalPnL,
     avgDiscipline: completedRecords.length > 0 ?
       (completedRecords.reduce((sum, r) => {
         const rating = r.disciplineRating === 'perfect' ? 4 :
@@ -56,14 +57,16 @@ export function IntelligentReview({
         return sum + rating;
       }, 0) / completedRecords.length) : 0,
     totalInsights: insights.length,
-    totalPlaybooks: playbooks.length
+    totalPlaybooks: playbooks.length,
+    avgReturn: completedRecords.length > 0 ? 
+      (totalPnL / completedRecords.length).toFixed(0) : '0'
   };
 
   const tabs = [
-    { id: 'overview', label: '复盘概览', icon: BarChart3 },
-    { id: 'review', label: '交易复盘', icon: FileText, count: completedPlans.length },
-    { id: 'insights', label: '洞察实验室', icon: Brain, count: insights.length },
-    { id: 'playbooks', label: '剧本管理', icon: BookOpen, count: playbooks.length }
+    { id: 'overview', label: '复盘概览', icon: BarChart3, description: '整体复盘数据' },
+    { id: 'review', label: '交易复盘', icon: FileText, count: completedPlans.length, description: '详细交易分析' },
+    { id: 'insights', label: '洞察实验室', icon: Brain, count: insights.length, description: '智能分析洞察' },
+    { id: 'playbooks', label: '剧本管理', icon: BookOpen, count: playbooks.length, description: '交易策略剧本' }
   ];
 
   // 如果选中了特定计划进行复盘
@@ -71,128 +74,145 @@ export function IntelligentReview({
     const relatedRecord = completedRecords.find(r => r.planId === selectedPlan.id);
     if (relatedRecord) {
       return (
-        <TradeReview
-          plan={selectedPlan}
-          onSubmitReview={(record, saveAsPlaybook) => {
-            if (saveAsPlaybook) {
-              // 这里应该从record创建playbook，暂时跳过
-            }
-            setSelectedPlan(null);
-          }}
-          onCancel={() => setSelectedPlan(null)}
-        />
+        <div className="space-y-6">
+          <div className="flex items-center gap-4">
+            <Button variant="ghost" size="sm" onClick={() => setSelectedPlan(null)}>
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              返回复盘分析
+            </Button>
+            <h1 className="text-2xl font-bold">交易复盘 - {selectedPlan.symbolName}</h1>
+          </div>
+          <TradeReview
+            plan={selectedPlan}
+            onSubmitReview={(record, saveAsPlaybook) => {
+              if (saveAsPlaybook) {
+                // 这里应该从record创建playbook，暂时跳过
+              }
+              setSelectedPlan(null);
+            }}
+            onCancel={() => setSelectedPlan(null)}
+          />
+        </div>
       );
     }
   }
 
   return (
     <div className="space-y-6">
+      {/* 页面标题 */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold gradient-text">智能复盘</h1>
+          <p className="text-text-secondary mt-1">交易分析、经验总结与策略优化</p>
+        </div>
+      </div>
 
-      {/* 统计卡片 */}
-      <div className="grid grid-cols-1 md:grid-cols-6 gap-4">
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600">总交易数</p>
-                <p className="text-2xl font-bold text-gray-900">{stats.totalTrades}</p>
-              </div>
-              <FileText className="w-8 h-8 text-gray-500" />
+      {/* 统计卡片 - 全新设计 */}
+      <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-6">
+        <Card variant="gradient" className="group hover:scale-105 transition-transform duration-200">
+          <CardContent padding="md">
+            <div className="text-center">
+              <FileText className="w-8 h-8 text-text-secondary mx-auto mb-2 group-hover:text-primary transition-colors" />
+              <p className="text-sm text-text-secondary mb-1">总交易数</p>
+              <p className="text-2xl font-bold number">{stats.totalTrades}</p>
             </div>
           </CardContent>
         </Card>
 
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600">胜率</p>
-                <p className="text-2xl font-bold text-green-600">{stats.winRate.toFixed(1)}%</p>
-              </div>
-              <Target className="w-8 h-8 text-green-500" />
+        <Card variant="gradient" className="group hover:scale-105 transition-transform duration-200">
+          <CardContent padding="md">
+            <div className="text-center">
+              <Target className="w-8 h-8 text-success mx-auto mb-2 group-hover:scale-110 transition-transform" />
+              <p className="text-sm text-text-secondary mb-1">胜率</p>
+              <p className="text-2xl font-bold number status-success">{stats.winRate.toFixed(1)}%</p>
             </div>
           </CardContent>
         </Card>
 
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600">总盈亏</p>
-                <p className={`text-2xl font-bold ${
-                  stats.totalPnL >= 0 ? 'text-green-600' : 'text-red-600'
-                }`}>
-                  {stats.totalPnL >= 0 ? '+' : ''}${stats.totalPnL.toFixed(0)}
-                </p>
-              </div>
-              <TrendingUp className="w-8 h-8 text-blue-500" />
+        <Card variant="gradient" className="group hover:scale-105 transition-transform duration-200">
+          <CardContent padding="md">
+            <div className="text-center">
+              {stats.totalPnL >= 0 ? (
+                <TrendingUp className="w-8 h-8 text-success mx-auto mb-2 group-hover:scale-110 transition-transform" />
+              ) : (
+                <TrendingDown className="w-8 h-8 text-danger mx-auto mb-2 group-hover:scale-110 transition-transform" />
+              )}
+              <p className="text-sm text-text-secondary mb-1">总盈亏</p>
+              <p className={cn(
+                'text-2xl font-bold number',
+                stats.totalPnL >= 0 ? 'status-success' : 'status-danger'
+              )}>
+                {stats.totalPnL >= 0 && '+'}￥{Math.abs(stats.totalPnL).toLocaleString()}
+              </p>
             </div>
           </CardContent>
         </Card>
 
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600">平均纪律分</p>
-                <p className="text-2xl font-bold text-purple-600">{stats.avgDiscipline.toFixed(0)}</p>
-              </div>
-              <Award className="w-8 h-8 text-purple-500" />
+        <Card variant="gradient" className="group hover:scale-105 transition-transform duration-200">
+          <CardContent padding="md">
+            <div className="text-center">
+              <Award className="w-8 h-8 text-warning mx-auto mb-2 group-hover:scale-110 transition-transform" />
+              <p className="text-sm text-text-secondary mb-1">纪律分</p>
+              <p className="text-2xl font-bold number text-warning">{stats.avgDiscipline.toFixed(1)}</p>
             </div>
           </CardContent>
         </Card>
 
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600">洞察卡片</p>
-                <p className="text-2xl font-bold text-orange-600">{stats.totalInsights}</p>
-              </div>
-              <Lightbulb className="w-8 h-8 text-orange-500" />
+        <Card variant="gradient" className="group hover:scale-105 transition-transform duration-200">
+          <CardContent padding="md">
+            <div className="text-center">
+              <Lightbulb className="w-8 h-8 text-info mx-auto mb-2 group-hover:scale-110 transition-transform" />
+              <p className="text-sm text-text-secondary mb-1">洞察卡片</p>
+              <p className="text-2xl font-bold number text-info">{stats.totalInsights}</p>
             </div>
           </CardContent>
         </Card>
 
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600">交易剧本</p>
-                <p className="text-2xl font-bold text-indigo-600">{stats.totalPlaybooks}</p>
-              </div>
-              <BookOpen className="w-8 h-8 text-indigo-500" />
+        <Card variant="gradient" className="group hover:scale-105 transition-transform duration-200">
+          <CardContent padding="md">
+            <div className="text-center">
+              <BookOpen className="w-8 h-8 text-primary mx-auto mb-2 group-hover:scale-110 transition-transform" />
+              <p className="text-sm text-text-secondary mb-1">交易剧本</p>
+              <p className="text-2xl font-bold number text-primary">{stats.totalPlaybooks}</p>
             </div>
           </CardContent>
         </Card>
       </div>
 
-      {/* 标签页导航 */}
-      <div className="border-b border-gray-200">
-        <nav className="flex space-x-8">
+      {/* 标签页导航 - 现代化设计 */}
+      <div className="bg-bg-secondary rounded-xl p-1 border border-border-secondary">
+        <div className="flex space-x-1">
           {tabs.map(tab => {
             const Icon = tab.icon;
+            const isActive = currentTab === tab.id;
             return (
               <button
                 key={tab.id}
                 onClick={() => setCurrentTab(tab.id as any)}
-                className={`flex items-center py-2 px-1 border-b-2 font-medium text-sm transition-colors ${
-                  currentTab === tab.id
-                    ? 'border-purple-500 text-purple-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                }`}
+                className={cn(
+                  'flex-1 flex items-center justify-center gap-3 px-4 py-3 rounded-lg transition-all duration-200',
+                  'text-sm font-medium relative',
+                  isActive
+                    ? 'bg-primary text-bg-primary shadow-lg'
+                    : 'text-text-secondary hover:text-text-primary hover:bg-bg-hover'
+                )}
               >
-                <Icon className="w-4 h-4 mr-2" />
-                {tab.label}
+                <Icon className="w-4 h-4" />
+                <span className="hidden sm:block">{tab.label}</span>
                 {tab.count !== undefined && tab.count > 0 && (
-                  <span className="ml-2 bg-purple-100 text-purple-600 text-xs px-2 py-1 rounded-full">
+                  <span className={cn(
+                    'px-2 py-1 rounded-full text-xs font-medium',
+                    isActive 
+                      ? 'bg-bg-primary/20 text-bg-primary'
+                      : 'bg-primary/10 text-primary'
+                  )}>
                     {tab.count}
                   </span>
                 )}
               </button>
             );
           })}
-        </nav>
+        </div>
       </div>
 
       {/* 标签页内容 */}
