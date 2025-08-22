@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { BarChart3, Target, Filter, TrendingUp, RefreshCw } from 'lucide-react';
+import { BarChart3, Target, Filter, TrendingUp, RefreshCw, Activity, Zap } from 'lucide-react';
 
 // 类型定义
 export interface MarketStats {
@@ -22,72 +22,169 @@ interface StatCardProps {
   icon: React.ComponentType<{ size?: number; style?: React.CSSProperties }>;
   value: number;
   label: string;
-  color?: string;
+  gradient: string;
   isLoading?: boolean;
+  index: number;
 }
 
-function StatCard({ icon: Icon, value, label, color = '#3b82f6', isLoading }: StatCardProps) {
+function StatCard({ icon: Icon, value, label, gradient, isLoading, index }: StatCardProps) {
   return (
-    <div className="card" style={{
-      transition: 'all 0.3s',
-      cursor: 'pointer'
-    }}
-    onMouseEnter={(e) => {
-      e.currentTarget.style.transform = 'translateY(-2px)';
-      e.currentTarget.style.boxShadow = '0 8px 25px rgba(0, 0, 0, 0.15)';
-    }}
-    onMouseLeave={(e) => {
-      e.currentTarget.style.transform = 'translateY(0)';
-      e.currentTarget.style.boxShadow = '0 1px 3px rgba(0, 0, 0, 0.1)';
-    }}>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
-        <div style={{
-          width: '48px',
-          height: '48px',
-          borderRadius: '8px',
-          background: `${color}20`,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          transition: 'transform 0.2s'
-        }}>
-          <Icon size={24} style={{ color }} />
+    <div 
+      className="glass-card animate-slide-up"
+      style={{
+        animationDelay: `${index * 0.1}s`,
+        cursor: 'pointer',
+        position: 'relative',
+        overflow: 'hidden'
+      }}
+    >
+      {/* 渐变装饰 */}
+      <div style={{
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        height: '3px',
+        background: gradient
+      }} />
+
+      <div style={{ padding: '24px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
+          <div style={{
+            width: '56px',
+            height: '56px',
+            borderRadius: '16px',
+            background: gradient,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            color: 'white',
+            boxShadow: '0 8px 24px rgba(0, 0, 0, 0.2)'
+          }}>
+            <Icon size={28} />
+          </div>
+          <div style={{ textAlign: 'right' }}>
+            {isLoading ? (
+              <div style={{
+                width: '80px',
+                height: '36px',
+                background: 'rgba(255, 255, 255, 0.1)',
+                borderRadius: '8px',
+                animation: 'pulse 2s infinite'
+              }}></div>
+            ) : (
+              <div style={{
+                fontSize: '36px',
+                fontWeight: '700',
+                fontFamily: 'Monaco, monospace',
+                color: 'var(--text-primary)',
+                lineHeight: 1
+              }}>
+                {formatNumber(value)}
+              </div>
+            )}
+          </div>
         </div>
-        <div style={{ textAlign: 'right' }}>
-          {isLoading ? (
+        
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <span style={{ 
+            fontSize: '16px', 
+            fontWeight: '600', 
+            color: 'var(--text-primary)' 
+          }}>
+            {label}
+          </span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
             <div style={{
-              width: '64px',
-              height: '32px',
-              background: '#f3f4f6',
-              borderRadius: '4px',
+              width: '8px',
+              height: '8px',
+              borderRadius: '50%',
+              background: gradient,
+              boxShadow: `0 0 8px ${gradient}40`,
               animation: 'pulse 2s infinite'
             }}></div>
-          ) : (
-            <div style={{
-              fontSize: '24px',
-              fontWeight: 'bold',
-              fontFamily: 'monospace',
-              color: '#1f2937',
-              transition: 'color 0.2s'
+            <span style={{ 
+              fontSize: '12px', 
+              color: 'var(--text-secondary)',
+              fontWeight: '500'
             }}>
-              {formatNumber(value)}
-            </div>
-          )}
+              活跃
+            </span>
+          </div>
         </div>
       </div>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <span style={{ fontSize: '14px', fontWeight: '500', color: '#6b7280' }}>{label}</span>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+    </div>
+  );
+}
+
+// 洞察卡片组件
+function InsightCard({ 
+  title, 
+  value, 
+  subtitle, 
+  color, 
+  percentage 
+}: { 
+  title: string; 
+  value: string | number; 
+  subtitle?: string; 
+  color: string; 
+  percentage?: number; 
+}) {
+  return (
+    <div style={{
+      textAlign: 'center',
+      padding: '20px',
+      borderRadius: '12px',
+      background: 'rgba(255, 255, 255, 0.02)',
+      border: '1px solid var(--border)',
+      backdropFilter: 'blur(10px)'
+    }}>
+      <div style={{ 
+        fontSize: '14px', 
+        color: 'var(--text-secondary)', 
+        marginBottom: '12px',
+        fontWeight: '500'
+      }}>
+        {title}
+      </div>
+      <div style={{
+        fontSize: '28px',
+        fontWeight: '700',
+        fontFamily: 'Monaco, monospace',
+        color: color,
+        marginBottom: '8px'
+      }}>
+        {value}
+      </div>
+      {percentage !== undefined && (
+        <div style={{ marginBottom: '12px' }}>
           <div style={{
-            width: '8px',
-            height: '8px',
-            borderRadius: '50%',
-            background: color,
-            animation: 'pulse 2s infinite'
-          }}></div>
-          <span style={{ fontSize: '12px', color: '#9ca3af' }}>活跃</span>
+            width: '100%',
+            background: 'rgba(255, 255, 255, 0.1)',
+            borderRadius: '20px',
+            height: '6px'
+          }}>
+            <div style={{
+              background: color,
+              height: '6px',
+              borderRadius: '20px',
+              transition: 'all 0.8s cubic-bezier(0.4, 0, 0.2, 1)',
+              width: `${Math.min(percentage, 100)}%`,
+              boxShadow: `0 0 8px ${color}40`
+            }}></div>
+          </div>
         </div>
-      </div>
+      )}
+      {subtitle && (
+        <div style={{ 
+          fontSize: '12px', 
+          color: 'var(--text-secondary)',
+          fontWeight: '500'
+        }}>
+          {subtitle}
+        </div>
+      )}
     </div>
   );
 }
@@ -120,10 +217,33 @@ export function MarketOverview({ stats, isLoading = false, onRefresh }: MarketOv
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
       {/* 标题栏 */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+      <div className="glass-card animate-slide-up" style={{ 
+        display: 'flex', 
+        alignItems: 'center', 
+        justifyContent: 'space-between',
+        padding: '24px'
+      }}>
         <div>
-          <h2 style={{ fontSize: '24px', fontWeight: 'bold', color: '#1f2937', margin: 0 }}>市场概览</h2>
-          <p style={{ fontSize: '14px', color: '#6b7280', marginTop: '4px' }}>实时监控投资组合和市场机会</p>
+          <h2 style={{ 
+            fontSize: '28px', 
+            fontWeight: '700', 
+            color: 'var(--text-primary)', 
+            margin: 0,
+            background: 'linear-gradient(135deg, var(--primary) 0%, var(--success) 100%)',
+            backgroundClip: 'text',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent'
+          }}>
+            市场概览
+          </h2>
+          <p style={{ 
+            fontSize: '14px', 
+            color: 'var(--text-secondary)', 
+            marginTop: '4px',
+            fontWeight: '500'
+          }}>
+            实时监控投资组合和市场机会
+          </p>
         </div>
         {onRefresh && (
           <button
@@ -143,142 +263,112 @@ export function MarketOverview({ stats, isLoading = false, onRefresh }: MarketOv
       {/* 统计卡片网格 */}
       <div style={{
         display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
-        gap: '16px'
+        gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+        gap: '20px'
       }}>
         <StatCard
           icon={BarChart3}
           value={stats.totalStocks}
           label="股票池"
-          color="#3b82f6"
+          gradient="linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%)"
           isLoading={isLoading}
+          index={0}
         />
         <StatCard
           icon={Filter}
           value={stats.totalStrategies}
           label="选股策略"
-          color="#06b6d4"
+          gradient="linear-gradient(135deg, #06b6d4 0%, #0891b2 100%)"
           isLoading={isLoading}
+          index={1}
         />
         <StatCard
           icon={Target}
           value={stats.activeStrategies}
           label="启用策略"
-          color="#059669"
+          gradient="linear-gradient(135deg, var(--success) 0%, #00cc6a 100%)"
           isLoading={isLoading}
+          index={2}
         />
         <StatCard
           icon={TrendingUp}
           value={stats.todayOpportunities}
           label="今日机会"
-          color="#f59e0b"
+          gradient="linear-gradient(135deg, var(--warning) 0%, #f97316 100%)"
           isLoading={isLoading}
+          index={3}
         />
       </div>
       
       {/* 快速洞察面板 */}
-      <div className="card" style={{ 
-        background: 'linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0.7) 100%)',
-        backdropFilter: 'blur(10px)'
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
-          <h3 style={{ fontSize: '18px', fontWeight: '600', color: '#1f2937', margin: 0 }}>快速洞察</h3>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+      <div className="glass-card animate-slide-up" style={{ padding: '32px' }}>
+        <div style={{ 
+          display: 'flex', 
+          alignItems: 'center', 
+          justifyContent: 'space-between', 
+          marginBottom: '24px' 
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
             <div style={{
-              width: '8px',
-              height: '8px',
-              background: '#3b82f6',
-              borderRadius: '50%',
-              animation: 'pulse 2s infinite'
-            }}></div>
-            <span style={{ fontSize: '12px', color: '#6b7280' }}>实时更新</span>
+              width: '40px',
+              height: '40px',
+              borderRadius: '10px',
+              background: 'linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: 'white'
+            }}>
+              <Zap size={20} />
+            </div>
+            <h3 style={{ 
+              fontSize: '20px', 
+              fontWeight: '600', 
+              color: 'var(--text-primary)', 
+              margin: 0 
+            }}>
+              智能洞察
+            </h3>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <Activity size={16} style={{ color: 'var(--success)' }} />
+            <span style={{ 
+              fontSize: '12px', 
+              color: 'var(--text-secondary)',
+              fontWeight: '500'
+            }}>
+              实时更新
+            </span>
           </div>
         </div>
         
         <div style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-          gap: '24px'
+          gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+          gap: '20px'
         }}>
-          <div style={{
-            textAlign: 'center',
-            padding: '16px',
-            borderRadius: '8px',
-            background: 'rgba(243, 244, 246, 0.5)',
-            border: '1px solid rgba(229, 231, 235, 0.5)'
-          }}>
-            <div style={{ fontSize: '14px', color: '#6b7280', marginBottom: '8px' }}>策略启用率</div>
-            <div style={{
-              fontSize: '24px',
-              fontWeight: 'bold',
-              fontFamily: 'monospace',
-              color: '#3b82f6'
-            }}>
-              {strategyActivationRate}%
-            </div>
-            <div style={{ marginTop: '8px' }}>
-              <div style={{
-                width: '100%',
-                background: '#f3f4f6',
-                borderRadius: '9999px',
-                height: '8px'
-              }}>
-                <div style={{
-                  background: '#3b82f6',
-                  height: '8px',
-                  borderRadius: '9999px',
-                  transition: 'all 0.5s',
-                  width: `${strategyActivationRate}%`
-                }}></div>
-              </div>
-            </div>
-          </div>
+          <InsightCard
+            title="策略启用率"
+            value={`${strategyActivationRate}%`}
+            subtitle={`${stats.activeStrategies} / ${stats.totalStrategies} 策略`}
+            color="var(--primary)"
+            percentage={strategyActivationRate}
+          />
           
-          <div style={{
-            textAlign: 'center',
-            padding: '16px',
-            borderRadius: '8px',
-            background: 'rgba(243, 244, 246, 0.5)',
-            border: '1px solid rgba(229, 231, 235, 0.5)'
-          }}>
-            <div style={{ fontSize: '14px', color: '#6b7280', marginBottom: '8px' }}>平均每策略股票</div>
-            <div style={{
-              fontSize: '24px',
-              fontWeight: 'bold',
-              fontFamily: 'monospace',
-              color: '#06b6d4'
-            }}>
-              {averageStocksPerStrategy}
-            </div>
-            <div style={{ marginTop: '8px' }}>
-              <span style={{ fontSize: '12px', color: '#9ca3af' }}>
-                {stats.totalStocks} 股票 / {stats.activeStrategies} 策略
-              </span>
-            </div>
-          </div>
+          <InsightCard
+            title="平均覆盖度"
+            value={averageStocksPerStrategy}
+            subtitle={`${stats.totalStocks} 股票 / ${stats.activeStrategies} 策略`}
+            color="#06b6d4"
+          />
           
-          <div style={{
-            textAlign: 'center',
-            padding: '16px',
-            borderRadius: '8px',
-            background: 'rgba(243, 244, 246, 0.5)',
-            border: '1px solid rgba(229, 231, 235, 0.5)'
-          }}>
-            <div style={{ fontSize: '14px', color: '#6b7280', marginBottom: '8px' }}>机会发现率</div>
-            <div style={{
-              fontSize: '24px',
-              fontWeight: 'bold',
-              fontFamily: 'monospace',
-              color: opportunityRate > 50 ? '#059669' : opportunityRate > 20 ? '#f59e0b' : '#dc2626'
-            }}>
-              {opportunityRate}%
-            </div>
-            <div style={{ marginTop: '8px' }}>
-              <span style={{ fontSize: '12px', color: '#9ca3af' }}>
-                {stats.todayOpportunities} 机会 / {stats.totalStocks} 股票
-              </span>
-            </div>
-          </div>
+          <InsightCard
+            title="机会发现率"
+            value={`${opportunityRate}%`}
+            subtitle={`${stats.todayOpportunities} 机会 / ${stats.totalStocks} 股票`}
+            color={opportunityRate > 50 ? 'var(--success)' : opportunityRate > 20 ? 'var(--warning)' : 'var(--danger)'}
+            percentage={opportunityRate}
+          />
         </div>
       </div>
     </div>
