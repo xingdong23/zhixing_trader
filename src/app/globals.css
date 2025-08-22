@@ -1,4 +1,6 @@
-@import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 /* 字体预加载 */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
@@ -89,8 +91,26 @@
   text-rendering: optimizeLegibility;
 }
 
-/* 字体定义 */
+/* 变量别名映射，保持 tailwind 自定义类名一致性 */
 :root {
+  /* 语义色 - 为 tailwind 颜色类提供变量别名（不强依赖） */
+  --primary: var(--color-primary);
+  --secondary: var(--color-secondary);
+  --accent: var(--color-accent);
+  --success: var(--color-success);
+  --danger: var(--color-danger);
+  --warning: var(--color-warning);
+  --info: var(--color-info);
+
+  /* 表面/边框/文本变量别名，供 var(--surface) 等老写法使用 */
+  --surface: var(--bg-surface);
+  --surface-light: var(--bg-surface-light);
+  --surface-dark: var(--bg-surface-dark);
+  --border: var(--border-primary);
+  --text-primary: var(--color-text-primary);
+  --text-secondary: var(--color-text-secondary);
+  --text-muted: var(--color-text-muted);
+
   --font-mono: 'JetBrains Mono', 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
   --font-sans: 'Inter', 'SF Pro Display', 'Segoe UI', 'Roboto', sans-serif;
   --font-display: swap;
@@ -1009,29 +1029,41 @@ tr:hover {
 }
 
 .status-badge-success {
-  @apply bg-success/20 text-success;
+  background: rgba(16, 185, 129, 0.2);
+  color: var(--color-success);
+  border: 1px solid rgba(16, 185, 129, 0.3);
 }
 
 .status-badge-warning {
-  @apply bg-warning/20 text-warning;
+  background: rgba(245, 158, 11, 0.2);
+  color: var(--color-warning);
+  border: 1px solid rgba(245, 158, 11, 0.3);
 }
 
 .status-badge-danger {
-  @apply bg-danger/20 text-danger;
+  background: rgba(239, 68, 68, 0.2);
+  color: var(--color-danger);
+  border: 1px solid rgba(239, 68, 68, 0.3);
 }
 
 .status-badge-info {
-  @apply bg-info/20 text-info;
+  background: rgba(59, 130, 246, 0.2);
+  color: var(--color-info);
+  border: 1px solid rgba(59, 130, 246, 0.3);
 }
 
-/* 统计卡片样式 */
+/* 统计卡片样式 - 使用显式 CSS 以避免 @apply */
 .stat-card {
-  @apply bg-surface border border-border rounded-lg p-4;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 0.5rem; /* rounded-lg */
+  padding: 1rem; /* p-4 */
   transition: all var(--transition-normal);
 }
 
 .stat-card:hover {
-  @apply border-primary/30 shadow-lg;
+  border-color: rgba(0, 255, 208, 0.3); /* border-primary/30 */
+  box-shadow: var(--shadow-lg);
   transform: translateY(-2px);
 }
 

@@ -190,7 +190,6 @@ export function TopNavigation({
             </div>
           </div>
         </header>
-        </header>
 
         {/* 主内容区域 */}
         <div className="flex-1 overflow-auto bg-slate-900 p-6">
