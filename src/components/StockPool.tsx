@@ -264,54 +264,30 @@ export function StockPool({
             ))}
           </div>
           
-          <div style={{ 
-            fontSize: '14px', 
-            color: 'var(--text-secondary)',
-            fontWeight: '500'
-          }}>
+          <div className="text-sm text-secondary font-medium">
             💡 显示 {filteredStocks.length} / {total || updatedStocks.length} 只股票
           </div>
         </div>
       </div>
 
       {/* 股票列表 */}
-      <div style={{ 
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fill, minmax(400px, 1fr))',
-        gap: '20px'
-      }}>
+      <div className="grid grid-cols-1 xl:grid-cols-2 2xl:grid-cols-3 gap-6">
         {filteredStocks.length === 0 ? (
-          <div className="glass-card" style={{ 
-            gridColumn: '1 / -1',
-            textAlign: 'center', 
-            padding: '64px 24px' 
-          }}>
-            <div style={{ 
-              fontSize: '48px', 
-              marginBottom: '16px',
-              opacity: 0.5
-            }}>
+          <div className="card col-span-full text-center p-16">
+            <div className="text-6xl mb-4 opacity-50">
               📊
             </div>
-            <h3 style={{ 
-              fontSize: '20px',
-              fontWeight: '600',
-              color: 'var(--text-primary)', 
-              marginBottom: '8px' 
-            }}>
+            <h3 className="text-xl font-semibold text-primary mb-2">
               暂无股票数据
             </h3>
-            <p style={{ 
-              color: 'var(--text-secondary)', 
-              marginBottom: '24px' 
-            }}>
+            <p className="text-secondary mb-6">
               开始添加您的第一只股票，建立您的投资组合
             </p>
             <button
               onClick={() => setShowAddForm(true)}
               className="btn btn-primary"
             >
-              <Plus size={18} style={{ marginRight: '8px' }} />
+              <Plus size={18} className="mr-2" />
               添加股票
             </button>
           </div>
@@ -334,58 +310,34 @@ export function StockPool({
 
       {/* 分页控件 */}
       {filteredStocks.length > 0 && (
-        <div className="glass-card" style={{ 
-          display: 'flex', 
-          justifyContent: 'space-between', 
-          alignItems: 'center',
-          padding: '20px 24px'
-        }}>
-          <div style={{ 
-            display: 'flex', 
-            alignItems: 'center', 
-            gap: '12px' 
-          }}>
+        <div className="card p-5 flex justify-between items-center">
+          <div className="flex items-center gap-3">
             <button
               className="btn btn-secondary"
               disabled={page <= 1}
               onClick={() => onPageChange && onPageChange(page - 1)}
-              style={{ opacity: page <= 1 ? 0.5 : 1 }}
             >
               上一页
             </button>
-            <span style={{ 
-              fontSize: '14px', 
-              color: 'var(--text-secondary)',
-              fontWeight: '500'
-            }}>
+            <span className="text-sm text-secondary font-medium">
               {page} / {Math.max(totalPages, 1)}
             </span>
             <button
               className="btn btn-secondary"
               disabled={page >= totalPages}
               onClick={() => onPageChange && onPageChange(page + 1)}
-              style={{ opacity: page >= totalPages ? 0.5 : 1 }}
             >
               下一页
             </button>
           </div>
-          <div style={{ 
-            display: 'flex', 
-            alignItems: 'center', 
-            gap: '12px' 
-          }}>
-            <span style={{ 
-              fontSize: '14px', 
-              color: 'var(--text-secondary)',
-              fontWeight: '500'
-            }}>
+          <div className="flex items-center gap-3">
+            <span className="text-sm text-secondary font-medium">
               每页显示
             </span>
             <select
               value={pageSize}
               onChange={(e) => onPageSizeChange && onPageSizeChange(parseInt(e.target.value, 10))}
-              className="input"
-              style={{ width: '80px', padding: '8px 12px' }}
+              className="input w-20 px-2 py-1"
             >
               {[20, 50, 100].map(size => (
                 <option key={size} value={size}>{size}</option>
@@ -460,25 +412,16 @@ function StockCard({
   const isPositive = priceChange >= 0;
 
   return (
-    <div 
-      className="glass-card animate-slide-up"
-      style={{ 
-        animationDelay: `${index * 0.1}s`,
-        position: 'relative',
-        overflow: 'hidden'
-      }}
-    >
-      {/* 渐变装饰条 */}
-      <div style={{
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        right: 0,
-        height: '3px',
-        background: isPositive 
-          ? 'linear-gradient(90deg, var(--success) 0%, #00cc6a 100%)'
-          : 'linear-gradient(90deg, var(--danger) 0%, #e63946 100%)'
-      }} />
+    <div className="card card-interactive relative overflow-hidden">
+      {/* 状态指示条 */}
+      <div 
+        className={`absolute top-0 left-0 right-0 h-1 ${isPositive ? 'bg-success' : 'bg-danger'}`}
+        style={{
+          background: isPositive 
+            ? 'linear-gradient(90deg, var(--color-success), #00cc6a)'
+            : 'linear-gradient(90deg, var(--color-danger), #e63946)'
+        }}
+      />
 
       <div style={{ padding: '24px' }}>
         {/* 头部信息 */}
