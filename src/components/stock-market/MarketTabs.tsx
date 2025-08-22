@@ -166,8 +166,8 @@ export function MarketTabs({
 }: MarketTabsProps) {
   return (
     <div className={`${className}`}>
-      {/* 标签页导航 - 使用负边距抵消父容器的内边距 */}
-      <div className="tab-nav -mx-4 lg:-mx-6 px-4 lg:px-6 mb-6">
+      {/* 标签页导航：与内容容器保持一致的内边距，避免负边距造成布局溢出/重叠 */}
+      <div className="tab-nav mb-6">
         {DEFAULT_TABS.map(tab => {
           const Icon = tab.icon;
           const isActive = currentTab === tab.id;
@@ -185,86 +185,32 @@ export function MarketTabs({
           );
         })}
       </div>
-      
-      {/* 搜索和操作区域 */}
-      <div className="flex items-center justify-between gap-6 mb-6">
-        {/* 搜索区域 */}
-        <div className="flex-1">
-          <div className="flex gap-3 mb-3">
-            <button className={`px-4 py-2 rounded-lg text-sm transition-all ${
-              currentTab === 'pool' 
-                ? 'bg-[#3b82f6] text-white' 
-                : 'bg-[rgba(30,41,59,0.6)] text-[#cbd5e1] hover:bg-[rgba(59,130,246,0.1)]'
-            }`}>
-              搜索 股票池
-            </button>
-            <button className={`px-4 py-2 rounded-lg text-sm transition-all ${
-              currentTab === 'import' 
-                ? 'bg-[#f59e0b] text-white' 
-                : 'bg-[rgba(30,41,59,0.6)] text-[#cbd5e1] hover:bg-[rgba(245,158,11,0.1)]'
-            }`}>
-              搜索 自选股
-            </button>
-          </div>
-          <div className="relative">
-            <input 
-              type="text" 
-              className="search-bar" 
-              placeholder="股票代码或名称，如SH000001｜000001 美股代码，如：amzn,港股代码，如：hk3690｜03690"
-            />
-          </div>
-        </div>
-        
-        {/* 操作按钮 */}
-        <div className="flex items-center space-x-3">
-          {onRefreshData && (
-            <button
-              onClick={onRefreshData}
-              disabled={isRefreshing}
-              className="px-4 py-2 bg-[rgba(59,130,246,0.1)] border border-[rgba(59,130,246,0.2)] rounded-lg text-[#3b82f6] text-sm hover:bg-[rgba(59,130,246,0.2)] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
-            >
-              <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} />
-              <span>{isRefreshing ? '刷新中...' : '刷新数据'}</span>
-            </button>
-          )}
-          
-          {onRunAllStrategies && (
-            <button
-              onClick={onRunAllStrategies}
-              disabled={isRunningStrategies || activeStrategiesCount === 0}
-              className="px-4 py-2 bg-gradient-to-r from-[#00ffd0] to-[#3b82f6] border-none rounded-lg text-[#0f172a] text-sm hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
-            >
-              <Play className={`w-4 h-4 ${isRunningStrategies ? 'animate-pulse' : ''}`} />
-              <span>
-                {isRunningStrategies 
-                  ? '运行中...' 
-                  : `运行策略${activeStrategiesCount > 0 ? `(${activeStrategiesCount})` : ''}`
-                }
-              </span>
-            </button>
-          )}
-        </div>
-      </div>
-      
-      {/* 筛选器 */}
-      <div className="filters mb-6">
-        <select className="filter-select">
-          <option>所有市场</option>
-          <option>A股</option>
-          <option>港股</option>
-          <option>美股</option>
-        </select>
-        <select className="filter-select">
-          <option>所有行业</option>
-          <option>科技</option>
-          <option>金融</option>
-          <option>医疗</option>
-        </select>
-        <select className="filter-select">
-          <option>按市值</option>
-          <option>按涨跌幅</option>
-          <option>按成交量</option>
-        </select>
+      {/* 操作按钮（避免与具体标签页内容重复，仅提供通用操作） */}
+      <div className="flex items-center justify-end gap-3 mb-6">
+        {onRefreshData && (
+          <button
+            onClick={onRefreshData}
+            disabled={isRefreshing}
+            className="px-4 py-2 bg-[rgba(59,130,246,0.1)] border border-[rgba(59,130,246,0.2)] rounded-lg text-[#3b82f6] text-sm hover:bg-[rgba(59,130,246,0.2)] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
+          >
+            <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} />
+            <span>{isRefreshing ? '刷新中...' : '刷新数据'}</span>
+          </button>
+        )}
+        {onRunAllStrategies && (
+          <button
+            onClick={onRunAllStrategies}
+            disabled={isRunningStrategies || activeStrategiesCount === 0}
+            className="px-4 py-2 bg-gradient-to-r from-[#00ffd0] to-[#3b82f6] border-none rounded-lg text-[#0f172a] text-sm hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
+          >
+            <Play className={`w-4 h-4 ${isRunningStrategies ? 'animate-pulse' : ''}`} />
+            <span>
+              {isRunningStrategies
+                ? '运行中...'
+                : `运行策略${activeStrategiesCount > 0 ? `(${activeStrategiesCount})` : ''}`}
+            </span>
+          </button>
+        )}
       </div>
     </div>
   );

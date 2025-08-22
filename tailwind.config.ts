@@ -10,40 +10,73 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // 自定义颜色映射
-        background: 'var(--background)',
-        surface: 'var(--surface)',
-        'surface-light': 'var(--surface-light)',
-        'surface-dark': 'var(--surface-dark)',
-        border: 'var(--border)',
-        'border-light': 'var(--border-light)',
-        'border-dark': 'var(--border-dark)',
-        primary: 'var(--primary)',
-        'primary-light': 'var(--primary-light)',
-        'primary-dark': 'var(--primary-dark)',
-        secondary: 'var(--secondary)',
-        'secondary-light': 'var(--secondary-light)',
-        'secondary-dark': 'var(--secondary-dark)',
-        accent: 'var(--accent)',
-        'accent-light': 'var(--accent-light)',
-        'accent-dark': 'var(--accent-dark)',
-        success: 'var(--success)',
-        'success-light': 'var(--success-light)',
-        'success-dark': 'var(--success-dark)',
-        danger: 'var(--danger)',
-        'danger-light': 'var(--danger-light)',
-        'danger-dark': 'var(--danger-dark)',
-        warning: 'var(--warning)',
-        'warning-light': 'var(--warning-light)',
-        'warning-dark': 'var(--warning-dark)',
-        info: 'var(--info)',
-        'info-light': 'var(--info-light)',
-        'info-dark': 'var(--info-dark)',
-        // 文本颜色
-        'text-primary': 'var(--text-primary)',
-        'text-secondary': 'var(--text-secondary)',
-        'text-muted': 'var(--text-muted)',
-        'text-inverse': 'var(--text-inverse)',
+        // 新的CSS变量映射系统
+        primary: {
+          DEFAULT: 'var(--color-primary)',
+          light: 'var(--color-primary-light)',
+          dark: 'var(--color-primary-dark)',
+        },
+        secondary: {
+          DEFAULT: 'var(--color-secondary)',
+          light: 'var(--color-secondary-light)',
+          dark: 'var(--color-secondary-dark)',
+        },
+        accent: {
+          DEFAULT: 'var(--color-accent)',
+          light: 'var(--color-accent-light)',
+          dark: 'var(--color-accent-dark)',
+        },
+        success: {
+          DEFAULT: 'var(--color-success)',
+          light: 'var(--color-success-light)',
+          dark: 'var(--color-success-dark)',
+        },
+        danger: {
+          DEFAULT: 'var(--color-danger)',
+          light: 'var(--color-danger-light)',
+          dark: 'var(--color-danger-dark)',
+        },
+        warning: {
+          DEFAULT: 'var(--color-warning)',
+          light: 'var(--color-warning-light)',
+          dark: 'var(--color-warning-dark)',
+        },
+        info: {
+          DEFAULT: 'var(--color-info)',
+          light: 'var(--color-info-light)',
+          dark: 'var(--color-info-dark)',
+        },
+        
+        // 背景色彩
+        background: 'var(--bg-primary)',
+        surface: {
+          DEFAULT: 'var(--bg-surface)',
+          light: 'var(--bg-surface-light)',
+          dark: 'var(--bg-surface-dark)',
+        },
+        card: 'var(--bg-card)',
+        
+        // 边框色彩
+        border: {
+          DEFAULT: 'var(--border-primary)',
+          secondary: 'var(--border-secondary)',
+          accent: 'var(--border-accent)',
+        },
+        
+        // 文本色彩
+        text: {
+          primary: 'var(--color-text-primary)',
+          secondary: 'var(--color-text-secondary)',
+          muted: 'var(--color-text-muted)',
+          inverse: 'var(--color-text-inverse)',
+        },
+      },
+      borderRadius: {
+        'sm': 'var(--radius-sm)',
+        DEFAULT: 'var(--radius-md)',
+        'md': 'var(--radius-md)',
+        'lg': 'var(--radius-lg)',
+        'xl': 'var(--radius-xl)',
       },
       fontFamily: {
         sans: ['Inter', 'SF Pro Display', 'Segoe UI', 'Roboto', 'sans-serif'],

@@ -6,7 +6,6 @@
 import React from 'react';
 import { Stock, StockSelectionStrategy } from '@/types';
 import { MarketTabId } from './MarketTabs';
-import { Plus } from 'lucide-react';
 
 // 导入各个功能模块组件
 import { StockPool } from '../StockPool';
@@ -270,35 +269,9 @@ export function MarketContent({
   };
 
   return (
-    <div className={`space-y-6 ${className}`}>
-      {/* 统计信息 */}
-      <div className="flex items-center justify-between">
-        <div className="text-sm text-[#94a3b8]">
-          共 <span className="text-[#e2e8f0] font-medium">{stats.totalStocks}</span> 只股票，
-          <span className="text-[#e2e8f0] font-medium ml-1">{stats.activeStrategies}</span> 个策略运行中
-        </div>
-        <button className="btn btn-primary">
-          <Plus className="w-4 h-4" />
-          <span>添加股票</span>
-        </button>
-      </div>
-
-      {/* 标签云 */}
-      <div className="tag-cloud">
-        <div className="tag-grid">
-          {['科技股', '金融股', '新能源', '医药股', '消费股', '地产股', 'AI概念', '芯片股'].map((tag, index) => (
-            <div 
-              key={index} 
-              className="tag"
-            >
-              {tag}
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* 主要内容区域 */}
-      <div className="min-h-[400px]">
+    <div className={`${className}`}>
+      {/* 主要内容区域：让具体标签页组件自行管理其内的搜索/筛选/统计，避免重复布局 */}
+      <div className="min-h-[400px] space-y-6">
         {renderTabContent()}
       </div>
     </div>

@@ -5,80 +5,68 @@
 
 /* ==================== 统一设计系统 ==================== */
 
-/* 样式重置和统一样式变量 */
+/* 核心CSS变量定义 - 避免与Tailwind冲突 */
 :root {
-  /* 统一色彩系统 */
-  --color-primary: #00ffd0;
-  --color-primary-light: #7fffd4;
-  --color-primary-dark: #00a085;
+  /* 知行交易 - 现代极客金融风格色彩主题 */
+  --color-primary: #00ffd0;      /* 青绿色 - 科技感核心色 */
+  --color-primary-light: #7fffd4; /* 浅青绿 */
+  --color-primary-dark: #00a085;  /* 深青绿 */
   
-  --color-secondary: #3b82f6;
+  --color-secondary: #3b82f6;    /* 蓝色 - 辅助色 */
   --color-secondary-light: #60a5fa;
   --color-secondary-dark: #2563eb;
   
-  --color-success: #10b981;
+  --color-accent: #f59e0b;       /* 琥珀色 - 警示/重要 */
+  --color-accent-light: #fbbf24;
+  --color-accent-dark: #d97706;
+  
+  --color-success: #10b981;      /* 绿色 - 盈利 */
   --color-success-light: #34d399;
   --color-success-dark: #059669;
   
-  --color-warning: #f59e0b;
-  --color-warning-light: #fbbf24;
-  --color-warning-dark: #d97706;
-  
-  --color-danger: #ef4444;
+  --color-danger: #ef4444;       /* 红色 - 亏损 */
   --color-danger-light: #f87171;
   --color-danger-dark: #dc2626;
   
-  --color-info: #3b82f6;
+  --color-warning: #f59e0b;      /* 橙色 - 警告 */
+  --color-warning-light: #fbbf24;
+  --color-warning-dark: #d97706;
+  
+  --color-info: #3b82f6;         /* 蓝色 - 信息 */
   --color-info-light: #60a5fa;
   --color-info-dark: #2563eb;
   
-  /* 中性色彩 */
-  --color-white: #ffffff;
-  --color-slate-50: #f8fafc;
-  --color-slate-100: #f1f5f9;
-  --color-slate-200: #e2e8f0;
-  --color-slate-300: #cbd5e1;
-  --color-slate-400: #94a3b8;
-  --color-slate-500: #64748b;
-  --color-slate-600: #475569;
-  --color-slate-700: #334155;
-  --color-slate-800: #1e293b;
-  --color-slate-900: #0f172a;
-  --color-slate-950: #020617;
-  
-  /* 背景和表面 */
-  --bg-primary: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-  --bg-surface: rgba(30, 41, 59, 0.8);
+  /* 背景和表面 - 重新命名避免冲突 */
+  --bg-primary: #0f172a;   /* 深蓝灰背景 */
+  --bg-surface: rgba(30, 41, 59, 0.4); /* 半透明表面 */
   --bg-surface-light: rgba(30, 41, 59, 0.6);
-  --bg-card: rgba(30, 41, 59, 0.5);
+  --bg-surface-dark: #0f172a;
+  --bg-card: rgba(30, 41, 59, 0.8);
   
-  /* 边框和分割线 */
-  --border-primary: rgba(148, 163, 184, 0.2);
-  --border-secondary: rgba(148, 163, 184, 0.1);
+  --border-primary: rgba(148, 163, 184, 0.3); /* 半透明边框 */
+  --border-secondary: rgba(148, 163, 184, 0.2);
   --border-accent: rgba(0, 255, 208, 0.3);
   
-  /* 阴影 */
+  /* 文本颜色 - 重新命名 */
+  --color-text-primary: #e2e8f0; /* 主文本 */
+  --color-text-secondary: #cbd5e1; /* 次要文本 */
+  --color-text-muted: #94a3b8;   /* 静态文本 */
+  --color-text-inverse: #0f172a;  /* 反色文本 */
+  
+  /* 阴影和光效 */
   --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.3);
   --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4);
   --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
-  --shadow-glow: 0 0 20px rgba(0, 255, 208, 0.2);
+  --shadow-glow: 0 0 20px rgba(0, 255, 208, 0.3);
+  --shadow-primary: 0 0 15px rgba(0, 255, 208, 0.2);
   
   /* 圆角 */
-  --radius-sm: 0.375rem;
-  --radius-md: 0.5rem;
-  --radius-lg: 0.75rem;
-  --radius-xl: 1rem;
-  --radius-2xl: 1.5rem;
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
   
-  /* 间距 */
-  --spacing-xs: 0.5rem;
-  --spacing-sm: 0.75rem;
-  --spacing-md: 1rem;
-  --spacing-lg: 1.5rem;
-  --spacing-xl: 2rem;
-  --spacing-2xl: 3rem;
-  
-  /* 动画 */
+  /* 动画时长 */
   --transition-fast: 150ms;
   --transition-normal: 200ms;
   --transition-slow: 300ms;
@@ -101,75 +89,16 @@
   text-rendering: optimizeLegibility;
 }
 
+/* 字体定义 */
 :root {
-  /* 知行交易 - 现代极客金融风格色彩主题 */
-  --primary: #00ffd0;      /* 青绿色 - 科技感核心色 */
-  --primary-light: #7fffd4; /* 浅青绿 */
-  --primary-dark: #00a085;  /* 深青绿 */
-  
-  --secondary: #3b82f6;    /* 蓝色 - 辅助色 */
-  --secondary-light: #60a5fa;
-  --secondary-dark: #2563eb;
-  
-  --accent: #f59e0b;       /* 琥珀色 - 警示/重要 */
-  --accent-light: #fbbf24;
-  --accent-dark: #d97706;
-  
-  --success: #10b981;      /* 绿色 - 盈利 */
-  --success-light: #34d399;
-  --success-dark: #059669;
-  
-  --danger: #ef4444;       /* 红色 - 亏损 */
-  --danger-light: #f87171;
-  --danger-dark: #dc2626;
-  
-  --warning: #f59e0b;      /* 橙色 - 警告 */
-  --warning-light: #fbbf24;
-  --warning-dark: #d97706;
-  
-  --info: #3b82f6;         /* 蓝色 - 信息 */
-  --info-light: #60a5fa;
-  --info-dark: #2563eb;
-  
-  /* 背景和表面 */
-  --background: #0f172a;   /* 深蓝灰背景 */
-  --surface: rgba(30, 41, 59, 0.4); /* 半透明表面 */
-  --surface-light: rgba(30, 41, 59, 0.6);
-  --surface-dark: #0f172a;
-  
-  --border: rgba(148, 163, 184, 0.1); /* 半透明边框 */
-  --border-light: rgba(148, 163, 184, 0.2);
-  --border-dark: rgba(148, 163, 184, 0.05);
-  
-  /* 文本颜色 */
-  --text-primary: #e2e8f0; /* 主文本 */
-  --text-secondary: #cbd5e1; /* 次要文本 */
-  --text-muted: #94a3b8;   /* 静态文本 */
-  --text-inverse: #0f172a;  /* 反色文本 */
-  
-  /* 字体定义 */
   --font-mono: 'JetBrains Mono', 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
   --font-sans: 'Inter', 'SF Pro Display', 'Segoe UI', 'Roboto', sans-serif;
-  
-  /* 字体加载策略 */
   --font-display: swap;
-  
-  /* 阴影和光效 */
-  --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.3);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
-  --shadow-glow: 0 0 20px rgba(0, 255, 208, 0.3);
-  --shadow-primary: 0 0 15px rgba(0, 255, 208, 0.2);
   
   /* 玻璃拟态 */
   --glass-bg: rgba(15, 23, 42, 0.95);
   --glass-border: rgba(148, 163, 184, 0.1);
   --glass-backdrop: blur(20px);
-  
-  /* 动画时长 */
-  --transition-fast: 150ms;
-  --transition-normal: 200ms;
-  --transition-slow: 300ms;
 }
 
 
@@ -189,7 +118,7 @@
 /* 基础样式 */
 body {
   background: var(--bg-primary);
-  color: var(--color-white);
+  color: var(--color-text-primary);
   font-family: 'Inter', 'SF Pro Display', 'Segoe UI', 'Roboto', sans-serif;
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
@@ -224,29 +153,34 @@ body {
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--surface-dark);
-  border-radius: 4px;
+  background: var(--bg-surface-dark);
+  border-radius: var(--radius-sm);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--border);
-  border-radius: 4px;
+  background: var(--border-primary);
+  border-radius: var(--radius-sm);
   transition: background var(--transition-normal);
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--border-light);
+  background: var(--border-secondary);
 }
 
 /* 选择文本样式 */
 ::selection {
-  background: var(--primary-light);
-  color: var(--text-inverse);
+  background: var(--color-primary-light);
+  color: var(--color-text-inverse);
 }
 
-/* 焦点样式 */
-*:focus {
-  outline: 2px solid var(--primary);
+/* 焦点样式：仅限交互元素，避免在容器元素上出现整页纵向描边 */
+a:focus,
+button:focus,
+input:focus,
+select:focus,
+textarea:focus,
+[role="button"]:focus {
+  outline: 2px solid var(--color-primary);
   outline-offset: 2px;
 }
 

@@ -1,5 +1,5 @@
-// 【知行交易】顶部导航栏 - 现代极客金融风格
-// 采用侧边栏导航 + 深色主题的专业金融界面
+// 【知行交易】顶部导航栏 - 简化布局版本
+// 解决CSS变量冲突和布局问题
 
 'use client';
 
@@ -62,33 +62,35 @@ export function TopNavigation({
   ];
 
   return (
-    <div className="h-screen overflow-hidden">
+    <div className="h-screen bg-slate-900 flex">
       {/* 移动端菜单按钮 */}
       <button
         onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-        className="lg:hidden fixed top-4 left-4 z-[110] p-2 bg-primary/10 backdrop-blur-md rounded-lg border border-primary/20 text-primary hover:bg-primary/20 transition-all"
+        className="lg:hidden fixed top-4 left-4 z-50 p-3 bg-slate-800 border border-slate-600 rounded-lg text-slate-300 hover:bg-slate-700 hover:text-white transition-all shadow-lg"
       >
         {isSidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
       </button>
 
-      {/* 主布局容器 */}
-      <div className="flex h-full">
-        {/* 左侧导航栏 */}
-        <div className={`${
-          // 移动端样式
-          'fixed lg:relative'
-        } left-0 top-0 w-64 md:w-[280px] h-full bg-background/95 backdrop-blur-[20px] border-r border z-[100] lg:z-auto flex-shrink-0 transform transition-transform duration-300 ${
-          isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
-        } lg:translate-x-0`} id="sidebar">
+      {/* 左侧导航栏 - 使用简单固定布局 */}
+      <aside 
+        className={`
+          bg-slate-800 border-r border-slate-700 h-full flex flex-col
+          transition-all duration-300 ease-in-out
+          ${isSidebarOpen 
+            ? 'fixed inset-y-0 left-0 z-40 w-64' 
+            : 'hidden lg:flex lg:w-64'
+          }
+        `}
+      >
         {/* Logo区域 */}
-        <div className="p-6 border-b border">
+        <div className="p-6 border-b border-slate-700">
           <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-gradient-to-br from-primary to-secondary rounded-lg flex items-center justify-center">
-              <span className="text-text-inverse font-bold text-lg">知</span>
+            <div className="w-10 h-10 bg-gradient-to-br from-cyan-500 to-blue-500 rounded-lg flex items-center justify-center">
+              <span className="text-slate-900 font-bold text-lg">知</span>
             </div>
             <div>
-              <h1 className="text-xl font-bold text-text-primary">知行交易</h1>
-              <p className="text-xs text-text-muted">智能投资平台</p>
+              <h1 className="text-xl font-bold text-slate-100">知行交易</h1>
+              <p className="text-xs text-slate-400">智能投资平台</p>
             </div>
           </div>
         </div>
@@ -96,10 +98,7 @@ export function TopNavigation({
         {/* 导航菜单 */}
         <nav className="flex-1 p-4 space-y-2">
           {/* 首页按钮 */}
-          <button
-            className="w-full flex items-center space-x-3 p-3 rounded-lg text-text-secondary hover:text-text-primary hover:bg-surface transition-all duration-200 group"
-            title="返回首页"
-          >
+          <button className="w-full flex items-center space-x-3 p-3 rounded-lg text-slate-400 hover:text-slate-100 hover:bg-slate-700 transition-all">
             <Home className="w-5 h-5" />
             <span className="font-medium">首页</span>
             <ChevronDown className="w-4 h-4 ml-auto opacity-50" />
@@ -107,20 +106,7 @@ export function TopNavigation({
 
           {/* 主导航模块 */}
           <div className="space-y-1 pt-4">
-            <p className="text-xs text-text-muted uppercase tracking-wider px-3 mb-2">
-              核心功能
-            </p>
-            
-            {/* UI测试链接 */}
-            <a
-              href="/ui-test"
-              className="w-full flex items-center space-x-3 p-3 rounded-lg text-text-secondary hover:text-text-primary hover:bg-surface transition-all duration-200 group"
-              title="UI组件测试"
-            >
-              <Lightbulb className="w-5 h-5" />
-              <span className="font-medium">UI测试</span>
-              <ChevronDown className="w-4 h-4 ml-auto opacity-50" />
-            </a>
+            <p className="text-xs text-slate-500 uppercase tracking-wider px-3 mb-2">核心功能</p>
             
             {modules.map((module) => {
               const isActive = currentModule === module.id;
@@ -133,14 +119,14 @@ export function TopNavigation({
                     onModuleChange(module.id);
                     setIsSidebarOpen(false);
                   }}
-                  className={`w-full flex items-center space-x-3 p-3 rounded-lg transition-all duration-200 group relative overflow-hidden ${
+                  className={`w-full flex items-center space-x-3 p-3 rounded-lg transition-all ${
                     isActive
-                      ? 'bg-primary/10 text-primary border border-primary/30'
-                      : 'text-text-secondary hover:text-text-primary hover:bg-surface hover:border-primary/30'
+                      ? 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/30'
+                      : 'text-slate-400 hover:text-slate-100 hover:bg-slate-700'
                   }`}
                 >
                   <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
-                    isActive ? 'bg-primary text-text-inverse' : 'bg-surface text-text-muted group-hover:bg-primary/20 group-hover:text-primary'
+                    isActive ? 'bg-cyan-500 text-slate-900' : 'bg-slate-700 text-slate-400'
                   }`}>
                     <Icon className="w-4 h-4" />
                   </div>
@@ -149,35 +135,28 @@ export function TopNavigation({
                     <div className="text-xs opacity-70">{module.description}</div>
                   </div>
                   <span className="text-lg opacity-50">{module.accent}</span>
-                  
-                  {/* 活跃指示器 */}
-                  {isActive && (
-                    <div className="absolute left-0 top-0 bottom-0 w-1 bg-primary rounded-r-lg" />
-                  )}
                 </button>
               );
             })}
           </div>
 
           {/* 系统状态 */}
-          <div className="space-y-1 pt-4 border-t border-[rgba(148,163,184,0.1)]">
-            <p className="text-xs text-text-muted uppercase tracking-wider px-3 mb-2">
-              系统状态
-            </p>
+          <div className="space-y-1 pt-4 border-t border-slate-700">
+            <p className="text-xs text-slate-500 uppercase tracking-wider px-3 mb-2">系统状态</p>
             
-            <div className="p-3 rounded-lg bg-surface border border">
+            <div className="p-3 rounded-lg bg-slate-700 border border-slate-600">
               <div className="flex items-center justify-between mb-2">
-                <span className="text-sm text-text-secondary">数据同步</span>
+                <span className="text-sm text-slate-400">数据同步</span>
                 <div className="flex items-center space-x-1">
-                  <div className="w-2 h-2 bg-success rounded-full animate-pulse"></div>
-                  <span className="text-xs text-success">在线</span>
+                  <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                  <span className="text-xs text-green-500">在线</span>
                 </div>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-sm text-text-secondary">策略运行</span>
+                <span className="text-sm text-slate-400">策略运行</span>
                 <div className="flex items-center space-x-1">
-                  <div className="w-2 h-2 bg-warning rounded-full animate-pulse"></div>
-                  <span className="text-xs text-warning">运行中</span>
+                  <div className="w-2 h-2 bg-yellow-500 rounded-full animate-pulse"></div>
+                  <span className="text-xs text-yellow-500">运行中</span>
                 </div>
               </div>
             </div>
@@ -185,59 +164,57 @@ export function TopNavigation({
         </nav>
 
         {/* 底部设置 */}
-        <div className="p-4 border-t border">
+        <div className="p-4 border-t border-slate-700">
           <button
             onClick={onSettings}
-            className="w-full flex items-center space-x-3 p-3 rounded-lg text-text-secondary hover:text-text-primary hover:bg-surface transition-all duration-200 group"
-            title="系统设置"
+            className="w-full flex items-center space-x-3 p-3 rounded-lg text-slate-400 hover:text-slate-100 hover:bg-slate-700 transition-all"
           >
             <Settings className="w-5 h-5" />
             <span className="font-medium">设置</span>
             <ChevronDown className="w-4 h-4 ml-auto opacity-50" />
           </button>
         </div>
-        </div>
+      </aside>
 
-        {/* 移动端遮罩层 */}
-        {isSidebarOpen && (
-          <div
-            className="lg:hidden fixed inset-0 bg-black/50 z-[90] backdrop-blur-sm"
-            onClick={() => setIsSidebarOpen(false)}
-          />
-        )}
+      {/* 移动端遮罩层 */}
+      {isSidebarOpen && (
+        <div
+          className="lg:hidden fixed inset-0 bg-black/50 z-30 backdrop-blur-sm"
+          onClick={() => setIsSidebarOpen(false)}
+        />
+      )}
 
-        {/* 右侧主内容区域 */}
-        <div className="flex-1 flex flex-col overflow-hidden ml-0 lg:ml-[280px]">
+      {/* 主内容区域 */}
+      <main className="flex-1 flex flex-col h-full overflow-hidden bg-slate-900">
         {/* 顶部状态栏 */}
-        <div className="h-12 bg-background/60 border-b border flex items-center justify-between px-4 md:px-6 lg:pl-6">
+        <header className="h-14 bg-slate-800 border-b border-slate-700 flex items-center justify-between px-6 flex-shrink-0">
           <div className="flex items-center space-x-4">
-            <div className="text-sm text-text-muted font-mono">
+            <div className="text-sm text-slate-400 font-mono">
               2025-08-15 14:30:25
             </div>
             <div className="flex items-center space-x-2">
-              <Activity className="w-4 h-4 text-success" />
-              <span className="text-sm text-success">市场活跃</span>
+              <Activity className="w-4 h-4 text-green-500" />
+              <span className="text-sm text-green-500">市场活跃</span>
             </div>
           </div>
           
           <div className="flex items-center space-x-3">
-            <button className="px-3 py-1.5 bg-info/10 border border-info/20 rounded-lg text-info text-sm hover:bg-info/20 transition-all">
+            <button className="px-3 py-1.5 bg-blue-500/10 border border-blue-500/20 rounded-lg text-blue-400 text-sm hover:bg-blue-500/20 transition-all">
               设置
             </button>
-            <button className="px-3 py-1.5 bg-info/10 border border-info/20 rounded-lg text-info text-sm hover:bg-info/20 transition-all">
+            <button className="px-3 py-1.5 bg-blue-500/10 border border-blue-500/20 rounded-lg text-blue-400 text-sm hover:bg-blue-500/20 transition-all">
               通知
             </button>
           </div>
-        </div>
+        </header>
 
         {/* 主内容区域 */}
-        <div className="flex-1 p-4 lg:p-6 overflow-auto">
-          <div className="h-full max-w-7xl mx-auto">
+        <div className="flex-1 overflow-auto bg-slate-900 p-6">
+          <div className="max-w-full mx-auto h-full">
             {children}
           </div>
         </div>
-      </div>
-      </div>
+      </main>
     </div>
   );
 }

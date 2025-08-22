@@ -246,27 +246,17 @@ export function StockPool({
         </button>
       </div>
 
-      {/* 搜索功能 */}
+      {/* 搜索功能：只保留一套搜索输入，避免与外层Tabs重复 */}
       <div className="search-section">
-        <div className="flex items-center space-x-4">
-          <button className="px-4 py-2 bg-primary text-text-inverse text-sm rounded-lg hover:bg-primary-light transition-colors">
-            搜索 股票池
-          </button>
-          <button className="px-4 py-2 bg-warning text-text-inverse text-sm rounded-lg hover:bg-warning-dark transition-colors">
-            搜索 自选股
-          </button>
-          <div className="flex-1">
-            <div className="relative">
-              <Search className="absolute left-3 top-3 w-4 h-4 text-text-muted" />
-              <input
-                type="text"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="search-bar"
-                placeholder="股票代码或名称，如sh000001 | 000001 美股代码，如：amzn,港股代码，如：hk3690 | 03690"
-              />
-            </div>
-          </div>
+        <div className="relative">
+          <Search className="absolute left-3 top-3 w-4 h-4 text-text-muted" />
+          <input
+            type="text"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="search-bar"
+            placeholder="股票代码或名称，如sh000001 | 000001；美股：amzn；港股：hk3690 | 03690"
+          />
         </div>
       </div>
 
