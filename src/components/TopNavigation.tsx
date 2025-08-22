@@ -1,18 +1,15 @@
-// 【知行交易】顶部导航栏 - 简化布局版本
-// 解决CSS变量冲突和布局问题
-
+// 【知行交易】现代化顶部导航 - 全新设计
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { 
   BarChart3, 
   TrendingUp, 
   Brain, 
   Settings, 
-  Home,
-  Activity,
   Menu,
-  X
+  X,
+  Home
 } from 'lucide-react';
 
 export type MainModule = 'market' | 'trading' | 'insights';
@@ -21,6 +18,7 @@ interface TopNavigationProps {
   currentModule: MainModule;
   onModuleChange: (module: MainModule) => void;
   onSettings: () => void;
+  onHome?: () => void;
   children?: React.ReactNode;
 }
 
@@ -28,174 +26,163 @@ export function TopNavigation({
   currentModule, 
   onModuleChange, 
   onSettings,
+  onHome,
   children
 }: TopNavigationProps) {
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const modules = [
     {
       id: 'market' as MainModule,
-      name: '股票市场',
+      name: '市场',
       description: '发现投资机会',
       icon: BarChart3,
-      accent: '📈'
     },
     {
       id: 'trading' as MainModule,
-      name: '交易管理',
+      name: '交易',
       description: '执行投资决策',
       icon: TrendingUp,
-      accent: '💼'
     },
     {
       id: 'insights' as MainModule,
-      name: '智能复盘',
+      name: '复盘',
       description: '学习和改进',
       icon: Brain,
-      accent: '🧠'
     }
   ];
 
+  // 移动端展开时锁定滚动
+  useEffect(() => {
+    if (typeof document === 'undefined') return;
+    const isMobile = typeof window !== 'undefined' ? window.innerWidth < 1024 : true;
+    if (isMenuOpen && isMobile) {
+      const original = document.body.style.overflow;
+      document.body.style.overflow = 'hidden';
+      return () => {
+        document.body.style.overflow = original;
+      };
+    }
+  }, [isMenuOpen]);
+
   return (
-    <div className="h-screen bg-slate-900 flex">
-      {/* 移动端菜单按钮 */}
-      <button
-        onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-        className="lg:hidden fixed top-4 left-4 z-50 p-3 bg-slate-800 border border-slate-600 rounded-lg text-slate-300 hover:bg-slate-700 hover:text-white transition-all shadow-lg"
-      >
-        {isSidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-      </button>
-
-      {/* 左侧导航栏 - 使用简单固定布局 */}
-      <aside 
-        className={`
-          bg-slate-800 border-r border-slate-700 h-full flex flex-col
-          transition-all duration-300 ease-in-out
-          ${isSidebarOpen 
-            ? 'fixed inset-y-0 left-0 z-40 w-64' 
-            : 'hidden lg:flex lg:w-64'
-          }
-        `}
-      >
-        {/* Logo区域 */}
-        <div className="p-6 border-b border-slate-700">
-          <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-gradient-to-br from-cyan-500 to-blue-500 rounded-lg flex items-center justify-center">
-              <span className="text-slate-900 font-bold text-lg">知</span>
-            </div>
-            <div>
-              <h1 className="text-xl font-bold text-slate-100">知行交易</h1>
-              <p className="text-xs text-slate-400">智能投资平台</p>
-            </div>
-          </div>
-        </div>
-
-        {/* 导航菜单 */}
-        <nav className="flex-1 p-4 space-y-2">
-          {/* 首页按钮 */}
-          <button className="w-full flex items-center space-x-3 p-3 rounded-lg text-slate-400 hover:text-slate-100 hover:bg-slate-700 transition-all">
-            <Home className="w-5 h-5" />
-            <span className="font-medium">首页</span>
-          </button>
-
-          {/* 主导航模块 */}
-          <div className="space-y-1 pt-4">
-            <p className="text-xs text-slate-500 uppercase tracking-wider px-3 mb-2">核心功能</p>
-            
-            {modules.map((module) => {
-              const isActive = currentModule === module.id;
-              const Icon = module.icon;
+    <div className="min-h-screen bg-slate-50">
+      {/* 现代化顶部导航栏 */}
+      <header className="bg-white/95 backdrop-blur-sm border-b border-slate-200 sticky top-0 z-50">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex items-center justify-between h-16 px-4 sm:px-6 lg:px-8">
+            {/* 左侧：品牌和移动端菜单 */}
+            <div className="flex items-center gap-4">
+              <button
+                onClick={() => setIsMenuOpen(!isMenuOpen)}
+                className="lg:hidden p-2 rounded-xl text-slate-600 hover:bg-slate-100 transition-colors"
+                aria-label="菜单"
+              >
+                {isMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+              </button>
               
-              return (
-                <button
-                  key={module.id}
-                  onClick={() => {
-                    onModuleChange(module.id);
-                    setIsSidebarOpen(false);
-                  }}
-                  className={`w-full flex items-center space-x-3 p-3 rounded-lg transition-all ${
-                    isActive
-                      ? 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/30'
-                      : 'text-slate-400 hover:text-slate-100 hover:bg-slate-700'
-                  }`}
-                >
-                  <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
-                    isActive ? 'bg-cyan-500 text-slate-900' : 'bg-slate-700 text-slate-400'
-                  }`}>
-                    <Icon className="w-4 h-4" />
-                  </div>
-                  <div className="flex-1 text-left">
-                    <div className="font-medium">{module.name}</div>
-                    <div className="text-xs opacity-70">{module.description}</div>
-                  </div>
-                  <span className="text-lg opacity-50">{module.accent}</span>
-                </button>
-              );
-            })}
-          </div>
-
-          {/* 系统状态 */}
-          <div className="space-y-1 pt-4 border-t border-slate-700">
-            <p className="text-xs text-slate-500 uppercase tracking-wider px-3 mb-2">系统状态</p>
-            
-            <div className="p-3 rounded-lg bg-slate-700 border border-slate-600">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-sm text-slate-400">数据同步</span>
-                <div className="flex items-center space-x-1">
-                  <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                  <span className="text-xs text-green-500">在线</span>
+              <div 
+                className="flex items-center gap-3 cursor-pointer" 
+                onClick={onHome}
+              >
+                <div className="w-9 h-9 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl flex items-center justify-center shadow-sm">
+                  <span className="text-white font-bold text-sm">知</span>
                 </div>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-slate-400">策略运行</span>
-                <div className="flex items-center space-x-1">
-                  <div className="w-2 h-2 bg-yellow-500 rounded-full animate-pulse"></div>
-                  <span className="text-xs text-yellow-500">运行中</span>
+                <div className="hidden sm:block">
+                  <span className="text-slate-900 font-semibold text-lg">知行交易</span>
+                  <div className="text-xs text-slate-500 font-medium">ZHIXING TRADER</div>
                 </div>
               </div>
             </div>
+
+            {/* 桌面端导航 */}
+            <nav className="hidden lg:flex items-center">
+              <div className="flex items-center bg-slate-100 rounded-xl p-1">
+                {modules.map((module, index) => {
+                  const active = currentModule === module.id;
+                  return (
+                    <button
+                      key={module.id}
+                      onClick={() => onModuleChange(module.id)}
+                      className={`relative flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+                        active
+                          ? 'bg-white text-slate-900 shadow-sm'
+                          : 'text-slate-600 hover:text-slate-900'
+                      }`}
+                    >
+                      <module.icon className="w-4 h-4" />
+                      {module.name}
+                    </button>
+                  );
+                })}
+              </div>
+            </nav>
+
+            {/* 右侧：操作按钮 */}
+            <div className="flex items-center gap-2">
+              {onHome && (
+                <button
+                  onClick={onHome}
+                  className="p-2 rounded-xl text-slate-600 hover:bg-slate-100 transition-colors"
+                  aria-label="首页"
+                >
+                  <Home className="w-5 h-5" />
+                </button>
+              )}
+              <button
+                onClick={onSettings}
+                className="p-2 rounded-xl text-slate-600 hover:bg-slate-100 transition-colors"
+                aria-label="设置"
+              >
+                <Settings className="w-5 h-5" />
+              </button>
+            </div>
           </div>
-        </nav>
 
-        {/* 底部设置 */}
-        <div className="p-4 border-t border-slate-700">
-          <button
-            onClick={onSettings}
-            className="w-full flex items-center space-x-3 p-3 rounded-lg text-slate-400 hover:text-slate-100 hover:bg-slate-700 transition-all"
-          >
-            <Settings className="w-5 h-5" />
-            <span className="font-medium">设置</span>
-          </button>
+          {/* 移动端下拉菜单 */}
+          {isMenuOpen && (
+            <>
+              <div className="lg:hidden border-t border-slate-200 bg-white/95 backdrop-blur-sm">
+                <nav className="px-4 py-4 space-y-2">
+                  {modules.map((module) => {
+                    const active = currentModule === module.id;
+                    return (
+                      <button
+                        key={module.id}
+                        onClick={() => {
+                          onModuleChange(module.id);
+                          setIsMenuOpen(false);
+                        }}
+                        className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left transition-colors ${
+                          active
+                            ? 'bg-blue-50 text-blue-700 border border-blue-200'
+                            : 'text-slate-600 hover:bg-slate-50'
+                        }`}
+                      >
+                        <module.icon className="w-5 h-5" />
+                        <div>
+                          <div className="font-medium">{module.name}</div>
+                          <div className="text-sm text-slate-500">{module.description}</div>
+                        </div>
+                      </button>
+                    );
+                  })}
+                </nav>
+              </div>
+              
+              {/* 移动端遮罩 */}
+              <div
+                className="lg:hidden fixed inset-0 bg-black/20 backdrop-blur-sm z-40"
+                onClick={() => setIsMenuOpen(false)}
+              />
+            </>
+          )}
         </div>
-      </aside>
-
-      {/* 移动端遮罩层 */}
-      {isSidebarOpen && (
-        <div
-          className="lg:hidden fixed inset-0 bg-black/50 z-30 backdrop-blur-sm"
-          onClick={() => setIsSidebarOpen(false)}
-        />
-      )}
+      </header>
 
       {/* 主内容区域 */}
-      <main className="flex-1 flex flex-col h-full overflow-hidden bg-slate-900">
-        {/* 顶部状态栏 */}
-        <header className="h-14 bg-slate-800 border-b border-slate-700 flex items-center px-6 flex-shrink-0">
-          <div className="flex items-center space-x-4">
-            <div className="text-sm text-slate-400 font-mono">
-              2025-08-15 14:30:25
-            </div>
-            <div className="flex items-center space-x-2">
-              <Activity className="w-4 h-4 text-green-500" />
-              <span className="text-sm text-green-500">市场活跃</span>
-            </div>
-          </div>
-        </header>
-
-        {/* 主内容区域 */}
-        <div className="flex-1 overflow-auto bg-slate-900 p-6">
-          <div className="max-w-full mx-auto h-full">
-            {children}
-          </div>
+      <main className="min-h-[calc(100vh-4rem)]">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          {children}
         </div>
       </main>
     </div>

@@ -10,6 +10,7 @@ import { TradingManagement } from '@/components/TradingManagement';
 import { IntelligentReview } from '@/components/IntelligentReview';
 import { SettingsPage } from '@/components/SettingsPage';
 import { NotificationSystem } from '@/components/NotificationSystem';
+import { WelcomeDashboard } from '@/components/WelcomeDashboard';
 import { useAppState } from '@/hooks/useAppState';
 
 export default function Home() {
@@ -28,12 +29,17 @@ export default function Home() {
   } = useAppState();
 
   // 主模块状态
-  const [currentModule, setCurrentModule] = useState<MainModule>('market');
+  const [currentModule, setCurrentModule] = useState<MainModule | null>(null);
   const [selectedStock, setSelectedStock] = useState<any>(null);
 
   // 模块切换处理
   const handleModuleChange = (module: MainModule) => {
     setCurrentModule(module);
+  };
+
+  // 回到首页
+  const handleGoHome = () => {
+    setCurrentModule(null);
   };
 
   // 股票市场相关处理
@@ -51,9 +57,10 @@ export default function Home() {
   if (appState.currentView === 'settings') {
     return (
       <TopNavigation
-        currentModule={currentModule}
+        currentModule={currentModule || 'market'}
         onModuleChange={handleModuleChange}
         onSettings={handleShowSettings}
+        onHome={handleGoHome}
       >
         <SettingsPage
           appState={appState}
@@ -70,11 +77,16 @@ export default function Home() {
   // 主应用界面
   return (
     <TopNavigation
-      currentModule={currentModule}
+      currentModule={currentModule || 'market'}
       onModuleChange={handleModuleChange}
       onSettings={handleShowSettings}
+      onHome={handleGoHome}
     >
       {/* 主内容区域 */}
+      {!currentModule && (
+        <WelcomeDashboard onModuleChange={handleModuleChange} />
+      )}
+
       {currentModule === 'market' && (
         <StockMarket
           onCreateTradingPlan={handleCreateTradingPlanFromStock}
