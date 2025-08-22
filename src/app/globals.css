@@ -194,12 +194,12 @@ textarea:focus,
 
 /* 霓虹发光效果 */
 .neon-glow {
-  box-shadow: 0 0 20px rgba(0, 212, 170, 0.3);
+  box-shadow: 0 0 20px rgba(0, 255, 208, 0.3);
 }
 
 .neon-border {
   position: relative;
-  background: var(--surface);
+  background: var(--bg-surface);
   border-radius: 8px;
 }
 
@@ -210,7 +210,7 @@ textarea:focus,
   left: 0;
   right: 0;
   bottom: 0;
-  background: linear-gradient(45deg, var(--primary), var(--accent));
+  background: linear-gradient(45deg, var(--color-primary), var(--color-accent));
   border-radius: 8px;
   opacity: 0.7;
   z-index: -1;
@@ -229,22 +229,23 @@ textarea:focus,
   letter-spacing: 0.05em;
 }
 
-/* 现代卡片基础样式 - 为UI组件提供基础样式支持 */
+/* 现代卡片基础样式 - 优化版本 */
 .card, .neon-card {
-  background: rgba(30, 41, 59, 0.4);
+  background: rgba(30, 41, 59, 0.6);
   backdrop-filter: blur(20px);
-  border: 1px solid rgba(148, 163, 184, 0.1);
+  border: 1px solid rgba(148, 163, 184, 0.2);
   border-radius: 16px;
   transition: all var(--transition-normal);
   position: relative;
   overflow: hidden;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
 .card:hover, .neon-card:hover {
-  background: rgba(30, 41, 59, 0.6);
-  border-color: rgba(0, 255, 208, 0.3);
+  background: rgba(30, 41, 59, 0.8);
+  border-color: rgba(0, 255, 208, 0.4);
   transform: translateY(-2px);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15), 0 0 20px rgba(0, 255, 208, 0.1);
 }
 
 /* 按钮样式 */
@@ -264,29 +265,91 @@ textarea:focus,
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-  color: var(--text-inverse);
-  box-shadow: 0 4px 12px rgba(0, 212, 170, 0.3);
+  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-dark));
+  color: var(--color-text-inverse);
+  box-shadow: 0 4px 12px rgba(0, 255, 208, 0.3);
+  border: none;
 }
 
 .btn-primary:hover {
-  background: linear-gradient(135deg, var(--primary-light), var(--primary));
-  box-shadow: 0 6px 20px rgba(0, 212, 170, 0.4);
+  background: linear-gradient(135deg, var(--color-primary-light), var(--color-primary));
+  box-shadow: 0 8px 24px rgba(0, 255, 208, 0.4);
   transform: translateY(-2px);
 }
 
 .btn-secondary {
-  background: var(--surface);
-  color: var(--text-primary);
-  border: 2px solid var(--border);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  background: var(--bg-surface);
+  color: var(--color-text-primary);
+  border: 2px solid var(--border-primary);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .btn-secondary:hover {
-  background: var(--surface-light);
-  border-color: var(--primary);
-  box-shadow: 0 4px 12px rgba(0, 212, 170, 0.2);
+  background: var(--bg-surface-light);
+  border-color: var(--color-primary);
+  box-shadow: 0 4px 12px rgba(0, 255, 208, 0.2);
   transform: translateY(-1px);
+}
+
+/* 统计卡片专用样式 */
+.stat-card {
+  background: linear-gradient(145deg, rgba(30, 41, 59, 0.8), rgba(15, 23, 42, 0.9));
+  backdrop-filter: blur(24px);
+  border: 1px solid rgba(148, 163, 184, 0.15);
+  border-radius: 20px;
+  transition: all var(--transition-normal);
+  position: relative;
+  overflow: hidden;
+  box-shadow: 
+    0 4px 16px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+.stat-card:hover {
+  background: linear-gradient(145deg, rgba(30, 41, 59, 0.9), rgba(15, 23, 42, 1));
+  border-color: rgba(0, 255, 208, 0.3);
+  transform: translateY(-4px) scale(1.02);
+  box-shadow: 
+    0 12px 40px rgba(0, 0, 0, 0.2),
+    0 0 30px rgba(0, 255, 208, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.stat-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(0, 255, 208, 0.5), transparent);
+  opacity: 0;
+  transition: opacity var(--transition-normal);
+}
+
+.stat-card:hover::before {
+  opacity: 1;
+}
+
+/* 统计数值样式 */
+.stat-value {
+  font-size: 2.5rem;
+  font-weight: 700;
+  line-height: 1;
+  background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 0 20px rgba(0, 255, 208, 0.3);
+}
+
+/* 统计标签样式 */
+.stat-label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 /* 动画效果 */
@@ -327,27 +390,33 @@ textarea:focus,
   font-weight: 500;
 }
 
-/* 输入框样式 */
+/* 输入框样式 - 优化版本 */
 input, textarea, select {
-  background: var(--surface);
-  border: 2px solid var(--border);
-  border-radius: 8px;
-  color: var(--text-primary);
+  background: rgba(15, 23, 42, 0.8);
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  border-radius: 12px;
+  color: var(--color-text-primary);
   font-size: 0.875rem;
-  padding: 0.75rem 1rem;
+  padding: 0.875rem 1rem;
   transition: all var(--transition-normal);
-  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+  box-shadow: 
+    inset 0 2px 4px rgba(0, 0, 0, 0.1),
+    0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
 input:focus, textarea:focus, select:focus {
   outline: none;
-  border-color: var(--primary);
-  box-shadow: 0 0 0 3px rgba(0, 212, 170, 0.2), inset 0 2px 4px rgba(0, 0, 0, 0.2);
+  border-color: var(--color-primary);
+  background: rgba(15, 23, 42, 0.95);
+  box-shadow: 
+    0 0 0 3px rgba(0, 255, 208, 0.15),
+    inset 0 2px 4px rgba(0, 0, 0, 0.1),
+    0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 input::placeholder, textarea::placeholder {
-  color: var(--text-muted);
-  opacity: 0.7;
+  color: var(--color-text-muted);
+  opacity: 0.6;
 }
 
 /* 表格样式 */
@@ -379,31 +448,54 @@ tr:hover {
   background: var(--surface-light);
 }
 
-/* 标签样式 */
+/* 标签样式 - 优化版本 */
 .tag {
   display: inline-flex;
   align-items: center;
   padding: 0.5rem 1rem;
   border-radius: 20px;
   font-size: 0.8125rem;
+  font-weight: 500;
   cursor: pointer;
   transition: all var(--transition-normal);
-  background: rgba(30, 41, 59, 0.6);
-  border: 1px solid rgba(148, 163, 184, 0.1);
-  color: var(--text-secondary);
+  background: rgba(30, 41, 59, 0.7);
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  color: var(--color-text-secondary);
+  backdrop-filter: blur(12px);
 }
 
 .tag:hover {
-  background: rgba(59, 130, 246, 0.1);
-  border-color: rgba(59, 130, 246, 0.3);
-  color: var(--secondary);
-  transform: translateY(-1px);
+  background: rgba(59, 130, 246, 0.15);
+  border-color: rgba(59, 130, 246, 0.4);
+  color: var(--color-secondary);
+  transform: translateY(-1px) scale(1.05);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
 }
 
 .tag.selected {
-  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
   border-color: transparent;
-  color: var(--text-inverse);
+  color: var(--color-text-inverse);
+  box-shadow: 0 4px 16px rgba(0, 255, 208, 0.3);
+}
+
+/* 概念标签专用样式 */
+.concept-tag {
+  background: linear-gradient(135deg, rgba(0, 255, 208, 0.1), rgba(59, 130, 246, 0.1));
+  border: 1px solid rgba(0, 255, 208, 0.3);
+  color: var(--color-primary);
+  font-size: 0.75rem;
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  font-weight: 600;
+  letter-spacing: 0.025em;
+}
+
+.concept-tag:hover {
+  background: linear-gradient(135deg, rgba(0, 255, 208, 0.2), rgba(59, 130, 246, 0.2));
+  border-color: rgba(0, 255, 208, 0.5);
+  transform: scale(1.05);
+  box-shadow: 0 2px 8px rgba(0, 255, 208, 0.2);
 }
 
 /* 标签页导航 */
@@ -758,6 +850,49 @@ tr:hover {
 
 .input-unified::placeholder {
   color: var(--color-slate-400);
+}
+
+/* 紧凑布局专用样式 */
+.input-compact {
+  padding: 0.5rem 0.75rem;
+  font-size: 0.8125rem;
+  height: 2.25rem; /* h-9 */
+}
+
+.input-unified.input-compact {
+  padding: 0.5rem 0.75rem;
+  font-size: 0.8125rem;
+  height: 2.25rem;
+}
+
+/* 筛选按钮精简样式 */
+.filter-btn-compact {
+  padding: 0.375rem 0.75rem;
+  font-size: 0.75rem;
+  border-radius: 0.375rem;
+  height: 2.25rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--transition-fast);
+}
+
+/* 概念标签精简样式 */
+.concept-tag-compact {
+  padding: 0.25rem 0.5rem;
+  font-size: 0.75rem;
+  border-radius: 0.375rem;
+  transition: all var(--transition-fast);
+  border-width: 1px;
+  border-style: solid;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+}
+
+.concept-tag-compact:hover {
+  transform: scale(1.05);
 }
 
 /* 统一状态标签 */

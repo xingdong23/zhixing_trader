@@ -139,22 +139,22 @@ export function ConceptManager({ onConceptSelect }: ConceptManagerProps = {}) {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-3 gap-4">
-            <div className="text-center p-4 bg-blue-50 rounded-lg">
-              <div className="text-2xl font-bold text-blue-600">{concepts.length}</div>
-              <div className="text-sm text-blue-700">概念数量</div>
+          <div className="grid grid-cols-3 gap-3">
+            <div className="text-center p-3 bg-primary/10 border border-primary/20 rounded-lg">
+              <div className="text-xl font-bold text-primary">{concepts.length}</div>
+              <div className="text-xs text-text-secondary">概念数量</div>
             </div>
-            <div className="text-center p-4 bg-green-50 rounded-lg">
-              <div className="text-2xl font-bold text-green-600">
+            <div className="text-center p-3 bg-success/10 border border-success/20 rounded-lg">
+              <div className="text-xl font-bold text-success">
                 {concepts.reduce((sum, c) => sum + c.stockCount, 0)}
               </div>
-              <div className="text-sm text-green-700">关联股票</div>
+              <div className="text-xs text-text-secondary">关联股票</div>
             </div>
-            <div className="text-center p-4 bg-purple-50 rounded-lg">
-              <div className="text-2xl font-bold text-purple-600">
+            <div className="text-center p-3 bg-info/10 border border-info/20 rounded-lg">
+              <div className="text-xl font-bold text-info">
                 {concepts.length > 0 ? Math.round(concepts.reduce((sum, c) => sum + c.stockCount, 0) / concepts.length * 10) / 10 : 0}
               </div>
-              <div className="text-sm text-purple-700">平均股票数</div>
+              <div className="text-xs text-text-secondary">平均股票数</div>
             </div>
           </div>
         </CardContent>
@@ -168,19 +168,18 @@ export function ConceptManager({ onConceptSelect }: ConceptManagerProps = {}) {
             概念管理
           </CardTitle>
           <div className="flex gap-2">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+            <div className="flex-1">
               <input
                 type="text"
                 placeholder="搜索概念..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                className="input-unified"
               />
             </div>
             <button
               onClick={() => setShowCreateForm(true)}
-              className="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
+              className="btn-unified-primary flex items-center gap-2"
             >
               <Plus className="w-4 h-4" />
               创建概念
@@ -190,21 +189,21 @@ export function ConceptManager({ onConceptSelect }: ConceptManagerProps = {}) {
         <CardContent>
           {/* 创建表单 */}
           {showCreateForm && (
-            <div className="mb-6 p-4 border border-gray-200 rounded-lg bg-gray-50">
-              <h4 className="font-semibold mb-3">创建新概念</h4>
+            <div className="mb-6 p-4 border border-border rounded-lg bg-surface/50">
+              <h4 className="font-semibold mb-3 text-text-primary">创建新概念</h4>
               <div className="flex gap-2">
                 <input
                   type="text"
                   placeholder="概念名称"
                   value={newConceptName}
                   onChange={(e) => setNewConceptName(e.target.value)}
-                  className="flex-1 px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500"
+                  className="input-unified flex-1"
                   onKeyDown={(e) => e.key === 'Enter' && handleCreateConcept()}
                 />
                 <button
                   onClick={handleCreateConcept}
                   disabled={!newConceptName.trim()}
-                  className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 disabled:bg-gray-300"
+                  className="p-2 bg-success/20 border border-success/30 text-success rounded hover:bg-success/30 disabled:bg-surface disabled:text-text-muted disabled:border-border"
                 >
                   <Check className="w-4 h-4" />
                 </button>
@@ -213,7 +212,7 @@ export function ConceptManager({ onConceptSelect }: ConceptManagerProps = {}) {
                     setShowCreateForm(false);
                     setNewConceptName('');
                   }}
-                  className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
+                  className="p-2 bg-surface border border text-text-secondary rounded hover:bg-surface-light"
                 >
                   <X className="w-4 h-4" />
                 </button>
@@ -223,7 +222,7 @@ export function ConceptManager({ onConceptSelect }: ConceptManagerProps = {}) {
 
           {/* 概念列表 */}
           {filteredConcepts.length === 0 ? (
-            <div className="text-center py-8 text-gray-500">
+            <div className="text-center py-8 text-text-muted">
               <Tag className="w-12 h-12 mx-auto mb-4 opacity-50" />
               <p>{searchQuery ? '没有找到匹配的概念' : '暂无概念标签'}</p>
             </div>
@@ -235,13 +234,13 @@ export function ConceptManager({ onConceptSelect }: ConceptManagerProps = {}) {
                 const isEditing = editingConcept === concept.id;
 
                 return (
-                  <div key={concept.id} className="border border-gray-200 rounded-lg">
+                  <div key={concept.id} className="border border rounded-lg bg-surface/30">
                     {/* 概念标题 */}
-                    <div className="p-4 bg-gray-50 flex items-center justify-between">
+                    <div className="p-4 bg-surface/50 flex items-center justify-between border-b border">
                       <div className="flex items-center gap-3 flex-1">
                         <button
                           onClick={() => toggleExpansion(concept.id)}
-                          className="text-gray-400 hover:text-gray-600"
+                          className="text-text-muted hover:text-text-primary transition-colors"
                         >
                           {isExpanded ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
                         </button>
@@ -257,18 +256,18 @@ export function ConceptManager({ onConceptSelect }: ConceptManagerProps = {}) {
                                 handleUpdateConcept(concept.id, (e.target as HTMLInputElement).value);
                               }
                             }}
-                            className="flex-1 px-2 py-1 border border-gray-300 rounded"
+                            className="input-unified flex-1"
                             autoFocus
                           />
                         ) : (
                           <div className="flex-1">
-                            <h3 className="font-semibold text-gray-800">{concept.name}</h3>
+                            <h3 className="font-semibold text-text-primary">{concept.name}</h3>
                           </div>
                         )}
                       </div>
 
                       <div className="flex items-center gap-2">
-                        <span className="text-sm text-gray-500">{concept.stockCount} 只股票</span>
+                        <span className="text-sm text-text-secondary">{concept.stockCount} 只股票</span>
                         
                         {isEditing ? (
                           <div className="flex gap-1">
@@ -277,13 +276,13 @@ export function ConceptManager({ onConceptSelect }: ConceptManagerProps = {}) {
                                 const input = document.querySelector(`input[defaultValue="${concept.name}"]`) as HTMLInputElement;
                                 handleUpdateConcept(concept.id, input?.value || concept.name);
                               }}
-                              className="p-1 text-green-600 hover:bg-green-100 rounded"
+                              className="p-1 text-success hover:bg-success/10 rounded transition-colors"
                             >
                               <Check className="w-4 h-4" />
                             </button>
                             <button
                               onClick={() => setEditingConcept(null)}
-                              className="p-1 text-gray-600 hover:bg-gray-100 rounded"
+                              className="p-1 text-text-secondary hover:bg-surface rounded transition-colors"
                             >
                               <X className="w-4 h-4" />
                             </button>
@@ -292,13 +291,13 @@ export function ConceptManager({ onConceptSelect }: ConceptManagerProps = {}) {
                           <div className="flex gap-1">
                             <button
                               onClick={() => setEditingConcept(concept.id)}
-                              className="p-1 text-blue-600 hover:bg-blue-100 rounded"
+                              className="p-1 text-info hover:bg-info/10 rounded transition-colors"
                             >
                               <Edit2 className="w-4 h-4" />
                             </button>
                             <button
                               onClick={() => handleDeleteConcept(concept.id, concept.name)}
-                              className="p-1 text-red-600 hover:bg-red-100 rounded"
+                              className="p-1 text-danger hover:bg-danger/10 rounded transition-colors"
                             >
                               <Trash2 className="w-4 h-4" />
                             </button>
@@ -311,23 +310,23 @@ export function ConceptManager({ onConceptSelect }: ConceptManagerProps = {}) {
                     {isExpanded && (
                       <div className="border-t">
                         {/* 添加股票 */}
-                        <div className="p-3 border-b bg-surface">
+                        <div className="p-3 border-b border bg-surface/30">
                           <button
                             onClick={() => setShowStockSelector(concept.id)}
-                            className="flex items-center gap-2 px-3 py-1 text-sm bg-blue-500 text-white rounded hover:bg-blue-600"
+                            className="btn-unified-primary text-sm"
                           >
-                            <Plus className="w-3 h-3" />
+                            <Plus className="w-3 h-3 mr-1" />
                             添加股票
                           </button>
                         </div>
 
                         {/* 股票选择器 */}
                         {showStockSelector === concept.id && (
-                          <div className="p-3 border-b bg-blue-50">
-                            <h5 className="font-medium mb-2">选择股票：</h5>
+                          <div className="p-3 border-b border bg-info/5">
+                            <h5 className="font-medium mb-2 text-text-primary">选择股票：</h5>
                             <div className="max-h-40 overflow-y-auto space-y-1">
                               {getAvailableStocks(concept.id).map(stock => (
-                                <label key={stock.id} className="flex items-center gap-2 text-sm">
+                                <label key={stock.id} className="flex items-center gap-2 text-sm text-text-primary cursor-pointer hover:bg-surface/50 p-1 rounded">
                                   <input
                                     type="checkbox"
                                     checked={selectedStocks.has(stock.id)}
@@ -340,9 +339,10 @@ export function ConceptManager({ onConceptSelect }: ConceptManagerProps = {}) {
                                       }
                                       setSelectedStocks(newSelected);
                                     }}
+                                    className="accent-primary"
                                   />
-                                  <span className="font-mono text-xs">{stock.symbol}</span>
-                                  <span>{stock.name}</span>
+                                  <span className="font-mono text-xs text-text-secondary">{stock.symbol}</span>
+                                  <span className="text-text-primary">{stock.name}</span>
                                 </label>
                               ))}
                             </div>
@@ -350,7 +350,7 @@ export function ConceptManager({ onConceptSelect }: ConceptManagerProps = {}) {
                               <button
                                 onClick={() => handleAddStocksToConcept(concept.id)}
                                 disabled={selectedStocks.size === 0}
-                                className="px-3 py-1 text-sm bg-green-500 text-white rounded hover:bg-green-600 disabled:bg-gray-300"
+                                className="px-3 py-1 text-sm bg-success/20 border border-success/30 text-success rounded hover:bg-success/30 disabled:bg-surface disabled:text-text-muted disabled:border-border"
                               >
                                 添加 ({selectedStocks.size})
                               </button>
@@ -359,7 +359,7 @@ export function ConceptManager({ onConceptSelect }: ConceptManagerProps = {}) {
                                   setShowStockSelector(null);
                                   setSelectedStocks(new Set());
                                 }}
-                                className="px-3 py-1 text-sm bg-gray-500 text-white rounded hover:bg-gray-600"
+                                className="btn-unified-secondary text-sm"
                               >
                                 取消
                               </button>
@@ -370,27 +370,27 @@ export function ConceptManager({ onConceptSelect }: ConceptManagerProps = {}) {
                         {/* 股票列表 */}
                         <div className="max-h-60 overflow-y-auto">
                           {conceptStocks.length === 0 ? (
-                            <div className="p-4 text-center text-gray-500 text-sm">
+                            <div className="p-4 text-center text-text-muted text-sm">
                               暂无股票
                             </div>
                           ) : (
-                            <div className="divide-y">
+                            <div className="divide-y divide-border">
                               {conceptStocks.map(stock => (
-                                <div key={stock.id} className="p-3 flex items-center justify-between hover:bg-gray-50">
+                                <div key={stock.id} className="p-3 flex items-center justify-between hover:bg-surface/30 transition-colors">
                                   <div className="flex items-center gap-3">
-                                    <span className="font-mono text-sm text-gray-600">{stock.symbol}</span>
-                                    <span className="font-medium">{stock.name}</span>
-                                    <span className={`px-2 py-1 rounded text-xs ${
-                                      stock.market === 'US' ? 'bg-blue-100 text-blue-800' :
-                                      stock.market === 'HK' ? 'bg-green-100 text-green-800' :
-                                      'bg-red-100 text-red-800'
+                                    <span className="font-mono text-sm text-text-secondary">{stock.symbol}</span>
+                                    <span className="font-medium text-text-primary">{stock.name}</span>
+                                    <span className={`px-2 py-1 rounded text-xs border ${
+                                      stock.market === 'US' ? 'bg-info/10 text-info border-info/30' :
+                                      stock.market === 'HK' ? 'bg-success/10 text-success border-success/30' :
+                                      'bg-danger/10 text-danger border-danger/30'
                                     }`}>
                                       {stock.market}
                                     </span>
                                   </div>
                                   <button
                                     onClick={() => handleRemoveStock(concept.id, stock.id)}
-                                    className="p-1 text-red-600 hover:bg-red-100 rounded"
+                                    className="p-1 text-danger hover:bg-danger/10 rounded transition-colors"
                                   >
                                     <X className="w-3 h-3" />
                                   </button>

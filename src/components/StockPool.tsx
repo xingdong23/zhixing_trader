@@ -246,32 +246,28 @@ export function StockPool({
         </button>
       </div>
 
-      {/* 搜索功能：只保留一套搜索输入，避免与外层Tabs重复 */}
-      <div className="search-section">
-        <div className="relative">
-          <Search className="absolute left-3 top-3 w-4 h-4 text-text-muted" />
-          <input
-            type="text"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="search-bar"
-            placeholder="股票代码或名称，如sh000001 | 000001；美股：amzn；港股：hk3690 | 03690"
-          />
-        </div>
-      </div>
-
-      {/* 基础筛选条件 */}
-      <div className="tag-cloud">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-          {/* 基本面筛选已移除，概念通过关联表管理 */}
-
+      {/* 统一的筛选区域 - 精简版 */}
+      <div className="bg-surface/20 border border rounded-lg p-3 mb-4">
+        {/* 第一行：搜索框 + 市场筛选 + 关注度筛选 + 清除按钮 */}
+        <div className="flex gap-3 mb-3">
+          {/* 搜索框 */}
+          <div className="flex-1">
+            <input
+              type="text"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="input-unified w-full h-9"
+              placeholder="搜索代码或名称，如AAPL、000001"
+            />
+          </div>
+          
           {/* 市场筛选 */}
           <select
             value={selectedMarket}
             onChange={(e) => setSelectedMarket(e.target.value)}
-            className="w-full p-2 border border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+            className="input-unified w-24 h-9 text-sm"
           >
-            <option value="">所有市场</option>
+            <option value="">市场</option>
             <option value="US">美股</option>
             <option value="HK">港股</option>
             <option value="CN">A股</option>
@@ -281,62 +277,77 @@ export function StockPool({
           <select
             value={selectedWatchLevel}
             onChange={(e) => setSelectedWatchLevel(e.target.value)}
-            className="w-full p-2 border border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+            className="input-unified w-24 h-9 text-sm"
           >
-            <option value="">所有关注度</option>
-            <option value="high">重点关注</option>
-            <option value="medium">一般关注</option>
-            <option value="low">观察中</option>
+            <option value="">关注度</option>
+            <option value="high">重点</option>
+            <option value="medium">一般</option>
+            <option value="low">观察</option>
           </select>
 
           {/* 清除筛选 */}
           <button
             onClick={clearFilters}
-            className="px-4 py-2.5 text-text-secondary border border rounded-lg text-sm hover:bg-surface transition-colors"
+            className="btn-unified-secondary text-sm h-9 px-3"
           >
-            清除筛选
+            清除
           </button>
         </div>
-      </div>
 
-      {/* 概念标签筛选 */}
-      <div className="tag-cloud">
-        <div className="mb-3">
-          <span className="text-sm font-medium text-text-primary">概念筛选：</span>
-        </div>
-        <div className="tag-grid">
-          {/* 全部概念按钮 */}
-          <button
-            onClick={() => { setSelectedConcept(''); if (onConceptChange) onConceptChange(''); }}
-            className={`tag ${selectedConcept === '' ? 'selected' : ''}`}
-          >
-            全部 ({total || updatedStocks.length})
-          </button>
-
-          {/* 概念标签按钮 */}
-          {availableConcepts.map(concept => (
+        {/* 第二行：概念标签筛选 */}
+        <div className="flex items-center gap-2">
+          <span className="text-xs text-text-secondary flex-shrink-0">概念：</span>
+          <div className="flex flex-wrap gap-1 flex-1">
+            {/* 全部概念按钮 */}
             <button
-              key={concept.id}
-              onClick={() => {
-                const next = concept.id === selectedConcept ? '' : concept.id;
-                setSelectedConcept(next);
-                if (onConceptChange) onConceptChange(next);
-              }}
-              className={`tag ${selectedConcept === concept.id ? 'selected' : ''}`}
-              style={{
-                backgroundColor: selectedConcept === concept.id
-                  ? concept.color
-                  : `${concept.color}15`,
-                borderColor: concept.color,
-                borderWidth: selectedConcept === concept.id ? '2px' : '1px'
-              }}
+              onClick={() => { setSelectedConcept(''); if (onConceptChange) onConceptChange(''); }}
+              className={`px-2 py-1 text-xs rounded transition-all ${
+                selectedConcept === '' 
+                  ? 'bg-primary text-slate-900 border border-primary' 
+                  : 'bg-surface/50 text-text-secondary border border hover:bg-surface'
+              }`}
             >
-              {concept.name} ({concept.stockCount})
+              全部 ({total || updatedStocks.length})
             </button>
-          ))}
-        </div>
 
-        <div className="mt-3 text-sm text-text-secondary">显示 {filteredStocks.length} / {total || stats.totalStocks} 只股票</div>
+            {/* 概念标签按钮 - 限制显示数量 */}
+            {availableConcepts.slice(0, 12).map(concept => (
+              <button
+                key={concept.id}
+                onClick={() => {
+                  const next = concept.id === selectedConcept ? '' : concept.id;
+                  setSelectedConcept(next);
+                  if (onConceptChange) onConceptChange(next);
+                }}
+                className={`px-2 py-1 text-xs rounded transition-all border ${
+                  selectedConcept === concept.id
+                    ? 'text-slate-900 border-2'
+                    : 'text-text-secondary border hover:scale-105'
+                }`}
+                style={{
+                  backgroundColor: selectedConcept === concept.id
+                    ? concept.color
+                    : `${concept.color}15`,
+                  borderColor: concept.color
+                }}
+              >
+                {concept.name} ({concept.stockCount})
+              </button>
+            ))}
+            
+            {/* 更多概念按钮 */}
+            {availableConcepts.length > 12 && (
+              <span className="px-2 py-1 text-xs text-text-muted bg-surface/30 rounded border border">
+                +{availableConcepts.length - 12}个
+              </span>
+            )}
+          </div>
+          
+          {/* 统计信息 */}
+          <span className="text-xs text-text-muted flex-shrink-0">
+            {filteredStocks.length}/{total || stats.totalStocks}
+          </span>
+        </div>
       </div>
 
 
@@ -462,21 +473,25 @@ function StockCard({
   };
 
   return (
-    <div className="neon-card p-6">
-      <div className="flex items-start justify-between mb-4">
+    <div className="neon-card p-4">
+      <div className="flex items-center justify-between mb-3">
         {/* 左侧：股票信息 */}
         <div className="flex-1">
-          <div className="flex items-center gap-3 mb-2">
-            <h3 className="text-lg font-semibold text-text-primary">{stock.name}</h3>
-            <span className="px-2 py-1 bg-surface border border rounded text-xs text-text-secondary font-mono">
+          <div className="flex items-center gap-2 mb-2">
+            <h3 className="text-base font-semibold text-text-primary">{stock.name}</h3>
+            <span className="px-2 py-1 bg-surface/50 border border rounded text-xs text-text-secondary font-mono">
               {stock.symbol}
             </span>
             <span className="text-sm">
               {getMarketFlag(stock.market)}
             </span>
+            {/* 关注级别标识 */}
+            <div className="flex items-center">
+              {getWatchLevelIcon(stock.tags.watchLevel || 'medium')}
+            </div>
           </div>
 
-          {/* 概念标签 */}
+          {/* 概念标签 - 只显示最多2个 */}
           {(() => {
             const stockConcepts = conceptRelations
               .filter(rel => rel.stockId === stock.symbol)
@@ -484,107 +499,77 @@ function StockCard({
               .filter(Boolean) as Concept[];
             
             return stockConcepts.length > 0 && (
-              <div className="flex flex-wrap gap-1 mb-3">
-                {stockConcepts.slice(0, 3).map((concept) => (
+              <div className="flex flex-wrap gap-1 mb-2">
+                {stockConcepts.slice(0, 2).map((concept) => (
                   <span
                     key={concept.id}
-                    className="px-2 py-1 bg-accent/10 border border-accent/20 rounded text-xs text-accent"
+                    className="px-2 py-0.5 bg-accent/10 border border-accent/20 rounded text-xs text-accent"
                   >
                     {concept.name}
                   </span>
                 ))}
-                {stockConcepts.length > 3 && (
-                  <span className="px-2 py-1 bg-surface border border rounded text-xs text-text-muted">
-                    +{stockConcepts.length - 3}
+                {stockConcepts.length > 2 && (
+                  <span className="px-2 py-0.5 bg-surface/50 border border rounded text-xs text-text-muted">
+                    +{stockConcepts.length - 2}
                   </span>
                 )}
               </div>
             );
           })()}
 
-          {/* 价格信息 */}
-          <div className="mb-3">
-            <div className="text-2xl font-bold text-text-primary font-mono mb-1">
+          {/* 价格信息 - 精简显示 */}
+          <div className="flex items-center gap-4 mb-2">
+            <div className="text-lg font-bold text-text-primary font-mono">
               ${stock.currentPrice?.toFixed(2) || '0.00'}
             </div>
             {stock.priceChange && (
-              <div className={`flex items-center gap-2 text-sm ${stock.priceChange >= 0 ? 'text-success' : 'text-danger'}`}>
+              <div className={`flex items-center gap-1 text-sm ${stock.priceChange >= 0 ? 'text-success' : 'text-danger'}`}>
                 {getPriceChangeIcon(stock.priceChange)}
-                <span className="font-medium text-text-primary">
+                <span className="font-medium">
                   {stock.priceChange >= 0 ? '+' : ''}{stock.priceChange.toFixed(2)}
                 </span>
                 {stock.priceChangePercent && (
-                  <span className="font-mono">
-                    ({stock.priceChangePercent >= 0 ? '+' : ''}{stock.priceChangePercent.toFixed(2)}%)
+                  <span className="font-mono text-xs">
+                    ({stock.priceChangePercent >= 0 ? '+' : ''}{stock.priceChangePercent.toFixed(1)}%)
                   </span>
                 )}
               </div>
             )}
           </div>
 
-          <div className="flex gap-3">
-            <button
-              onClick={onViewDetail}
-              className="px-3 py-1 bg-primary/10 border border-primary/20 rounded text-primary text-sm hover:bg-primary/20 transition-all"
-            >
-              查看详情
-            </button>
+          {/* 简化的操作按钮 */}
+          <div className="flex gap-2">
             <button
               onClick={onSelect}
-              className="px-3 py-1 bg-success/10 border border-success/20 rounded text-success text-sm hover:bg-success/20 transition-all"
+              className="px-3 py-1 bg-primary/10 border border-primary/20 rounded text-primary text-xs hover:bg-primary/20 transition-all"
             >
-              制定交易计划
+              交易计划
+            </button>
+            <button
+              onClick={onViewDetail}
+              className="px-3 py-1 bg-info/10 border border-info/20 rounded text-info text-xs hover:bg-info/20 transition-all"
+            >
+              详情
             </button>
           </div>
         </div>
 
-        {/* 右侧：操作按钮 */}
-        <div className="flex gap-2 ml-4">
+        {/* 右侧：管理按钮 */}
+        <div className="flex flex-col gap-1 ml-3">
           <button
             onClick={onEdit}
-            className="w-8 h-8 bg-primary/10 border border-primary/20 rounded-lg flex items-center justify-center text-primary hover:bg-primary/20 transition-all"
+            className="w-7 h-7 bg-primary/10 border border-primary/20 rounded flex items-center justify-center text-primary hover:bg-primary/20 transition-all"
             title="编辑"
           >
-            <Edit3 className="w-4 h-4" />
+            <Edit3 className="w-3 h-3" />
           </button>
           <button
             onClick={onDelete}
-            className="w-8 h-8 bg-danger/10 border border-danger/20 rounded-lg flex items-center justify-center text-danger hover:bg-danger/20 transition-all"
+            className="w-7 h-7 bg-danger/10 border border-danger/20 rounded flex items-center justify-center text-danger hover:bg-danger/20 transition-all"
             title="删除"
           >
-            <Trash2 className="w-4 h-4" />
+            <Trash2 className="w-3 h-3" />
           </button>
-        </div>
-      </div>
-
-      {/* 股票详细信息 */}
-      <div className="flex gap-6 pt-4 border-t border">
-        <div>
-          <div className="text-sm text-text-secondary mb-1">市值规模</div>
-          <div className="font-mono text-text-primary">
-            {stock.tags.marketCap === 'large' ? '大盘股' : 
-             stock.tags.marketCap === 'mid' ? '中盘股' : 
-             stock.tags.marketCap === 'small' ? '小盘股' : '--'}
-          </div>
-        </div>
-        <div>
-          <div className="text-sm text-text-secondary mb-1">市盈率</div>
-          <div className="font-mono text-text-primary">
-            -- 
-          </div>
-        </div>
-        <div>
-          <div className="text-sm text-text-secondary mb-1">成交量</div>
-          <div className="font-mono text-text-primary">
-            {stock.volume || '--'}
-          </div>
-        </div>
-        <div>
-          <div className="text-sm text-text-secondary mb-1">关注级别</div>
-          <div className="flex items-center gap-1">
-            {getWatchLevelIcon(stock.tags.watchLevel || 'medium')}
-            <span className="text-sm text-text-primary">{stock.tags.watchLevel || 'medium'}</span>
-          </div>
         </div>
       </div>
     </div>

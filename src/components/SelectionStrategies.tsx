@@ -186,87 +186,58 @@ export function SelectionStrategies({
         <div className="flex space-x-3" />
       </div>
 
-      {/* 统计卡片 */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-text-secondary">总策略数</p>
-                <p className="text-2xl font-bold text-text-primary">{stats.total}</p>
-              </div>
-              <Filter className="w-8 h-8 text-primary" />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-text-secondary">启用策略</p>
-                <p className="text-2xl font-bold text-success">{stats.active}</p>
-              </div>
-              <CheckCircle className="w-8 h-8 text-success" />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-text-secondary">系统预设</p>
-                <p className="text-2xl font-bold text-accent">{stats.systemDefault}</p>
-              </div>
-              <Award className="w-8 h-8 text-accent" />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-text-secondary">自定义策略</p>
-                <p className="text-2xl font-bold text-warning">{stats.custom}</p>
-              </div>
-              <Edit3 className="w-8 h-8 text-warning" />
-            </div>
-          </CardContent>
-        </Card>
+      {/* 简化的统计显示 */}
+      <div className="flex items-center justify-between p-4 bg-surface/30 border border rounded-lg">
+        <div className="flex items-center gap-6">
+          <div className="text-center">
+            <div className="text-lg font-bold text-primary">{stats.total}</div>
+            <div className="text-xs text-text-secondary">总策略</div>
+          </div>
+          <div className="text-center">
+            <div className="text-lg font-bold text-success">{stats.active}</div>
+            <div className="text-xs text-text-secondary">启用中</div>
+          </div>
+          <div className="text-center">
+            <div className="text-lg font-bold text-info">{stats.systemDefault}</div>
+            <div className="text-xs text-text-secondary">系统预设</div>
+          </div>
+          <div className="text-center">
+            <div className="text-lg font-bold text-warning">{stats.custom}</div>
+            <div className="text-xs text-text-secondary">自定义</div>
+          </div>
+        </div>
+        <div className="text-xs text-text-muted">
+          策略管理中心
+        </div>
       </div>
 
       {/* 搜索和筛选 */}
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center">
-            <Search className="w-5 h-5 mr-2 text-text-muted" />
+          <CardTitle className="flex items-center text-lg">
+            <Search className="w-4 h-4 mr-2 text-text-muted" />
             筛选策略
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="flex flex-col md:flex-row gap-4">
+          <div className="flex flex-col md:flex-row gap-3">
             {/* 搜索框 */}
             <div className="flex-1">
-              <div className="relative">
-                <Search className="absolute left-3 top-3 w-4 h-4 text-text-muted" />
-                <input
-                  type="text"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 border border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
-                  placeholder="搜索策略名称或描述..."
-                />
-              </div>
+              <input
+                type="text"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="input-unified"
+                placeholder="搜索策略名称或描述..."
+              />
             </div>
 
             {/* 交易类型筛选 */}
-            <div className="md:w-64">
+            <div className="md:w-48">
               <select
                 value={selectedCategory}
                 onChange={(e) => setSelectedCategory(e.target.value)}
-                className="w-full p-2 border border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                className="input-unified"
               >
                 <option value="">所有类型</option>
                 {tradingTypeOptions.map(option => (
@@ -283,9 +254,9 @@ export function SelectionStrategies({
                 setSearchTerm('');
                 setSelectedCategory('');
               }}
-              className="px-4 py-2 text-text-secondary border border rounded-lg hover:bg-surface transition-colors"
+              className="btn-unified-secondary text-sm"
             >
-              清除筛选
+              清除
             </button>
           </div>
         </CardContent>

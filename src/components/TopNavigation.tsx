@@ -10,10 +10,7 @@ import {
   Brain, 
   Settings, 
   Home,
-  ChevronDown,
   Activity,
-  Target,
-  Lightbulb,
   Menu,
   X
 } from 'lucide-react';
@@ -40,7 +37,6 @@ export function TopNavigation({
       name: '股票市场',
       description: '发现投资机会',
       icon: BarChart3,
-      color: 'primary',
       accent: '📈'
     },
     {
@@ -48,7 +44,6 @@ export function TopNavigation({
       name: '交易管理',
       description: '执行投资决策',
       icon: TrendingUp,
-      color: 'accent',
       accent: '💼'
     },
     {
@@ -56,7 +51,6 @@ export function TopNavigation({
       name: '智能复盘',
       description: '学习和改进',
       icon: Brain,
-      color: 'info',
       accent: '🧠'
     }
   ];
@@ -101,7 +95,6 @@ export function TopNavigation({
           <button className="w-full flex items-center space-x-3 p-3 rounded-lg text-slate-400 hover:text-slate-100 hover:bg-slate-700 transition-all">
             <Home className="w-5 h-5" />
             <span className="font-medium">首页</span>
-            <ChevronDown className="w-4 h-4 ml-auto opacity-50" />
           </button>
 
           {/* 主导航模块 */}
@@ -171,7 +164,6 @@ export function TopNavigation({
           >
             <Settings className="w-5 h-5" />
             <span className="font-medium">设置</span>
-            <ChevronDown className="w-4 h-4 ml-auto opacity-50" />
           </button>
         </div>
       </aside>
@@ -187,7 +179,7 @@ export function TopNavigation({
       {/* 主内容区域 */}
       <main className="flex-1 flex flex-col h-full overflow-hidden bg-slate-900">
         {/* 顶部状态栏 */}
-        <header className="h-14 bg-slate-800 border-b border-slate-700 flex items-center justify-between px-6 flex-shrink-0">
+        <header className="h-14 bg-slate-800 border-b border-slate-700 flex items-center px-6 flex-shrink-0">
           <div className="flex items-center space-x-4">
             <div className="text-sm text-slate-400 font-mono">
               2025-08-15 14:30:25
@@ -197,15 +189,7 @@ export function TopNavigation({
               <span className="text-sm text-green-500">市场活跃</span>
             </div>
           </div>
-          
-          <div className="flex items-center space-x-3">
-            <button className="px-3 py-1.5 bg-blue-500/10 border border-blue-500/20 rounded-lg text-blue-400 text-sm hover:bg-blue-500/20 transition-all">
-              设置
-            </button>
-            <button className="px-3 py-1.5 bg-blue-500/10 border border-blue-500/20 rounded-lg text-blue-400 text-sm hover:bg-blue-500/20 transition-all">
-              通知
-            </button>
-          </div>
+        </header>
         </header>
 
         {/* 主内容区域 */}

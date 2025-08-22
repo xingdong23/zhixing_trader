@@ -17,7 +17,7 @@ class Settings(BaseSettings):
     
     # 服务器配置
     api_host: str = "0.0.0.0"
-    api_port: int = 3001
+    api_port: int = 8000
     debug: bool = True
     
     # 数据库配置
