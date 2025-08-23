@@ -7,48 +7,52 @@ module.exports = {
   ],
   theme: {
     extend: {
-      // 知行交易系统 - 自定义设计系统
+      // 知行交易系统 - 极简现代设计系统
       colors: {
-        // 主色调系统
+        // 主色调系统 - 暗色主题调色板
         primary: {
-          DEFAULT: '#00d4ff',
-          dark: '#0099cc',
-          light: '#33ddff',
+          DEFAULT: 'var(--color-primary)',
+          dark: 'var(--color-primary-dark)',
+          light: 'var(--color-primary-light)',
         },
-        // 功能色彩
-        success: '#00ff88',
-        warning: '#ffb800',
-        danger: '#ff6b6b',
-        info: '#7c3aed',
-        // 背景色系统
+        // 辅助色彩 - 优雅配色
+        secondary: 'var(--color-secondary)',
+        accent: 'var(--color-accent)',
+        // 功能色彩 - 语义化配色
+        success: 'var(--color-success)',
+        warning: 'var(--color-warning)',
+        danger: 'var(--color-danger)',
+        info: 'var(--color-info)',
+        // 背景色系统 - 暗色主题
         bg: {
-          primary: '#0f1419',
-          secondary: '#1a1f2e',
-          tertiary: '#252b3d',
-          hover: '#2d3748',
-          active: '#3d4852',
+          primary: 'var(--color-bg-primary)',
+          secondary: 'var(--color-bg-secondary)',
+          tertiary: 'var(--color-bg-tertiary)',
+          hover: 'var(--color-bg-hover)',
+          active: 'var(--color-bg-active)',
         },
-        // 文本色系统
+        // 文本色系统 - 暗色主题
         text: {
-          primary: '#ffffff',
-          secondary: '#b4bcd0',
-          tertiary: '#6b7280',
-          muted: '#4b5563',
+          primary: 'var(--color-text-primary)',
+          secondary: 'var(--color-text-secondary)',
+          tertiary: 'var(--color-text-tertiary)',
+          inverse: 'var(--color-text-inverse)',
         },
-        // 边框色系统
+        // 边框色系统 - 暗色设计
         border: {
-          primary: '#374151',
-          secondary: '#2d3748',
-          accent: '#00d4ff',
+          primary: 'var(--color-border-primary)',
+          secondary: 'var(--color-border-secondary)',
+          accent: 'var(--color-border-accent)',
         },
       },
-      // 字体系统
+      // 现代化字体系统
       fontFamily: {
         sans: [
           '-apple-system',
           'BlinkMacSystemFont',
+          'Inter',
+          'SF Pro Display',
           'Segoe UI',
-          'Roboto',
           'Helvetica Neue',
           'Arial',
           'sans-serif',
@@ -61,59 +65,118 @@ module.exports = {
           'monospace',
         ],
       },
-      // 间距系统 (基于 8px 网格)
-      spacing: {
-        xs: '4px',
-        sm: '8px',
-        md: '16px',
-        lg: '24px',
-        xl: '32px',
-        '2xl': '48px',
-      },
-      // 圆角系统
+      // 极简圆角系统
       borderRadius: {
-        sm: '4px',
-        DEFAULT: '8px',
-        lg: '12px',
-        xl: '16px',
+        xs: 'var(--radius-xs)',
+        sm: 'var(--radius-sm)',
+        DEFAULT: 'var(--radius)',
+        md: 'var(--radius-md)',
+        lg: 'var(--radius-lg)',
+        xl: 'var(--radius-xl)',
+        '2xl': 'var(--radius-2xl)',
+        '3xl': 'var(--radius-3xl)',
       },
-      // 阴影系统
+      // 现代化阴影系统
       boxShadow: {
-        sm: '0 2px 4px rgba(0, 0, 0, 0.1)',
-        DEFAULT: '0 4px 12px rgba(0, 0, 0, 0.15)',
-        lg: '0 8px 24px rgba(0, 0, 0, 0.2)',
-        glow: '0 0 20px rgba(0, 212, 255, 0.3)',
+        xs: 'var(--shadow-xs)',
+        sm: 'var(--shadow-sm)',
+        DEFAULT: 'var(--shadow)',
+        md: 'var(--shadow-md)',
+        lg: 'var(--shadow-lg)',
+        xl: 'var(--shadow-xl)',
+        '2xl': 'var(--shadow-2xl)',
+        glow: 'var(--shadow-glow)',
+        'glow-secondary': 'var(--shadow-glow-secondary)',
       },
-      // 动画配置
+      // 现代化动画配置
       animation: {
-        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+        'fade-in': 'fadeIn 0.5s cubic-bezier(0.4, 0, 0.2, 1)',
+        'fade-in-up': 'fadeInUp 0.6s cubic-bezier(0.4, 0, 0.2, 1)',
+        'slide-in-left': 'slideInLeft 0.5s cubic-bezier(0.4, 0, 0.2, 1)',
+        'slide-in-right': 'slideInRight 0.5s cubic-bezier(0.4, 0, 0.2, 1)',
+        'scale-in': 'scaleIn 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+        'bounce-subtle': 'bounceSubtle 0.8s cubic-bezier(0.4, 0, 0.2, 1)',
+        'pulse-gentle': 'pulseGentle 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+        'float': 'float 3s ease-in-out infinite',
         'glow': 'glow 2s ease-in-out infinite alternate',
-        'slide-up': 'slideUp 0.3s ease-out',
-        'fade-in': 'fadeIn 0.2s ease-in-out',
+        'gradient': 'gradient 6s ease infinite',
+        'spin-slow': 'spin 2s linear infinite',
+        'ping-slow': 'ping 2s cubic-bezier(0, 0, 0.2, 1) infinite',
       },
-      // 关键帧动画
+      // 关键帧动画定义
       keyframes: {
-        glow: {
-          '0%': { boxShadow: '0 0 5px rgba(0, 212, 255, 0.5)' },
-          '100%': { boxShadow: '0 0 20px rgba(0, 212, 255, 0.8)' },
-        },
-        slideUp: {
-          '0%': { opacity: '0', transform: 'translateY(20px)' },
-          '100%': { opacity: '1', transform: 'translateY(0)' },
-        },
         fadeIn: {
-          '0%': { opacity: '0' },
-          '100%': { opacity: '1' },
+          'from': { opacity: '0' },
+          'to': { opacity: '1' },
+        },
+        fadeInUp: {
+          'from': { opacity: '0', transform: 'translateY(20px)' },
+          'to': { opacity: '1', transform: 'translateY(0)' },
+        },
+        slideInLeft: {
+          'from': { opacity: '0', transform: 'translateX(-20px)' },
+          'to': { opacity: '1', transform: 'translateX(0)' },
+        },
+        slideInRight: {
+          'from': { opacity: '0', transform: 'translateX(20px)' },
+          'to': { opacity: '1', transform: 'translateX(0)' },
+        },
+        scaleIn: {
+          'from': { opacity: '0', transform: 'scale(0.95)' },
+          'to': { opacity: '1', transform: 'scale(1)' },
+        },
+        bounceSubtle: {
+          '0%, 100%': { transform: 'translateY(0)' },
+          '50%': { transform: 'translateY(-3px)' },
+        },
+        pulseGentle: {
+          '0%, 100%': { opacity: '1' },
+          '50%': { opacity: '0.8' },
+        },
+        float: {
+          '0%, 100%': { transform: 'translateY(0)' },
+          '50%': { transform: 'translateY(-8px)' },
+        },
+        glow: {
+          'from': { boxShadow: '0 0 10px var(--color-primary)' },
+          'to': { boxShadow: '0 0 20px var(--color-primary), 0 0 30px var(--color-primary)' },
+        },
+        gradient: {
+          '0%, 100%': { backgroundPosition: '0% 50%' },
+          '50%': { backgroundPosition: '100% 50%' },
         },
       },
-      // 屏幕尺寸
-      screens: {
-        xs: '480px',
-        sm: '640px',
-        md: '768px',
-        lg: '1024px',
-        xl: '1280px',
-        '2xl': '1536px',
+      // 现代化背景渐变
+      backgroundImage: {
+        'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
+        'gradient-conic': 'conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))',
+        'gradient-primary': 'linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%)',
+        'gradient-secondary': 'linear-gradient(135deg, var(--color-secondary) 0%, var(--color-info) 100%)',
+        'gradient-accent': 'linear-gradient(135deg, var(--color-accent) 0%, var(--color-primary) 100%)',
+        'gradient-success': 'linear-gradient(135deg, var(--color-success) 0%, var(--color-secondary) 100%)',
+      },
+      // 间距系统优化
+      spacing: {
+        '18': '4.5rem',
+        '60': '15rem',
+        '88': '22rem',
+      },
+      // 字体大小系统
+      fontSize: {
+        '2xs': ['0.625rem', { lineHeight: '0.75rem' }],
+        '3xl': ['1.875rem', { lineHeight: '2.25rem' }],
+        '4xl': ['2.25rem', { lineHeight: '2.5rem' }],
+        '5xl': ['3rem', { lineHeight: '1' }],
+        '6xl': ['3.75rem', { lineHeight: '1' }],
+      },
+      // 背景尺寸
+      backgroundSize: {
+        '200': '200% 200%',
+      },
+      // 背景位置
+      backgroundPosition: {
+        'pos-0': '0% 50%',
+        'pos-100': '100% 50%',
       },
     },
   },

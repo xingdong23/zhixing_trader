@@ -1,0 +1,464 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* 完全按照用户HTML的CSS变量和样式 */
+:root {
+  --bg-color: #1a1a1e;
+  --sidebar-bg: #23232a;
+  --surface-bg: #2c2c34;
+  --border-color: #3a3a44;
+  --text-primary: #e0e0e0;
+  --text-secondary: #a0a0b0;
+  --accent-primary: #00aaff;
+  --accent-secondary: #00d4ff;
+  --color-green: #26a69a;
+  --color-red: #ef5350;
+  --color-yellow: #f59e0b;
+  --font-family: 'Inter', 'Helvetica Neue', 'Hiragino Sans GB', 'WenQuanYi Micro Hei', 'Microsoft Yahei', sans-serif;
+}
+
+/* 基本重置和全局样式 - 完全按照HTML */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+  font-family: var(--font-family);
+  background-color: var(--bg-color);
+  color: var(--text-primary);
+  font-size: 14px;
+  overflow: hidden;
+}
+
+/* 布局样式 - 完全按照HTML */
+.app-container {
+  display: flex;
+  height: 100vh;
+}
+
+.sidebar {
+  width: 240px;
+  background-color: var(--sidebar-bg);
+  padding: 24px 16px;
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid var(--border-color);
+  transition: width 0.3s ease;
+}
+
+.sidebar-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 8px 24px 8px;
+  border-bottom: 1px solid var(--border-color);
+  margin-bottom: 24px;
+}
+
+.sidebar-header .logo {
+  color: var(--accent-primary);
+}
+
+.sidebar-header h1 {
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.nav-menu {
+  list-style: none;
+  flex-grow: 1;
+}
+
+.nav-item a {
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  border-radius: 8px;
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-weight: 500;
+  transition: background-color 0.2s ease, color 0.2s ease;
+  margin-bottom: 8px;
+}
+
+.nav-item a:hover {
+  background-color: var(--surface-bg);
+  color: var(--text-primary);
+}
+
+.nav-item a.active {
+  background-color: var(--accent-primary);
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(0, 170, 255, 0.2);
+}
+
+.nav-item a .icon {
+  margin-right: 16px;
+}
+
+.sidebar-footer {
+  padding-top: 16px;
+  border-top: 1px solid var(--border-color);
+}
+
+.user-profile {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px;
+  border-radius: 8px;
+  background-color: var(--surface-bg);
+}
+
+.user-profile img {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.user-info h4 {
+  font-weight: 600;
+}
+
+.user-info p {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.main-content {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.main-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 24px;
+  border-bottom: 1px solid var(--border-color);
+  background-color: var(--sidebar-bg);
+  flex-shrink: 0;
+}
+
+.header-left h2 {
+  font-size: 22px;
+  font-weight: 600;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.search-bar {
+  position: relative;
+}
+
+.search-bar input {
+  background-color: var(--surface-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 8px 12px 8px 36px;
+  color: var(--text-primary);
+  width: 250px;
+  transition: all 0.2s ease;
+}
+
+.search-bar input:focus {
+  outline: none;
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 0 2px rgba(0, 170, 255, 0.2);
+}
+
+.search-bar .icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-secondary);
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.icon-btn {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.icon-btn:hover {
+  background-color: var(--surface-bg);
+  color: var(--text-primary);
+}
+
+.page-content {
+  flex-grow: 1;
+  padding: 24px;
+  overflow-y: auto;
+}
+
+/* 卡片样式 - 完全按照HTML */
+.card {
+  background-color: var(--surface-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 24px;
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.card-header h3 {
+  font-size: 18px;
+  font-weight: 600;
+}
+
+/* 按钮样式 - 完全按照HTML */
+.btn {
+  background-color: var(--accent-primary);
+  color: #fff;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s ease;
+}
+
+.btn:hover {
+  background-color: var(--accent-secondary);
+  box-shadow: 0 4px 12px rgba(0, 170, 255, 0.2);
+}
+
+.btn-secondary {
+  background-color: var(--surface-bg);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-color);
+}
+
+.btn-secondary:hover {
+  background-color: var(--border-color);
+  color: var(--text-primary);
+}
+
+.btn-sm {
+  padding: 6px 12px;
+  font-size: 12px;
+}
+
+/* 恐慌贪婪指数样式 - 完全按照HTML */
+.fear-greed-container {
+  display: grid;
+  grid-template-columns: 250px 1fr;
+  gap: 24px;
+  align-items: center;
+}
+
+.fear-greed-gauge {
+  text-align: center;
+}
+
+.fear-greed-gauge h3 {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 24px;
+}
+
+.fear-greed-gauge-container {
+  position: relative;
+  width: 200px;
+  height: 100px;
+  overflow: hidden;
+  margin: 0 auto 20px;
+}
+
+.fear-greed-gauge-bg {
+  width: 100%;
+  height: 200px;
+  background: conic-gradient(from -90deg at 50% 100%, #d32f2f 0%, #f57c00 25%, #fdd835 50%, #7cb342 75%, #43a047 100%);
+  border-radius: 200px 200px 0 0;
+}
+
+.fear-greed-gauge-mask {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  width: 180px;
+  height: 90px;
+  background: var(--surface-bg);
+  border-radius: 180px 180px 0 0;
+}
+
+.fear-greed-gauge-needle {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  width: 2px;
+  height: 80px;
+  background: var(--text-primary);
+  transform-origin: bottom center;
+  transition: transform 0.8s ease-out;
+}
+
+.fear-greed-gauge-center {
+  position: absolute;
+  bottom: -5px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 10px;
+  height: 10px;
+  background: var(--text-primary);
+  border-radius: 50%;
+}
+
+.fear-greed-text {
+  text-align: center;
+  margin-top: -20px;
+}
+
+.fear-greed-status {
+  font-size: 22px;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.fear-greed-desc {
+  font-size: 14px;
+  color: var(--text-secondary);
+  margin-top: 4px;
+}
+
+/* 多维标签筛选样式 - 完全按照HTML */
+.multi-dim-filters {
+  padding-bottom: 10px;
+  margin-bottom: 20px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.filter-group {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+  gap: 10px;
+}
+
+.filter-group-title {
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin-right: 10px;
+  font-size: 13px;
+  min-width: 70px;
+}
+
+.filter-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.filter-tag {
+  background-color: var(--surface-bg);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-color);
+  padding: 5px 12px;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: all 0.2s ease;
+}
+
+.filter-tag:hover {
+  background-color: var(--border-color);
+  color: var(--text-primary);
+}
+
+.filter-tag.active {
+  background-color: var(--accent-secondary);
+  color: #fff;
+  border-color: var(--accent-secondary);
+  box-shadow: 0 0 10px rgba(0, 212, 255, 0.3);
+}
+
+/* 表格样式 - 完全按照HTML */
+.table-container {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th, td {
+  text-align: left;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+th {
+  color: var(--text-secondary);
+  font-weight: 600;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+tr:hover {
+  background-color: var(--sidebar-bg);
+}
+
+.stock-name {
+  font-weight: 500;
+}
+
+.stock-ticker {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.price-positive {
+  color: var(--color-green);
+  font-family: monospace;
+}
+
+.price-negative {
+  color: var(--color-red);
+  font-family: monospace;
+}
+
+.rule-tag {
+  background-color: var(--border-color);
+  color: var(--text-primary);
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  margin-right: 4px;
+}

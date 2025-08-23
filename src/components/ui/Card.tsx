@@ -1,5 +1,5 @@
-// 【知行交易】现代化卡片组件
-// 专业金融系统UI组件 - Card
+// 【知行交易】极简现代化卡片组件
+// 专业优雅的容器设计
 
 import React from 'react';
 import { cn } from '@/utils/cn';
@@ -9,8 +9,9 @@ export interface CardProps {
   className?: string;
   onClick?: () => void;
   interactive?: boolean;
-  variant?: 'default' | 'gradient' | 'glass' | 'outline';
-  glow?: boolean;
+  variant?: 'default' | 'elevated' | 'outlined' | 'glass' | 'minimal';
+  hover?: 'none' | 'lift' | 'scale' | 'glow' | 'border';
+  padding?: 'none' | 'sm' | 'md' | 'lg' | 'xl';
 }
 
 export function Card({ 
@@ -19,41 +20,61 @@ export function Card({
   onClick, 
   interactive = false,
   variant = 'default',
-  glow = false
+  hover = 'lift',
+  padding = 'none'
 }: CardProps) {
   const baseClasses = [
-    'rounded-lg transition-all duration-200',
-    onClick && 'cursor-pointer',
-    interactive && 'hover:-translate-y-1 hover:shadow-lg'
+    'relative overflow-hidden transition-all duration-200 ease-out',
+    'transform-gpu will-change-transform',
+    (onClick || interactive) && 'cursor-pointer',
   ];
 
   const variantClasses = {
     default: [
-      'bg-bg-secondary border border-border-secondary',
-      'shadow-sm hover:border-border-primary'
+      'bg-bg-primary border border-border-primary',
+      'rounded-lg shadow-xs hover:shadow-sm',
     ],
-    gradient: [
-      'bg-gradient-to-br from-bg-secondary to-bg-tertiary',
-      'border border-border-secondary shadow-md'
+    elevated: [
+      'bg-bg-primary border border-border-primary',
+      'rounded-lg shadow-sm hover:shadow-md',
+    ],
+    outlined: [
+      'bg-bg-primary border border-border-primary',
+      'rounded-lg hover:border-border-accent',
     ],
     glass: [
-      'bg-bg-secondary/50 backdrop-filter backdrop-blur-xl',
-      'border border-border-secondary/50'
+      'bg-bg-primary/90 backdrop-blur-sm border border-border-primary/60',
+      'rounded-lg shadow-sm hover:shadow-md',
     ],
-    outline: [
-      'bg-transparent border-2 border-border-primary',
-      'hover:border-border-accent hover:bg-bg-secondary/30'
-    ]
+    minimal: [
+      'bg-bg-secondary border-0',
+      'rounded-md hover:bg-bg-hover',
+    ],
   };
 
-  const glowClasses = glow ? 'shadow-glow' : '';
+  const hoverClasses = {
+    none: '',
+    lift: 'hover:-translate-y-0.5',
+    scale: 'hover:scale-[1.01]',
+    glow: 'hover:shadow-md hover:shadow-primary/10',
+    border: 'hover:border-primary',
+  };
+
+  const paddingClasses = {
+    none: '',
+    sm: 'p-3',
+    md: 'p-4',
+    lg: 'p-6',
+    xl: 'p-8',
+  };
 
   return (
     <div
       className={cn(
         baseClasses,
         variantClasses[variant],
-        glowClasses,
+        hover !== 'none' && hoverClasses[hover],
+        paddingClasses[padding],
         className
       )}
       onClick={onClick}
@@ -67,13 +88,25 @@ export interface CardHeaderProps {
   children: React.ReactNode;
   className?: string;
   borderless?: boolean;
+  size?: 'sm' | 'md' | 'lg';
 }
 
-export function CardHeader({ children, className, borderless = false }: CardHeaderProps) {
+export function CardHeader({ 
+  children, 
+  className, 
+  borderless = false,
+  size = 'md'
+}: CardHeaderProps) {
+  const sizeClasses = {
+    sm: 'p-3 pb-2',
+    md: 'p-4 pb-3',
+    lg: 'p-6 pb-4',
+  };
+
   return (
     <div 
       className={cn(
-        'p-6 pb-4',
+        sizeClasses[size],
         !borderless && 'border-b border-border-secondary',
         className
       )}
@@ -86,19 +119,22 @@ export function CardHeader({ children, className, borderless = false }: CardHead
 export interface CardContentProps {
   children: React.ReactNode;
   className?: string;
-  padding?: 'none' | 'sm' | 'md' | 'lg';
+  size?: 'sm' | 'md' | 'lg';
 }
 
-export function CardContent({ children, className, padding = 'md' }: CardContentProps) {
-  const paddingClasses = {
-    none: '',
-    sm: 'p-4',
-    md: 'p-6',
-    lg: 'p-8'
+export function CardContent({ 
+  children, 
+  className, 
+  size = 'md' 
+}: CardContentProps) {
+  const sizeClasses = {
+    sm: 'p-3',
+    md: 'p-4',
+    lg: 'p-6',
   };
 
   return (
-    <div className={cn(paddingClasses[padding], className)}>
+    <div className={cn(sizeClasses[size], className)}>
       {children}
     </div>
   );
@@ -107,22 +143,39 @@ export function CardContent({ children, className, padding = 'md' }: CardContent
 export interface CardTitleProps {
   children: React.ReactNode;
   className?: string;
-  size?: 'sm' | 'md' | 'lg' | 'xl';
+  size?: 'sm' | 'md' | 'lg' | 'xl' | '2xl';
   gradient?: boolean;
+  weight?: 'normal' | 'medium' | 'semibold' | 'bold';
 }
 
-export function CardTitle({ children, className, size = 'lg', gradient = false }: CardTitleProps) {
+export function CardTitle({ 
+  children, 
+  className, 
+  size = 'lg',
+  gradient = false,
+  weight = 'semibold'
+}: CardTitleProps) {
   const sizeClasses = {
-    sm: 'text-base font-semibold',
-    md: 'text-lg font-semibold',
-    lg: 'text-xl font-bold',
-    xl: 'text-2xl font-bold'
+    sm: 'text-sm',
+    md: 'text-base',
+    lg: 'text-lg',
+    xl: 'text-xl',
+    '2xl': 'text-2xl',
+  };
+
+  const weightClasses = {
+    normal: 'font-normal',
+    medium: 'font-medium',
+    semibold: 'font-semibold',
+    bold: 'font-bold',
   };
 
   return (
     <h3 
       className={cn(
         sizeClasses[size],
+        weightClasses[weight],
+        'leading-tight tracking-tight',
         gradient ? 'gradient-text' : 'text-text-primary',
         className
       )}
@@ -135,11 +188,26 @@ export function CardTitle({ children, className, size = 'lg', gradient = false }
 export interface CardDescriptionProps {
   children: React.ReactNode;
   className?: string;
+  size?: 'sm' | 'md' | 'lg';
 }
 
-export function CardDescription({ children, className }: CardDescriptionProps) {
+export function CardDescription({ 
+  children, 
+  className,
+  size = 'sm'
+}: CardDescriptionProps) {
+  const sizeClasses = {
+    sm: 'text-sm',
+    md: 'text-base',
+    lg: 'text-lg',
+  };
+
   return (
-    <p className={cn('text-sm text-text-secondary mt-2 leading-relaxed', className)}>
+    <p className={cn(
+      sizeClasses[size],
+      'text-text-secondary mt-1.5 leading-relaxed',
+      className
+    )}>
       {children}
     </p>
   );
@@ -149,13 +217,25 @@ export interface CardFooterProps {
   children: React.ReactNode;
   className?: string;
   borderless?: boolean;
+  size?: 'sm' | 'md' | 'lg';
 }
 
-export function CardFooter({ children, className, borderless = false }: CardFooterProps) {
+export function CardFooter({ 
+  children, 
+  className, 
+  borderless = false,
+  size = 'md'
+}: CardFooterProps) {
+  const sizeClasses = {
+    sm: 'p-3 pt-2',
+    md: 'p-4 pt-3',
+    lg: 'p-6 pt-4',
+  };
+
   return (
     <div 
       className={cn(
-        'p-6 pt-4',
+        sizeClasses[size],
         !borderless && 'border-t border-border-secondary',
         className
       )}
@@ -164,3 +244,71 @@ export function CardFooter({ children, className, borderless = false }: CardFoot
     </div>
   );
 }
+
+// 专用卡片变体组件
+export function StatCard({ 
+  children, 
+  className, 
+  ...props 
+}: CardProps) {
+  return (
+    <Card
+      variant="elevated"
+      hover="lift"
+      className={cn(
+        'bg-gradient-to-br from-bg-primary to-bg-secondary/50',
+        'border-border-secondary hover:border-primary/20',
+        'hover:shadow-sm',
+        className
+      )}
+      {...props}
+    >
+      {children}
+    </Card>
+  );
+}
+
+export function FeatureCard({ 
+  children, 
+  className, 
+  ...props 
+}: CardProps) {
+  return (
+    <Card
+      variant="outlined"
+      hover="glow"
+      className={cn(
+        'hover:border-primary/30 group',
+        'transition-all duration-200',
+        className
+      )}
+      {...props}
+    >
+      {children}
+    </Card>
+  );
+}
+
+export function GlassCard({ 
+  children, 
+  className, 
+  ...props 
+}: CardProps) {
+  return (
+    <Card
+      variant="glass"
+      hover="scale"
+      className={cn(
+        'backdrop-blur-md bg-bg-primary/80',
+        'border-border-primary/40',
+        className
+      )}
+      {...props}
+    >
+      {children}
+    </Card>
+  );
+}
+
+// 添加默认导出
+export default Card;

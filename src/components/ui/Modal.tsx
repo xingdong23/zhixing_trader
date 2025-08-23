@@ -1,8 +1,10 @@
-// 【知行交易】现代化对话框组件
-// 专业金融系统UI组件 - Modal
+// 【知行交易】全新现代化对话框组件
+// 简洁优雅的弹窗设计
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
+import { X, Maximize2, Minimize2 } from 'lucide-react';
+import { Button } from './Button';
 import { cn } from '@/utils/cn';
 
 export interface ModalProps {
@@ -10,10 +12,14 @@ export interface ModalProps {
   onClose: () => void;
   children: React.ReactNode;
   className?: string;
-  size?: 'sm' | 'md' | 'lg' | 'xl' | 'full';
+  size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl' | 'full';
   title?: string;
+  description?: string;
   showCloseButton?: boolean;
   closable?: boolean;
+  centered?: boolean;
+  blur?: boolean;
+  animation?: 'fade' | 'scale' | 'slide-up' | 'slide-down';
 }
 
 export function Modal({ 
@@ -23,9 +29,15 @@ export function Modal({
   className, 
   size = 'md',
   title,
+  description,
   showCloseButton = true,
-  closable = true
+  closable = true,
+  centered = true,
+  blur = true,
+  animation = 'scale'
 }: ModalProps) {
+  const modalRef = useRef<HTMLDivElement>(null);
+
   // 防止背景滚动
   useEffect(() => {
     if (open) {
@@ -42,69 +54,104 @@ export function Modal({
   // ESC 键关闭
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && closable) {
+      if (e.key === 'Escape' && closable && open) {
         onClose();
       }
     };
 
-    if (open) {
-      document.addEventListener('keydown', handleEscape);
-    }
-
-    return () => {
-      document.removeEventListener('keydown', handleEscape);
-    };
+    document.addEventListener('keydown', handleEscape);
+    return () => document.removeEventListener('keydown', handleEscape);
   }, [open, closable, onClose]);
+
+  // 焦点管理
+  useEffect(() => {
+    if (open && modalRef.current) {
+      const focusableElements = modalRef.current.querySelectorAll(
+        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+      );
+      const firstElement = focusableElements[0] as HTMLElement;
+      firstElement?.focus();
+    }
+  }, [open]);
 
   if (!open) return null;
 
-  const sizes = {
-    sm: 'max-w-md',
-    md: 'max-w-lg', 
-    lg: 'max-w-2xl',
-    xl: 'max-w-4xl',
-    full: 'max-w-[95vw] max-h-[95vh]'
+  const sizeClasses = {
+    xs: 'max-w-xs',
+    sm: 'max-w-sm',
+    md: 'max-w-md', 
+    lg: 'max-w-lg',
+    xl: 'max-w-2xl',
+    '2xl': 'max-w-4xl',
+    full: 'max-w-[95vw] max-h-[95vh] w-full h-full'
+  };
+
+  const animationClasses = {
+    fade: 'animate-fade-in',
+    scale: 'animate-scale-in',
+    'slide-up': 'animate-slide-up',
+    'slide-down': 'animate-slide-down'
   };
 
   const modalContent = (
-    <div className="fixed inset-0 z-[1030] flex items-center justify-center p-4">
+    <div 
+      className={cn(
+        'fixed inset-0 z-[1030] flex p-4',
+        centered ? 'items-center justify-center' : 'items-start justify-center pt-16'
+      )}
+    >
       {/* 背景遮罩 */}
       <div 
-        className="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity duration-300"
+        className={cn(
+          'absolute inset-0 bg-black/60 transition-opacity duration-300',
+          blur && 'backdrop-blur-sm'
+        )}
         onClick={closable ? onClose : undefined}
       />
       
       {/* 对话框内容 */}
-      <div className={cn(
-        'relative z-10 w-full bg-bg-secondary border border-border-primary',
-        'rounded-xl shadow-2xl transition-all duration-300',
-        'max-h-[90vh] overflow-hidden flex flex-col',
-        sizes[size],
-        className
-      )}>
+      <div 
+        ref={modalRef}
+        className={cn(
+          'relative z-10 w-full bg-bg-primary border border-border-primary',
+          'rounded-2xl shadow-2xl transition-all duration-300',
+          'max-h-[90vh] flex flex-col',
+          sizeClasses[size],
+          animationClasses[animation],
+          className
+        )}
+      >
         {/* 标题栏 */}
-        {(title || showCloseButton) && (
-          <div className="flex items-center justify-between p-6 border-b border-border-secondary">
-            {title && (
-              <h2 className="text-xl font-semibold text-text-primary">
-                {title}
-              </h2>
-            )}
+        {(title || description || showCloseButton) && (
+          <div className="flex items-start justify-between p-6 pb-4">
+            <div className="flex-1">
+              {title && (
+                <h2 className="text-xl font-bold text-text-primary mb-1">
+                  {title}
+                </h2>
+              )}
+              {description && (
+                <p className="text-sm text-text-secondary leading-relaxed">
+                  {description}
+                </p>
+              )}
+            </div>
+            
             {showCloseButton && closable && (
-              <button
+              <Button
+                variant="ghost"
+                size="sm"
                 onClick={onClose}
-                className="ml-auto -mr-2 p-2 text-text-tertiary hover:text-text-primary hover:bg-bg-hover rounded-md transition-colors"
+                className="ml-4 -mt-2 -mr-2 rounded-lg w-8 h-8 p-0 hover:bg-bg-hover"
               >
-                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
+                <X className="w-4 h-4" />
+              </Button>
             )}
           </div>
         )}
         
         {/* 内容区域 */}
-        <div className="flex-1 overflow-y-auto">
+        <div className="flex-1 overflow-y-auto scrollbar-none">
           {children}
         </div>
       </div>
@@ -117,11 +164,16 @@ export function Modal({
 export interface ModalHeaderProps {
   children: React.ReactNode;
   className?: string;
+  borderless?: boolean;
 }
 
-export function ModalHeader({ children, className }: ModalHeaderProps) {
+export function ModalHeader({ children, className, borderless = false }: ModalHeaderProps) {
   return (
-    <div className={cn('p-6 pb-4 border-b border-border-secondary', className)}>
+    <div className={cn(
+      'px-6 py-4',
+      !borderless && 'border-b border-border-secondary',
+      className
+    )}>
       {children}
     </div>
   );
@@ -130,24 +182,60 @@ export function ModalHeader({ children, className }: ModalHeaderProps) {
 export interface ModalTitleProps {
   children: React.ReactNode;
   className?: string;
+  size?: 'sm' | 'md' | 'lg' | 'xl';
 }
 
-export function ModalTitle({ children, className }: ModalTitleProps) {
+export function ModalTitle({ children, className, size = 'lg' }: ModalTitleProps) {
+  const sizeClasses = {
+    sm: 'text-base',
+    md: 'text-lg',
+    lg: 'text-xl',
+    xl: 'text-2xl'
+  };
+
   return (
-    <h3 className={cn('text-xl font-semibold text-text-primary', className)}>
+    <h3 className={cn(
+      'font-bold text-text-primary leading-tight',
+      sizeClasses[size],
+      className
+    )}>
       {children}
     </h3>
+  );
+}
+
+export interface ModalDescriptionProps {
+  children: React.ReactNode;
+  className?: string;
+}
+
+export function ModalDescription({ children, className }: ModalDescriptionProps) {
+  return (
+    <p className={cn(
+      'text-sm text-text-secondary leading-relaxed mt-1',
+      className
+    )}>
+      {children}
+    </p>
   );
 }
 
 export interface ModalBodyProps {
   children: React.ReactNode;
   className?: string;
+  padding?: 'none' | 'sm' | 'md' | 'lg';
 }
 
-export function ModalBody({ children, className }: ModalBodyProps) {
+export function ModalBody({ children, className, padding = 'md' }: ModalBodyProps) {
+  const paddingClasses = {
+    none: '',
+    sm: 'p-4',
+    md: 'p-6',
+    lg: 'p-8'
+  };
+
   return (
-    <div className={cn('p-6', className)}>
+    <div className={cn(paddingClasses[padding], className)}>
       {children}
     </div>
   );
@@ -156,13 +244,97 @@ export function ModalBody({ children, className }: ModalBodyProps) {
 export interface ModalFooterProps {
   children: React.ReactNode;
   className?: string;
+  justify?: 'start' | 'center' | 'end' | 'between';
+  borderless?: boolean;
 }
 
-export function ModalFooter({ children, className }: ModalFooterProps) {
+export function ModalFooter({ 
+  children, 
+  className, 
+  justify = 'end',
+  borderless = false 
+}: ModalFooterProps) {
+  const justifyClasses = {
+    start: 'justify-start',
+    center: 'justify-center',
+    end: 'justify-end',
+    between: 'justify-between'
+  };
+
   return (
-    <div className={cn('p-6 pt-4 border-t border-border-secondary flex items-center justify-end gap-3', className)}>
+    <div className={cn(
+      'px-6 py-4 flex items-center gap-3',
+      !borderless && 'border-t border-border-secondary',
+      justifyClasses[justify],
+      className
+    )}>
       {children}
     </div>
+  );
+}
+
+// 确认对话框组件
+export interface ConfirmModalProps {
+  open: boolean;
+  onClose: () => void;
+  onConfirm: () => void;
+  title: string;
+  description?: string;
+  confirmText?: string;
+  cancelText?: string;
+  variant?: 'danger' | 'warning' | 'info';
+  loading?: boolean;
+}
+
+export function ConfirmModal({
+  open,
+  onClose,
+  onConfirm,
+  title,
+  description,
+  confirmText = '确认',
+  cancelText = '取消',
+  variant = 'danger',
+  loading = false
+}: ConfirmModalProps) {
+  const handleConfirm = () => {
+    onConfirm();
+    if (!loading) {
+      onClose();
+    }
+  };
+
+  const variantStyles = {
+    danger: 'danger',
+    warning: 'secondary',
+    info: 'primary'
+  } as const;
+
+  return (
+    <Modal
+      open={open}
+      onClose={onClose}
+      size="sm"
+      title={title}
+      description={description}
+    >
+      <ModalFooter>
+        <Button
+          variant="ghost"
+          onClick={onClose}
+          disabled={loading}
+        >
+          {cancelText}
+        </Button>
+        <Button
+          variant={variantStyles[variant]}
+          onClick={handleConfirm}
+          loading={loading}
+        >
+          {confirmText}
+        </Button>
+      </ModalFooter>
+    </Modal>
   );
 }
 
