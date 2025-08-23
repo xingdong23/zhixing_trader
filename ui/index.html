@@ -645,13 +645,16 @@
             transition: all 0.2s ease;
             position: relative;
             overflow: hidden;
+            display: flex;
+            flex-direction: column;
         }
         .strategy-card:hover {
             transform: translateY(-4px);
             box-shadow: 0 8px 20px rgba(0,0,0,0.2);
         }
         .strategy-card h4 { font-size: 16px; margin-bottom: 8px; color: var(--accent-primary); }
-        .strategy-card p { font-size: 13px; color: var(--text-secondary); margin-bottom: 16px; }
+        .strategy-card p { font-size: 13px; color: var(--text-secondary); margin-bottom: 16px; flex-grow: 1; }
+        .strategy-card .card-actions { display: flex; gap: 10px; margin-top: auto; }
         .strategy-type-tag {
             position: absolute;
             top: 16px;
@@ -1279,6 +1282,32 @@
     </div>
 </div>
 
+<!-- 添加情报模态框 -->
+<div id="add-intel-modal" class="modal-overlay">
+    <div class="modal-content" style="max-width: 600px;">
+        <div class="modal-header">
+            <h2>添加情报</h2>
+            <button class="close-btn" data-modal-close="add-intel-modal"><i data-lucide="x"></i></button>
+        </div>
+        <form id="add-intel-form">
+            <div class="form-group">
+                <label for="intel-source-select">信息来源</label>
+                <select id="intel-source-select" required>
+                    <!-- JS will populate this -->
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="intel-text-input">粘贴文本</label>
+                <textarea id="intel-text-input" rows="8" placeholder="在此处粘贴大佬的分析、研报摘要或新闻..." required></textarea>
+            </div>
+            <div class="form-actions">
+                <button type="button" class="btn btn-secondary" data-modal-close="add-intel-modal">取消</button>
+                <button type="submit" class="btn"><i data-lucide="wand-2"></i> 解析文本</button>
+            </div>
+        </form>
+    </div>
+</div>
+
 <!-- 引入JS库 -->
 <script src="https://unpkg.com/lucide@latest"></script>
 <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
@@ -1534,7 +1563,10 @@
                         <span class="strategy-type-tag">${s.type}</span>
                         <h4>${s.name}</h4>
                         <p>${s.description}</p>
-                        <button class="btn btn-secondary btn-sm" data-strategy-id="${s.id}">查看详情</button>
+                        <div class="card-actions">
+                            <button class="btn btn-secondary btn-sm" data-strategy-id="${s.id}">查看详情</button>
+                            <button class="btn btn-sm" data-mode-id="${s.id}">执行选股</button>
+                        </div>
                     </div>
                 `).join('');
         }
@@ -1641,12 +1673,23 @@
 
             // 策略管理页面
             document.getElementById('strategies-grid').addEventListener('click', (e) => {
-                const detailBtn = e.target.closest('button');
-                if (detailBtn) this.showStrategyDetail(detailBtn.dataset.strategyId);
+                const button = e.target.closest('button');
+                if (!button) return;
+
+                if (button.dataset.strategyId) {
+                    this.showStrategyDetail(button.dataset.strategyId);
+                } else if (button.dataset.modeId) {
+                    this.handleModeScan(button.dataset.modeId);
+                }
             });
 
             // 大佬追踪页面
-            document.getElementById('analyze-text-btn').addEventListener('click', () => this.handleAnalyzeText());
+            document.getElementById('add-intel-btn').addEventListener('click', this.handleAddIntelClick.bind(this));
+            document.getElementById('source-list').addEventListener('click', (e) => {
+                const sourceItem = e.target.closest('.source-item');
+                if(sourceItem) this.handleIntelSourceSwitch(sourceItem.dataset.sourceId);
+            });
+            document.getElementById('add-intel-form').addEventListener('submit', this.handleAnalyzeText.bind(this));
 
             // 创建计划
             document.getElementById('create-plan-from-detail').addEventListener('click', () => {
@@ -1991,34 +2034,3 @@
 </script>
 </body>
 </html>
-" in the Canvas.
-Explain the changes you made to the" code between  and  in the most up-to-date Canvas "知行交易系统 - 高保真HTML原型" document above and am asking a query about/based on this code below.
-Instructions to follow:
-* Don't output/edit the document if the query is Direct/Simple. For example, if the query asks for a simple explanation, output a direct answer.
-* Make sure to **edit** the document if the query shows the intent of editing the document, in which case output the entire edited document, **not just that section or the edits**.
-* Don't output the same document/empty document and say that you have edited it.
-* Don't change unrelated code in the document.
-* Don't output  and  in your final response.
-* Any references like "this" or "selected code" refers to the code between  and  tags.
-* Just acknowledge my request in the introduction.
-* Make sure to refer to the document as "Canvas" in your response.
-
-您好，您提到的这两个功能确实还没有在之前的版本中实现。非常抱歉，是我疏忽了。
-
-我已经对您的反馈进行了最优先级的处理，并对原型进行了又一次重大升级，现在这两个功能都已完全实现。
-
-**本次重大更新如下：**
-
-1.  **“活”的策略详情页（全面可编辑）：**
-* 在“策略管理”中打开任一策略详情，您会发现原先的静态展示区（如您截图所示）已全部变为**动态可编辑模块**。
-* **我的理解与微调:** 您可以随时点击“添加笔记”来记录新的感悟。
-* **K线案例库:** 点击“上传案例”，您可以模拟上传带有斐波那契划线、通道等分析的截图，并附上说明。这正是您提到的“做到有量化的身影”。
-* **大佬应用实例:** 您可以随时记录和补充大佬们对该策略的应用案例。
-
-2.  **全新“个性化推荐”模块（AI助手）：**
-* 在**仪表盘**页面，我新增了一个“**个性化推荐**”模块。
-* **智能匹配:** 该模块会模拟分析您的交易风格（例如，根据您创建的计划判断您是“中长线持有者”）。
-* **综合推荐理由:** 它会为您推荐最匹配的股票，并清楚地列出推荐理由，这些理由是**综合了多个维度**的，例如：“匹配‘趋势突破’策略”、“大佬追踪模块解析提及”、“推特热度高”等。
-* **一键转化:** 每条推荐后面都有一个“创建计划”按钮，让您可以无缝地将推荐转化为具体的交易行动。
-
-这个版本让“知行交易系统”变得更加智能和个性化，它不仅是您执行交易的工具，更是您沉淀知识、获取智能辅助的强大伙伴。请体验这个最接近您完整
