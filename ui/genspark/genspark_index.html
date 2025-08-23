@@ -1,0 +1,2268 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>知行交易系统 - 优化版</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-color: #1a1a1e;
+            --sidebar-bg: #23232a;
+            --surface-bg: #2c2c34;
+            --border-color: #3a3a44;
+            --text-primary: #e0e0e0;
+            --text-secondary: #a0a0b0;
+            --accent-primary: #00aaff;
+            --accent-secondary: #00d4ff;
+            --color-green: #26a69a;
+            --color-red: #ef5350;
+            --color-yellow: #f59e0b;
+            --color-purple: #8b5cf6;
+            --color-orange: #f97316;
+            --font-family: 'Inter', 'Helvetica Neue', 'Hiragino Sans GB', 'WenQuanYi Micro Hei', 'Microsoft Yahei', sans-serif;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            height: 100%;
+            font-family: var(--font-family);
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            font-size: 14px;
+            overflow-x: hidden;
+        }
+
+        .app-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            width: 240px;
+            background-color: var(--sidebar-bg);
+            padding: 24px 16px;
+            display: flex;
+            flex-direction: column;
+            border-right: 1px solid var(--border-color);
+            transition: width 0.3s ease;
+            flex-shrink: 0;
+        }
+
+        .sidebar-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 0 8px 24px 8px;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 24px;
+        }
+
+        .sidebar-header .logo {
+            color: var(--accent-primary);
+        }
+
+        .sidebar-header h1 {
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .nav-menu {
+            list-style: none;
+            flex-grow: 1;
+        }
+
+        .nav-item a {
+            display: flex;
+            align-items: center;
+            padding: 12px 16px;
+            border-radius: 8px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: 500;
+            transition: background-color 0.2s ease, color 0.2s ease;
+            margin-bottom: 8px;
+        }
+
+        .nav-item a:hover {
+            background-color: var(--surface-bg);
+            color: var(--text-primary);
+        }
+
+        .nav-item a.active {
+            background-color: var(--accent-primary);
+            color: #fff;
+            box-shadow: 0 4px 12px rgba(0, 170, 255, 0.2);
+        }
+
+        .nav-item a .icon {
+            margin-right: 16px;
+        }
+
+        .sidebar-footer {
+            padding-top: 16px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 8px;
+            border-radius: 8px;
+            background-color: var(--surface-bg);
+        }
+
+        .user-profile img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .user-info h4 {
+            font-weight: 600;
+        }
+
+        .user-info p {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .main-content {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        .main-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 24px;
+            border-bottom: 1px solid var(--border-color);
+            background-color: var(--sidebar-bg);
+            flex-shrink: 0;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .header-left h2 {
+            font-size: 22px;
+            font-weight: 600;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .search-bar {
+            position: relative;
+        }
+
+        .search-bar input {
+            background-color: var(--surface-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 8px 12px 8px 36px;
+            color: var(--text-primary);
+            width: 250px;
+            transition: all 0.2s ease;
+        }
+
+        .search-bar input:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 0 2px rgba(0, 170, 255, 0.2);
+        }
+
+        .search-bar .icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-secondary);
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .icon-btn {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            transition: background-color 0.2s ease, color 0.2s ease;
+        }
+
+        .icon-btn:hover {
+            background-color: var(--surface-bg);
+            color: var(--text-primary);
+        }
+
+        .icon-btn .notification-badge {
+            position: absolute;
+            top: 4px;
+            right: 4px;
+            width: 8px;
+            height: 8px;
+            background-color: var(--color-red);
+            border-radius: 50%;
+            border: 1px solid var(--sidebar-bg);
+        }
+
+        .data-sync-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .data-sync-status .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: var(--color-green);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(38, 166, 154, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(38, 166, 154, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(38, 166, 154, 0); }
+        }
+
+        .page-content {
+            flex-grow: 1;
+            padding: 24px;
+            overflow-y: auto;
+            max-height: calc(100vh - 100px);
+        }
+
+        .page {
+            display: none;
+        }
+
+        .page.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .card {
+            background-color: var(--surface-bg);
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            padding: 20px;
+            margin-bottom: 24px;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .card-header h3 {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .btn {
+            background-color: var(--accent-primary);
+            color: #fff;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+        }
+
+        .btn:hover {
+            background-color: var(--accent-secondary);
+            box-shadow: 0 4px 12px rgba(0, 170, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+            box-shadow: none;
+        }
+
+        .btn-secondary {
+            background-color: var(--surface-bg);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-secondary:hover {
+            background-color: var(--border-color);
+            color: var(--text-primary);
+            box-shadow: none;
+        }
+
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 12px;
+        }
+
+        .table-container {
+            overflow-x: auto;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 12px 16px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        th {
+            color: var(--text-secondary);
+            font-weight: 600;
+            font-size: 12px;
+            text-transform: uppercase;
+            background-color: var(--bg-color);
+        }
+
+        tbody tr {
+            transition: background-color 0.2s ease;
+        }
+
+        tbody tr:hover {
+            background-color: var(--sidebar-bg);
+        }
+
+        .stock-name span {
+            display: block;
+        }
+
+        .stock-name .ticker {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .price-up { color: var(--color-green); }
+        .price-down { color: var(--color-red); }
+
+        /* 恐慌贪婪指数 */
+        .fear-greed-card {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            align-items: center;
+            gap: 24px;
+        }
+
+        .fear-greed-gauge-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .fear-greed-gauge {
+            width: 200px;
+            height: 100px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .fear-greed-gauge-bg {
+            width: 100%;
+            height: 100%;
+            border-radius: 200px 200px 0 0;
+            background: conic-gradient(from -90deg at 50% 100%, #d32f2f 0%, #f57c00 25%, #fdd835 50%, #7cb342 75%, #43a047 100%);
+        }
+
+        .fear-greed-gauge-mask {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            width: 180px;
+            height: 90px;
+            background: var(--surface-bg);
+            border-radius: 180px 180px 0 0;
+        }
+
+        .fear-greed-gauge-needle {
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            width: 2px;
+            height: 80px;
+            background: var(--text-primary);
+            transform-origin: bottom center;
+            transition: transform 0.8s ease-out;
+        }
+
+        .fear-greed-gauge-center {
+            position: absolute;
+            bottom: -5px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 10px;
+            height: 10px;
+            background: var(--text-primary);
+            border-radius: 50%;
+        }
+
+        .fear-greed-text {
+            text-align: center;
+            margin-top: -20px;
+        }
+
+        .fear-greed-status {
+            font-size: 22px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        /* 模态框 */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-content {
+            background-color: var(--surface-bg);
+            border-radius: 16px;
+            padding: 24px;
+            width: 90%;
+            max-width: 800px;
+            max-height: 90vh;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            transform: scale(0.95);
+            transition: transform 0.3s ease;
+            overflow-y: auto;
+        }
+
+        .modal-overlay.active .modal-content {
+            transform: scale(1);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 20px;
+        }
+
+        .modal-header h2 {
+            font-size: 20px;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            padding: 4px;
+        }
+
+        .close-btn:hover { color: var(--text-primary); }
+
+        /* 股票详情模态框 */
+        .stock-detail-modal .modal-content {
+            max-width: 1200px;
+        }
+
+        .stock-detail-layout {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 24px;
+        }
+
+        .stock-chart-container {
+            height: 400px;
+            margin-bottom: 20px;
+        }
+
+        .stock-info-panel h4 {
+            font-size: 16px;
+            margin-top: 20px;
+            margin-bottom: 12px;
+            color: var(--text-primary);
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .stock-info-panel h4:first-child {
+            margin-top: 0;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .info-item {
+            background-color: var(--bg-color);
+            padding: 8px 12px;
+            border-radius: 8px;
+        }
+
+        .info-item .label {
+            color: var(--text-secondary);
+            font-size: 12px;
+        }
+
+        .info-item .value {
+            font-weight: 600;
+        }
+
+        .tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .tag {
+            color: #fff;
+            padding: 4px 10px;
+            border-radius: 16px;
+            font-size: 12px;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+        }
+
+        .tag.concept-industry { background-color: #3b82f6; }
+        .tag.concept-fundamentals { background-color: #8b5cf6; }
+        .tag.concept-custom { background-color: var(--accent-primary); }
+
+        .tag .remove-tag-btn {
+            margin-left: 6px;
+            cursor: pointer;
+            width: 14px;
+            height: 14px;
+            background-color: rgba(255,255,255,0.2);
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.2s;
+        }
+
+        .tag .remove-tag-btn:hover {
+            background-color: rgba(255,255,255,0.4);
+        }
+
+        .add-tag-input {
+            width: 100%;
+            background-color: var(--bg-color);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 8px;
+            color: var(--text-primary);
+            margin-top: 4px;
+        }
+
+        /* 情报信息展示 */
+        .intel-notes-section {
+            background-color: var(--bg-color);
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 20px;
+        }
+
+        .intel-note {
+            background-color: var(--surface-bg);
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 12px;
+            border-left: 3px solid var(--color-yellow);
+        }
+
+        .intel-note:last-child {
+            margin-bottom: 0;
+        }
+
+        .intel-note .note-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 8px;
+        }
+
+        .intel-note .note-source {
+            font-weight: 600;
+            color: var(--accent-secondary);
+        }
+
+        .intel-note .note-date {
+            font-size: 11px;
+            color: var(--text-secondary);
+        }
+
+        .intel-note .note-text {
+            margin-bottom: 8px;
+            line-height: 1.4;
+        }
+
+        .intel-note .alert-info {
+            background-color: var(--bg-color);
+            padding: 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            color: var(--color-yellow);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .intel-note img {
+            max-width: 100%;
+            border-radius: 6px;
+            margin-top: 8px;
+        }
+
+        /* 复杂提醒表达式构建器 */
+        .alert-builder {
+            background-color: var(--bg-color);
+            border-radius: 8px;
+            padding: 16px;
+            margin-top: 16px;
+        }
+
+        .alert-expression {
+            background-color: var(--surface-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 12px;
+            margin-bottom: 12px;
+            font-family: 'Courier New', monospace;
+            color: var(--accent-secondary);
+        }
+
+        .expression-builder {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            gap: 10px;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .condition-select, .operator-select, .value-input {
+            background-color: var(--surface-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            padding: 8px;
+            color: var(--text-primary);
+        }
+
+        /* 多维标签筛选 */
+        .multi-dim-filters {
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .filter-group {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-bottom: 10px;
+            gap: 10px;
+        }
+
+        .filter-group-title {
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-right: 10px;
+            font-size: 13px;
+            min-width: 70px;
+        }
+
+        .filter-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .filter-tag {
+            background-color: var(--surface-bg);
+            color: var(--text-secondary);
+            border: 1px solid var(--border-color);
+            padding: 5px 12px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 13px;
+        }
+
+        .filter-tag:hover {
+            background-color: var(--border-color);
+            color: var(--text-primary);
+        }
+
+        .filter-tag.active {
+            color: #fff;
+            border-color: var(--accent-secondary);
+            background-color: var(--accent-secondary);
+            box-shadow: 0 0 10px rgba(0, 212, 255, 0.3);
+        }
+
+        /* 每日提醒触发 */
+        .triggered-alerts-btn {
+            background-color: var(--color-yellow);
+            color: var(--bg-color);
+            animation: alertPulse 2s infinite;
+        }
+
+        @keyframes alertPulse {
+            0% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(245, 158, 11, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0); }
+        }
+
+        .alert-badge {
+            background-color: var(--color-yellow);
+            color: var(--bg-color);
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 10px;
+            margin-left: 8px;
+        }
+
+        /* 表单元素 */
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            background-color: var(--bg-color);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--text-primary);
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 60px;
+        }
+
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            margin-top: 24px;
+            flex-wrap: wrap;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 1200px) {
+            .stock-detail-layout, .form-grid, .fear-greed-card {
+                grid-template-columns: 1fr;
+            }
+
+            .fear-greed-card {
+                text-align: center;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                position: fixed;
+                left: -240px;
+                z-index: 100;
+                height: 100%;
+            }
+
+            .main-header {
+                padding: 16px;
+            }
+
+            .header-right {
+                gap: 12px;
+            }
+
+            .search-bar input {
+                width: 150px;
+            }
+
+            .page-content {
+                padding: 16px;
+            }
+        }
+
+        /* 新增：大佬观点截图展示样式 */
+        .opinion-gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-top: 16px;
+        }
+
+        .opinion-item {
+            background-color: var(--surface-bg);
+            border-radius: 8px;
+            padding: 12px;
+            border: 1px solid var(--border-color);
+        }
+
+        .opinion-item img {
+            width: 100%;
+            border-radius: 6px;
+            margin-bottom: 8px;
+        }
+
+        .opinion-item .opinion-meta {
+            font-size: 11px;
+            color: var(--text-secondary);
+            text-align: center;
+        }
+
+        /* 新增：复杂提醒状态显示 */
+        .complex-alerts {
+            background-color: var(--bg-color);
+            border-radius: 8px;
+            padding: 12px;
+            margin-top: 16px;
+        }
+
+        .complex-alert-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px;
+            background-color: var(--surface-bg);
+            border-radius: 6px;
+            margin-bottom: 8px;
+        }
+
+        .complex-alert-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .alert-expression-display {
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            color: var(--accent-secondary);
+        }
+
+        .alert-status {
+            font-size: 12px;
+            padding: 2px 8px;
+            border-radius: 12px;
+        }
+
+        .alert-status.active {
+            background-color: var(--color-green);
+            color: white;
+        }
+
+        .alert-status.inactive {
+            background-color: var(--color-red);
+            color: white;
+        }
+
+        /* 优化PDF导出样式 */
+        @media print {
+            .sidebar {
+                width: 200px;
+            }
+
+            .modal-overlay {
+                display: none !important;
+            }
+
+            .page-content {
+                overflow: visible;
+                max-height: none;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="app-container">
+    <!-- ========== 侧边栏 ========== -->
+    <nav class="sidebar">
+        <div class="sidebar-header">
+            <i class="fas fa-chart-line logo"></i>
+            <h1>知行交易</h1>
+        </div>
+
+        <ul class="nav-menu">
+            <li class="nav-item">
+                <a href="#" class="nav-link active" data-page="dashboard">
+                    <i class="fas fa-tachometer-alt icon"></i> 仪表盘
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="#" class="nav-link" data-page="plans">
+                    <i class="fas fa-clipboard-list icon"></i> 交易计划
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="#" class="nav-link" data-page="strategies">
+                    <i class="fas fa-clipboard-check icon"></i> 策略管理
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="#" class="nav-link" data-page="alerts">
+                    <i class="fas fa-bell icon"></i> 智能提醒
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="#" class="nav-link" data-page="intelligence">
+                    <i class="fas fa-brain icon"></i> 情报中心
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="#" class="nav-link" data-page="review">
+                    <i class="fas fa-chart-bar icon"></i> 交易复盘
+                </a>
+            </li>
+        </ul>
+
+        <div class="sidebar-footer">
+            <div class="user-profile">
+                <img src="https://placehold.co/80x80/00aaff/ffffff?text=U" alt="User Avatar">
+                <div class="user-info">
+                    <h4>交易者</h4>
+                    <p>知行合一</p>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- ========== 主内容区 ========== -->
+    <main class="main-content">
+        <header class="main-header">
+            <div class="header-left">
+                <h2 id="page-title">仪表盘</h2>
+                <div id="triggered-alerts-section">
+                    <button class="btn triggered-alerts-btn" id="view-triggered-alerts-btn">
+                        <i class="fas fa-bell"></i>
+                        <span id="triggered-alerts-count">3</span> 个提醒已触发
+                    </button>
+                </div>
+            </div>
+            <div class="header-right">
+                <div class="search-bar">
+                    <i class="fas fa-search icon"></i>
+                    <input type="text" id="global-search-input" placeholder="搜索代码/名称/概念...">
+                </div>
+                <div class="header-actions">
+                    <div class="data-sync-status">
+                        <div class="status-dot"></div>
+                        <span id="sync-time">数据同步于 12:05 PM</span>
+                    </div>
+                    <button class="icon-btn" id="notification-btn">
+                        <i class="fas fa-bell"></i>
+                        <span class="notification-badge"></span>
+                    </button>
+                    <button class="icon-btn">
+                        <i class="fas fa-cog"></i>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <div class="page-content">
+            <!-- ========== 仪表盘页面 ========== -->
+            <div id="dashboard" class="page active">
+                <div class="card fear-greed-card">
+                    <div class="fear-greed-gauge-container">
+                        <h3>恐慌贪婪指数</h3>
+                        <div class="fear-greed-gauge">
+                            <div class="fear-greed-gauge-bg"></div>
+                            <div class="fear-greed-gauge-mask"></div>
+                            <div class="fear-greed-gauge-needle"></div>
+                            <div class="fear-greed-gauge-center"></div>
+                        </div>
+                        <div class="fear-greed-text">
+                            <p id="fear-greed-status" class="fear-greed-status">恐惧 (28)</p>
+                            <p id="fear-greed-desc" class="text-secondary">市场情绪悲观，保持关注</p>
+                        </div>
+                    </div>
+                    <div class="fear-greed-chart-container">
+                        <h3>历史走势</h3>
+                        <canvas id="fear-greed-chart" style="height: 150px;"></canvas>
+                    </div>
+                </div>
+
+                <div class="card" id="stock-pool-card">
+                    <div class="card-header">
+                        <h3>股票池 - 智能监控</h3>
+                        <div class="flex gap-2">
+                            <button class="btn btn-secondary" id="manage-alerts-btn">
+                                <i class="fas fa-bell-slash"></i> 管理提醒
+                            </button>
+                            <button class="btn" id="import-stocks-btn">
+                                <i class="fas fa-upload"></i> 导入股票列表
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="multi-dim-filters-container" class="multi-dim-filters">
+                        <div class="filter-group">
+                            <span class="filter-group-title">行业分类:</span>
+                            <div class="filter-tags" data-filter-type="industry">
+                                <span class="filter-tag" data-tag="信息技术">信息技术</span>
+                                <span class="filter-tag" data-tag="可选消费">可选消费</span>
+                                <span class="filter-tag" data-tag="日常消费">日常消费</span>
+                                <span class="filter-tag" data-tag="半导体">半导体</span>
+                            </div>
+                        </div>
+                        <div class="filter-group">
+                            <span class="filter-group-title">基本面:</span>
+                            <div class="filter-tags" data-filter-type="fundamentals">
+                                <span class="filter-tag" data-tag="高毛利率">高毛利率</span>
+                                <span class="filter-tag" data-tag="强大护城河">强大护城河</span>
+                                <span class="filter-tag" data-tag="高增长">高增长</span>
+                                <span class="filter-tag" data-tag="高负债">高负债</span>
+                            </div>
+                        </div>
+                        <div class="filter-group">
+                            <span class="filter-group-title">自定义:</span>
+                            <div class="filter-tags" data-filter-type="custom">
+                                <span class="filter-tag" data-tag="科技龙头">科技龙头</span>
+                                <span class="filter-tag" data-tag="新能源">新能源</span>
+                                <span class="filter-tag" data-tag="重点观察">重点观察</span>
+                                <span class="filter-tag" data-tag="长线持有">长线持有</span>
+                            </div>
+                        </div>
+                        <div class="filter-actions">
+                            <button class="btn btn-secondary btn-sm" id="reset-filters-btn">重置筛选</button>
+                        </div>
+                    </div>
+
+                    <div class="table-container">
+                        <table id="stock-pool-table">
+                            <thead>
+                            <tr>
+                                <th>代码/名称</th>
+                                <th>现价</th>
+                                <th>涨跌幅</th>
+                                <th>成交额</th>
+                                <th>提醒状态</th>
+                                <th>情报数量</th>
+                                <th>操作</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr data-ticker="AAPL">
+                                <td>
+                                    <div class="stock-name">
+                                        <span>苹果</span>
+                                        <span class="ticker">AAPL</span>
+                                    </div>
+                                </td>
+                                <td class="price-up">214.29</td>
+                                <td class="price-up">+1.25%</td>
+                                <td>25.8B</td>
+                                <td>
+                                    <span class="alert-status active">2个活跃</span>
+                                </td>
+                                <td>
+                                    <span class="tag" style="background-color: #4a5568;">3条情报</span>
+                                </td>
+                                <td>
+                                    <button class="btn btn-secondary btn-sm add-intel-note-btn" data-ticker="AAPL" title="添加情报/提醒">
+                                        <i class="fas fa-plus"></i>
+                                    </button>
+                                    <button class="btn btn-secondary btn-sm view-detail-btn" data-ticker="AAPL">详情</button>
+                                </td>
+                            </tr>
+                            <tr data-ticker="TSLA">
+                                <td>
+                                    <div class="stock-name">
+                                        <span>特斯拉 <i class="fas fa-bell" style="color: var(--color-yellow); font-size: 12px;" title="有触发的提醒"></i></span>
+                                        <span class="ticker">TSLA</span>
+                                    </div>
+                                </td>
+                                <td class="price-down">183.01</td>
+                                <td class="price-down">-0.54%</td>
+                                <td>15.2B</td>
+                                <td>
+                                    <span class="alert-status inactive">1个触发</span>
+                                </td>
+                                <td>
+                                    <span class="tag" style="background-color: #4a5568;">5条情报</span>
+                                </td>
+                                <td>
+                                    <button class="btn btn-secondary btn-sm add-intel-note-btn" data-ticker="TSLA">
+                                        <i class="fas fa-plus"></i>
+                                    </button>
+                                    <button class="btn btn-secondary btn-sm view-detail-btn" data-ticker="TSLA">详情</button>
+                                </td>
+                            </tr>
+                            <tr data-ticker="NVDA">
+                                <td>
+                                    <div class="stock-name">
+                                        <span>英伟达</span>
+                                        <span class="ticker">NVDA</span>
+                                    </div>
+                                </td>
+                                <td class="price-up">127.08</td>
+                                <td class="price-up">+2.89%</td>
+                                <td>45.1B</td>
+                                <td>
+                                    <span class="alert-status active">3个活跃</span>
+                                </td>
+                                <td>
+                                    <span class="tag" style="background-color: #4a5568;">2条情报</span>
+                                </td>
+                                <td>
+                                    <button class="btn btn-secondary btn-sm add-intel-note-btn" data-ticker="NVDA">
+                                        <i class="fas fa-plus"></i>
+                                    </button>
+                                    <button class="btn btn-secondary btn-sm view-detail-btn" data-ticker="NVDA">详情</button>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ========== 智能提醒页面 ========== -->
+            <div id="alerts" class="page">
+                <div class="card">
+                    <div class="card-header">
+                        <h3>复杂表达式提醒管理</h3>
+                        <button class="btn" id="create-complex-alert-btn">
+                            <i class="fas fa-plus"></i> 创建复杂提醒
+                        </button>
+                    </div>
+
+                    <div class="complex-alerts">
+                        <h4 style="margin-bottom: 16px;">当前活跃提醒</h4>
+
+                        <div class="complex-alert-item">
+                            <div>
+                                <div class="alert-expression-display">AAPL.price > EMA(55) AND AAPL.volume > AVG_VOLUME(30) * 1.5</div>
+                                <small style="color: var(--text-secondary);">苹果突破55日均线且成交量放大</small>
+                            </div>
+                            <span class="alert-status active">活跃</span>
+                        </div>
+
+                        <div class="complex-alert-item">
+                            <div>
+                                <div class="alert-expression-display">TSLA.price < 175 OR RSI(14) < 30</div>
+                                <small style="color: var(--text-secondary);">特斯拉跌破关键支撑或超卖</small>
+                            </div>
+                            <span class="alert-status inactive">已触发</span>
+                        </div>
+
+                        <div class="complex-alert-item">
+                            <div>
+                                <div class="alert-expression-display">NVDA.price > MAX(20) AND MACD > 0</div>
+                                <small style="color: var(--text-secondary);">英伟达创20日新高且MACD金叉</small>
+                            </div>
+                            <span class="alert-status active">活跃</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h3>今日触发的提醒</h3>
+                    </div>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                            <tr>
+                                <th>股票</th>
+                                <th>触发条件</th>
+                                <th>触发时间</th>
+                                <th>当前状态</th>
+                                <th>操作</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr>
+                                <td>
+                                    <div class="stock-name">
+                                        <span>特斯拉</span>
+                                        <span class="ticker">TSLA</span>
+                                    </div>
+                                </td>
+                                <td>价格跌破 $175 支撑位</td>
+                                <td>09:32</td>
+                                <td class="price-down">$183.01 (-0.54%)</td>
+                                <td>
+                                    <button class="btn btn-sm">查看详情</button>
+                                    <button class="btn btn-secondary btn-sm">关闭提醒</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div class="stock-name">
+                                        <span>苹果</span>
+                                        <span class="ticker">AAPL</span>
+                                    </div>
+                                </td>
+                                <td>突破EMA55且成交量放大1.5倍</td>
+                                <td>10:15</td>
+                                <td class="price-up">$214.29 (+1.25%)</td>
+                                <td>
+                                    <button class="btn btn-sm">查看详情</button>
+                                    <button class="btn btn-secondary btn-sm">关闭提醒</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div class="stock-name">
+                                        <span>英伟达</span>
+                                        <span class="ticker">NVDA</span>
+                                    </div>
+                                </td>
+                                <td>创20日新高且MACD金叉确认</td>
+                                <td>11:22</td>
+                                <td class="price-up">$127.08 (+2.89%)</td>
+                                <td>
+                                    <button class="btn btn-sm">查看详情</button>
+                                    <button class="btn btn-secondary btn-sm">关闭提醒</button>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ========== 情报中心页面 ========== -->
+            <div id="intelligence" class="page">
+                <div class="card">
+                    <div class="card-header">
+                        <h3>大佬观点与情报汇总</h3>
+                        <button class="btn" id="add-intelligence-btn">
+                            <i class="fas fa-plus"></i> 添加情报
+                        </button>
+                    </div>
+
+                    <div class="opinion-gallery">
+                        <div class="opinion-item">
+                            <img src="https://placehold.co/300x200/2c2c34/e0e0e0?text=大佬A+TSLA分析图" alt="TSLA分析">
+                            <div class="opinion-meta">
+                                <div><strong>大佬A</strong> - TSLA技术分析</div>
+                                <div>$175是关键支撑位，跌破形态破坏</div>
+                                <div style="color: var(--color-yellow);">已设置提醒：跌破$175</div>
+                            </div>
+                        </div>
+
+                        <div class="opinion-item">
+                            <img src="https://placehold.co/300x200/2c2c34/e0e0e0?text=机构研报+AAPL目标价" alt="AAPL研报">
+                            <div class="opinion-meta">
+                                <div><strong>高盛研报</strong> - AAPL</div>
+                                <div>目标价上调至$250，维持买入评级</div>
+                                <div style="color: var(--color-green);">已设置提醒：突破$230</div>
+                            </div>
+                        </div>
+
+                        <div class="opinion-item">
+                            <img src="https://placehold.co/300x200/2c2c34/e0e0e0?text=大佬B+NVDA划线" alt="NVDA分析">
+                            <div class="opinion-meta">
+                                <div><strong>大佬B</strong> - NVDA波段操作</div>
+                                <div>回踩EMA21是绝佳买入点</div>
+                                <div style="color: var(--color-yellow);">已设置提醒：回踩EMA21</div>
+                            </div>
+                        </div>
+
+                        <div class="opinion-item">
+                            <img src="https://placehold.co/300x200/2c2c34/e0e0e0?text=财经媒体+板块轮动" alt="板块分析">
+                            <div class="opinion-meta">
+                                <div><strong>财经媒体</strong> - 板块轮动分析</div>
+                                <div>科技股调整，关注消费防御性板块</div>
+                                <div>2024-08-22 发布</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 24px;">
+                        <h4>智能情报摘要</h4>
+                        <div class="intel-note">
+                            <div class="note-header">
+                                <div class="note-source">AI智能分析</div>
+                                <div class="note-date">实时更新</div>
+                            </div>
+                            <div class="note-text">
+                                基于收集的16条大佬观点和机构研报，当前市场情绪偏向谨慎乐观。
+                                <br>• 科技股：3位大佬看好长期趋势，但建议等待回调买入
+                                <br>• 新能源：分歧较大，2看多3看空，建议观望
+                                <br>• 传统消费：机构普遍看好防御属性
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ========== 交易计划页面 ========== -->
+            <div id="plans" class="page">
+                <div class="card">
+                    <div class="card-header">
+                        <h3>交易计划管理</h3>
+                        <button class="btn" id="create-plan-btn">
+                            <i class="fas fa-plus"></i> 新建计划
+                        </button>
+                    </div>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                            <tr>
+                                <th>股票</th>
+                                <th>类型</th>
+                                <th>状态</th>
+                                <th>开仓价</th>
+                                <th>止盈/止损</th>
+                                <th>创建日期</th>
+                                <th>操作</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr>
+                                <td>
+                                    <div class="stock-name">
+                                        <span>苹果</span>
+                                        <span class="ticker">AAPL</span>
+                                    </div>
+                                </td>
+                                <td>波段</td>
+                                <td><span class="tag" style="background-color: var(--color-green);">持仓中</span></td>
+                                <td>$210.50</td>
+                                <td>$230.00 / $205.00</td>
+                                <td>2024-08-20</td>
+                                <td>
+                                    <button class="btn btn-secondary btn-sm">详情</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div class="stock-name">
+                                        <span>英伟达</span>
+                                        <span class="ticker">NVDA</span>
+                                    </div>
+                                </td>
+                                <td>短期</td>
+                                <td><span class="tag" style="background-color: var(--color-green);">已止盈</span></td>
+                                <td>$125.80</td>
+                                <td>$135.00 / $122.00</td>
+                                <td>2024-08-15</td>
+                                <td>
+                                    <button class="btn btn-secondary btn-sm">详情</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div class="stock-name">
+                                        <span>特斯拉</span>
+                                        <span class="ticker">TSLA</span>
+                                    </div>
+                                </td>
+                                <td>波段</td>
+                                <td><span class="tag" style="background-color: var(--text-secondary);">待触发</span></td>
+                                <td>$180.00</td>
+                                <td>$200.00 / $175.00</td>
+                                <td>2024-08-23</td>
+                                <td>
+                                    <button class="btn btn-secondary btn-sm">详情</button>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ========== 策略管理页面 ========== -->
+            <div id="strategies" class="page">
+                <div class="card">
+                    <div class="card-header">
+                        <h3>策略库</h3>
+                        <button class="btn">
+                            <i class="fas fa-plus"></i> 新建策略
+                        </button>
+                    </div>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
+                        <div class="card" style="background-color: var(--bg-color); margin-bottom: 0;">
+                            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px;">
+                                <h4 style="color: var(--accent-primary); margin: 0;">龙头战法</h4>
+                                <span class="tag" style="background-color: var(--color-green);">短线策略</span>
+                            </div>
+                            <p style="color: var(--text-secondary); margin-bottom: 16px;">寻找市场最强板块的领涨股，在首次回调时介入。</p>
+                            <div style="display: flex; gap: 10px;">
+                                <button class="btn btn-sm">
+                                    <i class="fas fa-search"></i> 执行选股
+                                </button>
+                                <button class="btn btn-secondary btn-sm">查看详情</button>
+                            </div>
+                        </div>
+
+                        <div class="card" style="background-color: var(--bg-color); margin-bottom: 0;">
+                            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px;">
+                                <h4 style="color: var(--accent-primary); margin: 0;">趋势突破</h4>
+                                <span class="tag" style="background-color: var(--color-purple);">波段策略</span>
+                            </div>
+                            <p style="color: var(--text-secondary); margin-bottom: 16px;">监控股票价格是否有效突破关键阻力位（如年线、前期高点）。</p>
+                            <div style="display: flex; gap: 10px;">
+                                <button class="btn btn-sm">
+                                    <i class="fas fa-search"></i> 执行选股
+                                </button>
+                                <button class="btn btn-secondary btn-sm">查看详情</button>
+                            </div>
+                        </div>
+
+                        <div class="card" style="background-color: var(--bg-color); margin-bottom: 0;">
+                            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px;">
+                                <h4 style="color: var(--accent-primary); margin: 0;">熊市抗跌精选</h4>
+                                <span class="tag" style="background-color: var(--color-orange);">长线策略</span>
+                            </div>
+                            <p style="color: var(--text-secondary); margin-bottom: 16px;">寻找在大盘下跌期间，依然保持强势或率先企稳的股票。</p>
+                            <div style="display: flex; gap: 10px;">
+                                <button class="btn btn-sm">
+                                    <i class="fas fa-search"></i> 执行选股
+                                </button>
+                                <button class="btn btn-secondary btn-sm">查看详情</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ========== 交易复盘页面 ========== -->
+            <div id="review" class="page">
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 24px;">
+                    <div class="card" style="text-align: center;">
+                        <h4 style="color: var(--text-secondary); margin-bottom: 8px;">总收益率</h4>
+                        <p style="font-size: 24px; font-weight: 600; color: var(--color-green);">+25.8%</p>
+                    </div>
+                    <div class="card" style="text-align: center;">
+                        <h4 style="color: var(--text-secondary); margin-bottom: 8px;">胜率</h4>
+                        <p style="font-size: 24px; font-weight: 600;">68%</p>
+                    </div>
+                    <div class="card" style="text-align: center;">
+                        <h4 style="color: var(--text-secondary); margin-bottom: 8px;">平均盈亏比</h4>
+                        <p style="font-size: 24px; font-weight: 600;">2.1</p>
+                    </div>
+                    <div class="card" style="text-align: center;">
+                        <h4 style="color: var(--text-secondary); margin-bottom: 8px;">最大回撤</h4>
+                        <p style="font-size: 24px; font-weight: 600; color: var(--color-red);">-8.2%</p>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h3>账户净值曲线</h3>
+                    </div>
+                    <canvas id="equity-curve-chart" style="height: 300px;"></canvas>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>做得好的点 (AI分析)</h3>
+                        </div>
+                        <ul style="list-style: none;">
+                            <li style="padding: 8px 0; border-bottom: 1px solid var(--border-color);">
+                                ✅ 在趋势股票上的止盈策略执行到位，捕获了大部分利润
+                            </li>
+                            <li style="padding: 8px 0; border-bottom: 1px solid var(--border-color);">
+                                ✅ 对"龙头战法"模式的识别准确率较高
+                            </li>
+                            <li style="padding: 8px 0;">
+                                ✅ 及时止损避免了更大亏损，风险控制良好
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>待改进的点 (AI分析)</h3>
+                        </div>
+                        <ul style="list-style: none;">
+                            <li style="padding: 8px 0; border-bottom: 1px solid var(--border-color);">
+                                ❌ 在震荡行情中容易追高，导致不必要亏损
+                            </li>
+                            <li style="padding: 8px 0; border-bottom: 1px solid var(--border-color);">
+                                ❌ 对"新能源"板块的交易存在情绪化倾向
+                            </li>
+                            <li style="padding: 8px 0;">
+                                ❌ 建议增加仓位管理规则，避免单次亏损过大
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<!-- ========== 模态框 ========== -->
+
+<!-- 股票详情模态框 (优化版) -->
+<div id="stock-detail-modal" class="modal-overlay">
+    <div class="modal-content stock-detail-modal">
+        <div class="modal-header">
+            <h2 id="stock-detail-title">股票详情</h2>
+            <button class="close-btn" onclick="closeModal('stock-detail-modal')">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <div class="stock-detail-layout">
+                <div class="stock-chart-panel">
+                    <div id="stock-chart" class="stock-chart-container"></div>
+
+                    <!-- 关键数据 -->
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <span class="label">今开</span>
+                            <div class="value">$214.00</div>
+                        </div>
+                        <div class="info-item">
+                            <span class="label">昨收</span>
+                            <div class="value">$211.50</div>
+                        </div>
+                        <div class="info-item">
+                            <span class="label">最高</span>
+                            <div class="value price-up">$216.80</div>
+                        </div>
+                        <div class="info-item">
+                            <span class="label">最低</span>
+                            <div class="value price-down">$212.90</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="stock-info-panel">
+                    <!-- 情报信息展示 -->
+                    <h4><i class="fas fa-brain"></i> 情报信息 (5条)</h4>
+                    <div class="intel-notes-section">
+                        <div class="intel-note">
+                            <div class="note-header">
+                                <div class="note-source">大佬A</div>
+                                <div class="note-date">2024-08-22</div>
+                            </div>
+                            <div class="note-text">
+                                苹果在$210附近有强支撑，基本面依然强劲，回调是买入机会。建议分批建仓。
+                            </div>
+                            <div class="alert-info">
+                                <i class="fas fa-bell"></i>
+                                已设置提醒：价格突破 $230
+                            </div>
+                        </div>
+
+                        <div class="intel-note">
+                            <div class="note-header">
+                                <div class="note-source">高盛研报</div>
+                                <div class="note-date">2024-08-21</div>
+                            </div>
+                            <div class="note-text">
+                                上调AAPL目标价至$250，维持买入评级。iPhone销量超预期，服务业务增长强劲。
+                            </div>
+                            <img src="https://placehold.co/300x150/2c2c34/e0e0e0?text=高盛研报截图" alt="高盛研报">
+                        </div>
+
+                        <div class="intel-note">
+                            <div class="note-header">
+                                <div class="note-source">技术分析师B</div>
+                                <div class="note-date">2024-08-20</div>
+                            </div>
+                            <div class="note-text">
+                                AAPL突破下降楔形，目标看向$235。止损设在$205下方。
+                            </div>
+                            <img src="https://placehold.co/300x200/2c2c34/e0e0e0?text=AAPL技术分析图" alt="技术分析">
+                            <div class="alert-info">
+                                <i class="fas fa-chart-line"></i>
+                                复杂提醒：突破EMA55且成交量>1.5倍均量
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 复杂提醒管理 -->
+                    <h4><i class="fas fa-bell"></i> 智能提醒设置</h4>
+                    <div class="alert-builder">
+                        <div class="alert-expression">
+                            当前活跃提醒：price > EMA(55) AND volume > AVG(30) * 1.5
+                        </div>
+                        <div style="margin-bottom: 12px;">
+                            <button class="btn btn-sm" onclick="showComplexAlertBuilder()">
+                                <i class="fas fa-plus"></i> 添加复杂提醒
+                            </button>
+                            <button class="btn btn-secondary btn-sm">
+                                <i class="fas fa-edit"></i> 编辑提醒
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 标签管理 -->
+                    <div class="tag-section" data-concept-type="industry">
+                        <h4>行业分类</h4>
+                        <div class="tags">
+                                <span class="tag concept-industry">
+                                    信息技术
+                                    <span class="remove-tag-btn">×</span>
+                                </span>
+                        </div>
+                        <input type="text" class="add-tag-input" placeholder="添加行业分类...">
+                    </div>
+
+                    <div class="tag-section" data-concept-type="fundamentals">
+                        <h4>基本面标签</h4>
+                        <div class="tags">
+                                <span class="tag concept-fundamentals">
+                                    高毛利率
+                                    <span class="remove-tag-btn">×</span>
+                                </span>
+                            <span class="tag concept-fundamentals">
+                                    强大护城河
+                                    <span class="remove-tag-btn">×</span>
+                                </span>
+                        </div>
+                        <input type="text" class="add-tag-input" placeholder="添加基本面标签...">
+                    </div>
+
+                    <div class="tag-section" data-concept-type="custom">
+                        <h4>自定义标签</h4>
+                        <div class="tags">
+                                <span class="tag concept-custom">
+                                    科技龙头
+                                    <span class="remove-tag-btn">×</span>
+                                </span>
+                            <span class="tag concept-custom">
+                                    重点观察
+                                    <span class="remove-tag-btn">×</span>
+                                </span>
+                        </div>
+                        <input type="text" class="add-tag-input" placeholder="添加自定义标签...">
+                    </div>
+
+                    <div class="form-actions">
+                        <button class="btn" onclick="createTradingPlan()">
+                            <i class="fas fa-plus-circle"></i> 创建交易计划
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 添加情报模态框 -->
+<div id="add-intel-modal" class="modal-overlay">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>为 <span id="intel-stock-name">股票</span> 添加情报</h2>
+            <button class="close-btn" onclick="closeModal('add-intel-modal')">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <form id="add-intel-form">
+                <div class="form-group">
+                    <label>情报来源</label>
+                    <select required>
+                        <option value="">选择来源</option>
+                        <option value="dalao-a">大佬A</option>
+                        <option value="dalao-b">大佬B</option>
+                        <option value="institution">机构研报</option>
+                        <option value="media">财经媒体</option>
+                        <option value="self">个人分析</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>情报内容</label>
+                    <textarea rows="4" placeholder="输入或粘贴观点、分析内容..." required></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>上传截图 (可选)</label>
+                    <input type="file" accept="image/*">
+                    <small style="color: var(--text-secondary);">支持技术分析图、研报截图等</small>
+                </div>
+
+                <div class="form-group">
+                    <label>设置价格提醒 (可选)</label>
+                    <div class="form-grid">
+                        <div>
+                            <select>
+                                <option value="simple">简单价格提醒</option>
+                                <option value="complex">复杂表达式提醒</option>
+                            </select>
+                        </div>
+                        <div>
+                            <input type="text" placeholder="例如：> 230 或 EMA(55)">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('add-intel-modal')">取消</button>
+                    <button type="submit" class="btn">
+                        <i class="fas fa-save"></i> 保存情报
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- 复杂提醒构建器模态框 -->
+<div id="complex-alert-modal" class="modal-overlay">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>创建复杂表达式提醒</h2>
+            <button class="close-btn" onclick="closeModal('complex-alert-modal')">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <div class="form-group">
+                <label>选择股票</label>
+                <select id="alert-stock-select">
+                    <option value="AAPL">苹果 (AAPL)</option>
+                    <option value="TSLA">特斯拉 (TSLA)</option>
+                    <option value="NVDA">英伟达 (NVDA)</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>构建表达式</label>
+                <div class="expression-builder">
+                    <select class="condition-select">
+                        <option value="price">现价</option>
+                        <option value="ema5">EMA(5)</option>
+                        <option value="ema21">EMA(21)</option>
+                        <option value="ema55">EMA(55)</option>
+                        <option value="sma20">SMA(20)</option>
+                        <option value="volume">成交量</option>
+                        <option value="rsi14">RSI(14)</option>
+                        <option value="macd">MACD</option>
+                    </select>
+
+                    <select class="operator-select">
+                        <option value=">">大于 ></option>
+                        <option value="<">小于 <</option>
+                        <option value=">=">大于等于 >=</option>
+                        <option value="<=">小于等于 <=</option>
+                        <option value="cross_above">上穿</option>
+                        <option value="cross_below">下穿</option>
+                    </select>
+
+                    <input type="text" class="value-input" placeholder="数值或指标">
+                </div>
+
+                <div style="margin: 10px 0;">
+                    <button type="button" class="btn btn-secondary btn-sm">
+                        <i class="fas fa-plus"></i> AND 条件
+                    </button>
+                    <button type="button" class="btn btn-secondary btn-sm">
+                        <i class="fas fa-plus"></i> OR 条件
+                    </button>
+                </div>
+
+                <div class="alert-expression">
+                    price > EMA(55) AND volume > AVG(30) * 1.5
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>提醒描述</label>
+                <input type="text" placeholder="例如：苹果突破55日均线且成交量放大" required>
+            </div>
+
+            <div class="form-actions">
+                <button type="button" class="btn btn-secondary" onclick="closeModal('complex-alert-modal')">取消</button>
+                <button type="button" class="btn">
+                    <i class="fas fa-bell"></i> 创建提醒
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 触发提醒详情模态框 -->
+<div id="triggered-alerts-modal" class="modal-overlay">
+    <div class="modal-content" style="max-width: 900px;">
+        <div class="modal-header">
+            <h2>今日触发的提醒详情</h2>
+            <button class="close-btn" onclick="closeModal('triggered-alerts-modal')">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <div class="table-container">
+                <table>
+                    <thead>
+                    <tr>
+                        <th>触发时间</th>
+                        <th>股票</th>
+                        <th>触发条件</th>
+                        <th>当前状态</th>
+                        <th>相关情报</th>
+                        <th>操作</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td>09:32:15</td>
+                        <td>
+                            <div class="stock-name">
+                                <span>特斯拉</span>
+                                <span class="ticker">TSLA</span>
+                            </div>
+                        </td>
+                        <td>
+                            <code>price < 175</code>
+                            <br>
+                            <small>跌破关键支撑位</small>
+                        </td>
+                        <td class="price-down">$174.80 (-1.2%)</td>
+                        <td>
+                            <small>大佬A: "$175是关键支撑"</small>
+                        </td>
+                        <td>
+                            <button class="btn btn-sm" onclick="viewStockDetail('TSLA')">查看详情</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>10:15:42</td>
+                        <td>
+                            <div class="stock-name">
+                                <span>苹果</span>
+                                <span class="ticker">AAPL</span>
+                            </div>
+                        </td>
+                        <td>
+                            <code>price > EMA(55) AND volume > AVG(30)*1.5</code>
+                            <br>
+                            <small>突破均线且放量</small>
+                        </td>
+                        <td class="price-up">$214.29 (+1.25%)</td>
+                        <td>
+                            <small>高盛研报: "目标价$250"</small>
+                        </td>
+                        <td>
+                            <button class="btn btn-sm" onclick="viewStockDetail('AAPL')">查看详情</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>11:22:18</td>
+                        <td>
+                            <div class="stock-name">
+                                <span>英伟达</span>
+                                <span class="ticker">NVDA</span>
+                            </div>
+                        </td>
+                        <td>
+                            <code>price > MAX(20) AND MACD > 0</code>
+                            <br>
+                            <small>创新高且MACD金叉</small>
+                        </td>
+                        <td class="price-up">$127.08 (+2.89%)</td>
+                        <td>
+                            <small>大佬B: "EMA21是买入点"</small>
+                        </td>
+                        <td>
+                            <button class="btn btn-sm" onclick="viewStockDetail('NVDA')">查看详情</button>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div style="margin-top: 20px; padding: 16px; background-color: var(--bg-color); border-radius: 8px;">
+                <h4 style="margin-bottom: 12px;"><i class="fas fa-lightbulb"></i> 智能建议</h4>
+                <p style="color: var(--text-secondary);">
+                    基于触发的提醒和历史情报，AI建议：
+                    <br>• TSLA跌破支撑，建议等待进一步确认后考虑抄底
+                    <br>• AAPL突破看好，可考虑按计划建仓
+                    <br>• NVDA强势突破，注意获利回吐风险
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // 全局变量
+    let currentTicker = null;
+    let fearGreedChart = null;
+    let equityChart = null;
+
+    // 初始化
+    document.addEventListener('DOMContentLoaded', function() {
+        initializeApp();
+    });
+
+    function initializeApp() {
+        setupEventListeners();
+        updateFearGreedIndex();
+        renderFearGreedChart();
+        renderEquityChart();
+        updateSyncTime();
+    }
+
+    // 事件监听器设置
+    function setupEventListeners() {
+        // 导航切换
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', handleNavigation);
+        });
+
+        // 股票详情按钮
+        document.querySelectorAll('.view-detail-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const ticker = e.target.dataset.ticker;
+                showStockDetail(ticker);
+            });
+        });
+
+        // 添加情报按钮
+        document.querySelectorAll('.add-intel-note-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const ticker = e.target.dataset.ticker;
+                showAddIntelModal(ticker);
+            });
+        });
+
+        // 触发提醒按钮
+        document.getElementById('view-triggered-alerts-btn').addEventListener('click', () => {
+            openModal('triggered-alerts-modal');
+        });
+
+        // 创建复杂提醒按钮
+        document.getElementById('create-complex-alert-btn').addEventListener('click', () => {
+            openModal('complex-alert-modal');
+        });
+
+        // 标签筛选
+        document.querySelectorAll('.filter-tag').forEach(tag => {
+            tag.addEventListener('click', handleTagFilter);
+        });
+
+        // 重置筛选
+        document.getElementById('reset-filters-btn').addEventListener('click', resetFilters);
+    }
+
+    // 页面导航处理
+    function handleNavigation(e) {
+        e.preventDefault();
+        const pageId = e.target.dataset.page;
+
+        // 更新导航状态
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.classList.remove('active');
+        });
+        e.target.classList.add('active');
+
+        // 显示对应页面
+        document.querySelectorAll('.page').forEach(page => {
+            page.classList.remove('active');
+        });
+        document.getElementById(pageId).classList.add('active');
+
+        // 更新页面标题
+        const pageTitle = e.target.textContent.trim();
+        document.getElementById('page-title').textContent = pageTitle;
+    }
+
+    // 显示股票详情
+    function showStockDetail(ticker) {
+        currentTicker = ticker;
+
+        // 模拟股票数据
+        const stockData = {
+            'AAPL': { name: '苹果', price: 214.29, change: 1.25 },
+            'TSLA': { name: '特斯拉', price: 183.01, change: -0.54 },
+            'NVDA': { name: '英伟达', price: 127.08, change: 2.89 }
+        };
+
+        const stock = stockData[ticker];
+        if (stock) {
+            document.getElementById('stock-detail-title').textContent =
+                `${stock.name} (${ticker}) - $${stock.price} (${stock.change > 0 ? '+' : ''}${stock.change}%)`;
+        }
+
+        openModal('stock-detail-modal');
+    }
+
+    // 显示添加情报模态框
+    function showAddIntelModal(ticker) {
+        currentTicker = ticker;
+        const stockData = {
+            'AAPL': '苹果 (AAPL)',
+            'TSLA': '特斯拉 (TSLA)',
+            'NVDA': '英伟达 (NVDA)'
+        };
+
+        document.getElementById('intel-stock-name').textContent = stockData[ticker] || ticker;
+        openModal('add-intel-modal');
+    }
+
+    // 显示复杂提醒构建器
+    function showComplexAlertBuilder() {
+        openModal('complex-alert-modal');
+    }
+
+    // 创建交易计划
+    function createTradingPlan() {
+        alert(`为 ${currentTicker} 创建交易计划功能开发中...`);
+    }
+
+    // 查看股票详情（从触发提醒）
+    function viewStockDetail(ticker) {
+        closeModal('triggered-alerts-modal');
+        showStockDetail(ticker);
+    }
+
+    // 标签筛选处理
+    function handleTagFilter(e) {
+        e.target.classList.toggle('active');
+        // 这里可以添加实际的筛选逻辑
+    }
+
+    // 重置筛选
+    function resetFilters() {
+        document.querySelectorAll('.filter-tag.active').forEach(tag => {
+            tag.classList.remove('active');
+        });
+    }
+
+    // 模态框控制
+    function openModal(modalId) {
+        document.getElementById(modalId).classList.add('active');
+    }
+
+    function closeModal(modalId) {
+        document.getElementById(modalId).classList.remove('active');
+    }
+
+    // 恐慌贪婪指数更新
+    function updateFearGreedIndex() {
+        const value = 28; // 恐惧状态
+        const needle = document.querySelector('.fear-greed-gauge-needle');
+        const angle = -90 + (value / 100) * 180;
+        needle.style.transform = `rotate(${angle}deg)`;
+    }
+
+    // 渲染恐慌贪婪指数图表
+    function renderFearGreedChart() {
+        const ctx = document.getElementById('fear-greed-chart').getContext('2d');
+
+        const data = Array.from({length: 30}, (_, i) => {
+            const date = new Date();
+            date.setDate(date.getDate() - (30 - i));
+            return {
+                x: date.toISOString().split('T')[0],
+                y: Math.floor(Math.random() * 80) + 10
+            };
+        });
+
+        fearGreedChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                datasets: [{
+                    label: '恐慌贪婪指数',
+                    data: data,
+                    borderColor: '#00d4ff',
+                    backgroundColor: 'rgba(0, 212, 255, 0.1)',
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    x: {
+                        type: 'time',
+                        time: {
+                            unit: 'day'
+                        },
+                        grid: {
+                            color: '#3a3a44'
+                        },
+                        ticks: {
+                            color: '#a0a0b0'
+                        }
+                    },
+                    y: {
+                        min: 0,
+                        max: 100,
+                        grid: {
+                            color: '#3a3a44'
+                        },
+                        ticks: {
+                            color: '#a0a0b0'
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    // 渲染净值曲线图表
+    function renderEquityChart() {
+        const ctx = document.getElementById('equity-curve-chart').getContext('2d');
+
+        const data = [10000, 10200, 10150, 10500, 10800, 11200, 11000, 11500, 11800, 12200, 12580];
+        const labels = data.map((_, i) => {
+            const date = new Date();
+            date.setDate(date.getDate() - (data.length - 1 - i));
+            return date.toISOString().split('T')[0];
+        });
+
+        equityChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: '账户净值',
+                    data: data,
+                    borderColor: '#00aaff',
+                    backgroundColor: 'rgba(0, 170, 255, 0.1)',
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: {
+                            color: '#3a3a44'
+                        },
+                        ticks: {
+                            color: '#a0a0b0'
+                        }
+                    },
+                    y: {
+                        grid: {
+                            color: '#3a3a44'
+                        },
+                        ticks: {
+                            color: '#a0a0b0',
+                            callback: function(value) {
+                                return '$' + value.toLocaleString();
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    // 更新同步时间
+    function updateSyncTime() {
+        const now = new Date();
+        const timeString = now.toLocaleTimeString('en-US', {
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+        document.getElementById('sync-time').textContent = `数据同步于 ${timeString}`;
+    }
+
+    // 表单提交处理
+    document.addEventListener('submit', function(e) {
+        if (e.target.id === 'add-intel-form') {
+            e.preventDefault();
+            alert('情报已保存！智能提醒已创建。');
+            closeModal('add-intel-modal');
+        }
+    });
+
+    // 点击模态框外部关闭
+    document.querySelectorAll('.modal-overlay').forEach(modal => {
+        modal.addEventListener('click', function(e) {
+            if (e.target === modal) {
+                modal.classList.remove('active');
+            }
+        });
+    });
+</script>
+</body>
+</html>

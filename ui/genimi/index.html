@@ -149,6 +149,11 @@
             flex-shrink: 0;
         }
 
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
         .header-left h2 {
             font-size: 22px;
             font-weight: 600;
@@ -823,6 +828,105 @@
             }
         }
 
+        /* --- V3 新增样式 --- */
+        /* 知行合一交易预案 */
+        .plan-scenario-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 20px;
+        }
+        .plan-scenario-box {
+            background-color: var(--bg-color);
+            border-radius: 8px;
+            padding: 16px;
+            border-left: 4px solid;
+        }
+        .plan-scenario-box.positive { border-color: var(--color-green); }
+        .plan-scenario-box.negative { border-color: var(--color-red); }
+        .plan-scenario-box h4 {
+            margin: 0 0 10px 0;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .plan-scenario-box textarea { min-height: 100px; }
+        .risk-reward-display {
+            background-color: var(--bg-color);
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+            margin-top: 10px;
+        }
+        .risk-reward-display .label { font-size: 12px; color: var(--text-secondary); }
+        .risk-reward-display .value { font-size: 20px; font-weight: 600; }
+        .risk-reward-display .value.good { color: var(--color-green); }
+        .risk-reward-display .value.bad { color: var(--color-red); }
+        .form-group.radio-group label { margin-bottom: 12px; }
+        .radio-options { display: flex; gap: 16px; }
+        .radio-options label { font-size: 13px; cursor: pointer; }
+
+        /* 计划修改审视模态框 */
+        .intervention-quote {
+            background-color: var(--bg-color);
+            border-left: 4px solid var(--accent-primary);
+            padding: 16px;
+            margin-bottom: 24px;
+            border-radius: 0 8px 8px 0;
+        }
+        .intervention-quote blockquote { font-style: italic; }
+        .intervention-quote footer { text-align: right; color: var(--text-secondary); margin-top: 8px; }
+        .reason-list label {
+            display: block;
+            background-color: var(--bg-color);
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            border: 1px solid var(--border-color);
+            transition: all 0.2s ease;
+        }
+        .reason-list label:hover { background-color: var(--border-color); }
+        .reason-list input[type="radio"]:checked + label {
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 0 2px rgba(0, 170, 255, 0.3);
+        }
+        .reason-list input[type="radio"] { display: none; }
+
+        /* AI分析模态框 */
+        .ai-analysis-modal .modal-content { max-width: 1000px; }
+        .ai-analysis-modal .modal-body { max-height: 80vh; overflow-y: auto; }
+        .tabs { display: flex; border-bottom: 1px solid var(--border-color); margin-bottom: 20px; }
+        .tab-link { padding: 10px 20px; cursor: pointer; color: var(--text-secondary); border-bottom: 2px solid transparent; }
+        .tab-link.active { color: var(--accent-primary); border-bottom-color: var(--accent-primary); }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; animation: fadeIn 0.5s; }
+        .summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 16px; }
+        .summary-item { background-color: var(--bg-color); padding: 16px; border-radius: 8px; }
+        .summary-item h5 { margin-bottom: 8px; color: var(--accent-secondary); }
+        .competitor-table img { width: 24px; height: 24px; border-radius: 50%; margin-right: 12px; }
+        .chart-gallery { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+
+        /* 动态情报附着 */
+        .intel-note {
+            background-color: var(--bg-color);
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 12px;
+            border-left: 3px solid var(--color-yellow);
+        }
+        .intel-note p { margin-bottom: 8px; }
+        .intel-note .meta { font-size: 11px; color: var(--text-secondary); }
+        .intel-note img { max-width: 100%; border-radius: 6px; margin-top: 8px; }
+        .alert-badge {
+            background-color: var(--color-yellow);
+            color: var(--bg-color);
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 10px;
+            margin-left: 8px;
+        }
     </style>
 </head>
 <body>
@@ -884,6 +988,12 @@
         <header class="main-header">
             <div class="header-left">
                 <h2 id="page-title">仪表盘</h2>
+                <div id="triggered-alerts-section" style="display: none;">
+                    <button class="btn btn-secondary" id="view-triggered-alerts-btn">
+                        <i data-lucide="bell-ring"></i>
+                        <span id="triggered-alerts-count"></span> 个提醒已触发
+                    </button>
+                </div>
             </div>
             <div class="header-right">
                 <div class="search-bar">
@@ -980,7 +1090,7 @@
             <div id="strategies" class="page">
                 <div class="card">
                     <div class="card-header">
-                        <h3>策略管理</h3>
+                        <h3>策略库</h3>
                         <button class="btn">
                             <i data-lucide="plus"></i> 新建策略
                         </button>
@@ -1176,85 +1286,84 @@
     </div>
 </div>
 
-<!-- 模式选股结果模态框 -->
-<div id="scan-results-modal" class="modal-overlay">
-    <div class="modal-content" style="max-width: 600px;">
-        <div class="modal-header">
-            <h2 id="scan-results-title">选股结果</h2>
-            <button class="close-btn" data-modal-close="scan-results-modal"><i data-lucide="x"></i></button>
-        </div>
-        <div class="modal-body">
-            <ul id="scan-results-list" class="list-group"></ul>
-        </div>
-    </div>
-</div>
-
-<!-- 创建交易计划模态框 -->
+<!-- 创建交易计划模态框 (知行合一版) -->
 <div id="create-plan-modal" class="modal-overlay">
-    <div class="modal-content" style="max-width: 700px;">
+    <div class="modal-content" style="max-width: 800px;">
         <div class="modal-header">
-            <h2>新建交易计划</h2>
+            <h2>知行合一：交易预案</h2>
             <button class="close-btn" data-modal-close="create-plan-modal"><i data-lucide="x"></i></button>
         </div>
         <div class="modal-body">
             <form id="create-plan-form">
-                <div class="form-group">
-                    <label for="plan-stock">股票代码</label>
-                    <input type="text" id="plan-stock" value="AAPL" readonly>
-                </div>
                 <div class="form-grid">
                     <div class="form-group">
-                        <label for="plan-cycle">1️⃣ 你的操作周期</label>
-                        <select id="plan-cycle">
-                            <option>短期</option>
-                            <option>波段</option>
-                            <option selected>中长线持有</option>
+                        <label for="plan-stock">交易标的</label>
+                        <input type="text" id="plan-stock" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label for="plan-strategy-select">1️⃣ 关联策略 (只做熟悉的模式)</label>
+                        <select id="plan-strategy-select" required>
+                            <!-- JS动态填充 -->
                         </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="plan-experience">7️⃣ 你的交易经验</label>
-                        <select id="plan-experience">
-                            <option selected>新手</option>
-                            <option>老手</option>
-                            <option>专家</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="plan-cost">2️⃣ 当前持仓成本</label>
-                        <input type="text" id="plan-cost" placeholder="例如: 15.949 (有加仓)">
-                    </div>
-                    <div class="form-group">
-                        <label for="plan-position">3️⃣ 持仓比例</label>
-                        <input type="text" id="plan-position" placeholder="例如: 25%">
-                    </div>
-                    <div class="form-group">
-                        <label for="plan-stoploss">4️⃣ 心理止损区间</label>
-                        <input type="text" id="plan-stoploss" placeholder="例如: 浮亏8-10%">
-                    </div>
-                    <div class="form-group">
-                        <label for="plan-target">5️⃣ 目标收益/目标价</label>
-                        <input type="text" id="plan-target" placeholder="例如: 30% / $250">
                     </div>
                 </div>
+
                 <div class="form-group">
-                    <label for="plan-reason-select">6️⃣ 你的出手理由</label>
-                    <div style="display: flex; gap: 10px;">
-                        <select id="plan-reason-select" style="width: 150px;">
-                            <option>技术面</option>
-                            <option selected>消息面</option>
-                            <option>基本面</option>
-                            <option>情绪面</option>
-                        </select>
-                        <input type="text" id="plan-reason-detail" placeholder="简述理由..." style="flex-grow: 1;">
+                    <label for="plan-reason-detail">2️⃣ 出手理由 (为什么是现在？)</label>
+                    <input type="text" id="plan-reason-detail" placeholder="简述核心逻辑，例如：突破关键阻力位，且板块有联动效应" required>
+                </div>
+
+                <div class="form-grid" style="grid-template-columns: 1fr 1fr 1fr 1fr;">
+                    <div class="form-group">
+                        <label for="plan-entry">3️⃣ 入场条件单</label>
+                        <input type="number" id="plan-entry" placeholder="价格 >=" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="plan-stoploss">4️⃣ 止损条件单</label>
+                        <input type="number" id="plan-stoploss" placeholder="价格 <=" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="plan-target">5️⃣ 止盈条件单</label>
+                        <input type="number" id="plan-target" placeholder="价格 >=" required>
+                    </div>
+                    <div class="form-group">
+                        <label>预估盈亏比</label>
+                        <div id="plan-risk-reward" class="risk-reward-display">
+                            <div class="label">--</div>
+                            <div class="value">-.--</div>
+                        </div>
                     </div>
                 </div>
-                <div class="form-group">
-                    <label for="plan-concern">8️⃣ 你最关心的问题是</label>
-                    <textarea id="plan-concern" placeholder="例如: 现在要走吗？还会再跌吗？" rows="2"></textarea>
+
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="plan-position">6️⃣ 计划仓位</label>
+                        <input type="text" id="plan-position" placeholder="例如: 20% 或 1000股 (请思考最大亏损是否在承受范围内)">
+                    </div>
+                    <div class="form-group radio-group">
+                        <label>7️⃣ 执行方式</label>
+                        <div class="radio-options">
+                            <label><input type="radio" name="execution-type" value="auto" checked> 全程自动交易</label>
+                            <label><input type="radio" name="execution-type" value="manual"> 消息提醒, 手工干预</label>
+                        </div>
+                    </div>
                 </div>
+
+                <!-- 核心：情景规划 -->
+                <div class="plan-scenario-grid">
+                    <div class="plan-scenario-box positive">
+                        <h4><i data-lucide="trending-up"></i> 8️⃣ 如果对了怎么办？</h4>
+                        <textarea id="plan-scenario-up" placeholder="描述盈利后的操作计划...\n例如：\n1. 达到目标价后分批卖出。\n2. 突破关键压力位后，将止损位上移，让利润奔跑。" required></textarea>
+                    </div>
+                    <div class="plan-scenario-box negative">
+                        <h4><i data-lucide="trending-down"></i> 9️⃣ 如果错了怎么办？</h4>
+                        <textarea id="plan-scenario-down" placeholder="描述亏损后的操作计划...\n例如：\n1. 价格触及止损价，无条件离场。\n2. 如果出现XX信号（如放量破位），提前离场。" required></textarea>
+                    </div>
+                </div>
+
                 <div class="form-actions">
-                    <button type="button" class="btn btn-secondary" data-modal-close="create-plan-modal">取消</button>
-                    <button type="submit" class="btn">保存计划</button>
+                    <button type="button" class="btn btn-secondary" data-modal-close="create-plan-modal">放弃计划</button>
+                    <button type="submit" class="btn">锁定预案</button>
                 </div>
             </form>
         </div>
@@ -1308,6 +1417,125 @@
     </div>
 </div>
 
+<!-- V3 新增模态框 -->
+<!-- 计划修改审视模态框 -->
+<div id="plan-intervention-modal" class="modal-overlay">
+    <div class="modal-content" style="max-width: 600px;">
+        <div class="modal-header">
+            <h2>审视你的决策</h2>
+            <button class="close-btn" data-modal-close="plan-intervention-modal"><i data-lucide="x"></i></button>
+        </div>
+        <div class="modal-body">
+            <div class="intervention-quote">
+                <blockquote id="intervention-quote-text"></blockquote>
+                <footer id="intervention-quote-author"></footer>
+            </div>
+            <form id="intervention-form">
+                <div class="form-group">
+                    <label>是什么动摇了你的原始计划？(请慎重选择)</label>
+                    <div class="reason-list" id="intervention-reasons">
+                        <!-- JS动态生成 -->
+                    </div>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" data-modal-close="plan-intervention-modal">坚持原计划</button>
+                    <button type="submit" class="btn" disabled>我已想清楚，确认修改</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- AI 策略选股分析模态框 -->
+<div id="ai-analysis-modal" class="modal-overlay ai-analysis-modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 id="ai-analysis-title">AI 深度研判</h2>
+            <button class="close-btn" data-modal-close="ai-analysis-modal"><i data-lucide="x"></i></button>
+        </div>
+        <div class="modal-body">
+            <div class="tabs" id="ai-analysis-tabs">
+                <span class="tab-link active" data-tab="summary">AI 核心摘要</span>
+                <span class="tab-link" data-tab="competitors">竞品分析</span>
+                <span class="tab-link" data-tab="charts">多维度图表</span>
+            </div>
+
+            <div id="tab-summary" class="tab-content active">
+                <h4>基本面分析</h4>
+                <p class="text-secondary" style="margin-bottom: 16px;">AI 根据最新财报、行业数据和新闻分析得出以下结论：</p>
+                <div class="summary-grid">
+                    <div class="summary-item">
+                        <h5><i data-lucide="bar-chart-2"></i> 成长性 (Growth)</h5>
+                        <p>营收和利润均保持25%以上的同比增长，高于行业平均水平，显示出强劲的增长动力。</p>
+                    </div>
+                    <div class="summary-item">
+                        <h5><i data-lucide="shield"></i> 护城河 (Moat)</h5>
+                        <p>拥有强大的品牌效应和专利技术壁垒，转换成本高，竞争对手难以撼动其市场地位。</p>
+                    </div>
+                    <div class="summary-item">
+                        <h5><i data-lucide="alert-triangle"></i> 风险点 (Risk)</h5>
+                        <p>面临宏观经济下行和供应链集中的风险，同时需要关注反垄断监管政策的变化。</p>
+                    </div>
+                </div>
+            </div>
+
+            <div id="tab-competitors" class="tab-content">
+                <h4>核心竞对分析</h4>
+                <div class="table-container">
+                    <table id="competitor-table">
+                        <!-- JS动态生成 -->
+                    </table>
+                </div>
+            </div>
+
+            <div id="tab-charts" class="tab-content">
+                <h4>多维度走势图</h4>
+                <div class="chart-gallery">
+                    <div>
+                        <h5>股价 vs. 行业指数</h5>
+                        <div id="ai-chart-vs-index" style="height: 250px;"></div>
+                    </div>
+                    <div>
+                        <h5>资金流向分析</h5>
+                        <div id="ai-chart-money-flow" style="height: 250px;"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="form-actions">
+                <button class="btn" id="create-plan-from-ai-btn"><i data-lucide="plus-circle"></i> 基于此分析，制定交易预案</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 动态情报附着模态框 -->
+<div id="add-intel-note-modal" class="modal-overlay">
+    <div class="modal-content" style="max-width: 550px;">
+        <div class="modal-header">
+            <h2 id="intel-note-title">为...添加情报</h2>
+            <button class="close-btn" data-modal-close="add-intel-note-modal"><i data-lucide="x"></i></button>
+        </div>
+        <form id="intel-note-form">
+            <div class="form-group">
+                <label for="intel-note-text">记录关键信息</label>
+                <textarea id="intel-note-text" rows="4" placeholder="例如：大佬A认为此处是强支撑位..."></textarea>
+            </div>
+            <div class="form-group">
+                <label for="intel-note-image">上传分析截图 (可选)</label>
+                <input type="file" id="intel-note-image" accept="image/*">
+            </div>
+            <div class="form-group">
+                <label for="intel-note-alert-price">设置价格提醒 (可选)</label>
+                <input type="number" id="intel-note-alert-price" placeholder="例如: 股价到达 185 时提醒我">
+            </div>
+            <div class="form-actions">
+                <button type="button" class="btn btn-secondary" data-modal-close="add-intel-note-modal">取消</button>
+                <button type="submit" class="btn">保存情报</button>
+            </div>
+        </form>
+    </div>
+</div>
+
 <!-- 引入JS库 -->
 <script src="https://unpkg.com/lucide@latest"></script>
 <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
@@ -1325,6 +1553,9 @@
             this.chart = null;
             this.equityChart = null;
             this.fearGreedChart = null;
+            this.aiChart1 = null;
+            this.aiChart2 = null;
+
             this.currentTicker = null;
             this.currentPlanId = null;
             this.activeFilterTags = [];
@@ -1335,27 +1566,35 @@
             this.stockPoolData = [
                 {
                     ticker: 'AAPL', name: '苹果', price: 214.29, change: 1.25, volume: '25.8B', rules: ['均线多头', '周线突破'],
-                    concepts: { industry: ['信息技术'], fundamentals: ['高毛利率', '强大护城河'], custom: ['科技龙头', '重点观察'] }
+                    concepts: { industry: ['信息技术'], fundamentals: ['高毛利率', '强大护城河'], custom: ['科技龙头', '重点观察'] },
+                    intelNotes: []
                 },
                 {
                     ticker: 'TSLA', name: '特斯拉', price: 183.01, change: -0.54, volume: '15.2B', rules: ['箱体震荡'],
-                    concepts: { industry: ['可选消费'], fundamentals: ['高增长', '高负债'], custom: ['新能源', '高风险'] }
+                    concepts: { industry: ['可选消费'], fundamentals: ['高增长', '高负债'], custom: ['新能源', '高风险'] },
+                    intelNotes: [
+                        { text: '大佬B认为$175是关键支撑位，跌破则形态破坏。', image: 'https://placehold.co/400x200/2c2c34/e0e0e0?text=TSLA划线分析', alertPrice: 175.00, triggered: false }
+                    ]
                 },
                 {
                     ticker: 'NVDA', name: '英伟达', price: 127.08, change: 2.89, volume: '45.1B', rules: ['趋势向上', '成交量放大'],
-                    concepts: { industry: ['信息技术', '半导体'], fundamentals: ['高增长', '高研发投入'], custom: ['芯片', 'AI核心', '重点观察'] }
+                    concepts: { industry: ['信息技术', '半导体'], fundamentals: ['高增长', '高研发投入'], custom: ['芯片', 'AI核心', '重点观察'] },
+                    intelNotes: []
                 },
                 {
                     ticker: 'BABA', name: '阿里巴巴', price: 74.55, change: -1.10, volume: '8.9B', rules: [],
-                    concepts: { industry: ['可选消费'], fundamentals: ['平台经济'], custom: ['中概股'] }
+                    concepts: { industry: ['可选消费'], fundamentals: ['平台经济'], custom: ['中概股'] },
+                    intelNotes: []
                 },
                 {
                     ticker: 'NIO', name: '蔚来', price: 4.43, change: 3.20, volume: '1.2B', rules: ['底部放量'],
-                    concepts: { industry: ['可选消费'], fundamentals: ['持续亏损'], custom: ['新能源', '亏损股'] }
+                    concepts: { industry: ['可选消费'], fundamentals: ['持续亏损'], custom: ['新能源', '亏损股'] },
+                    intelNotes: []
                 },
                 {
                     ticker: '600519.SS', name: '贵州茅台', price: 1555.00, change: 0.88, volume: '3.5B', rules: ['价值投资'],
-                    concepts: { industry: ['日常消费'], fundamentals: ['高毛利率', '强大护城河'], custom: ['消费白马', '长线持有'] }
+                    concepts: { industry: ['日常消费'], fundamentals: ['高毛利率', '强大护城河'], custom: ['消费白马', '长线持有'] },
+                    intelNotes: []
                 },
             ];
 
@@ -1395,11 +1634,18 @@
                 quotes: [
                     { text: "在别人贪婪时恐惧，在别人恐惧时贪婪。", author: "沃伦·巴菲特" },
                     { text: "股票市场短期是投票机，长期是称重机。", author: "本杰明·格雷厄姆" },
+                    { text: "你是价值投资者，不要被短期的市场波动影响哦。", author: "系统提示" }
                 ],
                 topics: [
                     { title: "认识市场周期", content: "市场总是在牛熊之间循环。熊市是播种的季节，牛市是收获的季节。理解你当前所处的周期，是做出正确决策的第一步。" },
                     { title: "避免情绪化交易", content: "最大的敌人不是市场，而是你自己的情绪。制定严格的计划，并像机器人一样执行它，可以帮助你克服恐惧和贪婪。" },
                     { title: "价值投资的力量", content: "优秀的公司即使在熊市中也只是价格被打折，其内在价值并未改变。关注价值，而非价格，是穿越熊市的关键。" }
+                ],
+                interventionReasons: [
+                    "基本面发生了未预料的重大变化。",
+                    "我的交易策略或逻辑被证明是错误的。",
+                    "出现了更好的、符合我策略的交易机会，需要腾出资金。",
+                    "单纯因为市场波动感到恐慌或贪婪。(不推荐)",
                 ]
             };
         }
@@ -1408,6 +1654,7 @@
             this.renderAll();
             this.setupEventListeners();
             this.updateSyncTime();
+            this.checkAlerts();
         }
 
         renderAll() {
@@ -1418,6 +1665,7 @@
             this.renderStrategiesGrid();
             this.renderMindsetPage();
             this.renderReviewPage();
+            this.renderInfluencerTrackingPage();
         }
 
         // --- 渲染函数 ---
@@ -1450,12 +1698,13 @@
             data.forEach(stock => {
                 const changeClass = stock.change >= 0 ? 'price-up' : 'price-down';
                 const changeSign = stock.change >= 0 ? '+' : '';
+                const hasAlert = stock.intelNotes.some(n => n.alertPrice && !n.triggered);
                 const row = `
                         <tr data-ticker="${stock.ticker}">
                             <td>
                                 <div class="stock-name">
                                     <span>${stock.name}</span>
-                                    <span class="ticker">${stock.ticker}</span>
+                                    <span class="ticker">${stock.ticker} ${hasAlert ? '<i data-lucide="bell" style="width: 12px; color: var(--color-yellow);"></i>' : ''}</span>
                                 </div>
                             </td>
                             <td class="${changeClass}">${stock.price.toFixed(2)}</td>
@@ -1463,12 +1712,14 @@
                             <td>${stock.volume}</td>
                             <td>${stock.rules.map(r => `<span class="tag" style="background-color: #4a5568; margin-right: 4px;">${r}</span>`).join('') || '无'}</td>
                             <td>
+                                <button class="btn btn-secondary btn-sm add-intel-note-btn" data-ticker="${stock.ticker}" title="添加情报/提醒"><i data-lucide="edit-3" style="width:14px; height:14px;"></i></button>
                                 <button class="btn btn-secondary btn-sm view-detail-btn" data-ticker="${stock.ticker}">详情</button>
                             </td>
                         </tr>
                     `;
                 tableBody.insertAdjacentHTML('beforeend', row);
             });
+            lucide.createIcons();
         }
 
         renderTagFilters() {
@@ -1549,11 +1800,15 @@
                                 <td>${plan.entry.toFixed(2)}</td>
                                 <td>${plan.tp.toFixed(2)} / ${plan.sl.toFixed(2)}</td>
                                 <td>${plan.date}</td>
-                                <td><button class="btn btn-secondary btn-sm view-plan-detail-btn" data-plan-id="${plan.id}">详情</button></td>
+                                <td>
+                                    <button class="btn btn-secondary btn-sm edit-plan-btn" data-plan-id="${plan.id}" title="修改计划"><i data-lucide="edit" style="width:14px; height:14px;"></i></button>
+                                    <button class="btn btn-secondary btn-sm view-plan-detail-btn" data-plan-id="${plan.id}">详情</button>
+                                </td>
                             </tr>
                         `).join('')}
                     </tbody>
                 `;
+            lucide.createIcons();
         }
 
         renderStrategiesGrid() {
@@ -1564,11 +1819,12 @@
                         <h4>${s.name}</h4>
                         <p>${s.description}</p>
                         <div class="card-actions">
-                            <button class="btn btn-secondary btn-sm" data-strategy-id="${s.id}">查看详情</button>
-                            <button class="btn btn-sm" data-mode-id="${s.id}">执行选股</button>
+                            <button class="btn btn-sm run-strategy-scan-btn" data-strategy-id="${s.id}"><i data-lucide="search"></i> 执行选股</button>
+                            <button class="btn btn-secondary btn-sm view-strategy-detail-btn" data-strategy-id="${s.id}">查看详情</button>
                         </div>
                     </div>
                 `).join('');
+            lucide.createIcons();
         }
 
         renderMindsetPage() {
@@ -1609,6 +1865,33 @@
             this.renderEquityChart();
         }
 
+        renderInfluencerTrackingPage() {
+            const sourceList = document.getElementById('source-list');
+            const intelFeed = document.getElementById('intel-feed');
+
+            // Mock data
+            const sources = [
+                { id: 'dalao-a', name: '大佬A' },
+                { id: 'yanbao-01', name: '研报01' },
+            ];
+            const feedItems = [
+                { source: '大佬A', text: 'AAPL的基本面依然强劲，回调是买入机会。', ticker: 'AAPL', sentiment: 'positive' },
+                { source: '大佬A', text: 'TSLA在$175附近有强支撑，需要关注。', ticker: 'TSLA', sentiment: 'neutral' },
+            ];
+
+            sourceList.innerHTML = sources.map((s, i) => `
+                    <li class="source-item ${i === 0 ? 'active' : ''}" data-source-id="${s.id}">${s.name}</li>
+                `).join('');
+
+            intelFeed.innerHTML = feedItems.map(item => `
+                    <div class="analysis-card">
+                        <h4>${item.ticker} 相关情报</h4>
+                        <p>${item.text}</p>
+                        <div class="analysis-card-meta">来源: ${item.source}</div>
+                    </div>
+                `).join('');
+        }
+
         // --- 事件监听 ---
         setupEventListeners() {
             // 全局搜索
@@ -1634,7 +1917,9 @@
             document.getElementById('confirm-import-btn').addEventListener('click', () => this.handleImport());
             document.getElementById('stock-pool-table').addEventListener('click', (e) => {
                 const detailButton = e.target.closest('.view-detail-btn');
+                const intelButton = e.target.closest('.add-intel-note-btn');
                 if (detailButton) this.showStockDetail(detailButton.dataset.ticker);
+                if (intelButton) this.showIntelNoteModal(intelButton.dataset.ticker);
             });
 
             // 标签筛选
@@ -1666,20 +1951,21 @@
             // 交易计划页面
             document.getElementById('plans-table').addEventListener('click', (e) => {
                 const detailBtn = e.target.closest('.view-plan-detail-btn');
+                const editBtn = e.target.closest('.edit-plan-btn');
                 if(detailBtn) this.showPlanDetail(detailBtn.dataset.planId);
+                if(editBtn) this.handleEditPlan(editBtn.dataset.planId);
             });
             document.getElementById('add-note-form').addEventListener('submit', (e) => this.handleAddNote(e));
-
 
             // 策略管理页面
             document.getElementById('strategies-grid').addEventListener('click', (e) => {
                 const button = e.target.closest('button');
                 if (!button) return;
 
-                if (button.dataset.strategyId) {
+                if (button.classList.contains('view-strategy-detail-btn')) {
                     this.showStrategyDetail(button.dataset.strategyId);
-                } else if (button.dataset.modeId) {
-                    this.handleModeScan(button.dataset.modeId);
+                } else if (button.classList.contains('run-strategy-scan-btn')) {
+                    this.handleStrategyScan(button.dataset.strategyId);
                 }
             });
 
@@ -1692,14 +1978,34 @@
             document.getElementById('add-intel-form').addEventListener('submit', this.handleAnalyzeText.bind(this));
 
             // 创建计划
+            const createPlanModal = document.getElementById('create-plan-modal');
             document.getElementById('create-plan-from-detail').addEventListener('click', () => {
                 this.closeModal('stock-detail-modal');
-                this.openModal('create-plan-modal');
+                this.openCreatePlanModal(this.currentTicker);
             });
             document.getElementById('create-plan-btn-page').addEventListener('click', () => {
-                this.openModal('create-plan-modal');
+                this.openCreatePlanModal();
             });
             document.getElementById('create-plan-form').addEventListener('submit', (e) => this.handlePlanSubmit(e));
+            createPlanModal.addEventListener('input', (e) => {
+                if (['plan-entry', 'plan-stoploss', 'plan-target'].includes(e.target.id)) {
+                    this.calculateRiskReward();
+                }
+            });
+
+            // V3 新增事件监听
+            document.getElementById('intervention-form').addEventListener('submit', e => this.handleInterventionSubmit(e));
+            document.getElementById('intervention-reasons').addEventListener('change', e => {
+                document.querySelector('#intervention-form button[type="submit"]').disabled = false;
+            });
+            document.getElementById('ai-analysis-tabs').addEventListener('click', e => {
+                if (e.target.classList.contains('tab-link')) this.handleTabSwitch(e.target);
+            });
+            document.getElementById('create-plan-from-ai-btn').addEventListener('click', () => {
+                this.closeModal('ai-analysis-modal');
+                this.openCreatePlanModal(this.currentTicker);
+            });
+            document.getElementById('intel-note-form').addEventListener('submit', e => this.handleIntelNoteSubmit(e));
         }
 
         // --- 交互处理 ---
@@ -1729,7 +2035,8 @@
             this.closeModal('import-modal');
             const newStock = {
                 ticker: 'MSFT', name: '微软', price: 447.75, change: 0.75, volume: '18.3B', rules: ['高位盘整'],
-                concepts: { industry: ['信息技术'], fundamentals: ['高毛利率', '强大护城河'], custom: ['科技龙头', '长线持有'] }
+                concepts: { industry: ['信息技术'], fundamentals: ['高毛利率', '强大护城河'], custom: ['科技龙头', '长线持有'] },
+                intelNotes: []
             };
             this.stockPoolData.push(newStock);
             this.filterAndRenderAll();
@@ -1737,7 +2044,7 @@
 
         handlePlanSubmit(e) {
             e.preventDefault();
-            alert('交易计划已成功创建！');
+            alert('交易预案已成功锁定！请严格执行。');
             this.closeModal('create-plan-modal');
             e.target.reset();
         }
@@ -1831,7 +2138,7 @@
                     <h4>核心定义</h4>
                     <p>${strategy.description}</p>
                     <pre><code>${strategy.script}</code></pre>
-                    <div class="form-actions" style="justify-content: flex-start;"><button class="btn" data-mode-id="${strategy.id}">执行选股</button></div>
+                    <div class="form-actions" style="justify-content: flex-start;"><button class="btn run-strategy-scan-btn" data-strategy-id="${strategy.id}"><i data-lucide="search"></i> 执行选股</button></div>
 
                     <div class="editable-section">
                         <div class="header">
@@ -1864,45 +2171,7 @@
                     </div>
                 `;
             this.openModal('strategy-detail-modal');
-        }
-
-        handleAnalyzeText() {
-            const text = document.getElementById('influencer-text').value;
-            if (!text.trim()) {
-                alert('请输入要分析的文本！');
-                return;
-            }
-            // --- 模拟AI解析 ---
-            const results = [];
-            const stockRegex = /(?:[A-Z]{1,5}|[0-9]{6}\.(?:SS|SZ))/ig;
-            const priceRegex = /(?:\$|￥|人民币)?\s?(\d{1,5}(?:\.\d+)?)/g;
-
-            const stocks = text.match(stockRegex);
-            if (stocks) {
-                stocks.forEach(stock => {
-                    const prices = text.match(priceRegex);
-                    results.push({
-                        ticker: stock.toUpperCase(),
-                        action: text.includes('卖出') || text.includes('看空') ? '卖出建议' : '买入建议',
-                        price: prices ? prices[prices.length - 1] : '未明确',
-                        rationale: '基于文本关键信息提取 (模拟)'
-                    });
-                });
-            }
-
-            const resultsList = document.getElementById('analysis-results-list');
-            if (results.length > 0) {
-                resultsList.innerHTML = results.map(r => `
-                        <div class="analysis-card">
-                            <h4>${r.ticker}</h4>
-                            <p><span class="label">建议操作:</span> <span class="${r.action === '卖出建议' ? 'price-down' : 'price-up'}">${r.action}</span></p>
-                            <p><span class="label">目标价位:</span> ${r.price}</p>
-                            <p><span class="label">核心逻辑:</span> ${r.rationale}</p>
-                        </div>
-                    `).join('');
-            } else {
-                resultsList.innerHTML = '<p class="text-secondary">未能从文本中解析出明确的股票代码或价格点位。</p>';
-            }
+            lucide.createIcons();
         }
 
         filterAndRenderAll() {
@@ -1950,6 +2219,227 @@
             const timeString = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
             document.getElementById('sync-time').textContent = `数据同步于 ${timeString}`;
         }
+
+        // --- V3 新增/修改函数 ---
+        openCreatePlanModal(ticker = '') {
+            this.currentTicker = ticker || '通用'; // 如果没有传入ticker，则为通用计划
+            const stock = this.stockPoolData.find(s => s.ticker === this.currentTicker);
+            const stockName = stock ? `${stock.name} (${stock.ticker})` : '请手动输入';
+
+            document.getElementById('plan-stock').value = stockName;
+            this.populateStrategySelector();
+            this.calculateRiskReward(); // Reset
+            this.openModal('create-plan-modal');
+            lucide.createIcons();
+        }
+
+        populateStrategySelector() {
+            const select = document.getElementById('plan-strategy-select');
+            if (!select) return;
+            select.innerHTML = '<option value="">-- 请选择一个策略 --</option>';
+            this.strategies.forEach(strategy => {
+                const option = document.createElement('option');
+                option.value = strategy.id;
+                option.textContent = strategy.name;
+                select.appendChild(option);
+            });
+        }
+
+        calculateRiskReward() {
+            const entryEl = document.getElementById('plan-entry');
+            const stoplossEl = document.getElementById('plan-stoploss');
+            const targetEl = document.getElementById('plan-target');
+            const displayEl = document.getElementById('plan-risk-reward');
+
+            const entry = parseFloat(entryEl.value);
+            const stoploss = parseFloat(stoplossEl.value);
+            const target = parseFloat(targetEl.value);
+
+            const valueEl = displayEl.querySelector('.value');
+            const labelEl = displayEl.querySelector('.label');
+
+            if (entry && stoploss && target) {
+                const risk = Math.abs(entry - stoploss);
+                const reward = Math.abs(target - entry);
+                if (risk > 0) {
+                    const ratio = reward / risk;
+                    valueEl.textContent = ratio.toFixed(2);
+                    labelEl.textContent = '盈亏比';
+                    if (ratio >= 2) {
+                        valueEl.className = 'value good';
+                    } else {
+                        valueEl.className = 'value bad';
+                    }
+                } else {
+                    valueEl.textContent = '∞';
+                    labelEl.textContent = '风险为0?';
+                    valueEl.className = 'value';
+                }
+            } else {
+                valueEl.textContent = '-.--';
+                labelEl.textContent = '--';
+                valueEl.className = 'value';
+            }
+        }
+
+        handleEditPlan(planId) {
+            this.currentPlanId = planId;
+            const quote = this.mindset.quotes[2]; // 特定提示
+            document.getElementById('intervention-quote-text').textContent = `“${quote.text}”`;
+            document.getElementById('intervention-quote-author').textContent = `— ${quote.author}`;
+
+            const reasonsContainer = document.getElementById('intervention-reasons');
+            reasonsContainer.innerHTML = this.mindset.interventionReasons.map((reason, index) => `
+                    <div>
+                        <input type="radio" id="reason-${index}" name="intervention-reason" value="${reason}">
+                        <label for="reason-${index}">${reason}</label>
+                    </div>
+                `).join('');
+
+            document.querySelector('#intervention-form button[type="submit"]').disabled = true;
+            this.openModal('plan-intervention-modal');
+        }
+
+        handleInterventionSubmit(e) {
+            e.preventDefault();
+            alert('已记录您的修改理由。请在计划详情中进行修改。');
+            this.closeModal('plan-intervention-modal');
+            this.showPlanDetail(this.currentPlanId); // 跳转到详情页让用户修改
+        }
+
+        handleStrategyScan(strategyId) {
+            const strategy = this.strategies.find(s => s.id === strategyId);
+            if (!strategy) return;
+
+            // 模拟选股过程
+            const matchedStocks = this.stockPoolData.filter(stock =>
+                strategy.rules.every(rule => stock.rules.includes(rule))
+            );
+
+            if (matchedStocks.length > 0) {
+                // 假设我们只分析第一个匹配到的股票
+                const stockToAnalyze = matchedStocks[0];
+                this.currentTicker = stockToAnalyze.ticker;
+                this.showAiAnalysisModal(stockToAnalyze);
+            } else {
+                alert(`策略"${strategy.name}"没有匹配到任何股票。`);
+            }
+        }
+
+        showAiAnalysisModal(stock) {
+            document.getElementById('ai-analysis-title').textContent = `AI 深度研判: ${stock.name} (${stock.ticker})`;
+
+            // 模拟填充竞品数据
+            const competitorTable = document.getElementById('competitor-table');
+            competitorTable.innerHTML = `
+                    <thead><tr><th>竞对</th><th>市值</th><th>市盈率(TTM)</th><th>优势</th></tr></thead>
+                    <tbody>
+                        <tr>
+                            <td><div style="display:flex; align-items:center;"><img src="https://placehold.co/48x48/cccccc/333333?text=G" alt="G"> Google</div></td>
+                            <td>2.1T</td><td>26.5</td><td>生态系统、AI研发</td>
+                        </tr>
+                        <tr>
+                            <td><div style="display:flex; align-items:center;"><img src="https://placehold.co/48x48/333333/ffffff?text=S" alt="S"> Samsung</div></td>
+                            <td>450B</td><td>15.8</td><td>硬件制造、供应链</td>
+                        </tr>
+                    </tbody>
+                `;
+
+            this.openModal('ai-analysis-modal');
+            // 确保在模态框可见后渲染图表
+            setTimeout(() => {
+                this.renderAiCharts();
+            }, 300);
+        }
+
+        handleTabSwitch(targetTab) {
+            const tabContainer = targetTab.parentElement;
+            tabContainer.querySelectorAll('.tab-link').forEach(t => t.classList.remove('active'));
+            targetTab.classList.add('active');
+
+            const contentContainer = tabContainer.nextElementSibling;
+            while (contentContainer && !contentContainer.classList.contains('form-actions')) {
+                if (contentContainer.classList.contains('tab-content')) {
+                    contentContainer.classList.remove('active');
+                }
+                contentContainer = contentContainer.nextElementSibling;
+            }
+            document.getElementById(`tab-${targetTab.dataset.tab}`).classList.add('active');
+        }
+
+        showIntelNoteModal(ticker) {
+            this.currentTicker = ticker;
+            const stock = this.stockPoolData.find(s => s.ticker === ticker);
+            if (!stock) return;
+            document.getElementById('intel-note-title').textContent = `为 ${stock.name} 添加情报`;
+            document.getElementById('intel-note-form').reset();
+            this.openModal('add-intel-note-modal');
+        }
+
+        handleIntelNoteSubmit(e) {
+            e.preventDefault();
+            const stock = this.stockPoolData.find(s => s.ticker === this.currentTicker);
+            if (!stock) return;
+
+            const text = document.getElementById('intel-note-text').value;
+            const alertPrice = document.getElementById('intel-note-alert-price').value;
+
+            if (text || alertPrice) {
+                stock.intelNotes.push({
+                    text: text,
+                    image: 'https://placehold.co/400x200/2c2c34/e0e0e0?text=上传的截图', // Mock image
+                    alertPrice: parseFloat(alertPrice) || null,
+                    triggered: false
+                });
+                alert('情报已保存！');
+                this.closeModal('add-intel-note-modal');
+                this.renderStockPool(); // 刷新列表以显示提醒图标
+            }
+        }
+
+        handleAddIntelClick() {
+            this.openModal('add-intel-modal');
+        }
+
+        handleIntelSourceSwitch(sourceId) {
+            console.log(`Switching to source ${sourceId}`);
+            document.querySelectorAll('#source-list .source-item').forEach(item => item.classList.remove('active'));
+            const activeItem = document.querySelector(`.source-item[data-source-id="${sourceId}"]`);
+            if(activeItem) activeItem.classList.add('active');
+        }
+
+        handleAnalyzeText(e) {
+            e.preventDefault();
+            const text = document.getElementById('intel-text-input').value;
+            if (!text.trim()) {
+                alert('请输入要分析的文本！');
+                return;
+            }
+            alert('AI解析完成 (模拟)');
+            this.closeModal('add-intel-modal');
+        }
+
+        checkAlerts() {
+            let triggeredCount = 0;
+            this.stockPoolData.forEach(stock => {
+                stock.intelNotes.forEach(note => {
+                    if (note.alertPrice && !note.triggered) {
+                        // 模拟价格触发逻辑
+                        if ((stock.price >= note.alertPrice && stock.change >= 0) || (stock.price <= note.alertPrice && stock.change < 0)) {
+                            note.triggered = true;
+                            triggeredCount++;
+                        }
+                    }
+                });
+            });
+
+            if (triggeredCount > 0) {
+                const section = document.getElementById('triggered-alerts-section');
+                section.style.display = 'block';
+                document.getElementById('triggered-alerts-count').textContent = triggeredCount;
+            }
+        }
+
 
         // --- 图表渲染 ---
         renderCandlestickChart() {
@@ -2008,6 +2498,40 @@
             if (this.equityChart) this.equityChart.destroy();
             this.equityChart = new ApexCharts(chartContainer, options);
             this.equityChart.render();
+        }
+
+        renderAiCharts() {
+            const options1 = {
+                series: [{ name: '股价', data: this.generateCandlestickData(150).map(d => d.y[3]) }, { name: '行业指数', data: this.generateCandlestickData(100).map(d => d.y[3]) }],
+                chart: { type: 'line', height: 250, background: 'transparent', toolbar: {show: false} },
+                theme: { mode: 'dark' },
+                colors: [ 'var(--accent-primary)', 'var(--text-secondary)' ],
+                stroke: { width: 2 },
+                grid: { borderColor: 'var(--border-color)' },
+                xaxis: { labels: { show: false } },
+                yaxis: { labels: { style: { colors: 'var(--text-secondary)' } } },
+                legend: { show: true, position: 'top' }
+            };
+            const chartContainer1 = document.querySelector("#ai-chart-vs-index");
+            chartContainer1.innerHTML = '';
+            if (this.aiChart1) this.aiChart1.destroy();
+            this.aiChart1 = new ApexCharts(chartContainer1, options1);
+            this.aiChart1.render();
+
+            const options2 = {
+                series: [70, 20, 10],
+                chart: { type: 'donut', height: 250, background: 'transparent' },
+                theme: { mode: 'dark' },
+                labels: ['主力净流入', '散户净流入', '中户净流出'],
+                colors: ['var(--color-green)', 'var(--accent-secondary)', 'var(--color-red)'],
+                legend: { show: true, position: 'bottom' },
+                dataLabels: { enabled: false }
+            };
+            const chartContainer2 = document.querySelector("#ai-chart-money-flow");
+            chartContainer2.innerHTML = '';
+            if (this.aiChart2) this.aiChart2.destroy();
+            this.aiChart2 = new ApexCharts(chartContainer2, options2);
+            this.aiChart2.render();
         }
 
         generateCandlestickData(initialPrice) {
