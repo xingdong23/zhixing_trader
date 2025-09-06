@@ -4,8 +4,10 @@ import { useState, useEffect } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { TrendingUp, ArrowUpRight, ArrowDownRight, Eye, Plus } from 'lucide-react'
+import { TrendingUp, ArrowUpRight, ArrowDownRight, Eye, Plus, Upload, FileText } from 'lucide-react'
 import { useRouter } from 'next/navigation'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 
 // 选股结果数据模型
 interface StockSelectionResult {
@@ -27,6 +29,144 @@ export default function StockSelectionPage() {
   const router = useRouter()
   const [results, setResults] = useState<StockSelectionResult[]>([])
   const [selectedStrategy, setSelectedStrategy] = useState<string>('all')
+  // 导入自选股（CSV）
+  const [csvFile, setCsvFile] = useState<File | null>(null)
+  const [importing, setImporting] = useState<boolean>(false)
+  const [importMsg, setImportMsg] = useState<string>("")
+  // 后端自选股列表
+  const [watchlist, setWatchlist] = useState<{ symbol: string; name: string; market?: string; group_name?: string; updated_at?: string }[]>([])
+  const [watchlistLoading, setWatchlistLoading] = useState<boolean>(false)
+
+  // 解析 CSV（支持带引号、逗号）
+  function parseCSV(text: string): string[][] {
+    const rows: string[][] = []
+    let i = 0, field = '', row: string[] = [], inQuotes = false
+    // 去掉 UTF-8 BOM
+    if (text.charCodeAt(0) === 0xFEFF) text = text.slice(1)
+    while (i < text.length) {
+      const char = text[i]
+      if (inQuotes) {
+        if (char === '"') {
+          if (text[i + 1] === '"') { // 转义双引号
+            field += '"'
+            i += 2
+            continue
+          } else {
+            inQuotes = false
+            i++
+            continue
+          }
+        } else {
+          field += char
+          i++
+          continue
+        }
+      } else {
+        if (char === '"') { inQuotes = true; i++; continue }
+        if (char === ',') { row.push(field.trim()); field = ''; i++; continue }
+        if (char === '\n') { row.push(field.trim()); rows.push(row); row = []; field = ''; i++; continue }
+        if (char === '\r') { // 兼容 CRLF
+          // lookahead for \n
+          if (text[i + 1] === '\n') { row.push(field.trim()); rows.push(row); row = []; field = ''; i += 2; continue }
+          else { row.push(field.trim()); rows.push(row); row = []; field = ''; i++; continue }
+        }
+        field += char
+        i++
+      }
+    }
+    // 最后一列/行
+    if (field.length > 0 || row.length > 0) {
+      row.push(field.trim())
+      rows.push(row)
+    }
+    // 过滤空行
+    return rows.filter(r => r.some(c => c && c.length > 0))
+  }
+
+  // 将 Futu 自选股 CSV 转为后端所需结构
+  function futuCsvToStocks(rows: string[][]): Array<Record<string, string>> {
+    if (!rows.length) return []
+    const header = rows[0].map(h => h.trim())
+    const data = rows.slice(1)
+    const findIdx = (candidates: string[]) => header.findIndex(h => candidates.some(c => h.toLowerCase() === c.toLowerCase()))
+    const idxCode = findIdx(['代码','symbol','股票代码','ticker','证券代码'])
+    const idxName = findIdx(['名称','name','股票名称','security name'])
+    const idxMarket = findIdx(['市场','market','交易所'])
+    const idxGroup = findIdx(['分组','分组名称','行业','所属行业','板块','板块名称','group','group_name','industry','sector'])
+    return data.map(r => {
+      const code = (idxCode >= 0 ? r[idxCode] : '').toUpperCase()
+      const name = idxName >= 0 ? r[idxName] : ''
+      const market = idxMarket >= 0 ? r[idxMarket] : ''
+      const group = idxGroup >= 0 ? r[idxGroup] : ''
+      const item: Record<string, string> = {
+        code,
+        name
+      }
+      if (market) item.market = market
+      if (group) item.group_name = group
+      return item
+    }).filter(it => it.code && it.name)
+  }
+
+  async function handleImport() {
+    try {
+      if (!csvFile) return
+      setImporting(true)
+      setImportMsg('')
+      const text = await csvFile.text()
+      const rows = parseCSV(text)
+      const stocks = futuCsvToStocks(rows)
+      if (!stocks.length) {
+        setImportMsg('解析失败：未识别到有效的股票数据（请确认是富途导出的自选股 CSV）')
+        setImporting(false)
+        return
+      }
+      const base = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000'
+      const res = await fetch(`${base}/api/v1/stocks/import`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ stocks })
+      })
+      const data = await res.json().catch(() => ({}))
+      if (!res.ok) {
+        const detail = (data && (data.detail || data.message)) || `HTTP ${res.status}`
+        throw new Error(String(detail))
+      }
+      const msg = data?.message || '导入成功'
+      const info = data?.data ? `（新增 ${data.data.added_count || 0}，更新 ${data.data.updated_count || 0}）` : ''
+      setImportMsg(`${msg}${info}`)
+      // 导入成功后刷新后端自选股
+      fetchWatchlist()
+    } catch (e: any) {
+      setImportMsg(`导入失败：${e?.message || e}`)
+    } finally {
+      setImporting(false)
+    }
+  }
+
+  async function fetchWatchlist() {
+    try {
+      setWatchlistLoading(true)
+      const base = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000'
+      const res = await fetch(`${base}/api/v1/stocks/?page=1&page_size=200`)
+      const data = await res.json().catch(() => ({}))
+      if (!res.ok) throw new Error(String(data?.detail || data?.message || `HTTP ${res.status}`))
+      const items = (data?.data?.stocks || []) as any[]
+      setWatchlist(items.map(it => ({
+        symbol: it.symbol,
+        name: it.name,
+        market: it.market,
+        group_name: it.group_name,
+        updated_at: it.updated_at,
+      })))
+    } catch (err) {
+      console.error('fetch watchlist error', err)
+    } finally {
+      setWatchlistLoading(false)
+    }
+  }
+
+  useEffect(() => { fetchWatchlist() }, [])
 
   // 模拟选股结果数据
   useEffect(() => {
@@ -134,6 +274,78 @@ export default function StockSelectionPage() {
           </div>
           <p className="text-gray-600">基于量化策略筛选出的优质投资标的</p>
         </div>
+
+        {/* 导入自选股（CSV） */}
+        <Card className="mb-6">
+          <CardContent className="p-6">
+            <div className="flex flex-col gap-3 md:flex-row md:items-end md:gap-4">
+              <div className="flex-1">
+                <Label htmlFor="watchlistCsv" className="mb-2 inline-flex items-center gap-2">
+                  <FileText className="h-4 w-4" /> 导入自选股（富途 CSV）
+                </Label>
+                <Input
+                  id="watchlistCsv"
+                  type="file"
+                  accept=".csv,text/csv"
+                  onChange={(e) => setCsvFile(e.target.files?.[0] || null)}
+                />
+                <p className="text-sm text-gray-500 mt-1">请选择富途导出的“自选股.csv”文件。支持包含列：代码、名称、市场、行业/分组等。</p>
+              </div>
+              <div>
+                <Button onClick={handleImport} disabled={!csvFile || importing} className="flex items-center gap-2">
+                  <Upload className="h-4 w-4" />
+                  {importing ? '导入中...' : '导入'}
+                </Button>
+              </div>
+            </div>
+            {importMsg && (
+              <div className="mt-3 text-sm text-gray-700">{importMsg}</div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* 后端自选股列表（自动刷新） */}
+        <Card className="mb-8">
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <CardTitle>后端自选股列表</CardTitle>
+              <div className="flex items-center gap-3">
+                <span className="text-sm text-muted-foreground">{watchlistLoading ? '刷新中...' : `共 ${watchlist.length} 条`}</span>
+                <Button variant="outline" size="sm" onClick={fetchWatchlist}>刷新</Button>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent>
+            {watchlist.length === 0 ? (
+              <div className="text-sm text-muted-foreground">暂无数据。可通过上方导入 CSV。</div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead>
+                    <tr className="border-b">
+                      <th className="text-left p-2">代码</th>
+                      <th className="text-left p-2">名称</th>
+                      <th className="text-left p-2">市场</th>
+                      <th className="text-left p-2">分组/行业</th>
+                      <th className="text-left p-2">更新时间</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {watchlist.map((s) => (
+                      <tr key={s.symbol} className="border-b hover:bg-muted/50">
+                        <td className="p-2 font-mono">{s.symbol}</td>
+                        <td className="p-2">{s.name}</td>
+                        <td className="p-2">{s.market || '-'}</td>
+                        <td className="p-2">{s.group_name || '-'}</td>
+                        <td className="p-2 text-sm text-muted-foreground">{s.updated_at ? s.updated_at.replace('T', ' ').replace('Z','') : '-'}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </CardContent>
+        </Card>
 
         {/* 策略筛选 */}
         <div className="mb-6">
