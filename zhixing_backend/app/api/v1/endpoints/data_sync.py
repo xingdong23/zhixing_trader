@@ -47,25 +47,38 @@ async def trigger_data_sync(
                 detail="数据同步正在进行中，请稍后再试"
             )
         
+        # 创建数据同步任务
+        task_type = "full" if force_full else "incremental"
+        task_id = await data_sync_service.create_sync_task(
+            task_type=task_type,
+            force_full_sync=force_full
+        )
+        
         if run_in_background:
             # 后台运行
-            background_tasks.add_task(data_sync_service.sync_all_watchlist_data, force_full)
+            background_tasks.add_task(
+                data_sync_service.sync_all_watchlist_data, 
+                force_full, 
+                task_id
+            )
             
             return {
                 "success": True,
                 "message": "数据同步任务已启动",
-                "sync_type": "full" if force_full else "incremental",
+                "task_id": task_id,
+                "sync_type": task_type,
                 "mode": "background",
                 "start_time": datetime.now().isoformat(),
                 "status": "started"
             }
         else:
             # 前台运行（等待完成）
-            sync_result = await data_sync_service.sync_all_watchlist_data(force_full)
+            sync_result = await data_sync_service.sync_all_watchlist_data(force_full, task_id)
             
             return {
                 "success": True,
                 "message": "数据同步完成",
+                "task_id": task_id,
                 "sync_result": sync_result
             }
     
@@ -146,6 +159,136 @@ async def get_last_sync_result() -> Dict[str, Any]:
     except Exception as e:
         logger.error(f"获取最近一次同步结果失败: {e}")
         raise HTTPException(status_code=500, detail=f"获取失败: {str(e)}")
+
+
+@router.get("/sync/task/{task_id}")
+async def get_task_status(task_id: str) -> Dict[str, Any]:
+    """获取指定任务的状态"""
+    try:
+        task_status = await data_sync_service.get_task_status(task_id)
+        
+        if not task_status:
+            raise HTTPException(
+                status_code=404,
+                detail=f"未找到任务: {task_id}"
+            )
+        
+        return {
+            "success": True,
+            "data": task_status
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"获取任务状态失败: {e}")
+        raise HTTPException(
+            status_code=500,
+            detail=f"获取任务状态失败: {str(e)}"
+        )
+
+
+@router.get("/sync/tasks/running")
+async def get_running_tasks() -> Dict[str, Any]:
+    """获取正在运行的任务列表"""
+    try:
+        running_tasks = await data_sync_service.task_repository.get_running_tasks()
+        
+        tasks_data = []
+        for task in running_tasks:
+            tasks_data.append({
+                "task_id": task.task_id,
+                "status": task.status,
+                "progress": task.progress,
+                "total_stocks": task.total_stocks,
+                "processed_stocks": task.processed_stocks,
+                "success_stocks": task.success_stocks,
+                "failed_stocks": task.failed_stocks,
+                "task_type": task.task_type,
+                "start_time": task.start_time.isoformat() if task.start_time else None,
+                "created_at": task.created_at.isoformat() if task.created_at else None
+            })
+        
+        return {
+            "success": True,
+            "data": tasks_data,
+            "count": len(tasks_data)
+        }
+        
+    except Exception as e:
+        logger.error(f"获取运行中任务失败: {e}")
+        raise HTTPException(
+            status_code=500,
+            detail=f"获取运行中任务失败: {str(e)}"
+        )
+
+
+@router.get("/sync/tasks/recent")
+async def get_recent_tasks(limit: int = Query(10, ge=1, le=50)) -> Dict[str, Any]:
+    """获取最近的任务列表"""
+    try:
+        recent_tasks = await data_sync_service.task_repository.get_recent_tasks(limit)
+        
+        tasks_data = []
+        for task in recent_tasks:
+            tasks_data.append({
+                "task_id": task.task_id,
+                "status": task.status,
+                "progress": task.progress,
+                "total_stocks": task.total_stocks,
+                "processed_stocks": task.processed_stocks,
+                "success_stocks": task.success_stocks,
+                "failed_stocks": task.failed_stocks,
+                "daily_records": task.daily_records,
+                "hourly_records": task.hourly_records,
+                "task_type": task.task_type,
+                "force_full_sync": task.force_full_sync,
+                "start_time": task.start_time.isoformat() if task.start_time else None,
+                "end_time": task.end_time.isoformat() if task.end_time else None,
+                "duration_seconds": task.duration_seconds,
+                "created_at": task.created_at.isoformat() if task.created_at else None
+            })
+        
+        return {
+            "success": True,
+            "data": tasks_data,
+            "count": len(tasks_data)
+        }
+        
+    except Exception as e:
+        logger.error(f"获取最近任务失败: {e}")
+        raise HTTPException(
+            status_code=500,
+            detail=f"获取最近任务失败: {str(e)}"
+        )
+
+
+@router.post("/sync/task/{task_id}/cancel")
+async def cancel_task(task_id: str) -> Dict[str, Any]:
+    """取消指定的数据同步任务"""
+    try:
+        success = await data_sync_service.task_repository.cancel_task(task_id)
+        
+        if not success:
+            raise HTTPException(
+                status_code=404,
+                detail=f"未找到任务或任务无法取消: {task_id}"
+            )
+        
+        return {
+            "success": True,
+            "message": f"任务 {task_id} 已取消",
+            "task_id": task_id
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"取消任务失败: {e}")
+        raise HTTPException(
+            status_code=500,
+            detail=f"取消任务失败: {str(e)}"
+        )
 
 
 @router.post("/sync/retry-failed")

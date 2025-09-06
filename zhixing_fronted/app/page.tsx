@@ -59,6 +59,7 @@ import {
 
 import { StockList } from '@/components/stocks/StockList'
 import { NotificationCenter } from '@/components/notifications/NotificationCenter'
+import DataSyncButton from '@/components/common/DataSyncButton'
 
 interface Stock {
   id: number
@@ -360,6 +361,25 @@ export default function TradingSystem() {
           <main className="px-6 py-4">
             {currentPage === "dashboard" && (
               <div className="space-y-6">
+                {/* 价格数据同步 */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle>价格数据同步</CardTitle>
+                    <p className="text-sm text-gray-600">从雅虎财经同步自选股的最新价格和K线数据</p>
+                  </CardHeader>
+                  <CardContent>
+                    <DataSyncButton 
+                      onSyncComplete={(result) => {
+                        console.log('同步完成:', result)
+                        // 同步完成后可以刷新自选股列表
+                        fetchBackendStocks()
+                      }}
+                      showProgress={true}
+                      autoRefresh={true}
+                    />
+                  </CardContent>
+                </Card>
+
                 {/* Stock Pool */}
                 <Card>
                   <CardHeader>
