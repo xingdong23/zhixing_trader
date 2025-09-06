@@ -162,3 +162,28 @@ class StockRepository(IStockRepository):
         except Exception as e:
             logger.error(f"获取股票总数失败: {e}")
             return 0
+
+    async def get_stocks_paginated(self, page: int = 1, page_size: int = 50) -> List[StockDB]:
+        """分页获取股票列表"""
+        try:
+            with db_service.get_session() as session:
+                offset = (page - 1) * page_size
+                stocks = session.query(StockDB).filter(
+                    StockDB.is_active == True
+                ).offset(offset).limit(page_size).all()
+                return stocks
+        except Exception as e:
+            logger.error(f"分页获取股票失败: {e}")
+            return []
+
+    async def get_active_stock_count(self) -> int:
+        """获取活跃股票总数"""
+        try:
+            with db_service.get_session() as session:
+                count = session.query(StockDB).filter(
+                    StockDB.is_active == True
+                ).count()
+                return count
+        except Exception as e:
+            logger.error(f"获取活跃股票总数失败: {e}")
+            return 0

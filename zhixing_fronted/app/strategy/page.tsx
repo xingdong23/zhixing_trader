@@ -1,6 +1,7 @@
 "use client"
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
+import { useRouter } from 'next/navigation'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -13,179 +14,196 @@ import {
   Clock,
   DollarSign,
   Activity,
-  Settings
+  Settings,
+  Play,
+  Pause,
+  RotateCcw,
+  Zap,
+  AlertCircle,
+  Loader2,
+  CheckCircle,
+  XCircle,
+  Database,
+  ArrowLeft
 } from 'lucide-react'
 
-// 策略执行结果数据模型
-interface StrategyResult {
-  id: string
-  name: string
-  type: string
-  status: 'running' | 'paused' | 'stopped'
-  totalReturn: number
-  dailyReturn: number
-  winRate: number
-  sharpeRatio: number
-  maxDrawdown: number
-  totalTrades: number
-  successTrades: number
-  avgHoldingDays: number
-  lastExecuted: string
-  description: string
-}
-
-// 策略执行记录
-interface ExecutionRecord {
-  id: string
-  timestamp: string
-  action: string
-  symbol: string
-  price: number
-  quantity: number
-  result: 'profit' | 'loss' | 'pending'
-  pnl?: number
-}
+// 导入策略API
+import { StrategyApi, Strategy, StrategyResult, TaskStatus } from '@/lib/strategy-api'
 
 export default function StrategyPage() {
-  const [strategies, setStrategies] = useState<StrategyResult[]>([])
-  const [executionRecords, setExecutionRecords] = useState<ExecutionRecord[]>([])
-  const [selectedStrategy, setSelectedStrategy] = useState<string>('')
+  const router = useRouter()
+  const [strategies, setStrategies] = useState<Strategy[]>([])
+  const [selectedStrategy, setSelectedStrategy] = useState<Strategy | null>(null)
+  const [strategyResults, setStrategyResults] = useState<StrategyResult[]>([])
+  const [loading, setLoading] = useState(true)
+  const [executing, setExecuting] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [taskStatus, setTaskStatus] = useState<TaskStatus | null>(null)
+  const [updatingData, setUpdatingData] = useState(false)
 
-  // 模拟策略数据
+  // 获取策略列表
+  const fetchStrategies = useCallback(async () => {
+    try {
+      setLoading(true)
+      setError(null)
+      const response = await StrategyApi.getStrategies()
+      if (response.success) {
+        setStrategies(response.data.strategies)
+        if (response.data.strategies.length > 0 && !selectedStrategy) {
+          setSelectedStrategy(response.data.strategies[0])
+        }
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : '获取策略列表失败')
+      console.error('获取策略列表失败:', err)
+    } finally {
+      setLoading(false)
+    }
+  }, [selectedStrategy])
+
+  // 执行策略
+  const executeStrategy = async (strategy: Strategy, async: boolean = false) => {
+    try {
+      setExecuting(true)
+      setError(null)
+      setStrategyResults([])
+      
+      if (async) {
+        // 异步执行
+        const response = await StrategyApi.executeStrategyAsync(strategy.id)
+        if (response.success) {
+          const taskId = response.data.task_id
+          // 轮询任务状态
+          await pollTaskStatus(taskId)
+        }
+      } else {
+        // 同步执行
+        const response = await StrategyApi.executeStrategy(strategy.id)
+        if (response.success) {
+          setStrategyResults(response.data)
+        }
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : '执行策略失败')
+      console.error('执行策略失败:', err)
+    } finally {
+      setExecuting(false)
+    }
+  }
+
+  // 轮询任务状态
+  const pollTaskStatus = async (taskId: string) => {
+    const poll = async () => {
+      try {
+        const response = await StrategyApi.getTaskStatus(taskId)
+        if (response.success) {
+          const status = response.data
+          setTaskStatus(status)
+          
+          if (status.status === 'completed' && status.result) {
+            setStrategyResults(status.result)
+            setExecuting(false)
+            return
+          } else if (status.status === 'failed') {
+            setError(status.error || '任务执行失败')
+            setExecuting(false)
+            return
+          }
+          
+          // 如果任务还在执行中，继续轮询
+          if (status.status === 'running' || status.status === 'pending') {
+            setTimeout(poll, 2000) // 2秒后再次检查
+          }
+        }
+      } catch (err) {
+        console.error('轮询任务状态失败:', err)
+        setExecuting(false)
+      }
+    }
+    
+    poll()
+  }
+
+  // 执行所有策略
+  const executeAllStrategies = async () => {
+    try {
+      setExecuting(true)
+      setError(null)
+      const response = await StrategyApi.executeAllStrategies()
+      if (response.success) {
+        // 合并所有策略结果
+        const allResults: StrategyResult[] = []
+        Object.values(response.data.strategy_results).forEach(results => {
+          allResults.push(...results)
+        })
+        setStrategyResults(allResults)
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : '执行所有策略失败')
+      console.error('执行所有策略失败:', err)
+    } finally {
+      setExecuting(false)
+    }
+  }
+
+  // 触发数据更新
+  const triggerDataUpdate = async () => {
+    try {
+      setUpdatingData(true)
+      setError(null)
+      const response = await StrategyApi.triggerDataUpdate()
+      if (response.success) {
+        // 显示更新成功的消息
+        console.log('数据更新成功:', response.data)
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : '数据更新失败')
+      console.error('数据更新失败:', err)
+    } finally {
+      setUpdatingData(false)
+    }
+  }
+
+  // 初始加载
   useEffect(() => {
-    const mockStrategies: StrategyResult[] = [
-      {
-        id: '1',
-        name: '均值回归策略',
-        type: '量化策略',
-        status: 'running',
-        totalReturn: 15.8,
-        dailyReturn: 2.3,
-        winRate: 68.5,
-        sharpeRatio: 1.45,
-        maxDrawdown: -8.2,
-        totalTrades: 156,
-        successTrades: 107,
-        avgHoldingDays: 3.2,
-        lastExecuted: '2025-08-23 16:00:00',
-        description: '基于统计学均值回归原理，寻找短期偏离长期均值的股票进行反向操作'
-      },
-      {
-        id: '2',
-        name: '龙头战法',
-        type: '选股策略',
-        status: 'running',
-        totalReturn: 22.4,
-        dailyReturn: 0.0,
-        winRate: 72.3,
-        sharpeRatio: 1.62,
-        maxDrawdown: -12.5,
-        totalTrades: 89,
-        successTrades: 64,
-        avgHoldingDays: 7.8,
-        lastExecuted: '2025-08-23 08:30:15',
-        description: '专注于挖掘各行业龙头股票，在技术面突破时进行买入操作'
-      },
-      {
-        id: '3',
-        name: '动量追踪策略',
-        type: '量化策略',
-        status: 'paused',
-        totalReturn: 8.9,
-        dailyReturn: -1.2,
-        winRate: 58.7,
-        sharpeRatio: 0.89,
-        maxDrawdown: -15.8,
-        totalTrades: 234,
-        successTrades: 137,
-        avgHoldingDays: 2.1,
-        lastExecuted: '2025-08-22 15:45:30',
-        description: '跟踪市场动量，在趋势确立后进行追涨杀跌操作'
-      }
-    ]
+    fetchStrategies()
+  }, [fetchStrategies])
 
-    const mockRecords: ExecutionRecord[] = [
-      {
-        id: '1',
-        timestamp: '2025-08-23 16:00:00',
-        action: '买入',
-        symbol: 'AAPL',
-        price: 210.50,
-        quantity: 100,
-        result: 'pending'
-      },
-      {
-        id: '2',
-        timestamp: '2025-08-23 14:30:15',
-        action: '卖出',
-        symbol: 'TSLA',
-        price: 195.20,
-        quantity: 50,
-        result: 'profit',
-        pnl: 485.50
-      },
-      {
-        id: '3',
-        timestamp: '2025-08-23 11:15:45',
-        action: '买入',
-        symbol: 'NVDA',
-        price: 485.00,
-        quantity: 20,
-        result: 'pending'
-      },
-      {
-        id: '4',
-        timestamp: '2025-08-22 15:45:30',
-        action: '卖出',
-        symbol: 'META',
-        price: 298.80,
-        quantity: 30,
-        result: 'loss',
-        pnl: -156.90
-      }
-    ]
-
-    setStrategies(mockStrategies)
-    setExecutionRecords(mockRecords)
-    setSelectedStrategy(mockStrategies[0].id)
-  }, [])
-
-  const currentStrategy = strategies.find(s => s.id === selectedStrategy)
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'running': return 'bg-green-100 text-green-800'
-      case 'paused': return 'bg-yellow-100 text-yellow-800'
-      case 'stopped': return 'bg-red-100 text-red-800'
-      default: return 'bg-gray-100 text-gray-800'
-    }
+  const getStatusColor = (enabled: boolean) => {
+    return enabled ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
   }
 
-  const getStatusText = (status: string) => {
-    switch (status) {
-      case 'running': return '运行中'
-      case 'paused': return '已暂停'
-      case 'stopped': return '已停止'
-      default: return '未知'
-    }
+  const getStatusText = (enabled: boolean) => {
+    return enabled ? '已启用' : '已禁用'
   }
 
-  const getResultColor = (result: string) => {
-    switch (result) {
-      case 'profit': return 'text-green-600'
-      case 'loss': return 'text-red-600'
-      case 'pending': return 'text-blue-600'
+  const getRiskLevelColor = (riskLevel: string) => {
+    switch (riskLevel.toLowerCase()) {
+      case 'low': return 'text-green-600'
+      case 'medium': return 'text-yellow-600'
+      case 'high': return 'text-red-600'
       default: return 'text-gray-600'
     }
   }
 
-  const getResultText = (result: string) => {
-    switch (result) {
-      case 'profit': return '盈利'
-      case 'loss': return '亏损'
-      case 'pending': return '待结算'
+  const getRiskLevelText = (riskLevel: string) => {
+    switch (riskLevel.toLowerCase()) {
+      case 'low': return '低风险'
+      case 'medium': return '中风险'
+      case 'high': return '高风险'
       default: return '未知'
     }
+  }
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 p-6 flex items-center justify-center">
+        <div className="flex items-center gap-3">
+          <Loader2 className="h-6 w-6 animate-spin" />
+          <span>加载策略列表...</span>
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -194,241 +212,275 @@ export default function StrategyPage() {
         {/* 页面标题 */}
         <div className="mb-8">
           <div className="flex items-center gap-3 mb-4">
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={() => router.push('/')}
+              className="mr-2"
+            >
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              返回
+            </Button>
             <BarChart3 className="h-8 w-8 text-blue-600" />
             <h1 className="text-3xl font-bold text-gray-900">策略管理中心</h1>
           </div>
-          <p className="text-gray-600">监控和管理您的量化交易策略执行情况</p>
+          <p className="text-gray-600">管理和执行您的量化交易策略</p>
         </div>
 
-        {/* 策略选择 */}
-        <div className="mb-6">
-          <div className="flex flex-wrap gap-3">
-            {strategies.map(strategy => (
-              <Button
-                key={strategy.id}
-                variant={selectedStrategy === strategy.id ? 'default' : 'outline'}
-                onClick={() => setSelectedStrategy(strategy.id)}
-                className="flex items-center gap-2"
-              >
-                <Activity className="h-4 w-4" />
-                {strategy.name}
-                <Badge 
-                  className={`ml-1 ${getStatusColor(strategy.status)}`}
+        {/* 错误提示 */}
+        {error && (
+          <Card className="mb-6 border-red-200 bg-red-50">
+            <CardContent className="p-4">
+              <div className="flex items-center gap-3">
+                <AlertCircle className="h-5 w-5 text-red-600" />
+                <span className="text-red-800">{error}</span>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={() => setError(null)}
+                  className="ml-auto"
                 >
-                  {getStatusText(strategy.status)}
-                </Badge>
-              </Button>
-            ))}
-          </div>
+                  关闭
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* 操作按钮 */}
+        <div className="mb-6 flex gap-3">
+          <Button 
+            onClick={executeAllStrategies} 
+            disabled={executing || strategies.length === 0}
+            className="flex items-center gap-2"
+          >
+            {executing ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <Zap className="h-4 w-4" />
+            )}
+            执行所有策略
+          </Button>
+          <Button 
+            onClick={triggerDataUpdate} 
+            disabled={updatingData}
+            variant="outline"
+            className="flex items-center gap-2"
+          >
+            {updatingData ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <Database className="h-4 w-4" />
+            )}
+            更新数据
+          </Button>
+          <Button 
+            onClick={fetchStrategies} 
+            variant="outline"
+            className="flex items-center gap-2"
+          >
+            <RotateCcw className="h-4 w-4" />
+            刷新策略
+          </Button>
         </div>
 
-        {currentStrategy && (
-          <>
-            {/* 策略概述 */}
-            <Card className="mb-8">
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <CardTitle className="text-2xl">{currentStrategy.name}</CardTitle>
-                    <p className="text-gray-600 mt-2">{currentStrategy.description}</p>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <Badge className={getStatusColor(currentStrategy.status)}>
-                      {getStatusText(currentStrategy.status)}
-                    </Badge>
-                    <Button variant="outline" size="sm">
-                      <Settings className="h-4 w-4 mr-2" />
-                      设置
-                    </Button>
-                  </div>
+        {/* 任务状态 */}
+        {taskStatus && executing && (
+          <Card className="mb-6">
+            <CardContent className="p-4">
+              <div className="flex items-center gap-3">
+                <Loader2 className="h-5 w-5 animate-spin text-blue-600" />
+                <div>
+                  <div className="font-medium">任务执行中...</div>
+                  <div className="text-sm text-gray-600">{taskStatus.message}</div>
+                  <div className="text-sm text-gray-600">进度: {taskStatus.progress}%</div>
                 </div>
-              </CardHeader>
-            </Card>
-
-            {/* 关键指标 */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-              <Card>
-                <CardContent className="p-6">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
-                      <TrendingUp className="h-5 w-5 text-green-600" />
-                    </div>
-                    <div>
-                      <p className="text-sm text-gray-600">总收益率</p>
-                      <p className={`text-2xl font-bold ${
-                        currentStrategy.totalReturn >= 0 ? 'text-green-600' : 'text-red-600'
-                      }`}>
-                        {currentStrategy.totalReturn >= 0 ? '+' : ''}{currentStrategy.totalReturn}%
-                      </p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardContent className="p-6">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                      <DollarSign className="h-5 w-5 text-blue-600" />
-                    </div>
-                    <div>
-                      <p className="text-sm text-gray-600">日收益率</p>
-                      <p className={`text-2xl font-bold ${
-                        currentStrategy.dailyReturn >= 0 ? 'text-green-600' : 'text-red-600'
-                      }`}>
-                        {currentStrategy.dailyReturn >= 0 ? '+' : ''}{currentStrategy.dailyReturn}%
-                      </p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardContent className="p-6">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center">
-                      <Target className="h-5 w-5 text-purple-600" />
-                    </div>
-                    <div>
-                      <p className="text-sm text-gray-600">胜率</p>
-                      <p className="text-2xl font-bold text-gray-900">{currentStrategy.winRate}%</p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardContent className="p-6">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-yellow-100 rounded-full flex items-center justify-center">
-                      <BarChart3 className="h-5 w-5 text-yellow-600" />
-                    </div>
-                    <div>
-                      <p className="text-sm text-gray-600">夏普比率</p>
-                      <p className="text-2xl font-bold text-gray-900">{currentStrategy.sharpeRatio}</p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-
-            {/* 详细统计 */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-              <Card>
-                <CardHeader>
-                  <CardTitle>交易统计</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    <div className="flex justify-between">
-                      <span className="text-gray-600">总交易次数</span>
-                      <span className="font-medium">{currentStrategy.totalTrades}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-600">成功交易</span>
-                      <span className="font-medium text-green-600">{currentStrategy.successTrades}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-600">失败交易</span>
-                      <span className="font-medium text-red-600">
-                        {currentStrategy.totalTrades - currentStrategy.successTrades}
-                      </span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-600">平均持仓天数</span>
-                      <span className="font-medium">{currentStrategy.avgHoldingDays} 天</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-600">最大回撤</span>
-                      <span className="font-medium text-red-600">{currentStrategy.maxDrawdown}%</span>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle>执行信息</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    <div className="flex justify-between">
-                      <span className="text-gray-600">策略类型</span>
-                      <Badge variant="outline">{currentStrategy.type}</Badge>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-600">运行状态</span>
-                      <Badge className={getStatusColor(currentStrategy.status)}>
-                        {getStatusText(currentStrategy.status)}
-                      </Badge>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-600">最后执行</span>
-                      <span className="font-medium">{currentStrategy.lastExecuted}</span>
-                    </div>
-                    <div className="pt-4">
-                      <div className="flex gap-2">
-                        <Button size="sm" className="flex-1">
-                          启动策略
-                        </Button>
-                        <Button size="sm" variant="outline" className="flex-1">
-                          暂停策略
-                        </Button>
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-
-            {/* 执行记录 */}
-            <Card>
-              <CardHeader>
-                <CardTitle>最近执行记录</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {executionRecords.map((record) => (
-                    <div key={record.id} className="flex items-center justify-between p-4 border rounded-lg">
-                      <div className="flex items-center gap-4">
-                        <div className={`w-2 h-2 rounded-full ${
-                          record.result === 'profit' ? 'bg-green-500' : 
-                          record.result === 'loss' ? 'bg-red-500' : 'bg-blue-500'
-                        }`} />
-                        <div>
-                          <div className="flex items-center gap-2">
-                            <span className="font-medium">{record.action}</span>
-                            <span className="text-blue-600 font-medium">{record.symbol}</span>
-                            <Badge variant="outline" className="text-xs">
-                              ${record.price}
-                            </Badge>
-                          </div>
-                          <p className="text-sm text-gray-600">{record.timestamp}</p>
-                        </div>
-                      </div>
-                      
-                      <div className="text-right">
-                        <p className="font-medium">数量: {record.quantity}</p>
-                        <div className="flex items-center gap-2">
-                          <span className={`text-sm ${getResultColor(record.result)}`}>
-                            {getResultText(record.result)}
-                          </span>
-                          {record.pnl && (
-                            <span className={`font-medium ${
-                              record.pnl >= 0 ? 'text-green-600' : 'text-red-600'
-                            }`}>
-                              {record.pnl >= 0 ? '+' : ''}${record.pnl}
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </>
+              </div>
+            </CardContent>
+          </Card>
         )}
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          {/* 策略列表 */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Activity className="h-5 w-5" />
+                策略列表 ({strategies.length})
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4 max-h-96 overflow-y-auto">
+                {strategies.map((strategy) => (
+                  <div 
+                    key={strategy.id} 
+                    className={`p-4 border rounded-lg cursor-pointer transition-colors hover:bg-muted/50 ${
+                      selectedStrategy?.id === strategy.id ? 'border-blue-500 bg-blue-50' : ''
+                    }`}
+                    onClick={() => setSelectedStrategy(strategy)}
+                  >
+                    <div className="flex items-center justify-between mb-2">
+                      <div>
+                        <h3 className="font-semibold">{strategy.name}</h3>
+                        <p className="text-sm text-muted-foreground">{strategy.category}</p>
+                      </div>
+                      <div className="flex gap-2">
+                        <Badge className={getStatusColor(strategy.enabled)}>
+                          {getStatusText(strategy.enabled)}
+                        </Badge>
+                      </div>
+                    </div>
+                    <p className="text-sm text-gray-600 mb-3">{strategy.description}</p>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-4 text-sm text-gray-500">
+                        <span>执行次数: {strategy.execution_count}</span>
+                        <span>时间框架: {strategy.timeframe}</span>
+                      </div>
+                      <div className="flex gap-2">
+                        <Button 
+                          size="sm" 
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            executeStrategy(strategy, false)
+                          }}
+                          disabled={executing || !strategy.enabled}
+                        >
+                          <Play className="h-3 w-3 mr-1" />
+                          执行
+                        </Button>
+                        <Button 
+                          size="sm" 
+                          variant="outline"
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            executeStrategy(strategy, true)
+                          }}
+                          disabled={executing || !strategy.enabled}
+                        >
+                          <Clock className="h-3 w-3 mr-1" />
+                          异步
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* 策略详情和执行结果 */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Target className="h-5 w-5" />
+                {selectedStrategy ? selectedStrategy.name : '选择策略'}
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {selectedStrategy ? (
+                <div className="space-y-4">
+                  {/* 策略信息 */}
+                  <div className="p-4 bg-gray-50 rounded-lg">
+                    <div className="grid grid-cols-2 gap-4 text-sm">
+                      <div>
+                        <span className="text-gray-600">类型:</span>
+                        <span className="ml-2 font-medium">{selectedStrategy.impl_type}</span>
+                      </div>
+                      <div>
+                        <span className="text-gray-600">状态:</span>
+                        <Badge className={`ml-2 ${getStatusColor(selectedStrategy.enabled)}`}>
+                          {getStatusText(selectedStrategy.enabled)}
+                        </Badge>
+                      </div>
+                      <div>
+                        <span className="text-gray-600">执行次数:</span>
+                        <span className="ml-2 font-medium">{selectedStrategy.execution_count}</span>
+                      </div>
+                      <div>
+                        <span className="text-gray-600">最后执行:</span>
+                        <span className="ml-2 font-medium">
+                          {selectedStrategy.last_execution_time 
+                            ? new Date(selectedStrategy.last_execution_time).toLocaleString()
+                            : '从未执行'
+                          }
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* 执行结果 */}
+                  {strategyResults.length > 0 && (
+                    <div>
+                      <h4 className="font-semibold mb-3 flex items-center gap-2">
+                        <CheckCircle className="h-4 w-4 text-green-600" />
+                        执行结果 ({strategyResults.length} 只股票)
+                      </h4>
+                      <div className="space-y-2 max-h-64 overflow-y-auto">
+                        {strategyResults.map((result, index) => (
+                          <div key={index} className="p-3 border rounded-lg">
+                            <div className="flex items-center justify-between mb-2">
+                              <div className="flex items-center gap-3">
+                                <span className="font-medium text-blue-600">
+                                  {result.stock_symbol}
+                                </span>
+                                <Badge variant="outline">
+                                  评分: {result.score.toFixed(2)}
+                                </Badge>
+                                <Badge variant="outline">
+                                  信心: {(result.confidence * 100).toFixed(1)}%
+                                </Badge>
+                              </div>
+                              <span className={`text-sm ${getRiskLevelColor(result.risk_level)}`}>
+                                {getRiskLevelText(result.risk_level)}
+                              </span>
+                            </div>
+                            
+                            <div className="text-sm text-gray-600 mb-2">
+                              <div>建议操作: <span className="font-medium">{result.suggested_action}</span></div>
+                              {result.current_price && (
+                                <div>当前价格: <span className="font-medium">${result.current_price}</span></div>
+                              )}
+                              {result.target_price && (
+                                <div>目标价格: <span className="font-medium text-green-600">${result.target_price}</span></div>
+                              )}
+                              {result.stop_loss && (
+                                <div>止损价格: <span className="font-medium text-red-600">${result.stop_loss}</span></div>
+                              )}
+                            </div>
+                            
+                            {result.reasons.length > 0 && (
+                              <div className="text-sm">
+                                <span className="text-gray-600">选股理由:</span>
+                                <ul className="list-disc list-inside mt-1 text-gray-600">
+                                  {result.reasons.map((reason, idx) => (
+                                    <li key={idx}>{reason}</li>
+                                  ))}
+                                </ul>
+                              </div>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* 无结果提示 */}
+                  {!executing && strategyResults.length === 0 && (
+                    <div className="text-center py-8 text-gray-500">
+                      <Target className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                      <p>点击"执行"按钮开始策略分析</p>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div className="text-center py-8 text-gray-500">
+                  <Activity className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                  <p>请选择一个策略查看详情</p>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </div>
   )

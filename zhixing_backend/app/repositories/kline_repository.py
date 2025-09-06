@@ -2,7 +2,10 @@
 K线数据仓库
 负责K线数据的持久化操作
 """
-from typing import List, Optional, Dict, Any
+from typing import List, Optional, Dict, Any, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from ..core.interfaces import KLineData
 from datetime import datetime
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy import func
@@ -192,3 +195,121 @@ class KLineRepository(IKLineRepository):
         except Exception as e:
             logger.error(f"获取股票 {symbol} 最新价格数据失败: {e}")
             return None
+
+    async def has_sufficient_data(self, symbol: str, min_daily_records: int = 100, min_hourly_records: int = 100) -> bool:
+        """
+        检查股票是否有足够的K线数据用于策略分析
+        
+        Args:
+            symbol: 股票代码
+            min_daily_records: 最少日线记录数
+            min_hourly_records: 最少小时线记录数
+            
+        Returns:
+            bool: 是否有足够数据
+        """
+        try:
+            with db_service.get_session() as session:
+                # 检查日线数据
+                daily_count = session.query(func.count(KLineDB.id)).filter(
+                    KLineDB.code == symbol,
+                    KLineDB.period == "K_DAY"
+                ).scalar() or 0
+                
+                # 检查小时线数据
+                hourly_count = session.query(func.count(KLineDB.id)).filter(
+                    KLineDB.code == symbol,
+                    KLineDB.period == "K_60M"
+                ).scalar() or 0
+                
+                has_enough = daily_count >= min_daily_records and hourly_count >= min_hourly_records
+                
+                if not has_enough:
+                    logger.debug(f"股票 {symbol} 数据不足: 日线 {daily_count}/{min_daily_records}, 小时线 {hourly_count}/{min_hourly_records}")
+                
+                return has_enough
+                
+        except Exception as e:
+            logger.error(f"检查股票 {symbol} 数据充足性失败: {e}")
+            return False
+
+    async def get_stocks_with_sufficient_data(self, symbols: List[str], min_daily_records: int = 100, min_hourly_records: int = 100) -> List[str]:
+        """
+        批量检查股票数据充足性，返回有足够数据的股票列表
+        
+        Args:
+            symbols: 股票代码列表
+            min_daily_records: 最少日线记录数
+            min_hourly_records: 最少小时线记录数
+            
+        Returns:
+            List[str]: 有足够数据的股票代码列表
+        """
+        try:
+            sufficient_symbols = []
+            with db_service.get_session() as session:
+                for symbol in symbols:
+                    # 检查日线数据
+                    daily_count = session.query(func.count(KLineDB.id)).filter(
+                        KLineDB.code == symbol,
+                        KLineDB.period == "K_DAY"
+                    ).scalar() or 0
+                    
+                    # 检查小时线数据
+                    hourly_count = session.query(func.count(KLineDB.id)).filter(
+                        KLineDB.code == symbol,
+                        KLineDB.period == "K_60M"
+                    ).scalar() or 0
+                    
+                    if daily_count >= min_daily_records and hourly_count >= min_hourly_records:
+                        sufficient_symbols.append(symbol)
+                    else:
+                        logger.debug(f"跳过数据不足的股票 {symbol}: 日线 {daily_count}/{min_daily_records}, 小时线 {hourly_count}/{min_hourly_records}")
+            
+            logger.info(f"在 {len(symbols)} 只股票中，{len(sufficient_symbols)} 只有足够数据用于策略分析")
+            return sufficient_symbols
+            
+        except Exception as e:
+            logger.error(f"批量检查股票数据充足性失败: {e}")
+            return []
+
+    async def get_kline_data_from_db(self, symbol: str, period: str, limit: int = 1000) -> List['KLineData']:
+        """
+        从数据库获取K线数据，转换为策略所需格式
+        
+        Args:
+            symbol: 股票代码
+            period: 周期 ("K_DAY" 或 "K_60M")
+            limit: 获取记录数限制
+            
+        Returns:
+            List[KLineData]: K线数据列表，按时间正序
+        """
+        try:
+            from ..core.interfaces import KLineData
+            
+            with db_service.get_session() as session:
+                klines = session.query(KLineDB).filter(
+                    KLineDB.code == symbol,
+                    KLineDB.period == period
+                ).order_by(KLineDB.time_key.desc()).limit(limit).all()
+                
+                # 转换为策略所需的KLineData格式
+                result = []
+                for kline in reversed(klines):  # 转为正序（时间从早到晚）
+                    kline_data = KLineData(
+                        datetime=datetime.strptime(kline.time_key, "%Y-%m-%d %H:%M:%S"),
+                        open=kline.open_price,
+                        high=kline.high_price,
+                        low=kline.low_price,
+                        close=kline.close_price,
+                        volume=kline.volume or 0,
+                        symbol=symbol
+                    )
+                    result.append(kline_data)
+                
+                return result
+                
+        except Exception as e:
+            logger.error(f"从数据库获取K线数据失败 {symbol} {period}: {e}")
+            return []
