@@ -8,6 +8,7 @@ from datetime import datetime
 from loguru import logger
 
 from ....services.data_sync_service import DataSyncService
+from ....services.smart_sync_service import SmartSyncService
 from ....core.market_data.yahoo_provider import YahooFinanceProvider
 from ....repositories.stock_repository import StockRepository
 from ....repositories.kline_repository import KLineRepository
@@ -19,6 +20,7 @@ yahoo_provider = YahooFinanceProvider(rate_limit_delay=0.2)
 stock_repository = StockRepository()
 kline_repository = KLineRepository()
 data_sync_service = DataSyncService(yahoo_provider, stock_repository, kline_repository)
+smart_sync_service = SmartSyncService(yahoo_provider, stock_repository, kline_repository)
 
 
 @router.post("/sync/trigger")
@@ -309,3 +311,220 @@ async def retry_failed_symbols(background_tasks: BackgroundTasks, force_full: bo
     except Exception as e:
         logger.error(f"重试失败股票触发失败: {e}")
         raise HTTPException(status_code=500, detail=f"重试触发失败: {str(e)}")
+
+
+# ==================== 智能同步API ====================
+
+@router.post("/sync/smart")
+async def trigger_smart_sync(
+    background_tasks: BackgroundTasks,
+    stock_codes: List[str] = Query(None, description="指定要同步的股票代码列表，为空则同步所有"),
+    force_analysis: bool = Query(True, description="是否强制重新分析同步需求"),
+    run_in_background: bool = Query(True, description="是否在后台运行")
+) -> Dict[str, Any]:
+    """
+    触发智能数据同步
+    
+    智能同步会分析每个股票每个时间周期的数据缺口，只同步真正需要的数据。
+    
+    Args:
+        stock_codes: 指定要同步的股票代码列表，为空则同步所有自选股
+        force_analysis: 是否强制重新分析同步需求
+        run_in_background: 是否在后台运行
+    
+    Returns:
+        同步任务信息
+    """
+    try:
+        logger.info(f"🚀 触发智能数据同步: stocks={stock_codes}, force_analysis={force_analysis}")
+        
+        # 检查是否正在同步
+        if smart_sync_service.is_syncing:
+            raise HTTPException(
+                status_code=409,
+                detail="智能同步正在进行中，请稍后再试"
+            )
+        
+        if run_in_background:
+            # 后台运行
+            background_tasks.add_task(
+                smart_sync_service.execute_smart_sync,
+                stock_codes,
+                force_analysis
+            )
+            
+            return {
+                "success": True,
+                "message": "智能同步任务已启动",
+                "sync_type": "smart_incremental",
+                "mode": "background",
+                "target_stocks": stock_codes or "all",
+                "start_time": datetime.now().isoformat(),
+                "status": "started"
+            }
+        else:
+            # 前台运行（等待完成）
+            sync_result = await smart_sync_service.execute_smart_sync(stock_codes, force_analysis)
+            
+            return {
+                "success": True,
+                "message": "智能同步完成",
+                "sync_result": sync_result
+            }
+    
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"触发智能同步失败: {e}")
+        raise HTTPException(
+            status_code=500,
+            detail=f"触发智能同步失败: {str(e)}"
+        )
+
+
+@router.get("/sync/smart/analyze")
+async def analyze_sync_needs(
+    stock_codes: List[str] = Query(None, description="指定要分析的股票代码列表，为空则分析所有")
+) -> Dict[str, Any]:
+    """
+    分析数据同步需求
+    
+    分析每个股票每个时间周期的数据缺口，返回详细的同步计划。
+    
+    Args:
+        stock_codes: 指定要分析的股票代码列表
+    
+    Returns:
+        详细的同步需求分析结果
+    """
+    try:
+        logger.info(f"🔍 分析同步需求: {stock_codes or 'all stocks'}")
+        
+        sync_plans = await smart_sync_service.analyze_sync_needs(stock_codes)
+        
+        # 统计信息
+        total_stocks = len(sync_plans)
+        stocks_need_sync = 0
+        total_ranges = 0
+        
+        for stock_code, timeframe_plans in sync_plans.items():
+            stock_needs_sync = False
+            for timeframe, plan in timeframe_plans.items():
+                if plan.needs_sync:
+                    stock_needs_sync = True
+                    total_ranges += len(plan.sync_ranges)
+            
+            if stock_needs_sync:
+                stocks_need_sync += 1
+        
+        # 转换为可序列化的格式
+        serializable_plans = {}
+        for stock_code, timeframe_plans in sync_plans.items():
+            serializable_plans[stock_code] = {}
+            for timeframe, plan in timeframe_plans.items():
+                serializable_plans[stock_code][timeframe] = {
+                    "needs_sync": plan.needs_sync,
+                    "reason": plan.reason,
+                    "sync_ranges": [
+                        {
+                            "start_date": range.start_date.isoformat(),
+                            "end_date": range.end_date.isoformat(),
+                            "reason": range.reason
+                        }
+                        for range in plan.sync_ranges
+                    ]
+                }
+        
+        return {
+            "success": True,
+            "analysis_time": datetime.now().isoformat(),
+            "summary": {
+                "total_stocks": total_stocks,
+                "stocks_need_sync": stocks_need_sync,
+                "total_sync_ranges": total_ranges
+            },
+            "sync_plans": serializable_plans
+        }
+        
+    except Exception as e:
+        logger.error(f"分析同步需求失败: {e}")
+        raise HTTPException(
+            status_code=500,
+            detail=f"分析同步需求失败: {str(e)}"
+        )
+
+
+@router.get("/sync/smart/overview")
+async def get_smart_sync_overview() -> Dict[str, Any]:
+    """
+    获取智能同步状态概览
+    
+    Returns:
+        智能同步的整体状态信息
+    """
+    try:
+        overview = await smart_sync_service.get_sync_overview()
+        
+        return {
+            "success": True,
+            "overview": overview,
+            "current_time": datetime.now().isoformat()
+        }
+        
+    except Exception as e:
+        logger.error(f"获取智能同步概览失败: {e}")
+        raise HTTPException(
+            status_code=500,
+            detail=f"获取智能同步概览失败: {str(e)}"
+        )
+
+
+@router.post("/sync/smart/initialize")
+async def initialize_sync_status() -> Dict[str, Any]:
+    """
+    初始化所有股票的同步状态
+    
+    为所有自选股创建同步状态记录，并更新边界信息。
+    
+    Returns:
+        初始化结果
+    """
+    try:
+        logger.info("🔧 初始化股票同步状态...")
+        
+        # 获取所有自选股
+        stocks = await stock_repository.get_all_stocks()
+        if not stocks:
+            return {
+                "success": True,
+                "message": "自选股列表为空，无需初始化",
+                "initialized_count": 0
+            }
+        
+        stock_codes = [stock.code if hasattr(stock, 'code') else stock.symbol for stock in stocks]
+        
+        # 初始化同步状态
+        success = await smart_sync_service.sync_status_repo.initialize_all_stocks(stock_codes)
+        
+        if success:
+            return {
+                "success": True,
+                "message": f"成功初始化 {len(stock_codes)} 只股票的同步状态",
+                "initialized_count": len(stock_codes),
+                "stock_codes": stock_codes,
+                "initialization_time": datetime.now().isoformat()
+            }
+        else:
+            raise HTTPException(
+                status_code=500,
+                detail="初始化同步状态失败"
+            )
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"初始化同步状态失败: {e}")
+        raise HTTPException(
+            status_code=500,
+            detail=f"初始化同步状态失败: {str(e)}"
+        )

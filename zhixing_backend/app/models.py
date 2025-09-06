@@ -4,7 +4,7 @@
 from datetime import datetime
 from typing import List, Optional, Dict, Any
 from pydantic import BaseModel
-from sqlalchemy import Column, Integer, String, Float, DateTime, Boolean, Text, create_engine
+from sqlalchemy import Column, Integer, String, Float, DateTime, Boolean, Text, Date, Index, create_engine, ForeignKey
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
@@ -510,6 +510,44 @@ class DataSyncTaskDB(Base):
     # 元数据
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+
+class StockSyncStatusDB(Base):
+    """股票同步状态表"""
+    __tablename__ = "stock_sync_status"
+
+    id = Column(Integer, primary_key=True, index=True)
+    stock_code = Column(String(20), index=True, nullable=False)  # 股票代码
+    timeframe = Column(String(10), nullable=False)  # 时间周期：1d, 1h
+    
+    # 边界信息
+    earliest_data_date = Column(Date)  # 数据库中最早数据日期
+    latest_data_date = Column(Date)    # 数据库中最新数据日期
+    target_start_date = Column(Date)   # 目标开始日期
+    target_end_date = Column(Date)     # 目标结束日期（今天）
+    
+    # 同步状态
+    sync_status = Column(String(20), default='pending')  # pending, syncing, completed, failed, partial
+    last_sync_time = Column(DateTime)  # 最后同步时间
+    last_successful_sync = Column(DateTime)  # 最后成功同步时间
+    
+    # 数据统计
+    total_records = Column(Integer, default=0)  # 总记录数
+    expected_records = Column(Integer, default=0)  # 预期记录数（基于交易日历）
+    
+    # 失败重试
+    failed_ranges = Column(Text)  # JSON格式：失败的时间范围
+    retry_count = Column(Integer, default=0)  # 重试次数
+    last_error = Column(Text)  # 最后一次错误信息
+    
+    # 元数据
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    # 唯一约束
+    __table_args__ = (
+        Index('idx_stock_timeframe', 'stock_code', 'timeframe', unique=True),
+    )
 
 
 # ==================== Pydantic 响应模型 ====================
