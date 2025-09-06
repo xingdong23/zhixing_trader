@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>K线图测试页面</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .test-links {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .test-link {
+            padding: 10px 15px;
+            background: #3B82F6;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: background-color 0.2s;
+        }
+        .test-link:hover {
+            background: #2563EB;
+        }
+        .info {
+            background: #EBF8FF;
+            border: 1px solid #BEE3F8;
+            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        .status {
+            margin-top: 20px;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        .status.success {
+            background: #D1FAE5;
+            border: 1px solid #6EE7B7;
+            color: #065F46;
+        }
+        .status.error {
+            background: #FEE2E2;
+            border: 1px solid #FECACA;
+            color: #991B1B;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔄 股票详情页面调试测试</h1>
+        
+        <div class="info">
+            <h3>📋 测试说明</h3>
+            <p>这个页面用于测试股票详情页面的动态数据功能，包括：</p>
+            <ul>
+                <li>✅ 从后端API获取股票基本信息</li>
+                <li>✅ 动态K线图显示（使用Recharts库）</li>
+                <li>✅ 时间周期切换功能（日线、小时线等）</li>
+                <li>✅ 技术指标显示（RSI、EMA等）</li>
+                <li>✅ 错误处理和Mock数据fallback</li>
+            </ul>
+        </div>
+
+        <h3>🚀 测试链接</h3>
+        <div class="test-links">
+            <a href="http://localhost:3000/stock/AAPL" class="test-link" target="_blank">
+                📈 AAPL - 苹果公司
+            </a>
+            <a href="http://localhost:3000/stock/TSLA" class="test-link" target="_blank">
+                🚗 TSLA - 特斯拉
+            </a>
+            <a href="http://localhost:3000/stock/NVDA" class="test-link" target="_blank">
+                🔥 NVDA - 英伟达
+            </a>
+            <a href="http://localhost:3000/stock/HK0000720786" class="test-link" target="_blank">
+                💰 HK0000720786 - 平安货币基金
+            </a>
+            <a href="http://localhost:3000/" class="test-link" target="_blank">
+                🏠 返回主页
+            </a>
+        </div>
+
+        <h3>🔧 API测试</h3>
+        <button onclick="testAPI()" style="padding: 10px 20px; background: #10B981; color: white; border: none; border-radius: 5px; cursor: pointer;">
+            测试后端API连接
+        </button>
+        <div id="api-status" class="status" style="display: none;"></div>
+
+        <h3>📊 功能说明</h3>
+        <div class="info">
+            <h4>🎯 已实现的功能：</h4>
+            <ul>
+                <li><strong>动态数据获取</strong>：从后端API获取真实股票数据</li>
+                <li><strong>K线图显示</strong>：使用Recharts库绘制交互式K线图</li>
+                <li><strong>时间周期切换</strong>：支持日线、小时线、15分钟、5分钟</li>
+                <li><strong>数据范围选择</strong>：支持30天、90天、半年、一年</li>
+                <li><strong>技术指标</strong>：显示RSI、EMA等技术指标</li>
+                <li><strong>错误处理</strong>：API失败时使用模拟数据作为fallback</li>
+                <li><strong>响应式设计</strong>：适配不同屏幕尺寸</li>
+            </ul>
+
+            <h4>🔄 数据流程：</h4>
+            <ol>
+                <li>页面加载 → 从API获取股票基本信息</li>
+                <li>K线图组件 → 从API获取K线数据</li>
+                <li>如果API失败 → 使用模拟数据确保功能正常</li>
+                <li>用户交互 → 实时更新图表和数据</li>
+            </ol>
+        </div>
+    </div>
+
+    <script>
+        async function testAPI() {
+            const statusDiv = document.getElementById('api-status');
+            statusDiv.style.display = 'block';
+            statusDiv.innerHTML = '🔄 正在测试API连接...';
+            statusDiv.className = 'status';
+
+            try {
+                // 测试股票列表API
+                const response1 = await fetch('http://localhost:8000/api/v1/stocks/overview?page=1&page_size=5');
+                const result1 = await response1.json();
+                
+                if (!response1.ok) throw new Error('股票列表API失败');
+
+                // 测试股票详情API
+                const response2 = await fetch('http://localhost:8000/api/v1/market-data/info/AAPL');
+                const result2 = await response2.json();
+                
+                if (!response2.ok) throw new Error('股票详情API失败');
+
+                statusDiv.innerHTML = `
+                    ✅ API连接成功！<br>
+                    📊 股票列表：${result1.data?.stocks?.length || 0} 条记录<br>
+                    💹 股票详情：${result2.data?.name || 'AAPL'} 数据获取成功
+                `;
+                statusDiv.className = 'status success';
+            } catch (error) {
+                statusDiv.innerHTML = `
+                    ❌ API连接失败：${error.message}<br>
+                    💡 不用担心，页面会使用模拟数据确保功能正常工作
+                `;
+                statusDiv.className = 'status error';
+            }
+        }
+
+        // 页面加载时自动测试API
+        window.onload = function() {
+            setTimeout(testAPI, 1000);
+        };
+    </script>
+</body>
+</html>

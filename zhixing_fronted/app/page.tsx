@@ -630,6 +630,7 @@ export default function TradingSystem() {
                                 )}
                               </div>
                             </th>
+                            <th className="text-left p-2">操作</th>
                           </tr>
                         </thead>
                         <tbody>
@@ -673,6 +674,17 @@ export default function TradingSystem() {
                                 <span className="text-sm text-muted-foreground">
                                   {s.updated_at ? new Date(s.updated_at).toLocaleString('zh-CN') : '-'}
                                 </span>
+                              </td>
+                              <td className="p-2">
+                                <div className="flex gap-2">
+                                  <Button 
+                                    size="sm" 
+                                    variant="outline" 
+                                    onClick={() => router.push(`/stock/${s.symbol}`)}
+                                  >
+                                    详情
+                                  </Button>
+                                </div>
                               </td>
                             </tr>
                           ))}

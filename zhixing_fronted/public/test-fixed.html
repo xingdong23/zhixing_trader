@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>修复验证 - 股票详情页面测试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .test-links {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .test-link {
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            transition: transform 0.2s;
+            text-align: center;
+        }
+        .test-link:hover {
+            transform: translateY(-2px);
+        }
+        .status {
+            margin: 10px 0;
+            padding: 15px;
+            border-radius: 8px;
+            font-weight: bold;
+        }
+        .success {
+            background: #d1fae5;
+            color: #065f46;
+            border: 1px solid #6ee7b7;
+        }
+        .error {
+            background: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #fecaca;
+        }
+        .info {
+            background: #dbeafe;
+            color: #1e40af;
+            border: 1px solid #93c5fd;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎉 修复完成验证</h1>
+        
+        <div class="status success">
+            ✅ 前端图表错误已修复：正确配置了Recharts的Y轴<br>
+            ✅ 后端K线API错误已修复：处理了datetime字段类型问题
+        </div>
+
+        <div class="status info">
+            📊 现在K线图应该可以正常显示真实的股票数据了！
+        </div>
+
+        <h3>🚀 测试修复后的功能</h3>
+        <div class="test-links">
+            <a href="http://localhost:3000/stock/AAPL" class="test-link" target="_blank">
+                📈 AAPL - 苹果公司<br>
+                <small>测试真实K线数据</small>
+            </a>
+            <a href="http://localhost:3000/stock/TSLA" class="test-link" target="_blank">
+                🚗 TSLA - 特斯拉<br>
+                <small>测试图表组件修复</small>
+            </a>
+            <a href="http://localhost:3000/stock/COST" class="test-link" target="_blank">
+                🛒 COST - 好市多<br>
+                <small>测试后端API修复</small>
+            </a>
+            <a href="http://localhost:3000/stock/HK0000720786" class="test-link" target="_blank">
+                💰 HK0000720786 - 平安基金<br>
+                <small>测试港股数据</small>
+            </a>
+        </div>
+
+        <h3>🔧 修复内容详情</h3>
+        <div class="info">
+            <h4>前端修复 (KLineChart.tsx):</h4>
+            <ul>
+                <li>为价格数据添加了专用的Y轴 (yAxisId="price")</li>
+                <li>为成交量数据添加了右侧Y轴 (yAxisId="volume")</li>
+                <li>修复了Recharts Bar组件的yAxisId配置错误</li>
+                <li>优化了Y轴刻度显示格式</li>
+            </ul>
+
+            <h4>后端修复 (market_data.py):</h4>
+            <ul>
+                <li>修复了datetime字段的类型处理问题</li>
+                <li>添加了对字符串和datetime对象的兼容处理</li>
+                <li>确保API返回正确格式的时间数据</li>
+                <li>提高了错误处理的健壮性</li>
+            </ul>
+        </div>
+
+        <h3>🎯 预期效果</h3>
+        <div class="status success">
+            <ul>
+                <li>✅ 股票详情页面不再报错</li>
+                <li>✅ K线图可以正常显示</li>
+                <li>✅ 显示真实的股票价格和成交量数据</li>
+                <li>✅ 支持时间周期切换功能</li>
+                <li>✅ 图表交互功能正常</li>
+            </ul>
+        </div>
+
+        <div style="text-align: center; margin-top: 30px;">
+            <a href="http://localhost:3000" style="padding: 15px 30px; background: #3b82f6; color: white; text-decoration: none; border-radius: 8px; font-weight: bold;">
+                🏠 返回主页
+            </a>
+        </div>
+    </div>
+
+    <script>
+        // 自动测试API状态
+        async function testAPIStatus() {
+            try {
+                const response = await fetch('http://localhost:8000/api/v1/market-data/klines/AAPL?timeframe=1d&days=2');
+                const data = await response.json();
+                
+                if (data.success) {
+                    console.log('✅ K线API测试成功:', data.data.klines.length, '条数据');
+                } else {
+                    console.log('❌ K线API测试失败:', data);
+                }
+            } catch (error) {
+                console.log('❌ API连接失败:', error.message);
+            }
+        }
+
+        // 页面加载后测试
+        window.onload = function() {
+            setTimeout(testAPIStatus, 1000);
+        };
+    </script>
+</body>
+</html>
