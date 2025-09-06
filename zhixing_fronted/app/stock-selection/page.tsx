@@ -168,81 +168,66 @@ export default function StockSelectionPage() {
 
   useEffect(() => { fetchWatchlist() }, [])
 
-  // 模拟选股结果数据
-  useEffect(() => {
-    const mockResults: StockSelectionResult[] = [
-      {
-        id: '1',
-        symbol: 'BABA',
-        name: '阿里巴巴',
-        strategy: '龙头战法',
-        score: 8.5,
-        currentPrice: 92.45,
-        changePercent: 2.3,
-        volume: 25600000,
-        marketCap: '2456亿',
-        reason: '突破关键阻力位，成交量放大，资金流入明显',
-        timestamp: '2025-08-23 08:30:15',
-        tags: ['科技股', '港股通', '大盘股']
-      },
-      {
-        id: '2',
-        symbol: 'NVDA',
-        name: '英伟达',
-        strategy: '龙头战法',
-        score: 9.2,
-        currentPrice: 485.20,
-        changePercent: 1.8,
-        volume: 42300000,
-        marketCap: '1.2万亿',
-        reason: 'AI概念持续火热，财报表现超预期，技术面强势',
-        timestamp: '2025-08-23 08:30:15',
-        tags: ['AI概念', '芯片股', '大盘股']
-      },
-      {
-        id: '3',
-        symbol: 'TSLA',
-        name: '特斯拉',
-        strategy: '龙头战法',
-        score: 7.8,
-        currentPrice: 195.67,
-        changePercent: -0.5,
-        volume: 98500000,
-        marketCap: '6234亿',
-        reason: '新能源汽车销量数据良好，估值合理',
-        timestamp: '2025-08-23 08:30:15',
-        tags: ['新能源', '汽车股', '大盘股']
-      },
-      {
-        id: '4',
-        symbol: 'META',
-        name: 'Meta',
-        strategy: '龙头战法',
-        score: 8.1,
-        currentPrice: 298.35,
-        changePercent: 1.2,
-        volume: 18900000,
-        marketCap: '7850亿',
-        reason: 'VR业务进展顺利，广告收入稳定增长',
-        timestamp: '2025-08-23 08:30:15',
-        tags: ['元宇宙', '社交媒体', '大盘股']
-      },
-      {
-        id: '5',
-        symbol: 'GOOGL',
-        name: '谷歌',
-        strategy: '龙头战法',
-        score: 8.7,
-        currentPrice: 142.80,
-        changePercent: 0.8,
-        volume: 28400000,
-        marketCap: '1.8万亿',
-        reason: '云计算业务增长强劲，AI技术领先',
-        timestamp: '2025-08-23 08:30:15',
-        tags: ['云计算', 'AI概念', '大盘股']
+  // 获取策略执行结果
+  const fetchStrategyResults = async () => {
+    try {
+      const base = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000'
+      // 获取可用策略
+      const strategiesRes = await fetch(`${base}/api/v1/strategies/`)
+      const strategiesData = await strategiesRes.json()
+      
+      if (strategiesData.success && strategiesData.data.strategies.length > 0) {
+        // 执行第一个策略作为示例
+        const strategyId = strategiesData.data.strategies[0].id
+        const executeRes = await fetch(`${base}/api/v1/strategies/${strategyId}/execute`, {
+          method: 'POST'
+        })
+        const executeData = await executeRes.json()
+        
+        if (executeData.success) {
+          // 转换为前端格式
+          const formattedResults: StockSelectionResult[] = executeData.data.map((item: any, index: number) => ({
+            id: (index + 1).toString(),
+            symbol: item.stock_symbol,
+            name: item.stock_symbol, // 暂时使用symbol作为name
+            strategy: strategiesData.data.strategies[0].name,
+            score: item.score || 8.0,
+            currentPrice: item.current_price || 100.0,
+            changePercent: Math.random() * 6 - 3, // 模拟涨跌幅
+            volume: Math.floor(Math.random() * 50000000),
+            marketCap: '未知',
+            reason: item.reasons?.join(', ') || item.technical_details || '策略选股',
+            timestamp: new Date().toLocaleString('zh-CN'),
+            tags: [item.risk_level || '中风险', item.suggested_action || '观察']
+          }))
+          setResults(formattedResults)
+        }
       }
-    ]
-    setResults(mockResults)
+    } catch (error) {
+      console.error('获取策略结果失败:', error)
+      // 如果API失败，使用模拟数据
+      const mockResults: StockSelectionResult[] = [
+        {
+          id: '1',
+          symbol: 'AAPL',
+          name: '苹果',
+          strategy: '示例策略',
+          score: 8.5,
+          currentPrice: 192.45,
+          changePercent: 2.3,
+          volume: 25600000,
+          marketCap: '3万亿',
+          reason: '技术面突破，基本面良好',
+          timestamp: new Date().toLocaleString('zh-CN'),
+          tags: ['科技股', '大盘股']
+        }
+      ]
+      setResults(mockResults)
+    }
+  }
+
+  useEffect(() => {
+    fetchStrategyResults()
   }, [])
 
   // 获取策略列表
@@ -347,25 +332,34 @@ export default function StockSelectionPage() {
           </CardContent>
         </Card>
 
-        {/* 策略筛选 */}
+        {/* 策略筛选与执行 */}
         <div className="mb-6">
-          <div className="flex flex-wrap gap-3">
-            {strategies.map(strategy => (
-              <Button
-                key={strategy}
-                variant={selectedStrategy === strategy ? 'default' : 'outline'}
-                onClick={() => setSelectedStrategy(strategy)}
-                className="flex items-center gap-2"
-              >
-                {strategy === 'all' ? '全部策略' : strategy}
-                <Badge variant="secondary" className="ml-1">
-                  {strategy === 'all' 
-                    ? results.length 
-                    : results.filter(r => r.strategy === strategy).length
-                  }
-                </Badge>
+          <div className="flex flex-col gap-4">
+            <div className="flex items-center justify-between">
+              <h2 className="text-xl font-semibold">策略执行结果</h2>
+              <Button onClick={fetchStrategyResults} className="flex items-center gap-2">
+                <TrendingUp className="h-4 w-4" />
+                重新执行策略
               </Button>
-            ))}
+            </div>
+            <div className="flex flex-wrap gap-3">
+              {strategies.map(strategy => (
+                <Button
+                  key={strategy}
+                  variant={selectedStrategy === strategy ? 'default' : 'outline'}
+                  onClick={() => setSelectedStrategy(strategy)}
+                  className="flex items-center gap-2"
+                >
+                  {strategy === 'all' ? '全部策略' : strategy}
+                  <Badge variant="secondary" className="ml-1">
+                    {strategy === 'all' 
+                      ? results.length 
+                      : results.filter(r => r.strategy === strategy).length
+                    }
+                  </Badge>
+                </Button>
+              ))}
+            </div>
           </div>
         </div>
 
