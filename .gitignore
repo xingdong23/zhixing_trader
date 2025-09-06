@@ -1,0 +1,51 @@
+# OS
+.DS_Store
+
+# Editor/IDE
+.idea/
+.vscode/
+
+# Node.js dependencies and build outputs (anywhere in repo)
+**/node_modules/
+**/.next/
+**/.nuxt/
+**/.turbo/
+**/.vercel/
+**/out/
+**/dist/
+
+# Python environments, caches, and build outputs (anywhere in repo)
+**/.venv/
+**/venv/
+**/env/
+**/__pycache__/
+**/*.py[cod]
+**/*$py.class
+**/.pytest_cache/
+**/.mypy_cache/
+**/.ruff_cache/
+**/.coverage*
+**/htmlcov/
+**/.tox/
+**/.nox/
+**/.eggs/
+**/*.egg-info/
+**/build/
+**/dist/
+
+# Logs
+**/logs/
+*.log
+
+# Environment files (keep examples)
+.env
+.env.*
+!.env.example
+!**/.env.example
+
+# Project-specific: ensure frontend/backend deps are excluded
+zhixing_fronted/**/node_modules/
+zhixing_backend/**/node_modules/
+zhixing_backend/**/venv/
+zhixing_backend/**/.venv/
+
