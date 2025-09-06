@@ -115,7 +115,9 @@ async def get_stocks_overview(
     page: int = Query(1, ge=1),
     page_size: int = Query(20, ge=1, le=20),
     concept_id: Optional[str] = Query(None, description="按概念过滤，支持概念表主键或concept_id"),
-    concept_name: Optional[str] = Query(None, description="按概念名称过滤")
+    concept_name: Optional[str] = Query(None, description="按概念名称过滤"),
+    sort_field: Optional[str] = Query("updated_at", description="排序字段: name, price, change_percent, market, updated_at"),
+    sort_order: Optional[str] = Query("desc", description="排序顺序: asc, desc")
 ) -> Dict[str, Any]:
     """获取股票概览分页列表（仅从数据库获取）
 
@@ -163,33 +165,130 @@ async def get_stocks_overview(
                         return {"success": True, "data": {"stocks": [], "total": 0, "page": page, "pageSize": page_size, "totalPages": 0}}
 
             total = query.count()
+            
+            # 处理排序
+            sort_field_map = {
+                'name': StockDB.name,
+                'market': StockDB.market,
+                'updated_at': StockDB.updated_at
+            }
+            
+            # 默认排序字段
+            order_column = sort_field_map.get(sort_field, StockDB.updated_at)
+            
+            # 应用排序
+            if sort_order.lower() == 'asc':
+                query = query.order_by(order_column.asc())
+            else:
+                query = query.order_by(order_column.desc())
+            
             items = (query
-                     .order_by(StockDB.updated_at.desc())
                      .offset((page - 1) * page_size)
                      .limit(page_size)
                      .all())
 
-            # 批量获取股票的最新行情数据（从数据库）
-            stock_codes = [s.code for s in items]
-            latest_quotes = {}
-            
-            if stock_codes:
-                # 获取每个股票的最新行情记录
+            # 对于价格和涨跌幅排序，需要特殊处理
+            if sort_field in ['price', 'change_percent']:
+                # 获取所有股票的最新行情数据，然后在Python中排序
                 from sqlalchemy import func, and_
+                all_stock_codes = [s.code for s in session.query(StockDB).filter(StockDB.is_active == True).all()]
+                
+                # 获取所有股票的最新行情记录
                 subquery = (session.query(
                     QuoteDB.code,
                     func.max(QuoteDB.created_at).label('max_created_at')
-                ).filter(QuoteDB.code.in_(stock_codes))
+                ).filter(QuoteDB.code.in_(all_stock_codes))
                 .group_by(QuoteDB.code)
                 .subquery())
                 
-                quotes = (session.query(QuoteDB)
-                         .join(subquery, 
-                               and_(QuoteDB.code == subquery.c.code,
-                                    QuoteDB.created_at == subquery.c.max_created_at))
-                         .all())
+                all_quotes = (session.query(QuoteDB)
+                             .join(subquery, 
+                                   and_(QuoteDB.code == subquery.c.code,
+                                        QuoteDB.created_at == subquery.c.max_created_at))
+                             .all())
                 
-                latest_quotes = {q.code: q for q in quotes}
+                quotes_dict = {q.code: q for q in all_quotes}
+                
+                # 重新获取所有符合条件的股票
+                query_for_sorting = session.query(StockDB).filter(StockDB.is_active == True)
+                
+                # 应用概念筛选
+                if concept_id or concept_name:
+                    target_cid = None
+                    
+                    if concept_id:
+                        c = session.query(ConceptDB).filter(ConceptDB.concept_id == str(concept_id)).first()
+                        if c:
+                            target_cid = c.concept_id
+                        else:
+                            try:
+                                cid_int = int(str(concept_id))
+                                c2 = session.query(ConceptDB).filter(ConceptDB.id == cid_int).first()
+                                if c2:
+                                    target_cid = c2.concept_id
+                            except Exception:
+                                pass
+                    
+                    elif concept_name:
+                        c = session.query(ConceptDB).filter(ConceptDB.name == concept_name).first()
+                        if c:
+                            target_cid = c.concept_id
+
+                    if target_cid:
+                        rel_symbols = [rel.stock_code for rel in session.query(ConceptStockRelationDB).filter(
+                            ConceptStockRelationDB.concept_id == target_cid
+                        ).all()]
+                        if rel_symbols:
+                            query_for_sorting = query_for_sorting.filter(StockDB.code.in_(rel_symbols))
+                        else:
+                            return {"success": True, "data": {"stocks": [], "total": 0, "page": page, "pageSize": page_size, "totalPages": 0}}
+                
+                all_stocks = query_for_sorting.all()
+                
+                # 在Python中进行排序
+                def get_sort_key(stock):
+                    quote = quotes_dict.get(stock.code)
+                    if not quote:
+                        return float('-inf') if sort_order.lower() == 'desc' else float('inf')
+                    
+                    if sort_field == 'price':
+                        return float(quote.cur_price) if quote.cur_price else (float('-inf') if sort_order.lower() == 'desc' else float('inf'))
+                    elif sort_field == 'change_percent':
+                        return float(quote.change_rate) if quote.change_rate else (float('-inf') if sort_order.lower() == 'desc' else float('inf'))
+                    
+                    return 0
+                
+                sorted_stocks = sorted(all_stocks, key=get_sort_key, reverse=(sort_order.lower() == 'desc'))
+                
+                # 应用分页
+                start_idx = (page - 1) * page_size
+                end_idx = start_idx + page_size
+                items = sorted_stocks[start_idx:end_idx]
+                total = len(sorted_stocks)
+                
+                latest_quotes = quotes_dict
+            else:
+                # 批量获取股票的最新行情数据（从数据库）
+                stock_codes = [s.code for s in items]
+                latest_quotes = {}
+                
+                if stock_codes:
+                    # 获取每个股票的最新行情记录
+                    from sqlalchemy import func, and_
+                    subquery = (session.query(
+                        QuoteDB.code,
+                        func.max(QuoteDB.created_at).label('max_created_at')
+                    ).filter(QuoteDB.code.in_(stock_codes))
+                    .group_by(QuoteDB.code)
+                    .subquery())
+                    
+                    quotes = (session.query(QuoteDB)
+                             .join(subquery, 
+                                   and_(QuoteDB.code == subquery.c.code,
+                                        QuoteDB.created_at == subquery.c.max_created_at))
+                             .all())
+                    
+                    latest_quotes = {q.code: q for q in quotes}
 
             # 组装返回数据
             stocks = []

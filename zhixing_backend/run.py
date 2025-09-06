@@ -5,12 +5,11 @@ import uvicorn
 
 
 def main():
-    repo_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    api_dir = os.path.join(repo_root, "api-server")
-    app_dir = os.path.join(api_dir, "app")
-    os.chdir(api_dir)
-    if api_dir not in sys.path:
-        sys.path.insert(0, api_dir)
+    # 使用当前目录作为工作目录
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    os.chdir(current_dir)
+    if current_dir not in sys.path:
+        sys.path.insert(0, current_dir)
     uvicorn.run(
         "app.main:app",
         host="0.0.0.0",
