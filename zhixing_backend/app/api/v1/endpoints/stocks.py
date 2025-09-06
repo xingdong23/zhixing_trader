@@ -117,7 +117,11 @@ async def get_stocks_overview(
     concept_id: Optional[str] = Query(None, description="按概念过滤，支持概念表主键或concept_id"),
     concept_name: Optional[str] = Query(None, description="按概念名称过滤"),
     sort_field: Optional[str] = Query("updated_at", description="排序字段: name, price, change_percent, market, updated_at"),
-    sort_order: Optional[str] = Query("desc", description="排序顺序: asc, desc")
+    sort_order: Optional[str] = Query("desc", description="排序顺序: asc, desc"),
+    price_min: Optional[float] = Query(None, description="价格最小值"),
+    price_max: Optional[float] = Query(None, description="价格最大值"),
+    change_percent_min: Optional[float] = Query(None, description="涨跌幅最小值(%)"),
+    change_percent_max: Optional[float] = Query(None, description="涨跌幅最大值(%)")
 ) -> Dict[str, Any]:
     """获取股票概览分页列表（仅从数据库获取）
 
@@ -187,9 +191,12 @@ async def get_stocks_overview(
                      .limit(page_size)
                      .all())
 
-            # 对于价格和涨跌幅排序，需要特殊处理
-            if sort_field in ['price', 'change_percent']:
-                # 获取所有股票的最新行情数据，然后在Python中排序
+            # 对于价格和涨跌幅排序或筛选，需要特殊处理
+            has_price_filter = (price_min is not None or price_max is not None or 
+                               change_percent_min is not None or change_percent_max is not None)
+            
+            if sort_field in ['price', 'change_percent'] or has_price_filter:
+                # 获取所有股票的最新行情数据，然后在Python中处理
                 from sqlalchemy import func, and_
                 all_stock_codes = [s.code for s in session.query(StockDB).filter(StockDB.is_active == True).all()]
                 
@@ -245,6 +252,40 @@ async def get_stocks_overview(
                 
                 all_stocks = query_for_sorting.all()
                 
+                # 在Python中进行价格筛选
+                def passes_price_filter(stock):
+                    quote = quotes_dict.get(stock.code)
+                    if not quote:
+                        # 如果没有行情数据，价格筛选时排除
+                        if has_price_filter:
+                            return False
+                        return True
+                    
+                    # 价格筛选
+                    if price_min is not None or price_max is not None:
+                        price = float(quote.cur_price) if quote.cur_price else None
+                        if price is None:
+                            return False
+                        if price_min is not None and price < price_min:
+                            return False
+                        if price_max is not None and price > price_max:
+                            return False
+                    
+                    # 涨跌幅筛选
+                    if change_percent_min is not None or change_percent_max is not None:
+                        change_percent = float(quote.change_rate) if quote.change_rate else None
+                        if change_percent is None:
+                            return False
+                        if change_percent_min is not None and change_percent < change_percent_min:
+                            return False
+                        if change_percent_max is not None and change_percent > change_percent_max:
+                            return False
+                    
+                    return True
+                
+                # 应用价格筛选
+                filtered_stocks = [stock for stock in all_stocks if passes_price_filter(stock)]
+                
                 # 在Python中进行排序
                 def get_sort_key(stock):
                     quote = quotes_dict.get(stock.code)
@@ -258,7 +299,7 @@ async def get_stocks_overview(
                     
                     return 0
                 
-                sorted_stocks = sorted(all_stocks, key=get_sort_key, reverse=(sort_order.lower() == 'desc'))
+                sorted_stocks = sorted(filtered_stocks, key=get_sort_key, reverse=(sort_order.lower() == 'desc'))
                 
                 # 应用分页
                 start_idx = (page - 1) * page_size
