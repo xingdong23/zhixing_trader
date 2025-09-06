@@ -80,14 +80,7 @@ app = FastAPI(
 # 配置CORS - 允许前端开发服务器和生产环境
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:3000",  # Next.js 开发服务器
-        "http://localhost:3001",  # 可能的其他端口
-        "http://localhost:3002",  # 前端配置的端口
-        "http://127.0.0.1:3000",
-        "http://127.0.0.1:3001", 
-        "http://127.0.0.1:3002",
-    ],
+    allow_origins=["*"],  # 开发环境允许所有来源
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
