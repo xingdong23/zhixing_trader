@@ -4,6 +4,8 @@
 # Editor/IDE
 .idea/
 .vscode/
+.claude/
+.crush/
 
 # Node.js dependencies and build outputs (anywhere in repo)
 **/node_modules/
@@ -36,6 +38,10 @@
 # Logs
 **/logs/
 *.log
+backend.dev.log
+frontend.dev.log
+backend.dev.pid
+frontend.dev.pid
 
 # Environment files (keep examples)
 .env
@@ -48,4 +54,4 @@ zhixing_fronted/**/node_modules/
 zhixing_backend/**/node_modules/
 zhixing_backend/**/venv/
 zhixing_backend/**/.venv/
-
+zhixing_backend/data/*.db
