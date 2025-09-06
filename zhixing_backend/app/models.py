@@ -468,6 +468,50 @@ class TradingReviewDB(Base):
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
 
+class DataSyncTaskDB(Base):
+    """数据同步任务表"""
+    __tablename__ = "data_sync_tasks"
+
+    id = Column(Integer, primary_key=True, index=True)
+    task_id = Column(String(50), unique=True, index=True, nullable=False)  # 任务唯一标识
+    
+    # 任务基本信息
+    task_type = Column(String(20), nullable=False)  # full, incremental, specific
+    trigger_source = Column(String(20), default='manual')  # manual, scheduled, auto
+    
+    # 任务状态
+    status = Column(String(20), default='pending')  # pending, running, completed, failed, cancelled
+    progress = Column(Float, default=0.0)  # 进度百分比 0-100
+    
+    # 任务详情
+    total_stocks = Column(Integer, default=0)  # 总股票数量
+    processed_stocks = Column(Integer, default=0)  # 已处理股票数量
+    success_stocks = Column(Integer, default=0)  # 成功股票数量
+    failed_stocks = Column(Integer, default=0)  # 失败股票数量
+    
+    # 数据统计
+    daily_records = Column(Integer, default=0)  # 日线数据记录数
+    hourly_records = Column(Integer, default=0)  # 小时线数据记录数
+    
+    # 任务配置
+    force_full_sync = Column(Boolean, default=False)  # 是否强制全量同步
+    target_symbols = Column(Text)  # JSON格式：目标股票列表（为空表示全部）
+    
+    # 时间记录
+    start_time = Column(DateTime, nullable=False)  # 开始时间
+    end_time = Column(DateTime)  # 结束时间
+    duration_seconds = Column(Float)  # 执行耗时（秒）
+    
+    # 结果详情
+    result_summary = Column(Text)  # JSON格式：结果摘要
+    error_details = Column(Text)  # JSON格式：错误详情
+    sync_details = Column(Text)  # JSON格式：详细同步结果
+    
+    # 元数据
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+
 # ==================== Pydantic 响应模型 ====================
 
 class StockInfo(BaseModel):
@@ -884,3 +928,55 @@ class TradingStatsResponse(BaseModel):
     best_performing_stock: Optional[str] = None
     worst_performing_stock: Optional[str] = None
     monthly_stats: Optional[Dict[str, Any]] = None
+
+
+# ==================== 数据同步任务相关Pydantic模型 ====================
+
+class DataSyncTaskCreate(BaseModel):
+    """创建数据同步任务请求"""
+    task_type: str  # full, incremental, specific
+    force_full_sync: bool = False
+    target_symbols: Optional[List[str]] = None
+    trigger_source: str = 'manual'
+
+
+class DataSyncTaskResponse(BaseModel):
+    """数据同步任务响应"""
+    id: int
+    task_id: str
+    task_type: str
+    trigger_source: str
+    status: str
+    progress: float
+    total_stocks: int
+    processed_stocks: int
+    success_stocks: int
+    failed_stocks: int
+    daily_records: int
+    hourly_records: int
+    force_full_sync: bool
+    target_symbols: Optional[List[str]] = None
+    start_time: datetime
+    end_time: Optional[datetime] = None
+    duration_seconds: Optional[float] = None
+    result_summary: Optional[Dict[str, Any]] = None
+    error_details: Optional[Dict[str, Any]] = None
+    sync_details: Optional[Dict[str, Any]] = None
+    created_at: datetime
+    updated_at: datetime
+
+
+class DataSyncTaskUpdate(BaseModel):
+    """更新数据同步任务请求"""
+    status: Optional[str] = None
+    progress: Optional[float] = None
+    processed_stocks: Optional[int] = None
+    success_stocks: Optional[int] = None
+    failed_stocks: Optional[int] = None
+    daily_records: Optional[int] = None
+    hourly_records: Optional[int] = None
+    end_time: Optional[datetime] = None
+    duration_seconds: Optional[float] = None
+    result_summary: Optional[Dict[str, Any]] = None
+    error_details: Optional[Dict[str, Any]] = None
+    sync_details: Optional[Dict[str, Any]] = None

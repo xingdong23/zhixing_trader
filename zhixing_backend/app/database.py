@@ -14,7 +14,7 @@ from .models import (
     ConceptDB, ConceptStockRelationDB, ExpertDB, ExpertOpinionDB,
     TradingPlaybookDB, SelectionStrategyDB, StockInfo, QuoteData,
     TradingPlanDB, TradeRecordDB, PositionDB, EmotionRecordDB, 
-    TradingDisciplineDB, TradingReviewDB
+    TradingDisciplineDB, TradingReviewDB, DataSyncTaskDB
 )
 
 
@@ -1029,3 +1029,12 @@ class DatabaseService:
 
 # 全局数据库服务实例
 db_service = DatabaseService()
+
+# 依赖注入函数
+def get_db():
+    """获取数据库会话的依赖注入函数"""
+    db = db_service.get_session()
+    try:
+        yield db
+    finally:
+        db.close()

@@ -8,6 +8,7 @@ import { TrendingUp, ArrowUpRight, ArrowDownRight, Eye, Plus, Upload, FileText }
 import { useRouter } from 'next/navigation'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import DataSyncButton from '@/components/common/DataSyncButton'
 
 // 选股结果数据模型
 interface StockSelectionResult {
@@ -290,6 +291,25 @@ export default function StockSelectionPage() {
             {importMsg && (
               <div className="mt-3 text-sm text-gray-700">{importMsg}</div>
             )}
+          </CardContent>
+        </Card>
+
+        {/* 价格同步功能 */}
+        <Card className="mb-6">
+          <CardHeader>
+            <CardTitle>价格数据同步</CardTitle>
+            <p className="text-sm text-gray-600">从雅虎财经同步自选股的最新价格和K线数据</p>
+          </CardHeader>
+          <CardContent>
+            <DataSyncButton 
+              onSyncComplete={(result) => {
+                console.log('同步完成:', result)
+                // 同步完成后可以刷新自选股列表
+                fetchWatchlist()
+              }}
+              showProgress={true}
+              autoRefresh={true}
+            />
           </CardContent>
         </Card>
 
