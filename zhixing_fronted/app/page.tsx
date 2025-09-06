@@ -97,6 +97,12 @@ export default function TradingSystem() {
   const [sortField, setSortField] = useState<string>('updated_at')
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc')
   
+  // 价格筛选状态
+  const [priceRange, setPriceRange] = useState<{min?: number, max?: number}>({})
+  const [changePercentRange, setChangePercentRange] = useState<{min?: number, max?: number}>({})
+  const [showPriceFilter, setShowPriceFilter] = useState(false)
+  const [showChangePercentFilter, setShowChangePercentFilter] = useState(false)
+  
   // Dynamic concept data
   const [allConcepts, setAllConcepts] = useState<{[key: string]: string[]}>({})
 
@@ -143,6 +149,21 @@ export default function TradingSystem() {
       }
       // 添加排序参数
       url += `&sort_field=${sortField}&sort_order=${sortOrder}`
+      
+      // 添加价格筛选参数
+      if (priceRange.min !== undefined) {
+        url += `&price_min=${priceRange.min}`
+      }
+      if (priceRange.max !== undefined) {
+        url += `&price_max=${priceRange.max}`
+      }
+      if (changePercentRange.min !== undefined) {
+        url += `&change_percent_min=${changePercentRange.min}`
+      }
+      if (changePercentRange.max !== undefined) {
+        url += `&change_percent_max=${changePercentRange.max}`
+      }
+      
       console.log('Fetching stocks with URL:', url)
       const res = await fetch(url)
       const data = await res.json().catch(() => ({}))
@@ -210,6 +231,28 @@ export default function TradingSystem() {
   useEffect(() => {
     fetchBackendStocks() 
   }, [sortField, sortOrder])
+
+  // 当价格筛选条件变化时重新获取数据
+  useEffect(() => {
+    setPage(1) // 重置到第一页
+    fetchBackendStocks() 
+  }, [priceRange, changePercentRange])
+
+  // 点击外部关闭筛选器
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      const target = event.target as Element
+      if (!target.closest('.price-filter-popup') && !target.closest('.price-filter-button')) {
+        setShowPriceFilter(false)
+      }
+      if (!target.closest('.change-percent-filter-popup') && !target.closest('.change-percent-filter-button')) {
+        setShowChangePercentFilter(false)
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
 
   // 模拟触发的提醒
   const triggeredAlerts: { ticker: string; message: string }[] = []
@@ -396,26 +439,152 @@ export default function TradingSystem() {
                                 )}
                               </div>
                             </th>
-                            <th 
-                              className="text-left p-2 cursor-pointer hover:bg-muted/50 select-none"
-                              onClick={() => handleSort('price')}
-                            >
-                              <div className="flex items-center gap-1">
-                                现价
-                                {sortField === 'price' && (
-                                  sortOrder === 'asc' ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />
-                                )}
+                            <th className="text-left p-2">
+                              <div className="flex items-center gap-2">
+                                <div 
+                                  className="flex items-center gap-1 cursor-pointer hover:bg-muted/50 select-none px-1 py-0.5 rounded"
+                                  onClick={() => handleSort('price')}
+                                >
+                                  现价
+                                  {sortField === 'price' && (
+                                    sortOrder === 'asc' ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />
+                                  )}
+                                </div>
+                                <div className="relative">
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className="h-6 w-6 p-0 price-filter-button"
+                                    onClick={() => setShowPriceFilter(!showPriceFilter)}
+                                  >
+                                    <Filter className={`w-3 h-3 ${(priceRange.min !== undefined || priceRange.max !== undefined) ? 'text-blue-600' : 'text-gray-400'}`} />
+                                  </Button>
+                                  {showPriceFilter && (
+                                    <div className="absolute top-8 left-0 bg-white border border-gray-200 rounded-lg shadow-lg p-3 z-50 w-64 price-filter-popup">
+                                      <div className="space-y-3">
+                                        <div className="text-sm font-medium">价格范围筛选</div>
+                                        <div className="flex items-center gap-2">
+                                          <Input
+                                            type="number"
+                                            placeholder="最低价"
+                                            value={priceRange.min || ''}
+                                            onChange={(e) => setPriceRange(prev => ({
+                                              ...prev,
+                                              min: e.target.value ? Number(e.target.value) : undefined
+                                            }))}
+                                            className="w-20 h-8 text-xs"
+                                          />
+                                          <span className="text-xs">-</span>
+                                          <Input
+                                            type="number"
+                                            placeholder="最高价"
+                                            value={priceRange.max || ''}
+                                            onChange={(e) => setPriceRange(prev => ({
+                                              ...prev,
+                                              max: e.target.value ? Number(e.target.value) : undefined
+                                            }))}
+                                            className="w-20 h-8 text-xs"
+                                          />
+                                        </div>
+                                        <div className="flex gap-2">
+                                          <Button
+                                            variant="outline"
+                                            size="sm"
+                                            className="h-6 text-xs"
+                                            onClick={() => {
+                                              setPriceRange({})
+                                              setShowPriceFilter(false)
+                                            }}
+                                          >
+                                            清除
+                                          </Button>
+                                          <Button
+                                            variant="default"
+                                            size="sm"
+                                            className="h-6 text-xs"
+                                            onClick={() => setShowPriceFilter(false)}
+                                          >
+                                            确定
+                                          </Button>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  )}
+                                </div>
                               </div>
                             </th>
-                            <th 
-                              className="text-left p-2 cursor-pointer hover:bg-muted/50 select-none"
-                              onClick={() => handleSort('change_percent')}
-                            >
-                              <div className="flex items-center gap-1">
-                                涨跌幅
-                                {sortField === 'change_percent' && (
-                                  sortOrder === 'asc' ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />
-                                )}
+                            <th className="text-left p-2">
+                              <div className="flex items-center gap-2">
+                                <div 
+                                  className="flex items-center gap-1 cursor-pointer hover:bg-muted/50 select-none px-1 py-0.5 rounded"
+                                  onClick={() => handleSort('change_percent')}
+                                >
+                                  涨跌幅
+                                  {sortField === 'change_percent' && (
+                                    sortOrder === 'asc' ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />
+                                  )}
+                                </div>
+                                <div className="relative">
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className="h-6 w-6 p-0 change-percent-filter-button"
+                                    onClick={() => setShowChangePercentFilter(!showChangePercentFilter)}
+                                  >
+                                    <Filter className={`w-3 h-3 ${(changePercentRange.min !== undefined || changePercentRange.max !== undefined) ? 'text-blue-600' : 'text-gray-400'}`} />
+                                  </Button>
+                                  {showChangePercentFilter && (
+                                    <div className="absolute top-8 left-0 bg-white border border-gray-200 rounded-lg shadow-lg p-3 z-50 w-64 change-percent-filter-popup">
+                                      <div className="space-y-3">
+                                        <div className="text-sm font-medium">涨跌幅范围筛选</div>
+                                        <div className="flex items-center gap-2">
+                                          <Input
+                                            type="number"
+                                            placeholder="最小%"
+                                            value={changePercentRange.min || ''}
+                                            onChange={(e) => setChangePercentRange(prev => ({
+                                              ...prev,
+                                              min: e.target.value ? Number(e.target.value) : undefined
+                                            }))}
+                                            className="w-20 h-8 text-xs"
+                                          />
+                                          <span className="text-xs">-</span>
+                                          <Input
+                                            type="number"
+                                            placeholder="最大%"
+                                            value={changePercentRange.max || ''}
+                                            onChange={(e) => setChangePercentRange(prev => ({
+                                              ...prev,
+                                              max: e.target.value ? Number(e.target.value) : undefined
+                                            }))}
+                                            className="w-20 h-8 text-xs"
+                                          />
+                                        </div>
+                                        <div className="flex gap-2">
+                                          <Button
+                                            variant="outline"
+                                            size="sm"
+                                            className="h-6 text-xs"
+                                            onClick={() => {
+                                              setChangePercentRange({})
+                                              setShowChangePercentFilter(false)
+                                            }}
+                                          >
+                                            清除
+                                          </Button>
+                                          <Button
+                                            variant="default"
+                                            size="sm"
+                                            className="h-6 text-xs"
+                                            onClick={() => setShowChangePercentFilter(false)}
+                                          >
+                                            确定
+                                          </Button>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  )}
+                                </div>
                               </div>
                             </th>
                             <th 
