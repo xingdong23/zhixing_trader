@@ -160,7 +160,7 @@ export default function TradingSystem() {
   const fileInputRef = useRef<HTMLInputElement | null>(null)
   const [importing, setImporting] = useState(false)
   const [importMsg, setImportMsg] = useState<string>("")
-  const [backendStocks, setBackendStocks] = useState<{ symbol: string; name: string; market?: string; group_name?: string; updated_at?: string; price?: number | null; change_percent?: number | null }[]>([])
+  const [backendStocks, setBackendStocks] = useState<{ symbol: string; name: string; market?: string; group_name?: string; concepts?: string[]; updated_at?: string; price?: number | null; change_percent?: number | null }[]>([])
   // 分页控制（每页固定20条）
   const [page, setPage] = useState<number>(1)
   const pageSize = 20
@@ -293,6 +293,7 @@ export default function TradingSystem() {
         name: it.name,
         market: it.market,
         group_name: it.group_name,
+        concepts: it.concepts || [],
         updated_at: it.updated_at,
         price: it.price,
         change_percent: it.change_percent,
@@ -3255,7 +3256,7 @@ def select_stocks():
                             <th className="text-left p-2">现价</th>
                             <th className="text-left p-2">涨跌幅</th>
                             <th className="text-left p-2">市场</th>
-                            <th className="text-left p-2">分组/行业</th>
+                            <th className="text-left p-2">概念</th>
                             <th className="text-left p-2">更新时间</th>
                             <th className="text-left p-2">操作</th>
                           </tr>
@@ -3284,8 +3285,15 @@ def select_stocks():
                               </td>
                               <td className="p-2">{s.market || '-'}</td>
                               <td className="p-2">
-                                {s.group_name ? (
-                                  <Badge variant="secondary" className="text-xs">{s.group_name}</Badge>
+                                {s.concepts && s.concepts.length > 0 ? (
+                                  <div className="flex flex-wrap gap-1">
+                                    {s.concepts.slice(0, 3).map((concept, idx) => (
+                                      <Badge key={idx} variant="secondary" className="text-xs">{concept}</Badge>
+                                    ))}
+                                    {s.concepts.length > 3 && (
+                                      <Badge variant="outline" className="text-xs">+{s.concepts.length - 3}</Badge>
+                                    )}
+                                  </div>
                                 ) : (
                                   <span className="text-muted-foreground text-sm">-</span>
                                 )}
@@ -3302,6 +3310,16 @@ def select_stocks():
                           ))}
                         </tbody>
                       </table>
+                    </div>
+                    
+                    {/* 分页控件 */}
+                    <div className="flex items-center justify-between mt-4">
+                      <div className="text-sm text-muted-foreground">共 {total} 条 · 每页 {pageSize} 条</div>
+                      <div className="flex items-center gap-2">
+                        <Button variant="outline" size="sm" disabled={page <= 1} onClick={() => setPage(p => Math.max(1, p - 1))}>上一页</Button>
+                        <div className="text-sm">第 {page} / {Math.max(1, Math.ceil(total / pageSize))} 页</div>
+                        <Button variant="outline" size="sm" disabled={page >= Math.max(1, Math.ceil(total / pageSize))} onClick={() => setPage(p => p + 1)}>下一页</Button>
+                      </div>
                     </div>
                   </CardContent>
                 </Card>
@@ -3323,7 +3341,7 @@ def select_stocks():
                               <th className="text-left p-2">代码</th>
                               <th className="text-left p-2">名称</th>
                               <th className="text-left p-2">市场</th>
-                              <th className="text-left p-2">分组/行业</th>
+                              <th className="text-left p-2">概念</th>
                               <th className="text-left p-2">更新时间</th>
                             </tr>
                           </thead>
