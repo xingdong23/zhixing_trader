@@ -8,7 +8,7 @@ from loguru import logger
 from ....core.container import container
 from ....repositories.stock_repository import StockRepository
 from ....database import db_service
-from ....models import ConceptDB, ConceptStockRelationDB, StockDB
+from ....models import ConceptDB, ConceptStockRelationDB, StockDB, QuoteDB
 
 router = APIRouter()
 
@@ -116,13 +116,12 @@ async def get_stocks_overview(
     page_size: int = Query(20, ge=1, le=20),
     concept_id: Optional[str] = Query(None, description="按概念过滤，支持概念表主键或concept_id")
 ) -> Dict[str, Any]:
-    """获取带实时简要行情的股票分页列表
+    """获取股票概览分页列表（仅从数据库获取）
 
-    - 固定每页最多返回20条，满足前端“单接口渲染一页”的诉求
-    - 返回字段包含：symbol、name、market、group_name、updated_at、price、change_percent
-    - 后端内部并发拉取每个股票的基本信息与两根日K用于计算涨跌幅
+    - 固定每页最多返回20条，满足前端"单接口渲染一页"的诉求
+    - 返回字段包含：symbol、name、market、group_name、updated_at、concepts
+    - 价格数据从数据库中的最新行情记录获取，不实时调用外部API
     """
-    import asyncio
     from math import ceil
 
     try:
@@ -160,56 +159,70 @@ async def get_stocks_overview(
                      .limit(page_size)
                      .all())
 
-        # 异步拉取行情
-        market_data_service = container.get_market_data_service()
+            # 批量获取股票的最新行情数据（从数据库）
+            stock_codes = [s.code for s in items]
+            latest_quotes = {}
+            
+            if stock_codes:
+                # 获取每个股票的最新行情记录
+                from sqlalchemy import func, and_
+                subquery = (session.query(
+                    QuoteDB.code,
+                    func.max(QuoteDB.created_at).label('max_created_at')
+                ).filter(QuoteDB.code.in_(stock_codes))
+                .group_by(QuoteDB.code)
+                .subquery())
+                
+                quotes = (session.query(QuoteDB)
+                         .join(subquery, 
+                               and_(QuoteDB.code == subquery.c.code,
+                                    QuoteDB.created_at == subquery.c.max_created_at))
+                         .all())
+                
+                latest_quotes = {q.code: q for q in quotes}
 
-        semaphore = asyncio.Semaphore(5)  # 限制外部数据源并发
-
-        async def fetch_quote(sym: str) -> Dict[str, Optional[float]]:
-            price: Optional[float] = None
-            change_percent: Optional[float] = None
-
-            async with semaphore:
+            # 组装返回数据
+            stocks = []
+            for stock in items:
+                # 获取股票的概念信息
+                concepts = []
                 try:
-                    info = await market_data_service.get_stock_info(sym)
-                    if info and isinstance(info, dict):
-                        p = info.get("current_price")
-                        if isinstance(p, (int, float)):
-                            price = float(p)
-                except Exception:
-                    pass
-
-            # 计算日涨跌幅（取最近2根1d）
-            async with semaphore:
-                try:
-                    kl = await market_data_service.get_stock_kline_data(sym, timeframe="1d", days=2)
-                    if kl and len(kl) >= 2:
-                        prev = float(kl[-2].close)
-                        last = float(kl[-1].close)
-                        if prev:
-                            change_percent = (last - prev) / prev * 100.0
-                except Exception:
-                    pass
-
-            return {"price": price, "change_percent": change_percent}
-
-        symbols = [s.code for s in items]
-        quote_list = await asyncio.gather(*[fetch_quote(sym) for sym in symbols])
-
-        # 组装返回
-        stocks = []
-        for stock, q in zip(items, quote_list):
-            stocks.append({
-                "id": stock.id,
-                "symbol": stock.code,
-                "name": stock.name,
-                "market": stock.market,
-                "group_id": stock.group_id,
-                "group_name": stock.group_name,
-                "updated_at": stock.updated_at.isoformat() if stock.updated_at else None,
-                "price": q.get("price"),
-                "change_percent": q.get("change_percent")
-            })
+                    # 获取股票关联的概念
+                    relations = session.query(ConceptStockRelationDB).filter(
+                        ConceptStockRelationDB.stock_code == stock.code
+                    ).all()
+                    
+                    concept_ids = [rel.concept_id for rel in relations]
+                    if concept_ids:
+                        concept_objs = session.query(ConceptDB).filter(
+                            ConceptDB.concept_id.in_(concept_ids),
+                            ConceptDB.is_active == True
+                        ).all()
+                        concepts = [c.name for c in concept_objs]
+                except Exception as e:
+                    logger.warning(f"Failed to get concepts for stock {stock.code}: {e}")
+                
+                # 获取价格和涨跌幅数据
+                quote = latest_quotes.get(stock.code)
+                price = None
+                change_percent = None
+                
+                if quote:
+                    price = float(quote.cur_price) if quote.cur_price else None
+                    change_percent = float(quote.change_rate) if quote.change_rate else None
+                
+                stocks.append({
+                    "id": stock.id,
+                    "symbol": stock.code,
+                    "name": stock.name,
+                    "market": stock.market,
+                    "group_id": stock.group_id,
+                    "group_name": stock.group_name,
+                    "concepts": concepts,
+                    "updated_at": stock.updated_at.isoformat() if stock.updated_at else None,
+                    "price": price,
+                    "change_percent": change_percent
+                })
 
         return {
             "success": True,
