@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState, useEffect } from "react"
+import React, { useState, useEffect, useRef } from "react"
 import { useRouter } from 'next/navigation'
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -156,7 +156,153 @@ interface TodoItem {
 
 export default function TradingSystem() {
   const router = useRouter()
+  // 导入自选股（富途 CSV）相关
+  const fileInputRef = useRef<HTMLInputElement | null>(null)
+  const [importing, setImporting] = useState(false)
+  const [importMsg, setImportMsg] = useState<string>("")
+  const [backendStocks, setBackendStocks] = useState<{ symbol: string; name: string; market?: string; group_name?: string; updated_at?: string; price?: number | null; change_percent?: number | null }[]>([])
+  // 分页控制（每页固定20条）
+  const [page, setPage] = useState<number>(1)
+  const pageSize = 20
+  const [total, setTotal] = useState<number>(0)
+  const [watchlist, setWatchlist] = useState<{ symbol: string; name: string; market?: string; group_name?: string; updated_at?: string }[]>([])
+  const [showWatchlistPanel, setShowWatchlistPanel] = useState(false)
+  const [watchlistLoading, setWatchlistLoading] = useState(false)
+
+  const triggerPickCsv = () => fileInputRef.current?.click()
+
   
+
+  function parseCSV(text: string): string[][] {
+    const rows: string[][] = []
+    let i = 0, field = '', row: string[] = [], inQuotes = false
+    if (text.charCodeAt(0) === 0xFEFF) text = text.slice(1)
+    while (i < text.length) {
+      const ch = text[i]
+      if (inQuotes) {
+        if (ch === '"') {
+          if (text[i + 1] === '"') { field += '"'; i += 2; continue }
+          inQuotes = false; i++; continue
+        }
+        field += ch; i++; continue
+      } else {
+        if (ch === '"') { inQuotes = true; i++; continue }
+        if (ch === ',') { row.push(field.trim()); field = ''; i++; continue }
+        if (ch === '\n') { row.push(field.trim()); rows.push(row); row = []; field = ''; i++; continue }
+        if (ch === '\r') { if (text[i+1] === '\n') { row.push(field.trim()); rows.push(row); row=[]; field=''; i+=2; continue } else { row.push(field.trim()); rows.push(row); row=[]; field=''; i++; continue } }
+        field += ch; i++
+      }
+    }
+    if (field.length > 0 || row.length > 0) { row.push(field.trim()); rows.push(row) }
+    return rows.filter(r => r.some(c => c && c.length > 0))
+  }
+
+  function futuCsvToStocks(rows: string[][]): Array<Record<string, string>> {
+    if (!rows.length) return []
+    const header = rows[0].map(h => h.trim())
+    const data = rows.slice(1)
+    const findIdx = (cands: string[]) => header.findIndex(h => cands.some(c => h.toLowerCase() === c.toLowerCase()))
+    const idxCode = findIdx(['代码','symbol','股票代码','ticker','证券代码'])
+    const idxName = findIdx(['名称','name','股票名称','security name'])
+    const idxMarket = findIdx(['市场','market','交易所'])
+    const idxGroup = findIdx(['分组','分组名称','行业','所属行业','板块','板块名称','group','group_name','industry','sector'])
+    return data.map(r => {
+      const code = (idxCode >= 0 ? r[idxCode] : '').toUpperCase()
+      const name = idxName >= 0 ? r[idxName] : ''
+      const market = idxMarket >= 0 ? r[idxMarket] : ''
+      const group = idxGroup >= 0 ? r[idxGroup] : ''
+      const item: Record<string, string> = { code, name }
+      if (market) item.market = market
+      if (group) item.group_name = group
+      return item
+    }).filter(it => it.code && it.name)
+  }
+
+  async function readFileSmart(file: File): Promise<string> {
+    const buf = await file.arrayBuffer()
+    let text = new TextDecoder('utf-8').decode(new Uint8Array(buf))
+    if (text.includes('\uFFFD')) {
+      try { text = new TextDecoder('gbk').decode(new Uint8Array(buf)) } catch {}
+    }
+    return text
+  }
+
+  async function handleCsvPicked(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (!file) return
+    try {
+      setImporting(true)
+      setImportMsg('')
+      const text = await readFileSmart(file)
+      const rows = parseCSV(text)
+      const stocks = futuCsvToStocks(rows)
+      if (!stocks.length) throw new Error('解析失败：未识别到有效的股票数据（请确认是富途导出的自选股 CSV）')
+      const base = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000'
+      const res = await fetch(`${base}/api/v1/stocks/import`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ stocks }) })
+      const data = await res.json().catch(() => ({}))
+      if (!res.ok) { throw new Error(String((data && (data.detail || data.message)) || `HTTP ${res.status}`)) }
+      const msg = data?.message || '导入成功'
+      const info = data?.data ? `（新增 ${data.data.added_count || 0}，更新 ${data.data.updated_count || 0}）` : ''
+      setImportMsg(`${msg}${info}`)
+      // 导入成功后刷新后台列表
+      await fetchBackendStocks()
+      await fetchWatchlistAndShow()
+      
+    } catch (err: any) {
+      setImportMsg(`导入失败：${err?.message || err}`)
+    } finally {
+      setImporting(false)
+      // 清空以便重复选择同一文件
+      if (fileInputRef.current) fileInputRef.current.value = ''
+    }
+  }
+  
+  async function fetchWatchlistAndShow() {
+    try {
+      setWatchlistLoading(true)
+      const base = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000'
+      const res = await fetch(`${base}/api/v1/stocks/?page=1&page_size=200`)
+      const data = await res.json().catch(() => ({}))
+      if (!res.ok) throw new Error(String(data?.detail || data?.message || `HTTP ${res.status}`))
+      const items = (data?.data?.stocks || []) as any[]
+      setWatchlist(items.map(it => ({
+        symbol: it.symbol,
+        name: it.name,
+        market: it.market,
+        group_name: it.group_name,
+        updated_at: it.updated_at,
+      })))
+      setShowWatchlistPanel(true)
+    } catch (err) {
+      console.error('fetch watchlist error', err)
+    } finally {
+      setWatchlistLoading(false)
+    }
+  }
+
+  async function fetchBackendStocks() {
+    try {
+      const base = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000'
+      // 单接口返回当前页全部展示信息（分页20条）
+      const res = await fetch(`${base}/api/v1/stocks/overview?page=${page}&page_size=${pageSize}`)
+      const data = await res.json().catch(() => ({}))
+      if (!res.ok) throw new Error(String(data?.detail || data?.message || `HTTP ${res.status}`))
+      const items = (data?.data?.stocks || []) as any[]
+      setBackendStocks(items.map(it => ({
+        symbol: it.symbol,
+        name: it.name,
+        market: it.market,
+        group_name: it.group_name,
+        updated_at: it.updated_at,
+        price: it.price,
+        change_percent: it.change_percent,
+      })))
+      setTotal(Number(data?.data?.total || 0))
+    } catch (err) {
+      console.error('fetch backend stocks error', err)
+    }
+  }
+  useEffect(() => { fetchBackendStocks() }, [page])
   // 通知中心组件
   const NotificationCenter = () => {
     const [activeTab, setActiveTab] = useState<'notifications' | 'todos'>('notifications')
@@ -1228,15 +1374,17 @@ def select_stocks():
     const addAnnotation = (type: "alert" | "support" | "resistance", note: string, strength?: "weak" | "strong") => {
       if (!selectedPrice) return
       
-      setAnnotations(prev => ({
-        ...prev,
-        [type + 's']: [...prev[type + 's' as keyof typeof prev], {
-          price: selectedPrice,
-          note,
-          ...(strength && { strength }),
-          ...(type === 'alert' && { condition: `价格${selectedPrice > stock.price ? '突破' : '跌破'} $${selectedPrice}` })
-        }]
-      }))
+      setAnnotations(prev => {
+        const key = (type + 's') as 'alerts' | 'supports' | 'resistances'
+        const list = (prev as any)[key] as any[]
+        const nextItem: any = { price: selectedPrice, note }
+        if (strength) nextItem.strength = strength
+        if (type === 'alert') nextItem.condition = `价格${selectedPrice > stock.price ? '突破' : '跌破'} $${selectedPrice}`
+        return {
+          ...prev,
+          [key]: [...list, nextItem]
+        }
+      })
       setSelectedPrice(null)
       setAnnotationType(null)
     }
@@ -1694,8 +1842,18 @@ def select_stocks():
                         </Button>
                       </div>
                     </div>
+                    {/* 分页控件（自选股票表格） */}
+                    <div className="flex items-center justify-between mt-4">
+                      <div className="text-sm text-muted-foreground">共 {total} 条 · 每页 {pageSize} 条</div>
+                      <div className="flex items-center gap-2">
+                        <Button variant="outline" size="sm" disabled={page <= 1} onClick={() => setPage(p => Math.max(1, p - 1))}>上一页</Button>
+                        <div className="text-sm">第 {page} / {Math.max(1, Math.ceil(total / pageSize))} 页</div>
+                        <Button variant="outline" size="sm" disabled={page >= Math.max(1, Math.ceil(total / pageSize))} onClick={() => setPage(p => p + 1)}>下一页</Button>
+                      </div>
+                    </div>
                   </CardContent>
                 </Card>
+                
               ))}
             </div>
 
@@ -3048,10 +3206,14 @@ def select_stocks():
                   <CardHeader>
                     <div className="flex justify-between items-center">
                       <CardTitle>自选股票</CardTitle>
-                      <Button>
+                      <input ref={fileInputRef} type="file" accept=".csv,text/csv" onChange={handleCsvPicked} className="hidden" />
+                      <Button onClick={triggerPickCsv} disabled={importing}>
                         <Upload className="w-4 h-4 mr-2" />
-                        导入股票列表
+                        {importing ? '导入中...' : '导入股票列表'}
                       </Button>
+                      {importMsg && (
+                        <span className="ml-3 text-sm text-gray-600">{importMsg}</span>
+                      )}
                     </div>
                   </CardHeader>
                   <CardContent>
@@ -3092,92 +3254,47 @@ def select_stocks():
                             <th className="text-left p-2">代码/名称</th>
                             <th className="text-left p-2">现价</th>
                             <th className="text-left p-2">涨跌幅</th>
-                            <th className="text-left p-2">成交额</th>
-                            <th className="text-left p-2">提醒状态</th>
+                            <th className="text-left p-2">市场</th>
+                            <th className="text-left p-2">分组/行业</th>
+                            <th className="text-left p-2">更新时间</th>
                             <th className="text-left p-2">操作</th>
                           </tr>
                         </thead>
                         <tbody>
-                          {filteredStocks.map((stock) => (
-                            <tr key={stock.ticker} className="border-b hover:bg-muted/50">
+                          {backendStocks.map((s) => (
+                            <tr key={s.symbol} className="border-b hover:bg-muted/50">
                               <td className="p-2">
-                                <div>
-                                  <div className="font-medium">{stock.name}</div>
-                                  <div className="text-sm text-muted-foreground">{stock.ticker}</div>
-                                  <div className="flex flex-wrap gap-1 mt-1">
-                                    {Object.entries(stock.concepts).map(([category, tags]) =>
-                                      tags.slice(0, 3).map((tag) => (
-                                        <Badge key={tag} variant="secondary" className="text-xs">
-                                          {tag}
-                                        </Badge>
-                                      )),
-                                    )}
-                                    {Object.values(stock.concepts).flat().length > 3 && (
-                                      <Badge variant="outline" className="text-xs">
-                                        +{Object.values(stock.concepts).flat().length - 3}
-                                      </Badge>
-                                    )}
-                                  </div>
-                                </div>
+                                <div className="font-medium">{s.name}</div>
+                                <div className="text-sm text-muted-foreground">{s.symbol}</div>
                               </td>
-                              <td
-                                className={`p-2 font-medium ${stock.change >= 0 ? "text-green-600" : "text-red-600"}`}
-                              >
-                                ${stock.price}
-                              </td>
-                              <td className={`p-2 ${stock.change >= 0 ? "text-green-600" : "text-red-600"}`}>
-                                {stock.change >= 0 ? "+" : ""}
-                                {stock.change}%
-                              </td>
-                              <td className="p-2">{stock.volume}</td>
                               <td className="p-2">
-                                <div className="flex items-center gap-1">
-                                  {stock.intelNotes.some((n) => n.triggered) && (
-                                    <Badge variant="destructive" className="text-xs">
-                                      <Bell className="w-3 h-3 mr-1" />
-                                      已触发
-                                    </Badge>
-                                  )}
-                                  {stock.intelNotes.some((n) => !n.triggered && n.alertExpression) && (
-                                    <Badge variant="outline" className="text-xs">
-                                      <Bell className="w-3 h-3 mr-1" />
-                                      监控中
-                                    </Badge>
-                                  )}
-                                </div>
+                                {s.price != null ? `$${Number(s.price).toFixed(2)}` : '-'}
                               </td>
+                              <td className="p-2">
+                                {(() => {
+                                  const p = s.change_percent
+                                  if (p == null) return '-'
+                                  const positive = p >= 0
+                                  return (
+                                    <span className={positive ? 'text-green-600 font-medium' : 'text-red-600 font-medium'}>
+                                      {positive ? '+' : ''}{Number(p).toFixed(2)}%
+                                    </span>
+                                  )
+                                })()}
+                              </td>
+                              <td className="p-2">{s.market || '-'}</td>
+                              <td className="p-2">
+                                {s.group_name ? (
+                                  <Badge variant="secondary" className="text-xs">{s.group_name}</Badge>
+                                ) : (
+                                  <span className="text-muted-foreground text-sm">-</span>
+                                )}
+                              </td>
+                              <td className="p-2 text-sm text-muted-foreground">{s.updated_at ? s.updated_at.replace('T',' ').replace('Z','') : '-'}</td>
                               <td className="p-2">
                                 <div className="flex gap-2">
-                                  <Button
-                                    size="sm"
-                                    variant="outline"
-                                    onClick={() => setDetailView({ type: "stock", data: stock })}
-                                  >
+                                  <Button size="sm" variant="outline" onClick={() => router.push(`/stock/${s.symbol}`)}>
                                     详情
-                                  </Button>
-                                  <Button
-                                    size="sm"
-                                    variant="outline"
-                                    onClick={() => {
-                                      setSelectedStock(stock)
-                                      setShowPlanForm(true)
-                                    }}
-                                  >
-                                    + 计划
-                                  </Button>
-                                  <Button
-                                    size="sm"
-                                    variant="outline"
-                                    onClick={() => {
-                                      setSelectedStock(stock)
-                                      setShowIntelForm(true)
-                                    }}
-                                  >
-                                    + 提醒
-                                  </Button>
-                                  <Button size="sm" variant="outline" onClick={() => handleEditTags(stock)}>
-                                    <Tag className="w-3 h-3 mr-1" />
-                                    标签
                                   </Button>
                                 </div>
                               </td>
@@ -3188,6 +3305,44 @@ def select_stocks():
                     </div>
                   </CardContent>
                 </Card>
+
+                {showWatchlistPanel && (
+                  <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+                    <div className="bg-white rounded-lg p-6 w-full max-w-4xl max-h-[80vh] overflow-y-auto">
+                      <div className="flex justify-between items-center mb-4">
+                        <h3 className="text-lg font-semibold">已导入自选股</h3>
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm text-muted-foreground">{watchlistLoading ? '加载中...' : `共 ${watchlist.length} 条`}</span>
+                          <Button variant="outline" size="sm" onClick={() => setShowWatchlistPanel(false)}>关闭</Button>
+                        </div>
+                      </div>
+                      <div className="overflow-x-auto">
+                        <table className="w-full">
+                          <thead>
+                            <tr className="border-b">
+                              <th className="text-left p-2">代码</th>
+                              <th className="text-left p-2">名称</th>
+                              <th className="text-left p-2">市场</th>
+                              <th className="text-left p-2">分组/行业</th>
+                              <th className="text-left p-2">更新时间</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {watchlist.map((s) => (
+                              <tr key={s.symbol} className="border-b">
+                                <td className="p-2 font-mono">{s.symbol}</td>
+                                <td className="p-2">{s.name}</td>
+                                <td className="p-2">{s.market || '-'}</td>
+                                <td className="p-2">{s.group_name || '-'}</td>
+                                <td className="p-2 text-sm text-muted-foreground">{s.updated_at ? s.updated_at.replace('T', ' ').replace('Z','') : '-'}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  </div>
+                )}
 
                 {showTagEditor && editingStock && (
                   <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">

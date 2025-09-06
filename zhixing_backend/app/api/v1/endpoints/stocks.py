@@ -109,6 +109,125 @@ async def get_all_stocks(
         raise HTTPException(status_code=500, detail="获取股票列表失败")
 
 
+@router.get("/overview")
+async def get_stocks_overview(
+    stock_repository: StockRepository = Depends(get_stock_repository),
+    page: int = Query(1, ge=1),
+    page_size: int = Query(20, ge=1, le=20),
+    concept_id: Optional[str] = Query(None, description="按概念过滤，支持概念表主键或concept_id")
+) -> Dict[str, Any]:
+    """获取带实时简要行情的股票分页列表
+
+    - 固定每页最多返回20条，满足前端“单接口渲染一页”的诉求
+    - 返回字段包含：symbol、name、market、group_name、updated_at、price、change_percent
+    - 后端内部并发拉取每个股票的基本信息与两根日K用于计算涨跌幅
+    """
+    import asyncio
+    from math import ceil
+
+    try:
+        with db_service.get_session() as session:
+            query = session.query(StockDB).filter(StockDB.is_active == True)
+
+            # 概念筛选（兼容 id 与 concept_id）
+            if concept_id:
+                target_cid = None
+                c = session.query(ConceptDB).filter(ConceptDB.concept_id == str(concept_id)).first()
+                if c:
+                    target_cid = c.concept_id
+                else:
+                    try:
+                        cid_int = int(str(concept_id))
+                        c2 = session.query(ConceptDB).filter(ConceptDB.id == cid_int).first()
+                        if c2:
+                            target_cid = c2.concept_id
+                    except Exception:
+                        pass
+
+                if target_cid:
+                    rel_symbols = [rel.stock_code for rel in session.query(ConceptStockRelationDB).filter(
+                        ConceptStockRelationDB.concept_id == target_cid
+                    ).all()]
+                    if rel_symbols:
+                        query = query.filter(StockDB.code.in_(rel_symbols))
+                    else:
+                        return {"success": True, "data": {"stocks": [], "total": 0, "page": page, "pageSize": page_size, "totalPages": 0}}
+
+            total = query.count()
+            items = (query
+                     .order_by(StockDB.updated_at.desc())
+                     .offset((page - 1) * page_size)
+                     .limit(page_size)
+                     .all())
+
+        # 异步拉取行情
+        market_data_service = container.get_market_data_service()
+
+        semaphore = asyncio.Semaphore(5)  # 限制外部数据源并发
+
+        async def fetch_quote(sym: str) -> Dict[str, Optional[float]]:
+            price: Optional[float] = None
+            change_percent: Optional[float] = None
+
+            async with semaphore:
+                try:
+                    info = await market_data_service.get_stock_info(sym)
+                    if info and isinstance(info, dict):
+                        p = info.get("current_price")
+                        if isinstance(p, (int, float)):
+                            price = float(p)
+                except Exception:
+                    pass
+
+            # 计算日涨跌幅（取最近2根1d）
+            async with semaphore:
+                try:
+                    kl = await market_data_service.get_stock_kline_data(sym, timeframe="1d", days=2)
+                    if kl and len(kl) >= 2:
+                        prev = float(kl[-2].close)
+                        last = float(kl[-1].close)
+                        if prev:
+                            change_percent = (last - prev) / prev * 100.0
+                except Exception:
+                    pass
+
+            return {"price": price, "change_percent": change_percent}
+
+        symbols = [s.code for s in items]
+        quote_list = await asyncio.gather(*[fetch_quote(sym) for sym in symbols])
+
+        # 组装返回
+        stocks = []
+        for stock, q in zip(items, quote_list):
+            stocks.append({
+                "id": stock.id,
+                "symbol": stock.code,
+                "name": stock.name,
+                "market": stock.market,
+                "group_id": stock.group_id,
+                "group_name": stock.group_name,
+                "updated_at": stock.updated_at.isoformat() if stock.updated_at else None,
+                "price": q.get("price"),
+                "change_percent": q.get("change_percent")
+            })
+
+        return {
+            "success": True,
+            "data": {
+                "stocks": stocks,
+                "total": total,
+                "page": page,
+                "pageSize": page_size,
+                "totalPages": ceil(total / page_size) if page_size else 0
+            },
+            "message": "获取股票概览成功"
+        }
+
+    except Exception as e:
+        logger.error(f"获取股票概览失败: {e}")
+        raise HTTPException(status_code=500, detail="获取股票概览失败")
+
+
 @router.post("/")
 async def add_stock(
     stock_data: Dict[str, Any],
