@@ -7,6 +7,7 @@ from loguru import logger
 
 from ....core.container import container
 from ....repositories.stock_repository import StockRepository
+from ....repositories.kline_repository import KLineRepository
 from ....database import db_service
 from ....models import ConceptDB, ConceptStockRelationDB, StockDB, QuoteDB
 
@@ -16,6 +17,11 @@ router = APIRouter()
 def get_stock_repository() -> StockRepository:
     """获取股票仓库依赖"""
     return container.get_stock_repository()
+
+
+def get_kline_repository() -> KLineRepository:
+    """获取K线数据仓库依赖"""
+    return container.get_kline_repository()
 
 
 @router.get("/")
@@ -112,6 +118,7 @@ async def get_all_stocks(
 @router.get("/overview")
 async def get_stocks_overview(
     stock_repository: StockRepository = Depends(get_stock_repository),
+    kline_repository: KLineRepository = Depends(get_kline_repository),
     page: int = Query(1, ge=1),
     page_size: int = Query(20, ge=1, le=20),
     concept_id: Optional[str] = Query(None, description="按概念过滤，支持概念表主键或concept_id"),
@@ -123,11 +130,11 @@ async def get_stocks_overview(
     change_percent_min: Optional[float] = Query(None, description="涨跌幅最小值(%)"),
     change_percent_max: Optional[float] = Query(None, description="涨跌幅最大值(%)")
 ) -> Dict[str, Any]:
-    """获取股票概览分页列表（仅从数据库获取）
+    """获取股票概览分页列表（从本地K线数据获取价格）
 
     - 固定每页最多返回20条，满足前端"单接口渲染一页"的诉求
     - 返回字段包含：symbol、name、market、group_name、updated_at、concepts
-    - 价格数据从数据库中的最新行情记录获取，不实时调用外部API
+    - 价格数据从本地K线数据表获取最新价格和涨跌幅，不依赖外部API
     """
     from math import ceil
 
@@ -196,25 +203,11 @@ async def get_stocks_overview(
                                change_percent_min is not None or change_percent_max is not None)
             
             if sort_field in ['price', 'change_percent'] or has_price_filter:
-                # 获取所有股票的最新行情数据，然后在Python中处理
-                from sqlalchemy import func, and_
+                # 获取所有股票的最新K线价格数据，然后在Python中处理
                 all_stock_codes = [s.code for s in session.query(StockDB).filter(StockDB.is_active == True).all()]
                 
-                # 获取所有股票的最新行情记录
-                subquery = (session.query(
-                    QuoteDB.code,
-                    func.max(QuoteDB.created_at).label('max_created_at')
-                ).filter(QuoteDB.code.in_(all_stock_codes))
-                .group_by(QuoteDB.code)
-                .subquery())
-                
-                all_quotes = (session.query(QuoteDB)
-                             .join(subquery, 
-                                   and_(QuoteDB.code == subquery.c.code,
-                                        QuoteDB.created_at == subquery.c.max_created_at))
-                             .all())
-                
-                quotes_dict = {q.code: q for q in all_quotes}
+                # 从K线数据获取最新价格信息
+                kline_prices = await kline_repository.get_latest_price_data(all_stock_codes)
                 
                 # 重新获取所有符合条件的股票
                 query_for_sorting = session.query(StockDB).filter(StockDB.is_active == True)
@@ -254,16 +247,16 @@ async def get_stocks_overview(
                 
                 # 在Python中进行价格筛选
                 def passes_price_filter(stock):
-                    quote = quotes_dict.get(stock.code)
-                    if not quote:
-                        # 如果没有行情数据，价格筛选时排除
+                    kline_data = kline_prices.get(stock.code)
+                    if not kline_data:
+                        # 如果没有K线数据，价格筛选时排除
                         if has_price_filter:
                             return False
                         return True
                     
                     # 价格筛选
                     if price_min is not None or price_max is not None:
-                        price = float(quote.cur_price) if quote.cur_price else None
+                        price = kline_data.get('price')
                         if price is None:
                             return False
                         if price_min is not None and price < price_min:
@@ -273,7 +266,7 @@ async def get_stocks_overview(
                     
                     # 涨跌幅筛选
                     if change_percent_min is not None or change_percent_max is not None:
-                        change_percent = float(quote.change_rate) if quote.change_rate else None
+                        change_percent = kline_data.get('change_percent')
                         if change_percent is None:
                             return False
                         if change_percent_min is not None and change_percent < change_percent_min:
@@ -288,14 +281,16 @@ async def get_stocks_overview(
                 
                 # 在Python中进行排序
                 def get_sort_key(stock):
-                    quote = quotes_dict.get(stock.code)
-                    if not quote:
+                    kline_data = kline_prices.get(stock.code)
+                    if not kline_data:
                         return float('-inf') if sort_order.lower() == 'desc' else float('inf')
                     
                     if sort_field == 'price':
-                        return float(quote.cur_price) if quote.cur_price else (float('-inf') if sort_order.lower() == 'desc' else float('inf'))
+                        price = kline_data.get('price')
+                        return price if price is not None else (float('-inf') if sort_order.lower() == 'desc' else float('inf'))
                     elif sort_field == 'change_percent':
-                        return float(quote.change_rate) if quote.change_rate else (float('-inf') if sort_order.lower() == 'desc' else float('inf'))
+                        change_percent = kline_data.get('change_percent')
+                        return change_percent if change_percent is not None else (float('-inf') if sort_order.lower() == 'desc' else float('inf'))
                     
                     return 0
                 
@@ -307,29 +302,15 @@ async def get_stocks_overview(
                 items = sorted_stocks[start_idx:end_idx]
                 total = len(sorted_stocks)
                 
-                latest_quotes = quotes_dict
+                latest_kline_prices = kline_prices
             else:
-                # 批量获取股票的最新行情数据（从数据库）
+                # 批量获取股票的最新K线价格数据
                 stock_codes = [s.code for s in items]
-                latest_quotes = {}
+                latest_kline_prices = {}
                 
                 if stock_codes:
-                    # 获取每个股票的最新行情记录
-                    from sqlalchemy import func, and_
-                    subquery = (session.query(
-                        QuoteDB.code,
-                        func.max(QuoteDB.created_at).label('max_created_at')
-                    ).filter(QuoteDB.code.in_(stock_codes))
-                    .group_by(QuoteDB.code)
-                    .subquery())
-                    
-                    quotes = (session.query(QuoteDB)
-                             .join(subquery, 
-                                   and_(QuoteDB.code == subquery.c.code,
-                                        QuoteDB.created_at == subquery.c.max_created_at))
-                             .all())
-                    
-                    latest_quotes = {q.code: q for q in quotes}
+                    # 从K线数据获取最新价格信息
+                    latest_kline_prices = await kline_repository.get_latest_price_data(stock_codes)
 
             # 组装返回数据
             stocks = []
@@ -353,13 +334,15 @@ async def get_stocks_overview(
                     logger.warning(f"Failed to get concepts for stock {stock.code}: {e}")
                 
                 # 获取价格和涨跌幅数据
-                quote = latest_quotes.get(stock.code)
+                kline_data = latest_kline_prices.get(stock.code)
                 price = None
                 change_percent = None
+                last_update = None
                 
-                if quote:
-                    price = float(quote.cur_price) if quote.cur_price else None
-                    change_percent = float(quote.change_rate) if quote.change_rate else None
+                if kline_data:
+                    price = kline_data.get('price')
+                    change_percent = kline_data.get('change_percent')
+                    last_update = kline_data.get('last_update')
                 
                 stocks.append({
                     "id": stock.id,
@@ -371,7 +354,8 @@ async def get_stocks_overview(
                     "concepts": concepts,
                     "updated_at": stock.updated_at.isoformat() if stock.updated_at else None,
                     "price": price,
-                    "change_percent": change_percent
+                    "change_percent": change_percent,
+                    "last_price_update": last_update
                 })
 
         return {

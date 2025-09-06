@@ -120,3 +120,75 @@ class KLineRepository(IKLineRepository):
         except Exception as e:
             logger.error(f"获取最新K线时间失败: {symbol} {timeframe}: {e}")
             return None
+
+    async def get_latest_price_data(self, symbols: List[str]) -> Dict[str, Dict[str, Any]]:
+        """
+        获取多只股票的最新价格数据（从日线K线数据）
+        
+        Args:
+            symbols: 股票代码列表
+            
+        Returns:
+            Dict[symbol, {price: float, change_percent: float, last_update: str}]
+        """
+        try:
+            result = {}
+            with db_service.get_session() as session:
+                for symbol in symbols:
+                    # 获取最近两个交易日的K线数据（去重）
+                    subquery = (session.query(KLineDB.time_key, 
+                                             func.max(KLineDB.close_price).label('close_price'))
+                              .filter(
+                                  KLineDB.code == symbol,
+                                  KLineDB.period == "K_DAY"
+                              )
+                              .group_by(KLineDB.time_key)
+                              .order_by(KLineDB.time_key.desc())
+                              .limit(2)
+                              .subquery())
+                    
+                    latest_klines = (session.query(subquery.c.time_key, subquery.c.close_price)
+                                   .order_by(subquery.c.time_key.desc())
+                                   .all())
+                    
+                    if latest_klines:
+                        current = latest_klines[0]
+                        current_price = current.close_price
+                        last_update = current.time_key
+                        
+                        # 计算涨跌幅
+                        change_percent = None
+                        if len(latest_klines) >= 2:
+                            previous = latest_klines[1]
+                            prev_price = previous.close_price
+                            if prev_price and prev_price > 0:
+                                change_percent = ((current_price - prev_price) / prev_price) * 100
+                        
+                        result[symbol] = {
+                            "price": current_price,
+                            "change_percent": change_percent,
+                            "last_update": str(last_update)
+                        }
+            
+            return result
+            
+        except Exception as e:
+            logger.error(f"获取最新价格数据失败: {e}")
+            return {}
+
+    async def get_single_latest_price_data(self, symbol: str) -> Optional[Dict[str, Any]]:
+        """
+        获取单只股票的最新价格数据（从日线K线数据）
+        
+        Args:
+            symbol: 股票代码
+            
+        Returns:
+            {price: float, change_percent: float, last_update: str} 或 None
+        """
+        try:
+            result = await self.get_latest_price_data([symbol])
+            return result.get(symbol)
+        except Exception as e:
+            logger.error(f"获取股票 {symbol} 最新价格数据失败: {e}")
+            return None
