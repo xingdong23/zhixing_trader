@@ -148,10 +148,14 @@ export default function StockSelectionPage() {
     try {
       setWatchlistLoading(true)
       const base = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000'
+      console.log('Fetching watchlist from:', `${base}/api/v1/stocks/?page=1&page_size=200`)
       const res = await fetch(`${base}/api/v1/stocks/?page=1&page_size=200`)
+      console.log('Response status:', res.status)
       const data = await res.json().catch(() => ({}))
+      console.log('Response data:', data)
       if (!res.ok) throw new Error(String(data?.detail || data?.message || `HTTP ${res.status}`))
       const items = (data?.data?.stocks || []) as any[]
+      console.log('Parsed items:', items)
       setWatchlist(items.map(it => ({
         symbol: it.symbol,
         name: it.name,
