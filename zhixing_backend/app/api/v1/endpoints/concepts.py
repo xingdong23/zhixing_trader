@@ -14,6 +14,48 @@ router = APIRouter()
 sample_concepts = []
 
 
+@router.get("/categories")
+async def get_concept_categories() -> Dict[str, Any]:
+    """获取概念分类数据，用于前端筛选标签"""
+    try:
+        with db_service.get_session() as session:
+            # 获取所有活跃概念
+            concepts = session.query(ConceptDB).filter(ConceptDB.is_active == True).all()
+            
+            # 按分类组织概念
+            categories = {
+                "industry": [],
+                "fundamentals": [],
+                "custom": []
+            }
+            
+            for concept in concepts:
+                category = concept.category or "custom"
+                if category not in categories:
+                    categories[category] = []
+                categories[category].append(concept.name)
+            
+            # 如果某些分类为空，添加一些默认值
+            if not categories["industry"]:
+                categories["industry"] = ["其他"]
+            if not categories["fundamentals"]:
+                categories["fundamentals"] = ["其他"]  
+            if not categories["custom"]:
+                categories["custom"] = ["其他"]
+                
+        return {
+            "success": True,
+            "data": {
+                "categories": categories,
+                "total_concepts": sum(len(cats) for cats in categories.values())
+            },
+            "message": "获取概念分类成功"
+        }
+    except Exception as e:
+        logger.error(f"获取概念分类失败: {e}")
+        raise HTTPException(status_code=500, detail="获取概念分类失败")
+
+
 @router.get("/")
 async def get_concepts(
     page: int = Query(1, ge=1),

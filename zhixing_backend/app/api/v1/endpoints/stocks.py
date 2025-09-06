@@ -114,7 +114,8 @@ async def get_stocks_overview(
     stock_repository: StockRepository = Depends(get_stock_repository),
     page: int = Query(1, ge=1),
     page_size: int = Query(20, ge=1, le=20),
-    concept_id: Optional[str] = Query(None, description="按概念过滤，支持概念表主键或concept_id")
+    concept_id: Optional[str] = Query(None, description="按概念过滤，支持概念表主键或concept_id"),
+    concept_name: Optional[str] = Query(None, description="按概念名称过滤")
 ) -> Dict[str, Any]:
     """获取股票概览分页列表（仅从数据库获取）
 
@@ -128,20 +129,29 @@ async def get_stocks_overview(
         with db_service.get_session() as session:
             query = session.query(StockDB).filter(StockDB.is_active == True)
 
-            # 概念筛选（兼容 id 与 concept_id）
-            if concept_id:
+            # 概念筛选（支持 concept_id 和 concept_name）
+            if concept_id or concept_name:
                 target_cid = None
-                c = session.query(ConceptDB).filter(ConceptDB.concept_id == str(concept_id)).first()
-                if c:
-                    target_cid = c.concept_id
-                else:
-                    try:
-                        cid_int = int(str(concept_id))
-                        c2 = session.query(ConceptDB).filter(ConceptDB.id == cid_int).first()
-                        if c2:
-                            target_cid = c2.concept_id
-                    except Exception:
-                        pass
+                
+                # 按 concept_id 筛选
+                if concept_id:
+                    c = session.query(ConceptDB).filter(ConceptDB.concept_id == str(concept_id)).first()
+                    if c:
+                        target_cid = c.concept_id
+                    else:
+                        try:
+                            cid_int = int(str(concept_id))
+                            c2 = session.query(ConceptDB).filter(ConceptDB.id == cid_int).first()
+                            if c2:
+                                target_cid = c2.concept_id
+                        except Exception:
+                            pass
+                
+                # 按 concept_name 筛选
+                elif concept_name:
+                    c = session.query(ConceptDB).filter(ConceptDB.name == concept_name).first()
+                    if c:
+                        target_cid = c.concept_id
 
                 if target_cid:
                     rel_symbols = [rel.stock_code for rel in session.query(ConceptStockRelationDB).filter(
