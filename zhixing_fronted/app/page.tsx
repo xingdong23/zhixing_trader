@@ -57,6 +57,9 @@ import {
   ChevronDown,
 } from "lucide-react"
 
+// 导入策略管理组件
+import StrategyManagement from '@/components/strategies/StrategyManagement'
+
 import { StockList } from '@/components/stocks/StockList'
 import { NotificationCenter } from '@/components/notifications/NotificationCenter'
 import DataSyncButton from '@/components/common/DataSyncButton'
@@ -732,10 +735,7 @@ export default function TradingSystem() {
                         )}
 
             {currentPage === "strategies" && (
-              <div className="text-center py-12">
-                <h3 className="text-lg font-medium mb-2">策略管理</h3>
-                <p className="text-muted-foreground">功能开发中...</p>
-              </div>
+              <StrategyManagement />
             )}
 
             {currentPage === "trading" && (
