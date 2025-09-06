@@ -26,7 +26,7 @@ class Settings(BaseSettings):
     database_url: str = os.getenv("DATABASE_URL", "sqlite:///./data/zhixing_trader.db")
     
     # 日志配置
-    log_level: str = "INFO"
+    log_level: str = "WARNING"
     log_file: str = "./logs/api.log"
     
     # CORS配置
