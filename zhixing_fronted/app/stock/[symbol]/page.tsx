@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { useParams } from "next/navigation"
+import { useParams, useRouter } from "next/navigation"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -11,6 +11,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Plus, ArrowLeft, Bell, Calendar, TrendingUp, Upload } from "lucide-react"
 import { Label } from "@/components/ui/label"
+import KLineChart from "@/components/stocks/KLineChart"
 
 interface IntelNote {
   id: string
@@ -28,13 +29,18 @@ interface StockData {
   name: string
   price: number
   change: number
+  change_percent: number
   volume: string
-  concepts: Record<string, string[]>
+  market: string
+  concepts: string[]
+  rsi?: number
+  ema55?: number
   intelNotes: IntelNote[]
 }
 
 export default function StockDetailPage() {
   const params = useParams()
+  const router = useRouter()
   const symbol = params.symbol as string
 
   const [stock, setStock] = useState<StockData | null>(null)
@@ -46,42 +52,90 @@ export default function StockDetailPage() {
     image: "",
   })
 
-  // Mock data - in real app, fetch from API
+  // 从API获取股票数据
   useEffect(() => {
-    const mockStock: StockData = {
-      ticker: symbol.toUpperCase(),
-      name: symbol === "tsla" ? "特斯拉" : symbol === "aapl" ? "苹果" : symbol === "nvda" ? "英伟达" : "未知股票",
-      price: 245.67,
-      change: 2.34,
-      volume: "45.2M",
-      concepts: {
-        行业: ["电动汽车", "自动驾驶", "储能"],
-        概念: ["新能源", "AI概念", "机器人"],
-        地区: ["美股", "纳斯达克"],
-      },
-      intelNotes: [
-        {
-          id: "1",
-          author: "巴菲特",
-          text: "技术面看，TSLA在240-250区间形成强支撑，建议分批建仓",
-          timestamp: "2024-01-15 14:30",
-          alertExpression: "price <= 240 AND RSI(14) < 30",
-          triggered: false,
-          type: "text",
-        },
-        {
-          id: "2",
-          author: "索罗斯",
-          text: "从技术分析看，突破260阻力位后可能冲击300",
-          timestamp: "2024-01-14 09:15",
-          alertExpression: "price > 260 AND volume > avgVolume(5) * 1.5",
-          triggered: false,
-          type: "analysis",
-          image: "/tsla-technical-analysis.png",
-        },
-      ],
+    const fetchStockData = async () => {
+      try {
+        const base = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000'
+        
+        // 获取股票基本信息
+        const stockResponse = await fetch(`${base}/api/v1/market-data/info/${symbol}`)
+        if (!stockResponse.ok) {
+          throw new Error(`获取股票信息失败: ${stockResponse.status}`)
+        }
+        
+        const stockResult = await stockResponse.json()
+        
+        if (stockResult.success && stockResult.data) {
+          const stockInfo = stockResult.data
+          
+          const stockData: StockData = {
+            ticker: symbol.toUpperCase(),
+            name: stockInfo.name || '未知股票',
+            price: parseFloat(stockInfo.price) || 0,
+            change: parseFloat(stockInfo.change) || 0,
+            change_percent: parseFloat(stockInfo.change_percent) || 0,
+            volume: stockInfo.volume || '0',
+            market: stockInfo.market || '未知',
+            concepts: stockInfo.concepts || [],
+            rsi: stockInfo.rsi,
+            ema55: stockInfo.ema55,
+            intelNotes: [
+              // 这里可以从数据库获取用户的情报笔记
+              // 暂时使用示例数据
+              {
+                id: "1",
+                author: "系统分析",
+                text: `${stockInfo.name || symbol}的技术分析显示当前价格为$${stockInfo.price}`,
+                timestamp: new Date().toLocaleString("zh-CN"),
+                alertExpression: `price <= ${(parseFloat(stockInfo.price) * 0.95).toFixed(2)}`,
+                triggered: false,
+                type: "analysis",
+              },
+            ],
+          }
+          
+          setStock(stockData)
+        } else {
+          throw new Error('股票数据格式错误')
+        }
+      } catch (error) {
+        console.error('获取股票数据失败:', error)
+        
+        // 如果API失败，使用基本的fallback数据
+        const fallbackStock: StockData = {
+          ticker: symbol.toUpperCase(),
+          name: symbol.toUpperCase() === 'AAPL' ? '苹果公司' : 
+                symbol.toUpperCase() === 'TSLA' ? '特斯拉' :
+                symbol.toUpperCase() === 'NVDA' ? '英伟达' : 
+                `${symbol.toUpperCase()} 股票`,
+          price: 150 + Math.random() * 100, // 随机价格
+          change: (Math.random() - 0.5) * 10,
+          change_percent: (Math.random() - 0.5) * 5,
+          volume: `${(Math.random() * 100 + 10).toFixed(1)}M`,
+          market: 'NASDAQ',
+          concepts: ['科技股', '人工智能', '新能源'],
+          rsi: 45 + Math.random() * 20,
+          ema55: 140 + Math.random() * 50,
+          intelNotes: [
+            {
+              id: "demo",
+              author: "演示数据",
+              text: `这是 ${symbol.toUpperCase()} 的演示数据。当后端API正常工作时，这里将显示真实的股票数据和K线图。`,
+              timestamp: new Date().toLocaleString("zh-CN"),
+              alertExpression: undefined,
+              triggered: false,
+              type: "text",
+            },
+          ],
+        }
+        setStock(fallbackStock)
+      }
     }
-    setStock(mockStock)
+
+    if (symbol) {
+      fetchStockData()
+    }
   }, [symbol])
 
   const addIntelNote = () => {
@@ -129,7 +183,7 @@ export default function StockDetailPage() {
       {/* Header */}
       <header className="border-b bg-card p-4">
         <div className="flex items-center gap-4">
-          <Button variant="ghost" size="sm" onClick={() => window.close()}>
+          <Button variant="ghost" size="sm" onClick={() => router.back()}>
             <ArrowLeft className="w-4 h-4 mr-2" />
             返回
           </Button>
@@ -141,9 +195,9 @@ export default function StockDetailPage() {
               <span>
                 现价: <span className="font-semibold text-foreground">${stock.price}</span>
               </span>
-              <span className={`font-semibold ${stock.change >= 0 ? "text-green-600" : "text-red-600"}`}>
-                {stock.change >= 0 ? "+" : ""}
-                {stock.change}%
+              <span className={`font-semibold ${stock.change_percent >= 0 ? "text-green-600" : "text-red-600"}`}>
+                {stock.change_percent >= 0 ? "+" : ""}
+                {stock.change_percent.toFixed(2)}%
               </span>
               <span>成交量: {stock.volume}</span>
             </div>
@@ -156,16 +210,7 @@ export default function StockDetailPage() {
           {/* Main Content */}
           <div className="xl:col-span-3 space-y-6">
             {/* K-Line Chart */}
-            <Card>
-              <CardHeader>
-                <CardTitle>K线图</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="h-96 bg-muted rounded-lg flex items-center justify-center">
-                  <span className="text-muted-foreground">K线图区域 - 集成TradingView或其他图表库</span>
-                </div>
-              </CardContent>
-            </Card>
+            <KLineChart symbol={symbol} />
 
             {/* Intelligence Notes */}
             <Card>
@@ -348,9 +393,9 @@ export default function StockDetailPage() {
                   </div>
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">涨跌幅</span>
-                    <span className={`font-semibold ${stock.change >= 0 ? "text-green-600" : "text-red-600"}`}>
-                      {stock.change >= 0 ? "+" : ""}
-                      {stock.change}%
+                    <span className={`font-semibold ${stock.change_percent >= 0 ? "text-green-600" : "text-red-600"}`}>
+                      {stock.change_percent >= 0 ? "+" : ""}
+                      {stock.change_percent.toFixed(2)}%
                     </span>
                   </div>
                   <div className="flex justify-between">
@@ -359,33 +404,37 @@ export default function StockDetailPage() {
                   </div>
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">RSI(14)</span>
-                    <span className="font-semibold">45.2</span>
+                    <span className="font-semibold">{stock.rsi ? stock.rsi.toFixed(1) : '-'}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">EMA(55)</span>
-                    <span className="font-semibold">$238.45</span>
+                    <span className="font-semibold">{stock.ema55 ? `$${stock.ema55.toFixed(2)}` : '-'}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">市场</span>
+                    <span className="font-semibold">{stock.market}</span>
                   </div>
                 </div>
               </CardContent>
             </Card>
 
             {/* Concepts & Tags */}
-            {Object.entries(stock.concepts).map(([type, tags]) => (
-              <Card key={type}>
+            {stock.concepts && stock.concepts.length > 0 && (
+              <Card>
                 <CardHeader>
-                  <CardTitle className="capitalize">{type}</CardTitle>
+                  <CardTitle>概念标签</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="flex flex-wrap gap-2">
-                    {tags.map((tag) => (
-                      <Badge key={tag} variant="secondary">
-                        {tag}
+                    {stock.concepts.map((concept, index) => (
+                      <Badge key={index} variant="secondary">
+                        {concept}
                       </Badge>
                     ))}
                   </div>
                 </CardContent>
               </Card>
-            ))}
+            )}
 
             {/* Quick Actions */}
             <Card>

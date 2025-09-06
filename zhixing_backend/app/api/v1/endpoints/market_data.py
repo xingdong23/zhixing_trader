@@ -30,8 +30,17 @@ async def get_kline_data(
         # 转换为前端需要的格式
         formatted_data = []
         for kline in kline_data:
+            # 处理datetime字段，可能是字符串或datetime对象
+            datetime_str = kline.datetime
+            if hasattr(kline.datetime, 'isoformat'):
+                datetime_str = kline.datetime.isoformat()
+            elif isinstance(kline.datetime, str):
+                datetime_str = kline.datetime
+            else:
+                datetime_str = str(kline.datetime)
+                
             formatted_data.append({
-                "datetime": kline.datetime.isoformat(),
+                "datetime": datetime_str,
                 "open": kline.open,
                 "high": kline.high,
                 "low": kline.low,
