@@ -1,10 +1,10 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { TrendingUp, AlertCircle, Calendar, Brain, Eye, AlertTriangle, CheckCircle } from 'lucide-react'
+import { TrendingUp, AlertCircle, Calendar, Brain, Eye, AlertTriangle, CheckCircle, Bell } from 'lucide-react'
 
 interface Notification {
   id: string
@@ -27,6 +27,22 @@ interface TodoItem {
 
 export function NotificationCenter() {
   const [activeTab, setActiveTab] = useState<'notifications' | 'todos'>('notifications')
+  const [isOpen, setIsOpen] = useState(false)
+  const containerRef = useRef<HTMLDivElement>(null)
+
+  // 点击外部关闭通知面板
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+        setIsOpen(false)
+      }
+    }
+
+    if (isOpen) {
+      document.addEventListener('mousedown', handleClickOutside)
+      return () => document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [isOpen])
   
   // 这里可以从API获取真实数据，暂时使用少量示例数据
   const [notifications] = useState<Notification[]>([
@@ -79,129 +95,127 @@ export function NotificationCenter() {
   }
 
   return (
-    <div className="relative">
-      {/* 堆叠纸张效果的背景层 */}
-      <div className="absolute top-1 left-1 w-full h-full bg-white border border-gray-200 rounded-lg shadow-sm transform rotate-1 z-0"></div>
-      <div className="absolute top-0.5 left-0.5 w-full h-full bg-white border border-gray-200 rounded-lg shadow-sm transform -rotate-0.5 z-0"></div>
+    <div ref={containerRef} className="relative z-50">
+      {/* 通知按钮 */}
+      <Button 
+        variant="ghost" 
+        size="icon" 
+        className="relative"
+        onClick={() => setIsOpen(!isOpen)}
+      >
+        <Bell className="w-5 h-5" />
+        {(notifications.filter(n => !n.read).length > 0 || todos.filter(t => !t.completed).length > 0) && (
+          <Badge variant="destructive" className="absolute -top-1 -right-1 px-1 min-w-[1.25rem] h-5 text-xs">
+            {notifications.filter(n => !n.read).length + todos.filter(t => !t.completed).length}
+          </Badge>
+        )}
+      </Button>
       
-      {/* 主要内容卡片 */}
-      <Card className="relative bg-white border-gray-300 shadow-lg z-10">
-        <CardHeader className="pb-3">
-          <div className="flex items-center justify-between">
-            <CardTitle className="text-lg font-semibold text-gray-800">通知中心</CardTitle>
-            <div className="flex gap-2">
-              <Button
-                variant={activeTab === 'notifications' ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => setActiveTab('notifications')}
-                className="text-xs"
-              >
-                通知 {notifications.filter(n => !n.read).length > 0 && (
-                  <Badge variant="destructive" className="ml-1 px-1 text-xs">
-                    {notifications.filter(n => !n.read).length}
-                  </Badge>
-                )}
-              </Button>
-              <Button
-                variant={activeTab === 'todos' ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => setActiveTab('todos')}
-                className="text-xs"
-              >
-                待办 {todos.filter(t => !t.completed).length > 0 && (
-                  <Badge variant="secondary" className="ml-1 px-1 text-xs">
-                    {todos.filter(t => !t.completed).length}
-                  </Badge>
-                )}
-              </Button>
-            </div>
-          </div>
-        </CardHeader>
-        <CardContent className="pt-0">
-          {activeTab === 'notifications' ? (
-            <div className="space-y-2">
-              {notifications.length === 0 ? (
-                <p className="text-center text-gray-500 py-4 text-sm">暂无通知</p>
-              ) : (
-                notifications.map((notification, index) => (
-                  <div
-                    key={notification.id}
-                    className={`relative p-3 rounded-lg border transition-all hover:shadow-md ${
-                      !notification.read 
-                        ? 'bg-gradient-to-r from-blue-50 to-white border-blue-200 shadow-sm' 
-                        : 'bg-gradient-to-r from-gray-50 to-white border-gray-200'
-                    }`}
-                    style={{
-                      transform: `translateY(${index * -1}px)`,
-                      zIndex: notifications.length - index
-                    }}
+      {/* 悬浮通知面板 */}
+      {isOpen && (
+        <div className="absolute right-0 top-full mt-2 w-80 z-50">
+          {/* 简单的堆叠纸张背景效果 */}
+          <div className="absolute top-1 left-1 w-full h-full bg-gray-100 rounded-lg shadow-sm"></div>
+          <div className="absolute top-0.5 left-0.5 w-full h-full bg-gray-50 rounded-lg shadow-sm"></div>
+          
+          {/* 主卡片 */}
+          <Card className="relative bg-white shadow-md">
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <CardTitle>通知中心</CardTitle>
+                <div className="flex gap-2">
+                  <Button
+                    variant={activeTab === 'notifications' ? 'default' : 'outline'}
+                    size="sm"
+                    onClick={() => setActiveTab('notifications')}
                   >
-                    <div className="flex items-start gap-3">
-                      <div className="mt-0.5 p-1 rounded-full bg-white shadow-sm">
-                        {getNotificationIcon(notification.type)}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center justify-between">
-                          <p className="font-medium text-sm text-gray-800">{notification.title}</p>
-                          <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
-                            {notification.timestamp}
-                          </span>
-                        </div>
-                        <p className="text-sm text-gray-600 mt-1 leading-relaxed">{notification.message}</p>
-                      </div>
-                    </div>
-                  </div>
-                ))
-              )}
-            </div>
-          ) : (
-            <div className="space-y-2">
-              {todos.length === 0 ? (
-                <p className="text-center text-gray-500 py-4 text-sm">暂无待办事项</p>
-              ) : (
-                todos.map((todo, index) => (
-                  <div
-                    key={todo.id}
-                    className={`relative p-3 rounded-lg border transition-all hover:shadow-md ${
-                      todo.completed 
-                        ? 'bg-gradient-to-r from-green-50 to-white border-green-200 opacity-70' 
-                        : 'bg-gradient-to-r from-white to-gray-50 border-gray-200 shadow-sm'
-                    }`}
-                    style={{
-                      transform: `translateY(${index * -1}px)`,
-                      zIndex: todos.length - index
-                    }}
+                    通知 {notifications.filter(n => !n.read).length > 0 && (
+                      <Badge variant="destructive" className="ml-1 px-1">
+                        {notifications.filter(n => !n.read).length}
+                      </Badge>
+                    )}
+                  </Button>
+                  <Button
+                    variant={activeTab === 'todos' ? 'default' : 'outline'}
+                    size="sm"
+                    onClick={() => setActiveTab('todos')}
                   >
-                    <div className="flex items-start gap-3">
-                      <div className="mt-0.5 p-1 rounded-full bg-white shadow-sm">
-                        {getTodoIcon(todo.type)}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center justify-between">
-                          <p className={`font-medium text-sm ${todo.completed ? 'line-through text-gray-500' : 'text-gray-800'}`}>
-                            {todo.title}
-                          </p>
-                          <div className="flex items-center gap-2">
-                            <Badge variant="outline" className={`text-xs ${getPriorityColor(todo.priority)}`}>
-                              {todo.priority}
-                            </Badge>
-                            {todo.dueDate && (
-                              <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
-                                {todo.dueDate}
-                              </span>
-                            )}
+                    待办 {todos.filter(t => !t.completed).length > 0 && (
+                      <Badge variant="secondary" className="ml-1 px-1">
+                        {todos.filter(t => !t.completed).length}
+                      </Badge>
+                    )}
+                  </Button>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent>
+              {activeTab === 'notifications' ? (
+                <div className="space-y-3">
+                  {notifications.length === 0 ? (
+                    <p className="text-center text-gray-500 py-4">暂无通知</p>
+                  ) : (
+                    notifications.map((notification) => (
+                      <div
+                        key={notification.id}
+                        className={`p-3 border rounded-lg ${!notification.read ? 'bg-blue-50 border-blue-200' : 'bg-gray-50'}`}
+                      >
+                        <div className="flex items-start gap-3">
+                          <div className="mt-0.5">
+                            {getNotificationIcon(notification.type)}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center justify-between">
+                              <p className="font-medium text-sm">{notification.title}</p>
+                              <span className="text-xs text-gray-500">{notification.timestamp}</span>
+                            </div>
+                            <p className="text-sm text-gray-600 mt-1">{notification.message}</p>
                           </div>
                         </div>
-                        <p className="text-sm text-gray-600 mt-1 leading-relaxed">{todo.description}</p>
                       </div>
-                    </div>
-                  </div>
-                ))
+                    ))
+                  )}
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {todos.length === 0 ? (
+                    <p className="text-center text-gray-500 py-4">暂无待办事项</p>
+                  ) : (
+                    todos.map((todo) => (
+                      <div
+                        key={todo.id}
+                        className={`p-3 border rounded-lg ${todo.completed ? 'bg-green-50 border-green-200' : 'bg-gray-50'}`}
+                      >
+                        <div className="flex items-start gap-3">
+                          <div className="mt-0.5">
+                            {getTodoIcon(todo.type)}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center justify-between">
+                              <p className={`font-medium text-sm ${todo.completed ? 'line-through text-gray-500' : ''}`}>
+                                {todo.title}
+                              </p>
+                              <div className="flex items-center gap-2">
+                                <Badge variant="outline" className={`text-xs ${getPriorityColor(todo.priority)}`}>
+                                  {todo.priority}
+                                </Badge>
+                                {todo.dueDate && (
+                                  <span className="text-xs text-gray-500">{todo.dueDate}</span>
+                                )}
+                              </div>
+                            </div>
+                            <p className="text-sm text-gray-600 mt-1">{todo.description}</p>
+                          </div>
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
               )}
-            </div>
-          )}
-        </CardContent>
-      </Card>
+            </CardContent>
+          </Card>
+        </div>
+      )}
     </div>
   )
 }

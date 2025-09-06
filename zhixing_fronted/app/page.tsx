@@ -53,6 +53,8 @@ import {
   Pause,
   Shield,
   XCircle,
+  ChevronUp,
+  ChevronDown,
 } from "lucide-react"
 
 import { StockList } from '@/components/stocks/StockList'
@@ -91,12 +93,12 @@ export default function TradingSystem() {
   // 概念筛选状态
   const [selectedConcept, setSelectedConcept] = useState<string | null>(null)
   
+  // 排序状态
+  const [sortField, setSortField] = useState<string>('updated_at')
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc')
+  
   // Dynamic concept data
-  const [allConcepts, setAllConcepts] = useState<{[key: string]: string[]}>({
-    industry: [],
-    fundamentals: [],
-    custom: []
-  })
+  const [allConcepts, setAllConcepts] = useState<{[key: string]: string[]}>({})
 
   // 获取概念分类数据
   async function fetchConceptCategories() {
@@ -107,16 +109,28 @@ export default function TradingSystem() {
       if (!res.ok) throw new Error(String(data?.detail || data?.message || `HTTP ${res.status}`))
       
       const categories = data?.data?.categories || {}
+      console.log('Fetched concept categories:', categories)
       setAllConcepts(categories)
     } catch (err) {
       console.error('fetch concept categories error', err)
       // 失败时使用默认值
       setAllConcepts({
-        industry: ["其他"],
-        fundamentals: ["其他"],
-        custom: ["其他"]
+        "其他": ["其他"]
       })
     }
+  }
+
+  // 处理排序点击
+  const handleSort = (field: string) => {
+    if (sortField === field) {
+      // 如果点击的是当前排序字段，切换排序顺序
+      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')
+    } else {
+      // 如果点击的是新字段，设置为该字段并默认降序
+      setSortField(field)
+      setSortOrder('desc')
+    }
+    setPage(1) // 重置到第一页
   }
 
   // 获取后端股票数据
@@ -127,6 +141,9 @@ export default function TradingSystem() {
       if (selectedConcept) {
         url += `&concept_name=${encodeURIComponent(selectedConcept)}`
       }
+      // 添加排序参数
+      url += `&sort_field=${sortField}&sort_order=${sortOrder}`
+      console.log('Fetching stocks with URL:', url)
       const res = await fetch(url)
       const data = await res.json().catch(() => ({}))
       if (!res.ok) throw new Error(String(data?.detail || data?.message || `HTTP ${res.status}`))
@@ -182,12 +199,17 @@ export default function TradingSystem() {
   }, [page])
 
   // 当选中概念变化时，重置页码并重新获取数据
-    useEffect(() => {
+  useEffect(() => {
     if (selectedConcept !== null) {
       setPage(1)
     }
     fetchBackendStocks() 
   }, [selectedConcept])
+
+  // 当排序条件变化时重新获取数据
+  useEffect(() => {
+    fetchBackendStocks() 
+  }, [sortField, sortOrder])
 
   // 模拟触发的提醒
   const triggeredAlerts: { ticker: string; message: string }[] = []
@@ -281,10 +303,12 @@ export default function TradingSystem() {
                     className="pl-10 w-64"
                   />
                 </div>
-                <NotificationCenter />
-                <Button variant="ghost" size="icon">
-                  <Settings className="w-5 h-5" />
-                </Button>
+                <div className="flex items-center gap-2">
+                  <NotificationCenter />
+                  <Button variant="ghost" size="icon">
+                    <Settings className="w-5 h-5" />
+                  </Button>
+                </div>
               </div>
             </div>
           </header>
@@ -310,31 +334,45 @@ export default function TradingSystem() {
                   </CardHeader>
                   <CardContent>
                     <div className="mb-6 space-y-4">
-                      {Object.entries(allConcepts).map(([type, tags]) => (
-                        <div key={type} className="flex items-center gap-2 flex-wrap">
-                          <span className="text-sm font-medium w-20 capitalize">{type}:</span>
-                          <div className="flex flex-wrap gap-2">
-                            {tags.map((tag) => (
-                              <Badge
-                                key={tag}
-                                variant={selectedConcept === tag ? "default" : "outline"}
-                                className="cursor-pointer"
-                                onClick={() => {
-                                  // 点击概念标签进行筛选
-                                  if (selectedConcept === tag) {
-                                    setSelectedConcept(null) // 取消筛选
-                                  } else {
-                                    setSelectedConcept(tag) // 设置筛选
-                                    setPage(1) // 重置到第一页
-                                  }
-                                }}
-                              >
-                                {tag}
-                              </Badge>
-                            ))}
+                      {Object.entries(allConcepts).map(([type, tags]) => {
+                        // 分类名称映射
+                        const typeNameMap: {[key: string]: string} = {
+                          'industry': '行业',
+                          'fundamentals': '基本面',
+                          'custom': '自定义',
+                          'technology': '技术',
+                          '行业': '行业',
+                          '技术': '技术',
+                          'other': '其他'
+                        }
+                        const displayName = typeNameMap[type] || type
+                        
+                        return (
+                          <div key={type} className="flex items-center gap-2 flex-wrap">
+                            <span className="text-sm font-medium w-20">{displayName}:</span>
+                            <div className="flex flex-wrap gap-2">
+                              {tags.map((tag) => (
+                                <Badge
+                                  key={tag}
+                                  variant={selectedConcept === tag ? "default" : "outline"}
+                                  className="cursor-pointer"
+                                  onClick={() => {
+                                    // 点击概念标签进行筛选
+                                    if (selectedConcept === tag) {
+                                      setSelectedConcept(null) // 取消筛选
+                                    } else {
+                                      setSelectedConcept(tag) // 设置筛选
+                                      setPage(1) // 重置到第一页
+                                    }
+                                  }}
+                                >
+                                  {tag}
+                                </Badge>
+                              ))}
+                            </div>
                           </div>
-                        </div>
-                      ))}
+                        )
+                      })}
                       {selectedConcept && (
                         <Button variant="outline" size="sm" onClick={() => setSelectedConcept(null)}>
                           重置筛选 ({selectedConcept})
@@ -347,12 +385,62 @@ export default function TradingSystem() {
                       <table className="w-full">
                         <thead>
                           <tr className="border-b">
-                            <th className="text-left p-2">代码/名称</th>
-                            <th className="text-left p-2">现价</th>
-                            <th className="text-left p-2">涨跌幅</th>
-                            <th className="text-left p-2">市场</th>
+                            <th 
+                              className="text-left p-2 cursor-pointer hover:bg-muted/50 select-none"
+                              onClick={() => handleSort('name')}
+                            >
+                              <div className="flex items-center gap-1">
+                                代码/名称
+                                {sortField === 'name' && (
+                                  sortOrder === 'asc' ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />
+                                )}
+                              </div>
+                            </th>
+                            <th 
+                              className="text-left p-2 cursor-pointer hover:bg-muted/50 select-none"
+                              onClick={() => handleSort('price')}
+                            >
+                              <div className="flex items-center gap-1">
+                                现价
+                                {sortField === 'price' && (
+                                  sortOrder === 'asc' ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />
+                                )}
+                              </div>
+                            </th>
+                            <th 
+                              className="text-left p-2 cursor-pointer hover:bg-muted/50 select-none"
+                              onClick={() => handleSort('change_percent')}
+                            >
+                              <div className="flex items-center gap-1">
+                                涨跌幅
+                                {sortField === 'change_percent' && (
+                                  sortOrder === 'asc' ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />
+                                )}
+                              </div>
+                            </th>
+                            <th 
+                              className="text-left p-2 cursor-pointer hover:bg-muted/50 select-none"
+                              onClick={() => handleSort('market')}
+                            >
+                              <div className="flex items-center gap-1">
+                                市场
+                                {sortField === 'market' && (
+                                  sortOrder === 'asc' ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />
+                                )}
+                              </div>
+                            </th>
                             <th className="text-left p-2">概念</th>
-                            <th className="text-left p-2">更新时间</th>
+                            <th 
+                              className="text-left p-2 cursor-pointer hover:bg-muted/50 select-none"
+                              onClick={() => handleSort('updated_at')}
+                            >
+                              <div className="flex items-center gap-1">
+                                更新时间
+                                {sortField === 'updated_at' && (
+                                  sortOrder === 'asc' ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />
+                                )}
+                              </div>
+                            </th>
                           </tr>
                         </thead>
                         <tbody>
