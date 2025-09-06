@@ -77,6 +77,10 @@ class Container:
         """获取股票仓库"""
         return self.get_service('stock_repository')
     
+    def get_kline_repository(self) -> IKLineRepository:
+        """获取K线仓库"""
+        return self.get_service('kline_repository')
+    
     def get_strategy_service(self) -> StrategyService:
         """获取策略服务"""
         return self.get_service('strategy_service')

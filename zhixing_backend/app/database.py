@@ -14,7 +14,7 @@ from .models import (
     ConceptDB, ConceptStockRelationDB, ExpertDB, ExpertOpinionDB,
     TradingPlaybookDB, SelectionStrategyDB, StockInfo, QuoteData,
     TradingPlanDB, TradeRecordDB, PositionDB, EmotionRecordDB, 
-    TradingDisciplineDB, TradingReviewDB, DataSyncTaskDB
+    TradingDisciplineDB, TradingReviewDB, DataSyncTaskDB, StockSyncStatusDB
 )
 
 
