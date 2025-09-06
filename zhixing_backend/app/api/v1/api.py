@@ -3,7 +3,7 @@ API v1路由聚合
 """
 from fastapi import APIRouter
 
-from .endpoints import strategies, stocks, market_data, data_sync, database_admin, concepts, experts, playbooks, trading_discipline
+from .endpoints import strategies, stocks, market_data, data_sync, concepts, experts, playbooks, trading_discipline
 
 api_router = APIRouter()
 
@@ -16,4 +16,3 @@ api_router.include_router(playbooks.router, prefix="/playbooks", tags=["playbook
 api_router.include_router(trading_discipline.router, prefix="/trading-discipline", tags=["trading-discipline"])
 api_router.include_router(market_data.router, prefix="/market-data", tags=["market-data"])
 api_router.include_router(data_sync.router, prefix="/data", tags=["data-sync"])
-api_router.include_router(database_admin.router, prefix="/data/database", tags=["database-admin"])
