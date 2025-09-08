@@ -50,10 +50,15 @@ settings = Settings()
 
 
 def validate_config():
-    """验证配置"""
+    """验证配置 - 确保使用MySQL"""
     errors = []
     
-
+    # 强制检查数据库配置，杜绝SQLite
+    if settings.database_url.startswith("sqlite"):
+        errors.append("❌ 禁止使用SQLite数据库！请配置MySQL数据库连接。")
+    
+    if not settings.database_url.startswith("mysql"):
+        errors.append(f"❌ 不支持的数据库类型。当前配置: {settings.database_url}，系统只支持MySQL。")
     
     if errors:
         raise ValueError(f"Configuration validation failed: {', '.join(errors)}")
@@ -61,6 +66,6 @@ def validate_config():
 
 # 创建必要的目录
 def ensure_directories():
-    """确保必要的目录存在"""
-    os.makedirs("data", exist_ok=True)
+    """确保必要的目录存在 - 不再创建SQLite数据目录"""
+    # 只创建日志目录，数据存储在MySQL中
     os.makedirs("logs", exist_ok=True)
