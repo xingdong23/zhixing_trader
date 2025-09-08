@@ -278,16 +278,17 @@ class DataSyncService:
             
             # 1. 同步日线数据
             if force_full_sync:
-                # 全量同步：获取1年数据
-                daily_data = await self.market_data_provider.get_stock_data(symbol, "1y", "1d")
+                # 全量同步：获取2年数据，确保有足够的历史数据用于技术分析
+                daily_data = await self.market_data_provider.get_stock_data(symbol, "2y", "1d")
             else:
-                # 增量同步：仅获取本地最新时间之后的数据（兜底30天）
+                # 增量同步：获取更多历史数据（兜底200天），确保策略有足够的数据进行分析
                 last_daily = await self.kline_repository.get_last_datetime(symbol, "1d")
                 if last_daily:
-                    # Yahoo provider按 period/interval 拉取，无法按时间过滤，这里仍然取30天，保存时去重
-                    daily_data = await self.market_data_provider.get_stock_data(symbol, "30d", "1d")
+                    # Yahoo provider按 period/interval 拉取，无法按时间过滤，这里取200天，保存时去重
+                    daily_data = await self.market_data_provider.get_stock_data(symbol, "200d", "1d")
                 else:
-                    daily_data = await self.market_data_provider.get_stock_data(symbol, "30d", "1d")
+                    # 首次同步时获取足够的历史数据
+                    daily_data = await self.market_data_provider.get_stock_data(symbol, "1y", "1d")
             
             if daily_data:
                 daily_saved = await self._save_kline_data(symbol, daily_data, "1d")
@@ -296,15 +297,16 @@ class DataSyncService:
             
             # 2. 同步小时线数据
             if force_full_sync:
-                # 全量同步：获取60天小时线
-                hourly_data = await self.market_data_provider.get_stock_data(symbol, "60d", "1h")
+                # 全量同步：获取更多小时线数据（约6个月），确保技术分析有足够的数据
+                hourly_data = await self.market_data_provider.get_stock_data(symbol, "180d", "1h")
             else:
-                # 增量同步：仅获取本地最新时间之后的数据（兜底7天）
+                # 增量同步：获取更多历史数据（兜底30天），确保策略有足够的小时线数据进行分析
                 last_hourly = await self.kline_repository.get_last_datetime(symbol, "1h")
                 if last_hourly:
-                    hourly_data = await self.market_data_provider.get_stock_data(symbol, "7d", "1h")
+                    hourly_data = await self.market_data_provider.get_stock_data(symbol, "30d", "1h")
                 else:
-                    hourly_data = await self.market_data_provider.get_stock_data(symbol, "7d", "1h")
+                    # 首次同步时获取足够的历史数据
+                    hourly_data = await self.market_data_provider.get_stock_data(symbol, "90d", "1h")
             
             if hourly_data:
                 hourly_saved = await self._save_kline_data(symbol, hourly_data, "1h")

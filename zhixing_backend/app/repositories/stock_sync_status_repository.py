@@ -271,14 +271,14 @@ class StockSyncStatusRepository:
         today = date.today()
         
         if timeframe == "1d":
-            # 日线数据：获取1年前的数据
-            return today - timedelta(days=365)
+            # 日线数据：获取2年前的数据，确保有足够的历史数据用于技术分析
+            return today - timedelta(days=730)
         elif timeframe == "1h":
-            # 小时线数据：获取60天前的数据
-            return today - timedelta(days=60)
+            # 小时线数据：获取6个月前的数据，确保策略有足够的小时线数据
+            return today - timedelta(days=180)
         else:
-            # 其他周期：默认30天
-            return today - timedelta(days=30)
+            # 其他周期：默认90天
+            return today - timedelta(days=90)
     
     async def initialize_all_stocks(self, stock_codes: List[str]) -> bool:
         """为所有股票初始化同步状态记录"""

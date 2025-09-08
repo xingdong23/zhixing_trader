@@ -20,10 +20,9 @@ class Settings(BaseSettings):
     api_port: int = 8000
     debug: bool = True
     
-    # 数据库配置
-    # 默认使用SQLite；可通过环境变量切换为MySQL，例如：
-    # mysql+pymysql://root:password@127.0.0.1:3306/zhixing_trader
-    database_url: str = os.getenv("DATABASE_URL", "sqlite:///./data/zhixing_trader.db")
+    # 数据库配置 - 强制使用MySQL，杜绝SQLite避免内存问题
+    # 默认使用本地MySQL配置，可通过环境变量覆盖
+    database_url: str = os.getenv("DATABASE_URL", "mysql+pymysql://root:password@127.0.0.1:3306/zhixing_trader")
     
     # 日志配置
     log_level: str = "WARNING"
@@ -39,7 +38,7 @@ class Settings(BaseSettings):
     # API限制
     max_requests_per_minute: int = 100
     max_quote_batch_size: int = 200
-    max_kline_days: int = 365
+    max_kline_days: int = 730  # 增加到2年，支持更多历史数据用于技术分析
     
     class Config:
         env_file = ".env"
