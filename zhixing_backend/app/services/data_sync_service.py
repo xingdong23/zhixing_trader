@@ -129,7 +129,7 @@ class DataSyncService:
                         )
                     
                     # 避免API限制，添加延迟
-                    await asyncio.sleep(0.2)
+                    await asyncio.sleep(1.0)
                     
                 except Exception as e:
                     logger.error(f"同步股票 {symbol} 失败: {e}")
@@ -234,7 +234,7 @@ class DataSyncService:
                         results["hourly_records"] += stock_result.get("hourly_count", 0)
                     else:
                         results["failed_stocks"] += 1
-                    await asyncio.sleep(0.2)
+                    await asyncio.sleep(1.0)  # 增加延迟到1秒，避免API限流
                 except Exception as e:
                     results["failed_stocks"] += 1
                     results["details"][symbol] = {"success": False, "error": str(e), "daily_count": 0, "hourly_count": 0}
@@ -278,8 +278,8 @@ class DataSyncService:
             
             # 1. 同步日线数据
             if force_full_sync:
-                # 全量同步：获取2年数据，确保有足够的历史数据用于技术分析
-                daily_data = await self.market_data_provider.get_stock_data(symbol, "2y", "1d")
+                # 全量同步：获取最大历史数据，确保有足够的历史数据用于技术分析
+                daily_data = await self.market_data_provider.get_stock_data(symbol, "max", "1d")
             else:
                 # 增量同步：获取更多历史数据（兜底200天），确保策略有足够的数据进行分析
                 last_daily = await self.kline_repository.get_last_datetime(symbol, "1d")
@@ -297,8 +297,8 @@ class DataSyncService:
             
             # 2. 同步小时线数据
             if force_full_sync:
-                # 全量同步：获取更多小时线数据（约6个月），确保技术分析有足够的数据
-                hourly_data = await self.market_data_provider.get_stock_data(symbol, "180d", "1h")
+                # 全量同步：获取更多小时线数据（约2年），确保技术分析有足够的数据
+                hourly_data = await self.market_data_provider.get_stock_data(symbol, "730d", "1h")
             else:
                 # 增量同步：获取更多历史数据（兜底30天），确保策略有足够的小时线数据进行分析
                 last_hourly = await self.kline_repository.get_last_datetime(symbol, "1h")

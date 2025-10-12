@@ -16,7 +16,7 @@ from ..interfaces import IMarketDataProvider, KLineData
 class YahooFinanceProvider(IMarketDataProvider):
     """Yahoo Finance数据提供者实现"""
     
-    def __init__(self, rate_limit_delay: float = 0.2):
+    def __init__(self, rate_limit_delay: float = 1.0):
         self.rate_limit_delay = rate_limit_delay
     
     async def get_stock_data(self, symbol: str, period: str, interval: str) -> List[KLineData]:
