@@ -38,10 +38,6 @@
 # Logs
 **/logs/
 *.log
-backend.dev.log
-frontend.dev.log
-backend.dev.pid
-frontend.dev.pid
 
 # Environment files (keep examples)
 .env
