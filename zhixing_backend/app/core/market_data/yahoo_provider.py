@@ -169,12 +169,15 @@ class MarketDataProviderFactory:
         if provider_type == "yahoo":
             return YahooFinanceProvider(**kwargs)
         elif provider_type == "alphavantage":
-            # TODO: 实现Alpha Vantage提供者
-            raise NotImplementedError("Alpha Vantage provider not implemented")
+            from .alphavantage_provider import AlphaVantageProvider
+            return AlphaVantageProvider(**kwargs)
+        elif provider_type == "hybrid":
+            from .hybrid_provider import HybridProvider
+            return HybridProvider(**kwargs)
         else:
             raise ValueError(f"未知的数据提供者类型: {provider_type}")
     
     @staticmethod
     def get_available_providers() -> List[str]:
         """获取可用的数据提供者"""
-        return ["yahoo", "alphavantage"]
+        return ["yahoo", "alphavantage", "hybrid"]

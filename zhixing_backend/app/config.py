@@ -41,6 +41,15 @@ class Settings(BaseSettings):
     max_quote_batch_size: int = 200
     max_kline_days: int = 730  # 增加到2年，支持更多历史数据用于技术分析
     
+    # 市场数据源配置
+    market_data_provider: str = "hybrid"  # 可选: yahoo, alphavantage, hybrid
+    alpha_vantage_api_key: str = os.getenv("ALPHA_VANTAGE_API_KEY", "demo")
+    yahoo_rate_limit: float = 0.2  # 雅虎API调用间隔（秒）
+    alphavantage_rate_limit: float = 12.0  # Alpha Vantage免费版限制：5次/分钟
+    
+    # 数据源优先级（hybrid模式下）
+    primary_data_source: str = "yahoo"  # 主要数据源: yahoo 或 alphavantage
+    
     class Config:
         env_file = ".env"
         env_file_encoding = "utf-8"
