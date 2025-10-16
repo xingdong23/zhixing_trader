@@ -51,7 +51,7 @@ class StockRepository(IStockRepository):
             # 更新字段
             with db_service.get_session() as session:
                 # 重新查询股票以确保在当前session中
-                from ..models import StockDB, ConceptStockRelationDB
+                from ..models import StockDB
                 stock = session.query(StockDB).filter(
                     StockDB.code == symbol,
                     StockDB.is_active == True
@@ -59,48 +59,9 @@ class StockRepository(IStockRepository):
 
                 if not stock:
                     return False
-
-                # 处理概念关联
-                concept_ids = stock_data.pop('concept_ids', None)
-                if concept_ids is not None:
-                    # 统一将传入的概念标识转换为 ConceptDB.concept_id
-                    from ..models import ConceptDB
-                    normalized_concept_ids = []
-                    for cid in concept_ids:
-                        # 已经是 concept_id 形式
-                        concept = session.query(ConceptDB).filter(ConceptDB.concept_id == str(cid)).first()
-                        if concept:
-                            normalized_concept_ids.append(concept.concept_id)
-                            continue
-
-                        # 可能是概念表自增 id，做一次转换
-                        try:
-                            cid_int = int(str(cid))
-                            concept_by_pk = session.query(ConceptDB).filter(ConceptDB.id == cid_int).first()
-                            if concept_by_pk:
-                                normalized_concept_ids.append(concept_by_pk.concept_id)
-                                continue
-                        except Exception:
-                            pass
-
-                        # 兜底按字符串写入
-                        normalized_concept_ids.append(str(cid))
-
-                    # 删除现有的概念关联
-                    session.query(ConceptStockRelationDB).filter(
-                        ConceptStockRelationDB.stock_code == symbol
-                    ).delete()
-                    
-                    # 添加新的概念关联
-                    if normalized_concept_ids:
-                        for concept_id in normalized_concept_ids:
-                            relation = ConceptStockRelationDB(
-                                concept_id=str(concept_id),
-                                stock_code=symbol
-                            )
-                            session.add(relation)
-                    
-                    logger.info(f"股票 {symbol} 概念关联已更新: {normalized_concept_ids}")
+                
+                # 移除concept_ids字段（已废弃，使用categories系统）
+                stock_data.pop('concept_ids', None)
 
                 # 处理其他字段
                 for key, value in stock_data.items():
