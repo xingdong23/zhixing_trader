@@ -9,18 +9,56 @@ from loguru import logger
 
 from ....services.data_sync_service import DataSyncService
 from ....services.smart_sync_service import SmartSyncService
-from ....core.market_data.yahoo_provider import YahooFinanceProvider
+from ....core.market_data import MarketDataProviderFactory
 from ....repositories.stock_repository import StockRepository
 from ....repositories.kline_repository import KLineRepository
+from ....config import settings
 
 router = APIRouter()
 
-# 创建服务实例
-yahoo_provider = YahooFinanceProvider(rate_limit_delay=0.2)
+# 创建服务实例 - 使用配置的数据提供者
+def get_market_data_provider():
+    """根据配置创建数据提供者"""
+    provider_type = settings.market_data_provider
+    
+    if provider_type == "hybrid":
+        # 混合模式：使用雅虎+Alpha Vantage
+        from ....core.market_data import HybridProvider, YahooFinanceProvider, AlphaVantageProvider
+        
+        yahoo = YahooFinanceProvider(rate_limit_delay=settings.yahoo_rate_limit)
+        alphavantage = AlphaVantageProvider(
+            api_key=settings.alpha_vantage_api_key,
+            rate_limit_delay=settings.alphavantage_rate_limit
+        )
+        
+        return HybridProvider(
+            yahoo_provider=yahoo,
+            alphavantage_provider=alphavantage,
+            primary_provider=settings.primary_data_source
+        )
+    elif provider_type == "yahoo":
+        from ....core.market_data import YahooFinanceProvider
+        return YahooFinanceProvider(rate_limit_delay=settings.yahoo_rate_limit)
+    elif provider_type == "alphavantage":
+        from ....core.market_data import AlphaVantageProvider
+        return AlphaVantageProvider(
+            api_key=settings.alpha_vantage_api_key,
+            rate_limit_delay=settings.alphavantage_rate_limit
+        )
+    else:
+        # 默认使用混合模式
+        logger.warning(f"未知的数据提供者类型: {provider_type}，使用混合模式")
+        from ....core.market_data import HybridProvider, YahooFinanceProvider, AlphaVantageProvider
+        yahoo = YahooFinanceProvider(rate_limit_delay=0.2)
+        alphavantage = AlphaVantageProvider(rate_limit_delay=12.0)
+        return HybridProvider(yahoo_provider=yahoo, alphavantage_provider=alphavantage)
+
+# 初始化服务
+market_data_provider = get_market_data_provider()
 stock_repository = StockRepository()
 kline_repository = KLineRepository()
-data_sync_service = DataSyncService(yahoo_provider, stock_repository, kline_repository)
-smart_sync_service = SmartSyncService(yahoo_provider, stock_repository, kline_repository)
+data_sync_service = DataSyncService(market_data_provider, stock_repository, kline_repository)
+smart_sync_service = SmartSyncService(market_data_provider, stock_repository, kline_repository)
 
 
 @router.post("/sync/trigger")
@@ -311,6 +349,123 @@ async def retry_failed_symbols(background_tasks: BackgroundTasks, force_full: bo
     except Exception as e:
         logger.error(f"重试失败股票触发失败: {e}")
         raise HTTPException(status_code=500, detail=f"重试触发失败: {str(e)}")
+
+
+# ==================== 数据源管理API ====================
+
+@router.get("/data-source/info")
+async def get_data_source_info() -> Dict[str, Any]:
+    """
+    获取当前数据源配置和统计信息
+    """
+    try:
+        provider_type = settings.market_data_provider
+        
+        info = {
+            "current_provider": provider_type,
+            "primary_source": settings.primary_data_source if provider_type == "hybrid" else provider_type,
+            "config": {
+                "yahoo_rate_limit": settings.yahoo_rate_limit,
+                "alphavantage_rate_limit": settings.alphavantage_rate_limit,
+                "alphavantage_api_key_configured": bool(settings.alpha_vantage_api_key and settings.alpha_vantage_api_key != "demo")
+            }
+        }
+        
+        # 如果是混合模式，获取统计信息
+        if provider_type == "hybrid" and hasattr(market_data_provider, 'get_stats'):
+            info["stats"] = market_data_provider.get_stats()
+        
+        return {
+            "success": True,
+            "data": info,
+            "message": "获取数据源信息成功"
+        }
+    
+    except Exception as e:
+        logger.error(f"获取数据源信息失败: {e}")
+        raise HTTPException(
+            status_code=500,
+            detail=f"获取数据源信息失败: {str(e)}"
+        )
+
+
+@router.get("/data-source/test/{symbol}")
+async def test_data_source(symbol: str) -> Dict[str, Any]:
+    """
+    测试数据源可用性
+    
+    Args:
+        symbol: 测试用的股票代码（如 AAPL）
+    """
+    try:
+        logger.info(f"测试数据源，股票代码: {symbol}")
+        
+        test_results = {}
+        
+        # 测试当前配置的数据源
+        provider_type = settings.market_data_provider
+        
+        if provider_type == "hybrid":
+            # 测试两个数据源
+            from ....core.market_data import YahooFinanceProvider, AlphaVantageProvider
+            
+            # 测试雅虎
+            logger.info("测试雅虎财经...")
+            yahoo = YahooFinanceProvider(rate_limit_delay=0.2)
+            yahoo_start = datetime.now()
+            yahoo_data = await yahoo.get_stock_data(symbol, "5d", "1d")
+            yahoo_duration = (datetime.now() - yahoo_start).total_seconds()
+            
+            test_results["yahoo"] = {
+                "available": len(yahoo_data) > 0,
+                "data_points": len(yahoo_data),
+                "response_time": f"{yahoo_duration:.2f}s"
+            }
+            
+            # 测试Alpha Vantage
+            logger.info("测试Alpha Vantage...")
+            av = AlphaVantageProvider(
+                api_key=settings.alpha_vantage_api_key,
+                rate_limit_delay=0  # 测试时不延迟
+            )
+            av_start = datetime.now()
+            av_data = await av.get_stock_data(symbol, "5d", "1d")
+            av_duration = (datetime.now() - av_start).total_seconds()
+            
+            test_results["alphavantage"] = {
+                "available": len(av_data) > 0,
+                "data_points": len(av_data),
+                "response_time": f"{av_duration:.2f}s"
+            }
+        else:
+            # 测试单一数据源
+            start_time = datetime.now()
+            data = await market_data_provider.get_stock_data(symbol, "5d", "1d")
+            duration = (datetime.now() - start_time).total_seconds()
+            
+            test_results[provider_type] = {
+                "available": len(data) > 0,
+                "data_points": len(data),
+                "response_time": f"{duration:.2f}s"
+            }
+        
+        return {
+            "success": True,
+            "data": {
+                "symbol": symbol,
+                "provider_type": provider_type,
+                "test_results": test_results,
+                "test_time": datetime.now().isoformat()
+            },
+            "message": "数据源测试完成"
+        }
+    
+    except Exception as e:
+        logger.error(f"测试数据源失败: {e}")
+        raise HTTPException(
+            status_code=500,
+            detail=f"测试数据源失败: {str(e)}"
+        )
 
 
 # ==================== 智能同步API ====================

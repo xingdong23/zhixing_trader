@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>数据源测试 - 知行交易系统</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .card h2 {
+            color: #333;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .status {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .status.success {
+            background: #10b981;
+            color: white;
+        }
+
+        .status.warning {
+            background: #f59e0b;
+            color: white;
+        }
+
+        .status.error {
+            background: #ef4444;
+            color: white;
+        }
+
+        .btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            margin-right: 10px;
+            margin-bottom: 10px;
+            transition: all 0.3s;
+        }
+
+        .btn:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+        }
+
+        .btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .result-box {
+            background: #f3f4f6;
+            border-radius: 6px;
+            padding: 15px;
+            margin-top: 15px;
+            font-family: monospace;
+            font-size: 13px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .stat-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .stat-item {
+            background: #f9fafb;
+            padding: 15px;
+            border-radius: 6px;
+            border-left: 4px solid #667eea;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 3px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .success-icon { color: #10b981; }
+        .error-icon { color: #ef4444; }
+        .warning-icon { color: #f59e0b; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🧪 数据源集成测试</h1>
+            <p class="subtitle">测试雅虎财经、Alpha Vantage 和混合模式的功能</p>
+        </div>
+
+        <!-- 数据源信息 -->
+        <div class="card">
+            <h2>📊 当前数据源配置</h2>
+            <button class="btn" onclick="getDataSourceInfo()">刷新配置</button>
+            <div id="configResult" class="result-box" style="display:none;"></div>
+        </div>
+
+        <!-- 测试单个股票 -->
+        <div class="card">
+            <h2>🔍 测试单个股票</h2>
+            <input type="text" id="symbolInput" placeholder="输入股票代码 (如 AAPL)" 
+                   style="padding: 10px; border: 1px solid #ddd; border-radius: 4px; width: 200px; margin-right: 10px;">
+            <button class="btn" onclick="testSymbol()">测试数据获取</button>
+            <div id="symbolResult" class="result-box" style="display:none;"></div>
+        </div>
+
+        <!-- 批量测试 -->
+        <div class="card">
+            <h2>📈 批量测试股票</h2>
+            <p style="margin-bottom: 10px; color: #666;">
+                测试股票: AAPL, TSLA, MSFT, GOOGL, AMZN
+            </p>
+            <button class="btn" onclick="batchTest()">开始批量测试</button>
+            <div id="batchStats" class="stat-grid" style="display:none;"></div>
+            <div id="batchResult" class="result-box" style="display:none;"></div>
+        </div>
+
+        <!-- 数据源统计 -->
+        <div class="card">
+            <h2>📊 数据源使用统计</h2>
+            <button class="btn" onclick="getStats()">查看统计</button>
+            <div id="statsResult" class="result-box" style="display:none;"></div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:8000/api/v1';
+
+        async function getDataSourceInfo() {
+            const resultDiv = document.getElementById('configResult');
+            resultDiv.style.display = 'block';
+            resultDiv.innerHTML = '⏳ 获取配置信息...';
+
+            try {
+                const response = await fetch(`${API_BASE}/data-sync/data-source/info`);
+                const result = await response.json();
+
+                if (result.success) {
+                    const data = result.data;
+                    let html = `
+                        <div style="margin-bottom: 15px;">
+                            <strong>📌 当前数据源:</strong> <span class="status ${data.current_provider === 'hybrid' ? 'success' : 'warning'}">${data.current_provider}</span>
+                        </div>
+                        <div style="margin-bottom: 15px;">
+                            <strong>🎯 主数据源:</strong> ${data.primary_source}
+                        </div>
+                        <div style="margin-bottom: 15px;">
+                            <strong>⚙️ 配置:</strong><br>
+                            - 雅虎速率限制: ${data.config.yahoo_rate_limit}s/次<br>
+                            - Alpha Vantage 速率限制: ${data.config.alphavantage_rate_limit}s/次<br>
+                            - Alpha Vantage API Key: ${data.config.alphavantage_api_key_configured ? '✅ 已配置' : '❌ 未配置'}
+                        </div>
+                    `;
+
+                    if (data.stats) {
+                        html += '<strong>📊 数据源统计:</strong><br>';
+                        for (const [source, stats] of Object.entries(data.stats)) {
+                            html += `<br><strong>${source}:</strong><br>`;
+                            html += `- 成功: ${stats.success}, 失败: ${stats.failure}, 总计: ${stats.total}<br>`;
+                            html += `- 成功率: ${stats.success_rate}<br>`;
+                        }
+                    }
+
+                    resultDiv.innerHTML = html;
+                } else {
+                    resultDiv.innerHTML = `❌ 错误: ${result.message}`;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `❌ 请求失败: ${error.message}`;
+            }
+        }
+
+        async function testSymbol() {
+            const symbol = document.getElementById('symbolInput').value.trim().toUpperCase();
+            const resultDiv = document.getElementById('symbolResult');
+
+            if (!symbol) {
+                alert('请输入股票代码');
+                return;
+            }
+
+            resultDiv.style.display = 'block';
+            resultDiv.innerHTML = `⏳ 测试 ${symbol}...`;
+
+            try {
+                const response = await fetch(`${API_BASE}/data-sync/data-source/test/${symbol}`);
+                const result = await response.json();
+
+                if (result.success) {
+                    const data = result.data;
+                    let html = `
+                        <div style="margin-bottom: 15px;">
+                            <strong>📈 股票:</strong> ${data.symbol}<br>
+                            <strong>🔧 数据源类型:</strong> ${data.provider_type}<br>
+                            <strong>⏰ 测试时间:</strong> ${new Date(data.test_time).toLocaleString()}
+                        </div>
+                        <strong>📊 测试结果:</strong><br>
+                    `;
+
+                    for (const [source, result] of Object.entries(data.test_results)) {
+                        const statusIcon = result.available ? '✅' : '❌';
+                        html += `<br><strong>${statusIcon} ${source}:</strong><br>`;
+                        html += `- 可用: ${result.available ? '是' : '否'}<br>`;
+                        html += `- 数据点: ${result.data_points}<br>`;
+                        html += `- 响应时间: ${result.response_time}<br>`;
+                    }
+
+                    resultDiv.innerHTML = html;
+                } else {
+                    resultDiv.innerHTML = `❌ 错误: ${result.message || result.detail}`;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `❌ 请求失败: ${error.message}`;
+            }
+        }
+
+        async function batchTest() {
+            const symbols = ['AAPL', 'TSLA', 'MSFT', 'GOOGL', 'AMZN'];
+            const resultDiv = document.getElementById('batchResult');
+            const statsDiv = document.getElementById('batchStats');
+
+            resultDiv.style.display = 'block';
+            statsDiv.style.display = 'grid';
+            resultDiv.innerHTML = '⏳ 批量测试进行中...<br>';
+
+            let successCount = 0;
+            let failureCount = 0;
+            let totalDataPoints = 0;
+
+            for (const symbol of symbols) {
+                resultDiv.innerHTML += `<br>🔍 测试 ${symbol}...`;
+
+                try {
+                    const response = await fetch(`${API_BASE}/data-sync/data-source/test/${symbol}`);
+                    const result = await response.json();
+
+                    if (result.success && result.data.test_results) {
+                        // 检查主要数据源是否可用
+                        const testResults = Object.values(result.data.test_results);
+                        const available = testResults.some(r => r.available);
+                        
+                        if (available) {
+                            const dataPoints = Math.max(...testResults.map(r => r.data_points));
+                            resultDiv.innerHTML += ` ✅ 成功 (${dataPoints}条数据)<br>`;
+                            successCount++;
+                            totalDataPoints += dataPoints;
+                        } else {
+                            resultDiv.innerHTML += ` ❌ 失败<br>`;
+                            failureCount++;
+                        }
+                    } else {
+                        resultDiv.innerHTML += ` ❌ 失败<br>`;
+                        failureCount++;
+                    }
+                } catch (error) {
+                    resultDiv.innerHTML += ` ❌ 异常: ${error.message}<br>`;
+                    failureCount++;
+                }
+            }
+
+            // 显示统计
+            const total = symbols.length;
+            const successRate = (successCount / total * 100).toFixed(1);
+
+            statsDiv.innerHTML = `
+                <div class="stat-item">
+                    <div class="stat-label">总测试数</div>
+                    <div class="stat-value">${total}</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">成功</div>
+                    <div class="stat-value" style="color: #10b981;">${successCount}</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">失败</div>
+                    <div class="stat-value" style="color: #ef4444;">${failureCount}</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">成功率</div>
+                    <div class="stat-value">${successRate}%</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">总数据点</div>
+                    <div class="stat-value">${totalDataPoints}</div>
+                </div>
+            `;
+
+            resultDiv.innerHTML += `<br>✅ 批量测试完成！`;
+        }
+
+        async function getStats() {
+            const resultDiv = document.getElementById('statsResult');
+            resultDiv.style.display = 'block';
+            resultDiv.innerHTML = '⏳ 获取统计信息...';
+
+            try {
+                const response = await fetch(`${API_BASE}/data-sync/data-source/info`);
+                const result = await response.json();
+
+                if (result.success && result.data.stats) {
+                    const stats = result.data.stats;
+                    let html = '<strong>📊 数据源使用统计:</strong><br><br>';
+
+                    for (const [source, stat] of Object.entries(stats)) {
+                        const total = stat.total;
+                        const successRate = parseFloat(stat.success_rate);
+                        const statusClass = successRate >= 90 ? 'success-icon' : successRate >= 70 ? 'warning-icon' : 'error-icon';
+
+                        html += `
+                            <div style="margin-bottom: 15px; padding: 10px; background: white; border-radius: 4px;">
+                                <strong class="${statusClass}">📡 ${source.toUpperCase()}</strong><br>
+                                - 成功: ${stat.success}<br>
+                                - 失败: ${stat.failure}<br>
+                                - 总计: ${stat.total}<br>
+                                - 成功率: <strong>${stat.success_rate}</strong>
+                            </div>
+                        `;
+                    }
+
+                    resultDiv.innerHTML = html;
+                } else {
+                    resultDiv.innerHTML = '⚠️ 暂无统计数据（可能未使用混合模式）';
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `❌ 请求失败: ${error.message}`;
+            }
+        }
+
+        // 页面加载时自动获取配置
+        window.addEventListener('load', getDataSourceInfo);
+    </script>
+</body>
+</html>
+

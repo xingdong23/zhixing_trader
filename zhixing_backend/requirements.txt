@@ -14,6 +14,7 @@ numpy>=1.24.0
 
 # HTTP客户端
 httpx==0.25.2
+aiohttp>=3.11.13
 
 # 异步支持
 aiofiles==23.2.1
