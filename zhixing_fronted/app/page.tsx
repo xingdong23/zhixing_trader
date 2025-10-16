@@ -63,6 +63,7 @@ import StrategyManagement from '@/components/strategies/StrategyManagement'
 import { StockList } from '@/components/stocks/StockList'
 import { NotificationCenter } from '@/components/notifications/NotificationCenter'
 import DataSyncButton from '@/components/common/DataSyncButton'
+import CategorySelector from '@/components/categories/CategorySelector'
 
 interface Stock {
   id: number
@@ -94,8 +95,8 @@ export default function TradingSystem() {
   const pageSize = 20
   const [total, setTotal] = useState<number>(0)
   
-  // 概念筛选状态
-  const [selectedConcept, setSelectedConcept] = useState<string | null>(null)
+  // 分类筛选状态
+  const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null)
   
   // 排序状态
   const [sortField, setSortField] = useState<string>('updated_at')
@@ -107,28 +108,6 @@ export default function TradingSystem() {
   const [showPriceFilter, setShowPriceFilter] = useState(false)
   const [showChangePercentFilter, setShowChangePercentFilter] = useState(false)
   
-  // Dynamic concept data
-  const [allConcepts, setAllConcepts] = useState<{[key: string]: string[]}>({})
-
-  // 获取概念分类数据
-  async function fetchConceptCategories() {
-    try {
-      const base = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000'
-      const res = await fetch(`${base}/api/v1/concepts/categories`)
-      const data = await res.json().catch(() => ({}))
-      if (!res.ok) throw new Error(String(data?.detail || data?.message || `HTTP ${res.status}`))
-      
-      const categories = data?.data?.categories || {}
-      console.log('Fetched concept categories:', categories)
-      setAllConcepts(categories)
-    } catch (err) {
-      console.error('fetch concept categories error', err)
-      // 失败时使用默认值
-      setAllConcepts({
-        "其他": ["其他"]
-      })
-    }
-  }
 
   // 处理排序点击
   const handleSort = (field: string) => {
@@ -148,8 +127,11 @@ export default function TradingSystem() {
     try {
       const base = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000'
       let url = `${base}/api/v1/stocks/overview?page=${page}&page_size=${pageSize}`
-      if (selectedConcept) {
-        url += `&concept_name=${encodeURIComponent(selectedConcept)}`
+      
+      // 使用分类筛选
+      if (selectedCategoryId) {
+        // 通过分类ID获取股票
+        url = `${base}/api/v1/categories/${selectedCategoryId}/stocks?page=${page}&page_size=${pageSize}`
       }
       // 添加排序参数
       url += `&sort_field=${sortField}&sort_order=${sortOrder}`
@@ -173,8 +155,19 @@ export default function TradingSystem() {
       const data = await res.json().catch(() => ({}))
       if (!res.ok) throw new Error(String(data?.detail || data?.message || `HTTP ${res.status}`))
       
-      const stocks = data?.data?.stocks || []
-      const total = data?.data?.total || 0
+      let stocks = []
+      let total = 0
+      
+      // 根据不同的API返回格式处理数据
+      if (selectedCategoryId) {
+        // 分类API返回格式：data.stocks
+        stocks = data?.data?.stocks || []
+        total = data?.data?.total || stocks.length
+      } else {
+        // 普通股票API返回格式：data.stocks
+        stocks = data?.data?.stocks || []
+        total = data?.data?.total || 0
+      }
       
       setBackendStocks(stocks.map((s: any) => ({
         id: s.id || 0,
@@ -213,23 +206,19 @@ export default function TradingSystem() {
     }, 2000)
   }
 
-  // 组件加载时获取数据
-  useEffect(() => {
-    fetchConceptCategories() 
-  }, [])
 
   // 当页码变化时重新获取数据
   useEffect(() => {
     fetchBackendStocks() 
   }, [page])
 
-  // 当选中概念变化时，重置页码并重新获取数据
+  // 当选中分类变化时，重置页码并重新获取数据
   useEffect(() => {
-    if (selectedConcept !== null) {
+    if (selectedCategoryId !== null) {
       setPage(1)
     }
     fetchBackendStocks() 
-  }, [selectedConcept])
+  }, [selectedCategoryId])
 
   // 当排序条件变化时重新获取数据
   useEffect(() => {
@@ -399,51 +388,13 @@ export default function TradingSystem() {
                     </div>
                   </CardHeader>
                   <CardContent>
-                    <div className="mb-6 space-y-4">
-                      {Object.entries(allConcepts).map(([type, tags]) => {
-                        // 分类名称映射
-                        const typeNameMap: {[key: string]: string} = {
-                          'industry': '行业',
-                          'fundamentals': '基本面',
-                          'custom': '自定义',
-                          'technology': '技术',
-                          '行业': '行业',
-                          '技术': '技术',
-                          'other': '其他'
-                        }
-                        const displayName = typeNameMap[type] || type
-                        
-                        return (
-                          <div key={type} className="flex items-center gap-2 flex-wrap">
-                            <span className="text-sm font-medium w-20">{displayName}:</span>
-                            <div className="flex flex-wrap gap-2">
-                              {tags.map((tag) => (
-                                <Badge
-                                  key={tag}
-                                  variant={selectedConcept === tag ? "default" : "outline"}
-                                  className="cursor-pointer"
-                                  onClick={() => {
-                                    // 点击概念标签进行筛选
-                                    if (selectedConcept === tag) {
-                                      setSelectedConcept(null) // 取消筛选
-                                    } else {
-                                      setSelectedConcept(tag) // 设置筛选
-                                      setPage(1) // 重置到第一页
-                                    }
-                                  }}
-                                >
-                                  {tag}
-                                </Badge>
-                              ))}
-                            </div>
-                          </div>
-                        )
-                      })}
-                      {selectedConcept && (
-                        <Button variant="outline" size="sm" onClick={() => setSelectedConcept(null)}>
-                          重置筛选 ({selectedConcept})
-                        </Button>
-                      )}
+                    {/* 多级分类树选择器 */}
+                    <div className="mb-6">
+                      <CategorySelector 
+                        onSelectCategory={setSelectedCategoryId}
+                        selectedCategoryId={selectedCategoryId}
+                        compact={true}
+                      />
                     </div>
 
                     {/* Stock Table */}
