@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>策略测试工具 - 知行交易系统</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            color: white;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        .card h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+        
+        .button-group {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        button {
+            padding: 15px 25px;
+            font-size: 16px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .btn-success {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            color: white;
+        }
+        
+        .btn-info {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+        }
+        
+        .btn-warning {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+        }
+        
+        #output {
+            background: #f8f9fa;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            padding: 20px;
+            min-height: 400px;
+            max-height: 600px;
+            overflow-y: auto;
+            font-family: 'Monaco', 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.6;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        
+        .status {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            margin: 5px 5px 5px 0;
+        }
+        
+        .status-success {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .status-error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .status-info {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+        
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .strategy-result {
+            background: white;
+            border-left: 4px solid #667eea;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 4px;
+        }
+        
+        .strategy-result h3 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+        
+        .stock-item {
+            background: #f8f9fa;
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 4px;
+            border-left: 3px solid #28a745;
+        }
+        
+        .score {
+            font-weight: bold;
+            color: #dc3545;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 策略测试工具</h1>
+        
+        <div class="card">
+            <h2>📊 系统状态检查</h2>
+            <div class="button-group">
+                <button class="btn-info" onclick="checkBackend()">检查后端服务</button>
+                <button class="btn-info" onclick="getStrategies()">获取策略列表</button>
+                <button class="btn-info" onclick="getStockCount()">获取股票数量</button>
+                <button class="btn-info" onclick="checkDataStatus()">检查数据状态</button>
+            </div>
+        </div>
+        
+        <div class="card">
+            <h2>🎯 策略执行测试</h2>
+            <div class="button-group">
+                <button class="btn-primary" onclick="testEMA55Strategy()">测试 EMA55 策略</button>
+                <button class="btn-success" onclick="testMAEntanglementStrategy()">测试 均线缠绕策略</button>
+                <button class="btn-warning" onclick="testLeaderStrategy()">测试 龙头策略</button>
+                <button class="btn-primary" onclick="testAllStrategies()">测试所有策略</button>
+            </div>
+        </div>
+        
+        <div class="card">
+            <h2>🔧 数据管理</h2>
+            <div class="button-group">
+                <button class="btn-info" onclick="getSyncTasks()">查看同步任务</button>
+                <button class="btn-success" onclick="startSync()">启动数据同步</button>
+                <button class="btn-info" onclick="clearOutput()">清空输出</button>
+            </div>
+        </div>
+        
+        <div class="card">
+            <h2>📝 输出结果</h2>
+            <div id="output">点击上方按钮开始测试...</div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:8000';
+        const output = document.getElementById('output');
+
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const prefix = type === 'error' ? '❌' : type === 'success' ? '✅' : '📌';
+            output.innerHTML += `[${timestamp}] ${prefix} ${message}\n`;
+            output.scrollTop = output.scrollHeight;
+        }
+
+        function clearOutput() {
+            output.innerHTML = '输出已清空\n';
+        }
+
+        async function apiCall(endpoint, options = {}) {
+            try {
+                log(`请求: ${endpoint}`);
+                const response = await fetch(`${API_BASE}${endpoint}`, options);
+                const data = await response.json();
+                
+                if (data.success || response.ok) {
+                    log('✅ 请求成功', 'success');
+                    return data;
+                } else {
+                    log(`❌ 请求失败: ${data.message || '未知错误'}`, 'error');
+                    return null;
+                }
+            } catch (error) {
+                log(`❌ 网络错误: ${error.message}`, 'error');
+                return null;
+            }
+        }
+
+        async function checkBackend() {
+            log('检查后端服务状态...');
+            const data = await apiCall('/api/v1/strategies/');
+            if (data) {
+                log(`✅ 后端服务正常运行！`, 'success');
+                log(`   策略总数: ${data.data.strategies.length}`);
+            }
+        }
+
+        async function getStrategies() {
+            log('获取策略列表...');
+            const data = await apiCall('/api/v1/strategies/');
+            if (data && data.data) {
+                log(`\n📋 策略列表 (共 ${data.data.strategies.length} 个):\n${'='.repeat(60)}`);
+                data.data.strategies.forEach((strategy, index) => {
+                    const status = strategy.enabled ? '✅启用' : '❌禁用';
+                    log(`${index + 1}. [ID:${strategy.id}] ${strategy.name}`);
+                    log(`   类型: ${strategy.impl_type} | 状态: ${status}`);
+                    log(`   描述: ${strategy.description}`);
+                    log(`   ${'─'.repeat(58)}`);
+                });
+            }
+        }
+
+        async function getStockCount() {
+            log('获取股票数量...');
+            const data = await apiCall('/api/v1/stocks/overview?page=1&page_size=1');
+            if (data && data.data) {
+                log(`✅ 数据库中共有 ${data.data.total} 只股票`, 'success');
+                log(`   总页数: ${data.data.totalPages}`);
+            }
+        }
+
+        async function checkDataStatus() {
+            log('检查数据状态...');
+            const data = await apiCall('/api/v1/stocks/overview?page=1&page_size=10');
+            if (data && data.data) {
+                log(`\n📊 数据状态概览:\n${'='.repeat(60)}`);
+                log(`总股票数: ${data.data.total}`);
+                log(`\n前 10 只股票:`);
+                data.data.stocks.forEach((stock, i) => {
+                    const priceInfo = stock.price ? 
+                        `价格: ¥${stock.price.toFixed(2)} | 涨跌: ${(stock.change_percent || 0).toFixed(2)}%` : 
+                        '价格: 无数据';
+                    log(`${i+1}. ${stock.symbol} - ${stock.name}`);
+                    log(`   ${priceInfo}`);
+                    log(`   更新时间: ${stock.updated_at || '未知'}`);
+                });
+            }
+        }
+
+        async function testEMA55Strategy() {
+            log('\n🎯 测试 EMA55回踩企稳策略...\n' + '='.repeat(60));
+            // 这里可以调用策略执行API
+            log('策略类型: ema55_pullback');
+            log('策略描述: 主升浪回踩EMA55不破，1小时级别企稳');
+            log('⚠️ 注意: 策略执行需要从数据库中筛选,可能需要较长时间');
+            log('💡 提示: 请在前端页面的策略管理中执行完整测试');
+        }
+
+        async function testMAEntanglementStrategy() {
+            log('\n🎯 测试 均线缠绕策略...\n' + '='.repeat(60));
+            log('策略类型: ma_entanglement');
+            log('策略描述: 检测5日、10日、20日均线缠绕后突破');
+            log('评分标准:');
+            log('  - 均线缠绕紧密度 (最高30分)');
+            log('  - 价格突破所有均线 (最高40分)');
+            log('  - 均线多头排列 (最高20分)');
+            log('  - 成交量放大 (最高15分)');
+            log('  - 近期价格走势 (最高10分)');
+            log('💡 提示: 请在前端页面的策略管理中执行完整测试');
+        }
+
+        async function testLeaderStrategy() {
+            log('\n🎯 测试 龙头策略...\n' + '='.repeat(60));
+            log('策略类型: leader_strategy');
+            log('策略描述: 识别板块或市场中的龙头股票');
+            log('评分标准:');
+            log('  - 短期/中期涨幅表现 (最高55分)');
+            log('  - 成交量放大情况 (最高20分)');
+            log('  - 连续上涨天数 (最高20分)');
+            log('  - 创新高能力 (15分)');
+            log('  - 回撤控制 (10分)');
+            log('  - 振幅稳定性 (10分)');
+            log('📊 筛选规则: 评分前30%且绝对评分≥60的股票');
+            log('💡 提示: 请在前端页面的策略管理中执行完整测试');
+        }
+
+        async function testAllStrategies() {
+            log('\n🚀 测试所有策略...\n' + '='.repeat(60));
+            await testEMA55Strategy();
+            await new Promise(resolve => setTimeout(resolve, 500));
+            await testMAEntanglementStrategy();
+            await new Promise(resolve => setTimeout(resolve, 500));
+            await testLeaderStrategy();
+            log('\n✅ 所有策略信息已显示');
+            log('💡 请访问前端页面进行实际策略执行');
+        }
+
+        async function getSyncTasks() {
+            log('查看同步任务...');
+            const running = await apiCall('/api/v1/sync/tasks/running');
+            const recent = await apiCall('/api/v1/sync/tasks/recent?limit=5');
+            
+            if (running && running.data) {
+                log(`\n🔄 正在运行的任务: ${running.count} 个`);
+                if (running.count > 0) {
+                    running.data.forEach(task => {
+                        log(`  - ${task.task_name} (进度: ${task.progress}%)`);
+                    });
+                }
+            }
+            
+            if (recent && recent.data) {
+                log(`\n📜 最近的任务 (${recent.data.length} 个):`);
+                recent.data.forEach(task => {
+                    const status = task.status === 'completed' ? '✅' : 
+                                 task.status === 'running' ? '🔄' : 
+                                 task.status === 'failed' ? '❌' : '⏸️';
+                    log(`  ${status} ${task.task_name} - ${task.status}`);
+                    log(`     开始: ${task.started_at || '未知'}`);
+                });
+            }
+        }
+
+        async function startSync() {
+            log('⚠️ 数据同步功能需要在前端页面操作');
+            log('💡 请访问 http://localhost:3000 进行数据同步');
+        }
+
+        // 页面加载时显示欢迎信息
+        window.onload = () => {
+            log('欢迎使用策略测试工具！', 'success');
+            log('=====================================');
+            log('🎯 新增策略已实现：');
+            log('  1. 均线缠绕策略 (ma_entanglement)');
+            log('  2. 龙头策略 (leader_strategy)');
+            log('=====================================');
+            log('💡 提示: 点击上方按钮开始测试');
+            log('');
+        };
+    </script>
+</body>
+</html>
+
