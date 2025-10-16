@@ -240,9 +240,13 @@ class StrategyFactory:
         """根据类型创建策略"""
         # 延迟导入各策略模块，按 impl_type 名称映射
         from .ema55_pullback import EMA55PullbackStrategy
+        from .ma_entanglement import MAEntanglementStrategy
+        from .leader_strategy import LeaderStrategy
 
         strategy_map = {
             'ema55_pullback': EMA55PullbackStrategy,
+            'ma_entanglement': MAEntanglementStrategy,
+            'leader_strategy': LeaderStrategy,
             # 新增策略时仅需在此注册映射或改为动态发现
         }
 
@@ -256,4 +260,4 @@ class StrategyFactory:
     @staticmethod
     def get_available_strategies() -> List[str]:
         """获取可用的策略类型"""
-        return ['ema55_pullback']  # 暂时只返回一个策略
+        return ['ema55_pullback', 'ma_entanglement', 'leader_strategy']

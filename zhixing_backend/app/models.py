@@ -144,6 +144,55 @@ class ConceptStockRelationDB(Base):
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
 
+class CategoryDB(Base):
+    """多级分类树表"""
+    __tablename__ = "categories"
+
+    id = Column(Integer, primary_key=True, index=True)
+    category_id = Column(String(50), unique=True, index=True, nullable=False)  # 分类唯一标识
+    name = Column(String(100), nullable=False)  # 分类名称
+    parent_id = Column(String(50), index=True)  # 父分类ID（NULL表示根节点）
+    path = Column(String(500))  # 路径（如：/ai/compute/energy/nuclear）
+    level = Column(Integer, default=0)  # 层级（0表示根节点）
+    sort_order = Column(Integer, default=0)  # 同级排序
+    
+    # 显示属性
+    icon = Column(String(50))  # 图标
+    color = Column(String(20))  # 颜色标识
+    description = Column(Text)  # 分类描述
+    
+    # 统计信息
+    stock_count = Column(Integer, default=0)  # 直接关联的股票数量
+    total_stock_count = Column(Integer, default=0)  # 包含子分类的总股票数量
+    
+    # 状态
+    is_active = Column(Boolean, default=True)
+    is_custom = Column(Boolean, default=True)  # 是否用户自定义
+    
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+
+class CategoryStockRelationDB(Base):
+    """分类-股票关联表"""
+    __tablename__ = "category_stock_relations"
+
+    id = Column(Integer, primary_key=True, index=True)
+    category_id = Column(String(50), nullable=False, index=True)  # 分类ID
+    stock_code = Column(String(20), nullable=False, index=True)  # 股票代码
+    weight = Column(Float, default=1.0)  # 权重（用于计算加权涨跌幅）
+    is_primary = Column(Boolean, default=False)  # 是否为主要分类
+    notes = Column(Text)  # 备注
+    
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    # 唯一约束：同一股票在同一分类下只能有一条记录
+    __table_args__ = (
+        Index('idx_category_stock_unique', 'category_id', 'stock_code', unique=True),
+    )
+
+
 class ExpertDB(Base):
     """专家表"""
     __tablename__ = "experts"
@@ -966,6 +1015,115 @@ class TradingStatsResponse(BaseModel):
     best_performing_stock: Optional[str] = None
     worst_performing_stock: Optional[str] = None
     monthly_stats: Optional[Dict[str, Any]] = None
+
+
+# ==================== 分类树相关Pydantic模型 ====================
+
+class CategoryCreate(BaseModel):
+    """创建分类请求"""
+    name: str
+    parent_id: Optional[str] = None
+    icon: Optional[str] = None
+    color: Optional[str] = None
+    description: Optional[str] = None
+    sort_order: int = 0
+
+
+class CategoryUpdate(BaseModel):
+    """更新分类请求"""
+    name: Optional[str] = None
+    parent_id: Optional[str] = None
+    icon: Optional[str] = None
+    color: Optional[str] = None
+    description: Optional[str] = None
+    sort_order: Optional[int] = None
+    is_active: Optional[bool] = None
+
+
+class CategoryResponse(BaseModel):
+    """分类响应"""
+    id: int
+    category_id: str
+    name: str
+    parent_id: Optional[str] = None
+    path: Optional[str] = None
+    level: int
+    sort_order: int
+    icon: Optional[str] = None
+    color: Optional[str] = None
+    description: Optional[str] = None
+    stock_count: int
+    total_stock_count: int
+    is_active: bool
+    is_custom: bool
+    created_at: datetime
+    updated_at: datetime
+
+
+class CategoryTreeNode(BaseModel):
+    """分类树节点"""
+    id: int
+    category_id: str
+    name: str
+    parent_id: Optional[str] = None
+    path: Optional[str] = None
+    level: int
+    sort_order: int
+    icon: Optional[str] = None
+    color: Optional[str] = None
+    description: Optional[str] = None
+    stock_count: int
+    total_stock_count: int
+    is_active: bool
+    is_custom: bool
+    children: List['CategoryTreeNode'] = []
+    
+    # 热力图数据
+    avg_change_percent: Optional[float] = None  # 平均涨跌幅
+    total_market_value: Optional[float] = None  # 总市值
+    rising_count: int = 0  # 上涨股票数
+    falling_count: int = 0  # 下跌股票数
+
+
+class CategoryStockRelationCreate(BaseModel):
+    """创建分类-股票关联请求"""
+    category_id: str
+    stock_code: str
+    weight: float = 1.0
+    is_primary: bool = False
+    notes: Optional[str] = None
+
+
+class CategoryHeatmapData(BaseModel):
+    """分类热力图数据"""
+    category_id: str
+    name: str
+    path: str
+    level: int
+    parent_id: Optional[str] = None
+    
+    # 统计数据
+    stock_count: int
+    avg_change_percent: float  # 平均涨跌幅
+    weighted_change_percent: float  # 加权涨跌幅
+    total_market_value: float  # 总市值
+    
+    # 详细统计
+    rising_count: int  # 上涨数量
+    falling_count: int  # 下跌数量
+    unchanged_count: int  # 平盘数量
+    
+    # 极值
+    max_change_percent: float  # 最大涨幅
+    min_change_percent: float  # 最大跌幅
+    
+    # 颜色映射（前端使用）
+    heat_level: int  # 热度等级 1-10
+    color: str  # 颜色值
+
+
+# 解决Pydantic模型循环引用
+CategoryTreeNode.model_rebuild()
 
 
 # ==================== 数据同步任务相关Pydantic模型 ====================
