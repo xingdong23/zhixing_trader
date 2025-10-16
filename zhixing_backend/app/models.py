@@ -481,34 +481,6 @@ class SelectionResultDB(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
 
 
-class ConceptDB(Base):
-    """概念表"""
-    __tablename__ = "concepts"
-
-    id = Column(Integer, primary_key=True, index=True)
-    concept_id = Column(String(50), unique=True, index=True, nullable=False)  # 概念唯一标识
-    name = Column(String(100), nullable=False)  # 概念名称
-    description = Column(Text)  # 概念描述
-    category = Column(String(50))  # 概念分类：行业、主题、技术等
-    stock_count = Column(Integer, default=0)  # 关联股票数量
-    is_active = Column(Boolean, default=True)  # 是否启用
-    created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-
-
-class ConceptStockRelationDB(Base):
-    """概念-股票关联表"""
-    __tablename__ = "concept_stock_relations"
-
-    id = Column(Integer, primary_key=True, index=True)
-    concept_id = Column(String(50), nullable=False)  # 概念ID
-    stock_code = Column(String(20), nullable=False)  # 股票代码
-    weight = Column(Float, default=1.0)  # 关联权重，用于排序
-    is_primary = Column(Boolean, default=False)  # 是否为主要概念
-    created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-
-
 class CategoryDB(Base):
     """多级分类树表"""
     __tablename__ = "categories"
