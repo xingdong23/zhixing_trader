@@ -56,23 +56,388 @@ class QuoteDB(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
 
 
-class KLineDB(Base):
-    """K线数据表"""
-    __tablename__ = "klines"
+# ==================== 多时间周期K线表 ====================
 
+# K线表基础字段定义
+def create_kline_fields():
+    """创建K线表字段（每次返回新的列对象）"""
+    return {
+        'id': Column(Integer, primary_key=True, index=True),
+        'code': Column(String(20), index=True, nullable=False),
+        'time_key': Column(String(20), nullable=False),
+        'trade_time': Column(DateTime, nullable=False, index=True),
+        'open_price': Column(Float, nullable=False),
+        'close_price': Column(Float, nullable=False),
+        'high_price': Column(Float, nullable=False),
+        'low_price': Column(Float, nullable=False),
+        'volume': Column(Integer),
+        'turnover': Column(Float),
+        'change_rate': Column(Float),
+        'amplitude': Column(Float),
+        'created_at': Column(DateTime, default=datetime.utcnow),
+    }
+
+
+class KLine1MinDB(Base):
+    """1分钟K线表"""
+    __tablename__ = "klines_1min"
+    
     id = Column(Integer, primary_key=True, index=True)
     code = Column(String(20), index=True, nullable=False)
-    period = Column(String(10), nullable=False)  # K_1M, K_5M, K_DAY, etc.
     time_key = Column(String(20), nullable=False)
+    trade_time = Column(DateTime, nullable=False, index=True)
     open_price = Column(Float, nullable=False)
     close_price = Column(Float, nullable=False)
     high_price = Column(Float, nullable=False)
     low_price = Column(Float, nullable=False)
     volume = Column(Integer)
     turnover = Column(Float)
-    pe = Column(Float)
     change_rate = Column(Float)
+    amplitude = Column(Float)
     created_at = Column(DateTime, default=datetime.utcnow)
+    
+    __table_args__ = (
+        Index('idx_1min_code_time', 'code', 'trade_time'),
+        Index('idx_1min_code_key', 'code', 'time_key'),
+    )
+
+
+class KLine3MinDB(Base):
+    """3分钟K线表"""
+    __tablename__ = "klines_3min"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    code = Column(String(20), index=True, nullable=False)
+    time_key = Column(String(20), nullable=False)
+    trade_time = Column(DateTime, nullable=False, index=True)
+    open_price = Column(Float, nullable=False)
+    close_price = Column(Float, nullable=False)
+    high_price = Column(Float, nullable=False)
+    low_price = Column(Float, nullable=False)
+    volume = Column(Integer)
+    turnover = Column(Float)
+    change_rate = Column(Float)
+    amplitude = Column(Float)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    
+    __table_args__ = (
+        Index('idx_3min_code_time', 'code', 'trade_time'),
+        Index('idx_3min_code_key', 'code', 'time_key'),
+    )
+
+
+class KLine5MinDB(Base):
+    """5分钟K线表"""
+    __tablename__ = "klines_5min"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    code = Column(String(20), index=True, nullable=False)
+    time_key = Column(String(20), nullable=False)
+    trade_time = Column(DateTime, nullable=False, index=True)
+    open_price = Column(Float, nullable=False)
+    close_price = Column(Float, nullable=False)
+    high_price = Column(Float, nullable=False)
+    low_price = Column(Float, nullable=False)
+    volume = Column(Integer)
+    turnover = Column(Float)
+    change_rate = Column(Float)
+    amplitude = Column(Float)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    
+    __table_args__ = (
+        Index('idx_5min_code_time', 'code', 'trade_time'),
+        Index('idx_5min_code_key', 'code', 'time_key'),
+    )
+
+
+class KLine15MinDB(Base):
+    """15分钟K线表"""
+    __tablename__ = "klines_15min"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    code = Column(String(20), index=True, nullable=False)
+    time_key = Column(String(20), nullable=False)
+    trade_time = Column(DateTime, nullable=False, index=True)
+    open_price = Column(Float, nullable=False)
+    close_price = Column(Float, nullable=False)
+    high_price = Column(Float, nullable=False)
+    low_price = Column(Float, nullable=False)
+    volume = Column(Integer)
+    turnover = Column(Float)
+    change_rate = Column(Float)
+    amplitude = Column(Float)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    
+    __table_args__ = (
+        Index('idx_15min_code_time', 'code', 'trade_time'),
+        Index('idx_15min_code_key', 'code', 'time_key'),
+    )
+
+
+class KLine30MinDB(Base):
+    """30分钟K线表"""
+    __tablename__ = "klines_30min"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    code = Column(String(20), index=True, nullable=False)
+    time_key = Column(String(20), nullable=False)
+    trade_time = Column(DateTime, nullable=False, index=True)
+    open_price = Column(Float, nullable=False)
+    close_price = Column(Float, nullable=False)
+    high_price = Column(Float, nullable=False)
+    low_price = Column(Float, nullable=False)
+    volume = Column(Integer)
+    turnover = Column(Float)
+    change_rate = Column(Float)
+    amplitude = Column(Float)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    
+    __table_args__ = (
+        Index('idx_30min_code_time', 'code', 'trade_time'),
+        Index('idx_30min_code_key', 'code', 'time_key'),
+    )
+
+
+class KLine1HourDB(Base):
+    """1小时K线表"""
+    __tablename__ = "klines_1hour"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    code = Column(String(20), index=True, nullable=False)
+    time_key = Column(String(20), nullable=False)
+    trade_time = Column(DateTime, nullable=False, index=True)
+    open_price = Column(Float, nullable=False)
+    close_price = Column(Float, nullable=False)
+    high_price = Column(Float, nullable=False)
+    low_price = Column(Float, nullable=False)
+    volume = Column(Integer)
+    turnover = Column(Float)
+    change_rate = Column(Float)
+    amplitude = Column(Float)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    
+    __table_args__ = (
+        Index('idx_1hour_code_time', 'code', 'trade_time'),
+        Index('idx_1hour_code_key', 'code', 'time_key'),
+    )
+
+
+class KLine4HourDB(Base):
+    """4小时K线表"""
+    __tablename__ = "klines_4hour"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    code = Column(String(20), index=True, nullable=False)
+    time_key = Column(String(20), nullable=False)
+    trade_time = Column(DateTime, nullable=False, index=True)
+    open_price = Column(Float, nullable=False)
+    close_price = Column(Float, nullable=False)
+    high_price = Column(Float, nullable=False)
+    low_price = Column(Float, nullable=False)
+    volume = Column(Integer)
+    turnover = Column(Float)
+    change_rate = Column(Float)
+    amplitude = Column(Float)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    
+    __table_args__ = (
+        Index('idx_4hour_code_time', 'code', 'trade_time'),
+        Index('idx_4hour_code_key', 'code', 'time_key'),
+    )
+
+
+class KLineDailyDB(Base):
+    """日线K线表"""
+    __tablename__ = "klines_daily"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    code = Column(String(20), index=True, nullable=False)
+    time_key = Column(String(20), nullable=False)
+    trade_time = Column(DateTime, nullable=False, index=True)
+    open_price = Column(Float, nullable=False)
+    close_price = Column(Float, nullable=False)
+    high_price = Column(Float, nullable=False)
+    low_price = Column(Float, nullable=False)
+    volume = Column(Integer)
+    turnover = Column(Float)
+    change_rate = Column(Float)
+    amplitude = Column(Float)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    
+    __table_args__ = (
+        Index('idx_daily_code_time', 'code', 'trade_time'),
+        Index('idx_daily_code_key', 'code', 'time_key'),
+    )
+
+
+class KLineWeeklyDB(Base):
+    """周线K线表"""
+    __tablename__ = "klines_weekly"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    code = Column(String(20), index=True, nullable=False)
+    time_key = Column(String(20), nullable=False)
+    trade_time = Column(DateTime, nullable=False, index=True)
+    open_price = Column(Float, nullable=False)
+    close_price = Column(Float, nullable=False)
+    high_price = Column(Float, nullable=False)
+    low_price = Column(Float, nullable=False)
+    volume = Column(Integer)
+    turnover = Column(Float)
+    change_rate = Column(Float)
+    amplitude = Column(Float)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    
+    __table_args__ = (
+        Index('idx_weekly_code_time', 'code', 'trade_time'),
+        Index('idx_weekly_code_key', 'code', 'time_key'),
+    )
+
+
+class KLineMonthlyDB(Base):
+    """月线K线表"""
+    __tablename__ = "klines_monthly"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    code = Column(String(20), index=True, nullable=False)
+    time_key = Column(String(20), nullable=False)
+    trade_time = Column(DateTime, nullable=False, index=True)
+    open_price = Column(Float, nullable=False)
+    close_price = Column(Float, nullable=False)
+    high_price = Column(Float, nullable=False)
+    low_price = Column(Float, nullable=False)
+    volume = Column(Integer)
+    turnover = Column(Float)
+    change_rate = Column(Float)
+    amplitude = Column(Float)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    
+    __table_args__ = (
+        Index('idx_monthly_code_time', 'code', 'trade_time'),
+        Index('idx_monthly_code_key', 'code', 'time_key'),
+    )
+
+
+# ==================== K线表映射管理器 ====================
+
+class KLineTableManager:
+    """K线表映射管理器"""
+    
+    # 时间周期到表模型的映射
+    PERIOD_TO_MODEL = {
+        # 分钟级别
+        "1m": KLine1MinDB,
+        "1min": KLine1MinDB,
+        "3m": KLine3MinDB,
+        "3min": KLine3MinDB,
+        "5m": KLine5MinDB,
+        "5min": KLine5MinDB,
+        "15m": KLine15MinDB,
+        "15min": KLine15MinDB,
+        "30m": KLine30MinDB,
+        "30min": KLine30MinDB,
+        
+        # 小时级别
+        "1h": KLine1HourDB,
+        "1hour": KLine1HourDB,
+        "60m": KLine1HourDB,
+        "4h": KLine4HourDB,
+        "4hour": KLine4HourDB,
+        
+        # 日线及以上
+        "1d": KLineDailyDB,
+        "1day": KLineDailyDB,
+        "daily": KLineDailyDB,
+        "1w": KLineWeeklyDB,
+        "1week": KLineWeeklyDB,
+        "weekly": KLineWeeklyDB,
+        "1M": KLineMonthlyDB,
+        "1month": KLineMonthlyDB,
+        "monthly": KLineMonthlyDB,
+    }
+    
+    # 表模型到时间周期的映射
+    MODEL_TO_PERIOD = {
+        KLine1MinDB: "1m",
+        KLine3MinDB: "3m",
+        KLine5MinDB: "5m",
+        KLine15MinDB: "15m",
+        KLine30MinDB: "30m",
+        KLine1HourDB: "1h",
+        KLine4HourDB: "4h",
+        KLineDailyDB: "1d",
+        KLineWeeklyDB: "1w",
+        KLineMonthlyDB: "1M",
+    }
+    
+    # 所有表模型
+    ALL_MODELS = [
+        KLine1MinDB,
+        KLine3MinDB,
+        KLine5MinDB,
+        KLine15MinDB,
+        KLine30MinDB,
+        KLine1HourDB,
+        KLine4HourDB,
+        KLineDailyDB,
+        KLineWeeklyDB,
+        KLineMonthlyDB,
+    ]
+    
+    @classmethod
+    def get_model_by_period(cls, period: str):
+        """
+        根据时间周期获取对应的表模型
+        
+        Args:
+            period: 时间周期，如 "1m", "5m", "1h", "1d" 等
+            
+        Returns:
+            对应的表模型类
+            
+        Raises:
+            ValueError: 如果时间周期不支持
+        """
+        period = period.lower()
+        model = cls.PERIOD_TO_MODEL.get(period)
+        
+        if model is None:
+            raise ValueError(
+                f"不支持的时间周期: {period}. "
+                f"支持的周期: {', '.join(sorted(set(cls.PERIOD_TO_MODEL.keys())))}"
+            )
+        
+        return model
+    
+    @classmethod
+    def get_period_by_model(cls, model):
+        """根据表模型获取时间周期"""
+        return cls.MODEL_TO_PERIOD.get(model, "unknown")
+    
+    @classmethod
+    def get_table_name(cls, period: str) -> str:
+        """获取表名"""
+        model = cls.get_model_by_period(period)
+        return model.__tablename__
+    
+    @classmethod
+    def get_supported_periods(cls) -> list:
+        """获取所有支持的时间周期"""
+        return sorted(set(cls.PERIOD_TO_MODEL.keys()))
+    
+    @classmethod
+    def normalize_period(cls, period: str) -> str:
+        """
+        规范化时间周期名称
+        
+        Args:
+            period: 原始时间周期，如 "1min", "5m", "1day" 等
+            
+        Returns:
+            规范化的时间周期，如 "1m", "5m", "1d" 等
+        """
+        model = cls.get_model_by_period(period)
+        return cls.MODEL_TO_PERIOD[model]
 
 
 class StrategyDB(Base):
