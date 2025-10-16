@@ -9,7 +9,8 @@ from typing import List, Optional
 import aiohttp
 from loguru import logger
 
-from app.core.interfaces import IMarketDataProvider, KLineData, StockInfo
+from app.core.interfaces import IMarketDataProvider, KLineData
+from app.models import StockInfo
 
 
 class TwelveDataProvider(IMarketDataProvider):

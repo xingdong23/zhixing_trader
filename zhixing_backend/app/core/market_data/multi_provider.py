@@ -7,7 +7,8 @@ import time
 from typing import List, Optional, Dict
 from loguru import logger
 
-from app.core.interfaces import IMarketDataProvider, KLineData, StockInfo
+from app.core.interfaces import IMarketDataProvider, KLineData
+from app.models import StockInfo
 
 
 class ProviderStats:
