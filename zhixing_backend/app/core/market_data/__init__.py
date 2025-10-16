@@ -4,11 +4,17 @@
 """
 from .yahoo_provider import YahooFinanceProvider, MarketDataProviderFactory
 from .alphavantage_provider import AlphaVantageProvider
+from .finnhub_provider import FinnhubProvider
+from .twelvedata_provider import TwelveDataProvider
 from .hybrid_provider import HybridProvider
+from .multi_provider import MultiProvider
 
 __all__ = [
     "YahooFinanceProvider",
     "AlphaVantageProvider",
+    "FinnhubProvider",
+    "TwelveDataProvider",
     "HybridProvider",
+    "MultiProvider",
     "MarketDataProviderFactory"
 ]

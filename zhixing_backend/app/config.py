@@ -42,13 +42,30 @@ class Settings(BaseSettings):
     max_kline_days: int = 730  # 增加到2年，支持更多历史数据用于技术分析
     
     # 市场数据源配置
-    market_data_provider: str = "hybrid"  # 可选: yahoo, alphavantage, hybrid
-    alpha_vantage_api_key: str = os.getenv("ALPHA_VANTAGE_API_KEY", "demo")
-    yahoo_rate_limit: float = 0.2  # 雅虎API调用间隔（秒）
-    alphavantage_rate_limit: float = 12.0  # Alpha Vantage免费版限制：5次/分钟
+    market_data_provider: str = "multi"  # 可选: yahoo, alphavantage, finnhub, twelvedata, hybrid, multi
+    
+    # API密钥配置
+    alpha_vantage_api_key: str = os.getenv("ALPHA_VANTAGE_API_KEY", "")
+    finnhub_api_key: str = os.getenv("FINNHUB_API_KEY", "")
+    twelvedata_api_key: str = os.getenv("TWELVEDATA_API_KEY", "")
+    
+    # 各数据源速率限制
+    yahoo_rate_limit: float = 0.5  # 雅虎API调用间隔（秒）
+    alphavantage_rate_limit: float = 12.0  # Alpha Vantage: 5次/分钟
+    finnhub_rate_limit: float = 1.0  # Finnhub: 60次/分钟
+    twelvedata_rate_limit: float = 7.5  # Twelve Data: 8次/分钟
+    
+    # 数据源优先级配置（用于multi模式）
+    # 格式: "数据源名:优先级:权重,..."
+    # 优先级: 1-5 (数字越小优先级越高)
+    # 权重: 1-100 (用于负载均衡)
+    data_sources_config: str = os.getenv(
+        "DATA_SOURCES_CONFIG",
+        "finnhub:1:40,twelvedata:1:30,alphavantage:2:15,yahoo:3:15"
+    )
     
     # 数据源优先级（hybrid模式下）
-    primary_data_source: str = "yahoo"  # 主要数据源: yahoo 或 alphavantage
+    primary_data_source: str = "finnhub"  # 主要数据源
     
     class Config:
         env_file = ".env"

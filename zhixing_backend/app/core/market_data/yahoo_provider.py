@@ -171,13 +171,22 @@ class MarketDataProviderFactory:
         elif provider_type == "alphavantage":
             from .alphavantage_provider import AlphaVantageProvider
             return AlphaVantageProvider(**kwargs)
+        elif provider_type == "finnhub":
+            from .finnhub_provider import FinnhubProvider
+            return FinnhubProvider(**kwargs)
+        elif provider_type == "twelvedata":
+            from .twelvedata_provider import TwelveDataProvider
+            return TwelveDataProvider(**kwargs)
         elif provider_type == "hybrid":
             from .hybrid_provider import HybridProvider
             return HybridProvider(**kwargs)
+        elif provider_type == "multi":
+            from .multi_provider import MultiProvider
+            return MultiProvider(**kwargs)
         else:
             raise ValueError(f"未知的数据提供者类型: {provider_type}")
     
     @staticmethod
     def get_available_providers() -> List[str]:
         """获取可用的数据提供者"""
-        return ["yahoo", "alphavantage", "hybrid"]
+        return ["yahoo", "alphavantage", "finnhub", "twelvedata", "hybrid", "multi"]
