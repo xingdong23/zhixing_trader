@@ -41,47 +41,56 @@ class USLeaderHunterStrategy(BaseStrategy):
         logger.info(f"初始化美股龙头猎手策略，ID: {strategy_id}")
     
     def _init_parameters(self) -> Dict[str, Any]:
-        """初始化策略参数"""
+        """
+        初始化策略参数
+        
+        默认使用波段交易配置（1个月+持仓周期）
+        如需短线配置，可在创建策略时传入自定义参数
+        """
         default_params = {
-            # 板块条件
+            # ==================== 板块条件 ====================
             "sector_heat_threshold": 70.0,        # 热度阈值
             "sector_min_days": 2,                 # 最小持续天数
-            "sector_max_days": 5,                 # 最大持续天数
+            "sector_max_days": 30,                # 最大持续天数（波段：30天）
             
-            # 龙头条件
+            # ==================== 龙头条件 ====================
             "leader_score_threshold": 70.0,       # 龙头分数阈值
-            "leader_rank_limit": 3,               # 板块内排名限制
+            "leader_rank_limit": 5,               # 板块内排名限制（波段：前5）
             
-            # 技术形态条件
+            # ==================== 技术形态条件 ====================
             "pattern_score_threshold": 35.0,      # 形态分数阈值
-            "volume_ratio_min": 2.0,              # 最小量比
+            "volume_ratio_min": 1.5,              # 最小量比（波段：1.5）
             
-            # 市值条件
+            # ==================== 市值条件 ====================
             "market_cap_min": 500,                # 最小市值（百万美元）
-            "market_cap_max": 5000,               # 最大市值（百万美元）
-            "stock_price_max": 100.0,             # 最高股价
+            "market_cap_max": 10000,              # 最大市值（波段：100亿）
+            "stock_price_max": 150.0,             # 最高股价（波段：150）
             
-            # 仓位管理
+            # ==================== 仓位管理（波段：更集中）====================
             "position_ratios": {
-                "Priority_1": 0.90,               # 满仓信号
-                "Priority_2": 0.70,               # 重仓信号
-                "Priority_3": 0.50,               # 半仓信号
-                "Priority_4": 0.20,               # 试探信号
+                "Priority_1": 0.40,               # 满仓信号 → 40%单股
+                "Priority_2": 0.30,               # 重仓信号 → 30%
+                "Priority_3": 0.20,               # 半仓信号 → 20%
+                "Priority_4": 0.10,               # 试探信号 → 10%
             },
-            "max_single_position": 0.50,          # 单股最大仓位
-            "max_sector_position": 0.70,          # 同板块最大仓位
+            "max_single_position": 0.40,          # 单股最大仓位（波段：40%）
+            "max_sector_position": 0.80,          # 同板块最大仓位（波段：80%）
             
-            # 止损止盈
-            "stop_loss_pct": 0.08,                # 固定止损8%
+            # ==================== 止损止盈（波段：更宽松）====================
+            "stop_loss_pct": 0.15,                # 固定止损15%（波段：给更多空间）
             "take_profit_targets": [
-                {"profit": 0.15, "close_ratio": 0.40, "trailing_stop": 0.05},
-                {"profit": 0.30, "close_ratio": 0.30, "trailing_stop": 0.15},
+                # 目标1: +50%
                 {"profit": 0.50, "close_ratio": 0.30, "trailing_stop": 0.10},
+                # 目标2: +100%
+                {"profit": 1.00, "close_ratio": 0.30, "trailing_stop": 0.30},
+                # 目标3: +200%
+                {"profit": 2.00, "close_ratio": 0.40, "trailing_stop": 0.50},
             ],
             
-            # 风险控制
-            "premarket_stop_loss": -0.15,         # 盘前止损阈值-15%
-            "max_hold_days": 15,                  # 最大持仓天数
+            # ==================== 风险控制 ====================
+            "premarket_stop_loss": -0.25,         # 盘前止损-25%（波段：放宽）
+            "max_hold_days": 90,                  # 最大持仓90天（波段：3个月）
+            "time_stop_loss_days": 30,            # 30天无新高考虑止损
         }
         
         # 合并用户配置

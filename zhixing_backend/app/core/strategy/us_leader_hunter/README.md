@@ -2,7 +2,9 @@
 
 ## 📚 策略说明
 
-基于热点板块和龙头股识别的短期波段交易策略，适用于美股市场。
+基于热点板块和龙头股识别的波段交易策略，适用于美股市场。
+
+**适合**：1个月+持仓周期的波段交易者
 
 ### 核心逻辑
 
@@ -12,6 +14,36 @@
 3. 确认生命周期（加速期最佳）
 4. 验证技术形态（强势形态）
 5. 生成交易信号
+```
+
+---
+
+## 📂 文档结构（本目录下所有文档）
+
+| 文档 | 用途 | 适合人群 |
+|------|------|---------|
+| **README.md** | 策略快速入门和使用指南 | 所有人 |
+| **SWING_TRADING_CONFIG.md** | ⭐ 波段交易配置（1个月+持仓） | 波段交易者 |
+| **US_LEADER_STRATEGY.md** | 完整策略文档（1.5万字） | 深入理解策略 |
+| **US_STOCK_UNIVERSE_GUIDE.md** | 股票池选择指南 | 了解扫描哪些股票 |
+| **US_LEADER_SCANNER_SOLUTION.md** | 市场扫描实施方案 | 开发者 |
+| **US_LEADER_IMPLEMENTATION.md** | 实施完成报告 | 查看已完成内容 |
+
+### 推荐阅读顺序
+
+```
+新手：
+1. README.md（本文档）
+2. SWING_TRADING_CONFIG.md（⭐ 重点）
+3. US_STOCK_UNIVERSE_GUIDE.md
+
+深入理解：
+4. US_LEADER_STRATEGY.md（完整策略）
+5. US_LEADER_SCANNER_SOLUTION.md（技术实现）
+
+开发者：
+6. US_LEADER_IMPLEMENTATION.md（实施报告）
+7. 各个模块的源代码
 ```
 
 ## 📦 模块结构
