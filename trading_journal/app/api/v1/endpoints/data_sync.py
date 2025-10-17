@@ -411,8 +411,6 @@ async def test_data_source(symbol: str) -> Dict[str, Any]:
         
         if provider_type == "hybrid":
             # 测试两个数据源
-            , AlphaVantageProvider
-            
             # 测试雅虎
             logger.info("测试雅虎财经...")
             yahoo = YahooFinanceProvider(rate_limit_delay=0.2)
