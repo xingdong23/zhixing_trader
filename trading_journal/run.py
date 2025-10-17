@@ -13,7 +13,7 @@ def main():
     uvicorn.run(
         "app.main:app",
         host="0.0.0.0",
-        port=8000,
+        port=8001,  # trading_journal使用8001端口
         reload=False,
         log_level="info",
     )

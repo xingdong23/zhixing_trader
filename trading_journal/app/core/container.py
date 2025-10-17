@@ -9,10 +9,9 @@ from .interfaces import (
     IMarketDataProvider, IStockRepository, IKLineRepository,
     IStrategyRepository, ISelectionResultRepository
 )
-from .market_data.yahoo_provider import YahooFinanceProvider
+from ..utils.market_data_helper import YahooFinanceProvider
 from ..repositories.stock_repository import StockRepository
 from ..repositories.kline_repository import KLineRepository
-from ..services.strategy_service import StrategyService
 from ..services.market_data_service import MarketDataService
 
 
@@ -44,12 +43,8 @@ class Container:
                 self._services['stock_repository'],
                 self._services['kline_repository']
             )
-
-            self._services['strategy_service'] = StrategyService(
-                self._services['stock_repository'],
-                self._services['kline_repository'],
-                self._services['market_data_provider']
-            )
+            
+            # 注意: strategy_service 已迁移到 quant_trading 模块
             
             self._initialized = True
             logger.info("依赖注入容器初始化完成")
@@ -80,10 +75,6 @@ class Container:
     def get_kline_repository(self) -> IKLineRepository:
         """获取K线仓库"""
         return self.get_service('kline_repository')
-    
-    def get_strategy_service(self) -> StrategyService:
-        """获取策略服务"""
-        return self.get_service('strategy_service')
     
     def get_market_data_service(self) -> MarketDataService:
         """获取市场数据服务"""

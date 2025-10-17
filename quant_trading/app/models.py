@@ -1481,3 +1481,7 @@ class DataSyncTaskUpdate(BaseModel):
     result_summary: Optional[Dict[str, Any]] = None
     error_details: Optional[Dict[str, Any]] = None
     sync_details: Optional[Dict[str, Any]] = None
+
+
+# 为了兼容性，创建KLineDB别名
+KLineDB = KLineDailyDB

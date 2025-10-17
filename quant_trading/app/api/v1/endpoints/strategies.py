@@ -173,7 +173,7 @@ async def execute_all_strategies(
 async def get_available_strategy_types() -> Dict[str, Any]:
     """获取可用的策略类型"""
     try:
-        from ....core.strategy.engine import StrategyFactory
+        from ...core.strategy.engine import StrategyFactory
         
         available_types = StrategyFactory.get_available_strategies()
         
