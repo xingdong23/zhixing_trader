@@ -3,11 +3,11 @@
 支持使用多个API Key轮询访问，成倍扩展API额度
 """
 import time
-from typing import List, Optional, Type
+from typing import List, Optional, Type, Dict
 from loguru import logger
 
-from app.core.interfaces import IMarketDataProvider, KLineData
-from app.models import StockInfo
+from ..interfaces import IMarketDataProvider, KLineData
+# StockInfo removed
 
 
 class AccountStats:
@@ -249,7 +249,7 @@ class MultiAccountProvider(IMarketDataProvider):
         )
         return result if result is not None else []
     
-    async def get_stock_info(self, symbol: str) -> Optional[StockInfo]:
+    async def get_stock_info(self, symbol: str) -> Optional[Dict]:
         """获取股票信息（多账号轮询）"""
         return await self._execute_with_retry('get_stock_info', symbol)
     

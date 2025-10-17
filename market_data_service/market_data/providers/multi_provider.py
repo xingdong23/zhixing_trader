@@ -7,8 +7,8 @@ import time
 from typing import List, Optional, Dict
 from loguru import logger
 
-from app.core.interfaces import IMarketDataProvider, KLineData
-from app.models import StockInfo
+from ..interfaces import IMarketDataProvider, KLineData
+# StockInfo removed
 
 
 class ProviderStats:
@@ -265,7 +265,7 @@ class MultiProvider(IMarketDataProvider):
         )
         return result if result is not None else []
     
-    async def get_stock_info(self, symbol: str) -> Optional[StockInfo]:
+    async def get_stock_info(self, symbol: str) -> Optional[Dict]:
         """获取股票信息（带故障转移）"""
         return await self._try_with_fallback('get_stock_info', symbol)
     

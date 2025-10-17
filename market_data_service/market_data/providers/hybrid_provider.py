@@ -2,7 +2,7 @@
 混合数据提供者
 实现多数据源策略，自动故障转移和负载均衡
 """
-from typing import List, Dict, Optional, Any
+from typing import List, Dict, Optional, Any, Dict
 from loguru import logger
 from datetime import datetime
 

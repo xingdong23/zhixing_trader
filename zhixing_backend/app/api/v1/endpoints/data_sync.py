@@ -9,7 +9,11 @@ from loguru import logger
 
 from ....services.data_sync_service import DataSyncService
 from ....services.smart_sync_service import SmartSyncService
-from ....core.market_data import MarketDataProviderFactory
+from ....utils.market_data_helper import (
+    YahooFinanceProvider,
+    AlphaVantageProvider,
+    HybridProvider,
+)
 from ....repositories.stock_repository import StockRepository
 from ....repositories.kline_repository import KLineRepository
 from ....config import settings
@@ -23,7 +27,7 @@ def get_market_data_provider():
     
     if provider_type == "hybrid":
         # 混合模式：使用雅虎+Alpha Vantage
-        from ....core.market_data import HybridProvider, YahooFinanceProvider, AlphaVantageProvider
+        
         
         yahoo = YahooFinanceProvider(rate_limit_delay=settings.yahoo_rate_limit)
         alphavantage = AlphaVantageProvider(
@@ -37,10 +41,10 @@ def get_market_data_provider():
             primary_provider=settings.primary_data_source
         )
     elif provider_type == "yahoo":
-        from ....core.market_data import YahooFinanceProvider
+        
         return YahooFinanceProvider(rate_limit_delay=settings.yahoo_rate_limit)
     elif provider_type == "alphavantage":
-        from ....core.market_data import AlphaVantageProvider
+        
         return AlphaVantageProvider(
             api_key=settings.alpha_vantage_api_key,
             rate_limit_delay=settings.alphavantage_rate_limit
@@ -48,7 +52,7 @@ def get_market_data_provider():
     else:
         # 默认使用混合模式
         logger.warning(f"未知的数据提供者类型: {provider_type}，使用混合模式")
-        from ....core.market_data import HybridProvider, YahooFinanceProvider, AlphaVantageProvider
+        
         yahoo = YahooFinanceProvider(rate_limit_delay=0.2)
         alphavantage = AlphaVantageProvider(rate_limit_delay=12.0)
         return HybridProvider(yahoo_provider=yahoo, alphavantage_provider=alphavantage)
@@ -407,7 +411,7 @@ async def test_data_source(symbol: str) -> Dict[str, Any]:
         
         if provider_type == "hybrid":
             # 测试两个数据源
-            from ....core.market_data import YahooFinanceProvider, AlphaVantageProvider
+            , AlphaVantageProvider
             
             # 测试雅虎
             logger.info("测试雅虎财经...")

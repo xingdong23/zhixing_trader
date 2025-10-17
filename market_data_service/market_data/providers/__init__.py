@@ -8,6 +8,7 @@ from .finnhub_provider import FinnhubProvider
 from .twelvedata_provider import TwelveDataProvider
 from .hybrid_provider import HybridProvider
 from .multi_provider import MultiProvider
+MultiProviderStrategy = MultiProvider  # 别名，保持兼容性
 from .multi_account_provider import MultiAccountProvider
 from .scenario_router import ScenarioRouter
 
@@ -18,6 +19,7 @@ __all__ = [
     "TwelveDataProvider",
     "HybridProvider",
     "MultiProvider",
+    "MultiProviderStrategy",
     "MultiAccountProvider",
     "ScenarioRouter",
     "MarketDataProviderFactory"

@@ -5,8 +5,8 @@
 from typing import List, Optional, Dict
 from loguru import logger
 
-from app.core.interfaces import IMarketDataProvider, KLineData
-from app.models import StockInfo
+from ..interfaces import IMarketDataProvider, KLineData
+# StockInfo removed
 from .multi_provider import MultiProvider
 
 
@@ -191,7 +191,7 @@ class ScenarioRouter(IMarketDataProvider):
         
         return data
     
-    async def get_stock_info(self, symbol: str) -> Optional[StockInfo]:
+    async def get_stock_info(self, symbol: str) -> Optional[Dict]:
         """获取股票信息"""
         return await self.multi_provider.get_stock_info(symbol)
     

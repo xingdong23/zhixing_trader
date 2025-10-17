@@ -319,7 +319,7 @@ if __name__ == "__main__":
 ```python
 # scripts/screen_stocks_with_finnhub.py
 
-from app.core.market_data.finnhub_provider import FinnhubProvider
+from app.utils.market_data_helper import FinnhubProvider
 from loguru import logger
 
 async def screen_stocks_from_finnhub():
