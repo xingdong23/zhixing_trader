@@ -46,7 +46,13 @@ class Settings(BaseSettings):
     
     # API密钥配置
     alpha_vantage_api_key: str = os.getenv("ALPHA_VANTAGE_API_KEY", "")
+    alpha_vantage_api_key_1: str = os.getenv("ALPHA_VANTAGE_API_KEY_1", "")
+    alpha_vantage_api_key_2: str = os.getenv("ALPHA_VANTAGE_API_KEY_2", "")
+    alpha_vantage_api_key_3: str = os.getenv("ALPHA_VANTAGE_API_KEY_3", "")
     finnhub_api_key: str = os.getenv("FINNHUB_API_KEY", "")
+    finnhub_api_key_1: str = os.getenv("FINNHUB_API_KEY_1", "")
+    finnhub_api_key_2: str = os.getenv("FINNHUB_API_KEY_2", "")
+    finnhub_api_key_3: str = os.getenv("FINNHUB_API_KEY_3", "")
     twelvedata_api_key: str = os.getenv("TWELVEDATA_API_KEY", "")
     
     # 各数据源速率限制
