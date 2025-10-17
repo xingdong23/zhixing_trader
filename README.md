@@ -6,37 +6,51 @@
 
 ```
 zhixing_trader/
-├── zhixing_backend/        # 股票量化交易模块
-│   ├── app/               # 应用代码
-│   ├── scripts/           # 工具脚本
-│   ├── tests/             # 测试代码
-│   ├── requirements.txt   # Python依赖
-│   └── run.py            # 启动脚本
 │
-├── bitcoin_trader/        # 比特币量化交易模块 🆕
-│   ├── app/              # 应用代码
-│   │   ├── api/         # API接口
-│   │   ├── core/        # 核心功能
-│   │   ├── models.py    # 数据模型
-│   │   └── main.py      # 主入口
-│   ├── scripts/          # 工具脚本
-│   ├── docs/             # 模块文档
-│   ├── requirements.txt  # Python依赖
-│   └── run.py           # 启动脚本
+├── 📄 根目录文档
+│   ├── README.md              # 项目总览（⭐ 从这里开始）
+│   ├── ARCHITECTURE.md        # 整体架构设计
+│   ├── MODULE_GUIDE.md        # 模块开发指南
+│   ├── DOCS_INDEX.md          # 文档索引
+│   └── PROJECT_STRUCTURE.md  # 目录结构说明
 │
-├── zhixing_fronted/       # 前端界面
-│   ├── app/              # Next.js 应用
-│   ├── components/       # React 组件
-│   └── lib/              # 工具库
+├── 📚 docs/                   # 共享文档目录
+│   ├── 01-getting-started/   # 快速入门
+│   ├── 02-features/          # 功能特性
+│   ├── 03-data-sources/      # 数据源配置
+│   ├── 04-testing/           # 测试文档
+│   ├── 05-architecture/      # 架构设计
+│   └── 06-legacy/            # 历史文档
 │
-└── docs/                 # 项目文档
-    ├── 01-getting-started/
-    ├── 02-features/
-    ├── 03-data-sources/
-    ├── 04-testing/
-    ├── 05-architecture/
-    └── 06-legacy/
+├── 🛠️ scripts/                # 项目级脚本
+│   ├── setup_alphavantage.sh
+│   └── start_with_mysql.sh
+│
+├── 💾 data/                   # 数据目录
+│   └── test/                 # 测试数据
+│
+├── 📈 zhixing_backend/        # 股票量化交易模块（端口 8000）
+│   ├── app/                  # 应用代码
+│   ├── scripts/              # 模块脚本
+│   ├── tests/                # 测试代码
+│   └── requirements.txt
+│
+├── 🪙 bitcoin_trader/         # 比特币量化交易模块（端口 8001）🆕
+│   ├── app/                  # 应用代码
+│   │   ├── api/v1/          # API接口
+│   │   ├── core/            # 核心功能
+│   │   └── main.py          # 主入口
+│   ├── scripts/              # 模块脚本
+│   ├── docs/                 # 模块文档
+│   └── requirements.txt
+│
+└── 💻 zhixing_fronted/        # 前端界面（端口 3000）
+    ├── app/                  # Next.js 应用
+    ├── components/           # React 组件
+    └── lib/                  # 工具库
 ```
+
+> 📖 详细目录结构说明请查看 [PROJECT_STRUCTURE.md](PROJECT_STRUCTURE.md)
 
 ## 模块说明
 
