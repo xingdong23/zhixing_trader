@@ -9,7 +9,7 @@ import json
 
 from ....database import db_service
 from ....models import (
-    CategoryDB, CategoryStockRelationDB, StockDB, QuoteDB,
+    CategoryDB, CategoryStockRelationDB, StockDB,
     CategoryCreate, CategoryUpdate, CategoryResponse, CategoryTreeNode,
     CategoryStockRelationCreate, CategoryHeatmapData
 )

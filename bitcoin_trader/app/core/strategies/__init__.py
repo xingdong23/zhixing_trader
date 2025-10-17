@@ -52,3 +52,14 @@ class BaseStrategy(ABC):
         """获取策略所需的技术指标"""
         return []
 
+
+# 导入具体策略
+from .sma_crossover import SMACrossoverStrategy
+from .steady_profit_strategy import SteadyProfitStrategy
+
+__all__ = [
+    'BaseStrategy',
+    'SMACrossoverStrategy',
+    'SteadyProfitStrategy',
+]
+

@@ -14,46 +14,31 @@ Base = declarative_base()
 # ==================== SQLAlchemy 数据库模型 ====================
 
 class StockDB(Base):
-    """股票信息表"""
+    """股票信息表 - 股票基本信息"""
     __tablename__ = "stocks"
 
     id = Column(Integer, primary_key=True, index=True)
-    code = Column(String(20), unique=True, index=True, nullable=False)
-    name = Column(String(100), nullable=False)
-    market = Column(String(10), nullable=False)  # US, HK, CN
-    group_id = Column(String(50))
-    group_name = Column(String(100))
-    lot_size = Column(Integer, default=100)
-    sec_type = Column(String(20), default="STOCK")
+    code = Column(String(20), unique=True, index=True, nullable=False, comment="股票代码")
+    name = Column(String(100), nullable=False, comment="股票名称")
+    market = Column(String(10), nullable=False, comment="市场: US, HK, CN")
+    lot_size = Column(Integer, default=100, comment="交易单位")
+    sec_type = Column(String(20), default="STOCK", comment="证券类型")
 
     # 用户自定义标签和属性
-    market_cap = Column(String(20))  # large, mid, small
-    watch_level = Column(String(20))  # high, medium, low
-    notes = Column(Text)  # 用户备注
+    market_cap = Column(String(20), comment="市值级别: large, mid, small")
+    watch_level = Column(String(20), comment="关注等级: high, medium, low")
+    notes = Column(Text, comment="用户备注")
 
-    added_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-    is_active = Column(Boolean, default=True)
+    # 时间戳
+    added_at = Column(DateTime, default=datetime.utcnow, comment="添加时间")
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, comment="更新时间")
+    is_active = Column(Boolean, default=True, comment="是否有效")
 
-
-class QuoteDB(Base):
-    """行情数据表"""
-    __tablename__ = "quotes"
-    
-    id = Column(Integer, primary_key=True, index=True)
-    code = Column(String(20), index=True, nullable=False)
-    cur_price = Column(Float, nullable=False)
-    prev_close_price = Column(Float)
-    open_price = Column(Float)
-    high_price = Column(Float)
-    low_price = Column(Float)
-    volume = Column(Integer)
-    turnover = Column(Float)
-    change_val = Column(Float)
-    change_rate = Column(Float)
-    amplitude = Column(Float)
-    update_time = Column(DateTime)
-    created_at = Column(DateTime, default=datetime.utcnow)
+    __table_args__ = (
+        Index('idx_stock_code', 'code'),
+        Index('idx_stock_market', 'market'),
+        Index('idx_stock_active', 'is_active'),
+    )
 
 
 # ==================== 多时间周期K线表 ====================
@@ -83,22 +68,22 @@ class KLine1MinDB(Base):
     __tablename__ = "klines_1min"
     
     id = Column(Integer, primary_key=True, index=True)
-    code = Column(String(20), index=True, nullable=False)
-    time_key = Column(String(20), nullable=False)
-    trade_time = Column(DateTime, nullable=False, index=True)
-    open_price = Column(Float, nullable=False)
-    close_price = Column(Float, nullable=False)
-    high_price = Column(Float, nullable=False)
-    low_price = Column(Float, nullable=False)
-    volume = Column(Integer)
-    turnover = Column(Float)
-    change_rate = Column(Float)
-    amplitude = Column(Float)
-    created_at = Column(DateTime, default=datetime.utcnow)
+    code = Column(String(20), ForeignKey('stocks.code', ondelete='CASCADE'), index=True, nullable=False, comment="股票代码")
+    time_key = Column(String(20), nullable=False, comment="时间键")
+    trade_time = Column(DateTime, nullable=False, index=True, comment="交易时间")
+    open_price = Column(Float, nullable=False, comment="开盘价")
+    close_price = Column(Float, nullable=False, comment="收盘价")
+    high_price = Column(Float, nullable=False, comment="最高价")
+    low_price = Column(Float, nullable=False, comment="最低价")
+    volume = Column(Integer, comment="成交量")
+    turnover = Column(Float, comment="成交额")
+    change_rate = Column(Float, comment="涨跌幅")
+    amplitude = Column(Float, comment="振幅")
+    created_at = Column(DateTime, default=datetime.utcnow, comment="创建时间")
     
     __table_args__ = (
         Index('idx_1min_code_time', 'code', 'trade_time'),
-        Index('idx_1min_code_key', 'code', 'time_key'),
+        Index('idx_1min_code_key', 'code', 'time_key', unique=True),
     )
 
 
@@ -107,22 +92,22 @@ class KLine3MinDB(Base):
     __tablename__ = "klines_3min"
     
     id = Column(Integer, primary_key=True, index=True)
-    code = Column(String(20), index=True, nullable=False)
-    time_key = Column(String(20), nullable=False)
-    trade_time = Column(DateTime, nullable=False, index=True)
-    open_price = Column(Float, nullable=False)
-    close_price = Column(Float, nullable=False)
-    high_price = Column(Float, nullable=False)
-    low_price = Column(Float, nullable=False)
-    volume = Column(Integer)
-    turnover = Column(Float)
-    change_rate = Column(Float)
-    amplitude = Column(Float)
-    created_at = Column(DateTime, default=datetime.utcnow)
+    code = Column(String(20), ForeignKey('stocks.code', ondelete='CASCADE'), index=True, nullable=False, comment="股票代码")
+    time_key = Column(String(20), nullable=False, comment="时间键")
+    trade_time = Column(DateTime, nullable=False, index=True, comment="交易时间")
+    open_price = Column(Float, nullable=False, comment="开盘价")
+    close_price = Column(Float, nullable=False, comment="收盘价")
+    high_price = Column(Float, nullable=False, comment="最高价")
+    low_price = Column(Float, nullable=False, comment="最低价")
+    volume = Column(Integer, comment="成交量")
+    turnover = Column(Float, comment="成交额")
+    change_rate = Column(Float, comment="涨跌幅")
+    amplitude = Column(Float, comment="振幅")
+    created_at = Column(DateTime, default=datetime.utcnow, comment="创建时间")
     
     __table_args__ = (
         Index('idx_3min_code_time', 'code', 'trade_time'),
-        Index('idx_3min_code_key', 'code', 'time_key'),
+        Index('idx_3min_code_key', 'code', 'time_key', unique=True),
     )
 
 
@@ -131,22 +116,22 @@ class KLine5MinDB(Base):
     __tablename__ = "klines_5min"
     
     id = Column(Integer, primary_key=True, index=True)
-    code = Column(String(20), index=True, nullable=False)
-    time_key = Column(String(20), nullable=False)
-    trade_time = Column(DateTime, nullable=False, index=True)
-    open_price = Column(Float, nullable=False)
-    close_price = Column(Float, nullable=False)
-    high_price = Column(Float, nullable=False)
-    low_price = Column(Float, nullable=False)
-    volume = Column(Integer)
-    turnover = Column(Float)
-    change_rate = Column(Float)
-    amplitude = Column(Float)
-    created_at = Column(DateTime, default=datetime.utcnow)
+    code = Column(String(20), ForeignKey('stocks.code', ondelete='CASCADE'), index=True, nullable=False, comment="股票代码")
+    time_key = Column(String(20), nullable=False, comment="时间键")
+    trade_time = Column(DateTime, nullable=False, index=True, comment="交易时间")
+    open_price = Column(Float, nullable=False, comment="开盘价")
+    close_price = Column(Float, nullable=False, comment="收盘价")
+    high_price = Column(Float, nullable=False, comment="最高价")
+    low_price = Column(Float, nullable=False, comment="最低价")
+    volume = Column(Integer, comment="成交量")
+    turnover = Column(Float, comment="成交额")
+    change_rate = Column(Float, comment="涨跌幅")
+    amplitude = Column(Float, comment="振幅")
+    created_at = Column(DateTime, default=datetime.utcnow, comment="创建时间")
     
     __table_args__ = (
         Index('idx_5min_code_time', 'code', 'trade_time'),
-        Index('idx_5min_code_key', 'code', 'time_key'),
+        Index('idx_5min_code_key', 'code', 'time_key', unique=True),
     )
 
 
@@ -155,22 +140,22 @@ class KLine15MinDB(Base):
     __tablename__ = "klines_15min"
     
     id = Column(Integer, primary_key=True, index=True)
-    code = Column(String(20), index=True, nullable=False)
-    time_key = Column(String(20), nullable=False)
-    trade_time = Column(DateTime, nullable=False, index=True)
-    open_price = Column(Float, nullable=False)
-    close_price = Column(Float, nullable=False)
-    high_price = Column(Float, nullable=False)
-    low_price = Column(Float, nullable=False)
-    volume = Column(Integer)
-    turnover = Column(Float)
-    change_rate = Column(Float)
-    amplitude = Column(Float)
-    created_at = Column(DateTime, default=datetime.utcnow)
+    code = Column(String(20), ForeignKey('stocks.code', ondelete='CASCADE'), index=True, nullable=False, comment="股票代码")
+    time_key = Column(String(20), nullable=False, comment="时间键")
+    trade_time = Column(DateTime, nullable=False, index=True, comment="交易时间")
+    open_price = Column(Float, nullable=False, comment="开盘价")
+    close_price = Column(Float, nullable=False, comment="收盘价")
+    high_price = Column(Float, nullable=False, comment="最高价")
+    low_price = Column(Float, nullable=False, comment="最低价")
+    volume = Column(Integer, comment="成交量")
+    turnover = Column(Float, comment="成交额")
+    change_rate = Column(Float, comment="涨跌幅")
+    amplitude = Column(Float, comment="振幅")
+    created_at = Column(DateTime, default=datetime.utcnow, comment="创建时间")
     
     __table_args__ = (
         Index('idx_15min_code_time', 'code', 'trade_time'),
-        Index('idx_15min_code_key', 'code', 'time_key'),
+        Index('idx_15min_code_key', 'code', 'time_key', unique=True),
     )
 
 
@@ -179,22 +164,22 @@ class KLine30MinDB(Base):
     __tablename__ = "klines_30min"
     
     id = Column(Integer, primary_key=True, index=True)
-    code = Column(String(20), index=True, nullable=False)
-    time_key = Column(String(20), nullable=False)
-    trade_time = Column(DateTime, nullable=False, index=True)
-    open_price = Column(Float, nullable=False)
-    close_price = Column(Float, nullable=False)
-    high_price = Column(Float, nullable=False)
-    low_price = Column(Float, nullable=False)
-    volume = Column(Integer)
-    turnover = Column(Float)
-    change_rate = Column(Float)
-    amplitude = Column(Float)
-    created_at = Column(DateTime, default=datetime.utcnow)
+    code = Column(String(20), ForeignKey('stocks.code', ondelete='CASCADE'), index=True, nullable=False, comment="股票代码")
+    time_key = Column(String(20), nullable=False, comment="时间键")
+    trade_time = Column(DateTime, nullable=False, index=True, comment="交易时间")
+    open_price = Column(Float, nullable=False, comment="开盘价")
+    close_price = Column(Float, nullable=False, comment="收盘价")
+    high_price = Column(Float, nullable=False, comment="最高价")
+    low_price = Column(Float, nullable=False, comment="最低价")
+    volume = Column(Integer, comment="成交量")
+    turnover = Column(Float, comment="成交额")
+    change_rate = Column(Float, comment="涨跌幅")
+    amplitude = Column(Float, comment="振幅")
+    created_at = Column(DateTime, default=datetime.utcnow, comment="创建时间")
     
     __table_args__ = (
         Index('idx_30min_code_time', 'code', 'trade_time'),
-        Index('idx_30min_code_key', 'code', 'time_key'),
+        Index('idx_30min_code_key', 'code', 'time_key', unique=True),
     )
 
 
@@ -203,22 +188,22 @@ class KLine1HourDB(Base):
     __tablename__ = "klines_1hour"
     
     id = Column(Integer, primary_key=True, index=True)
-    code = Column(String(20), index=True, nullable=False)
-    time_key = Column(String(20), nullable=False)
-    trade_time = Column(DateTime, nullable=False, index=True)
-    open_price = Column(Float, nullable=False)
-    close_price = Column(Float, nullable=False)
-    high_price = Column(Float, nullable=False)
-    low_price = Column(Float, nullable=False)
-    volume = Column(Integer)
-    turnover = Column(Float)
-    change_rate = Column(Float)
-    amplitude = Column(Float)
-    created_at = Column(DateTime, default=datetime.utcnow)
+    code = Column(String(20), ForeignKey('stocks.code', ondelete='CASCADE'), index=True, nullable=False, comment="股票代码")
+    time_key = Column(String(20), nullable=False, comment="时间键")
+    trade_time = Column(DateTime, nullable=False, index=True, comment="交易时间")
+    open_price = Column(Float, nullable=False, comment="开盘价")
+    close_price = Column(Float, nullable=False, comment="收盘价")
+    high_price = Column(Float, nullable=False, comment="最高价")
+    low_price = Column(Float, nullable=False, comment="最低价")
+    volume = Column(Integer, comment="成交量")
+    turnover = Column(Float, comment="成交额")
+    change_rate = Column(Float, comment="涨跌幅")
+    amplitude = Column(Float, comment="振幅")
+    created_at = Column(DateTime, default=datetime.utcnow, comment="创建时间")
     
     __table_args__ = (
         Index('idx_1hour_code_time', 'code', 'trade_time'),
-        Index('idx_1hour_code_key', 'code', 'time_key'),
+        Index('idx_1hour_code_key', 'code', 'time_key', unique=True),
     )
 
 
@@ -227,22 +212,22 @@ class KLine4HourDB(Base):
     __tablename__ = "klines_4hour"
     
     id = Column(Integer, primary_key=True, index=True)
-    code = Column(String(20), index=True, nullable=False)
-    time_key = Column(String(20), nullable=False)
-    trade_time = Column(DateTime, nullable=False, index=True)
-    open_price = Column(Float, nullable=False)
-    close_price = Column(Float, nullable=False)
-    high_price = Column(Float, nullable=False)
-    low_price = Column(Float, nullable=False)
-    volume = Column(Integer)
-    turnover = Column(Float)
-    change_rate = Column(Float)
-    amplitude = Column(Float)
-    created_at = Column(DateTime, default=datetime.utcnow)
+    code = Column(String(20), ForeignKey('stocks.code', ondelete='CASCADE'), index=True, nullable=False, comment="股票代码")
+    time_key = Column(String(20), nullable=False, comment="时间键")
+    trade_time = Column(DateTime, nullable=False, index=True, comment="交易时间")
+    open_price = Column(Float, nullable=False, comment="开盘价")
+    close_price = Column(Float, nullable=False, comment="收盘价")
+    high_price = Column(Float, nullable=False, comment="最高价")
+    low_price = Column(Float, nullable=False, comment="最低价")
+    volume = Column(Integer, comment="成交量")
+    turnover = Column(Float, comment="成交额")
+    change_rate = Column(Float, comment="涨跌幅")
+    amplitude = Column(Float, comment="振幅")
+    created_at = Column(DateTime, default=datetime.utcnow, comment="创建时间")
     
     __table_args__ = (
         Index('idx_4hour_code_time', 'code', 'trade_time'),
-        Index('idx_4hour_code_key', 'code', 'time_key'),
+        Index('idx_4hour_code_key', 'code', 'time_key', unique=True),
     )
 
 
@@ -251,22 +236,22 @@ class KLineDailyDB(Base):
     __tablename__ = "klines_daily"
     
     id = Column(Integer, primary_key=True, index=True)
-    code = Column(String(20), index=True, nullable=False)
-    time_key = Column(String(20), nullable=False)
-    trade_time = Column(DateTime, nullable=False, index=True)
-    open_price = Column(Float, nullable=False)
-    close_price = Column(Float, nullable=False)
-    high_price = Column(Float, nullable=False)
-    low_price = Column(Float, nullable=False)
-    volume = Column(Integer)
-    turnover = Column(Float)
-    change_rate = Column(Float)
-    amplitude = Column(Float)
-    created_at = Column(DateTime, default=datetime.utcnow)
+    code = Column(String(20), ForeignKey('stocks.code', ondelete='CASCADE'), index=True, nullable=False, comment="股票代码")
+    time_key = Column(String(20), nullable=False, comment="时间键")
+    trade_time = Column(DateTime, nullable=False, index=True, comment="交易时间")
+    open_price = Column(Float, nullable=False, comment="开盘价")
+    close_price = Column(Float, nullable=False, comment="收盘价")
+    high_price = Column(Float, nullable=False, comment="最高价")
+    low_price = Column(Float, nullable=False, comment="最低价")
+    volume = Column(Integer, comment="成交量")
+    turnover = Column(Float, comment="成交额")
+    change_rate = Column(Float, comment="涨跌幅")
+    amplitude = Column(Float, comment="振幅")
+    created_at = Column(DateTime, default=datetime.utcnow, comment="创建时间")
     
     __table_args__ = (
         Index('idx_daily_code_time', 'code', 'trade_time'),
-        Index('idx_daily_code_key', 'code', 'time_key'),
+        Index('idx_daily_code_key', 'code', 'time_key', unique=True),
     )
 
 
@@ -275,22 +260,22 @@ class KLineWeeklyDB(Base):
     __tablename__ = "klines_weekly"
     
     id = Column(Integer, primary_key=True, index=True)
-    code = Column(String(20), index=True, nullable=False)
-    time_key = Column(String(20), nullable=False)
-    trade_time = Column(DateTime, nullable=False, index=True)
-    open_price = Column(Float, nullable=False)
-    close_price = Column(Float, nullable=False)
-    high_price = Column(Float, nullable=False)
-    low_price = Column(Float, nullable=False)
-    volume = Column(Integer)
-    turnover = Column(Float)
-    change_rate = Column(Float)
-    amplitude = Column(Float)
-    created_at = Column(DateTime, default=datetime.utcnow)
+    code = Column(String(20), ForeignKey('stocks.code', ondelete='CASCADE'), index=True, nullable=False, comment="股票代码")
+    time_key = Column(String(20), nullable=False, comment="时间键")
+    trade_time = Column(DateTime, nullable=False, index=True, comment="交易时间")
+    open_price = Column(Float, nullable=False, comment="开盘价")
+    close_price = Column(Float, nullable=False, comment="收盘价")
+    high_price = Column(Float, nullable=False, comment="最高价")
+    low_price = Column(Float, nullable=False, comment="最低价")
+    volume = Column(Integer, comment="成交量")
+    turnover = Column(Float, comment="成交额")
+    change_rate = Column(Float, comment="涨跌幅")
+    amplitude = Column(Float, comment="振幅")
+    created_at = Column(DateTime, default=datetime.utcnow, comment="创建时间")
     
     __table_args__ = (
         Index('idx_weekly_code_time', 'code', 'trade_time'),
-        Index('idx_weekly_code_key', 'code', 'time_key'),
+        Index('idx_weekly_code_key', 'code', 'time_key', unique=True),
     )
 
 
@@ -299,22 +284,22 @@ class KLineMonthlyDB(Base):
     __tablename__ = "klines_monthly"
     
     id = Column(Integer, primary_key=True, index=True)
-    code = Column(String(20), index=True, nullable=False)
-    time_key = Column(String(20), nullable=False)
-    trade_time = Column(DateTime, nullable=False, index=True)
-    open_price = Column(Float, nullable=False)
-    close_price = Column(Float, nullable=False)
-    high_price = Column(Float, nullable=False)
-    low_price = Column(Float, nullable=False)
-    volume = Column(Integer)
-    turnover = Column(Float)
-    change_rate = Column(Float)
-    amplitude = Column(Float)
-    created_at = Column(DateTime, default=datetime.utcnow)
+    code = Column(String(20), ForeignKey('stocks.code', ondelete='CASCADE'), index=True, nullable=False, comment="股票代码")
+    time_key = Column(String(20), nullable=False, comment="时间键")
+    trade_time = Column(DateTime, nullable=False, index=True, comment="交易时间")
+    open_price = Column(Float, nullable=False, comment="开盘价")
+    close_price = Column(Float, nullable=False, comment="收盘价")
+    high_price = Column(Float, nullable=False, comment="最高价")
+    low_price = Column(Float, nullable=False, comment="最低价")
+    volume = Column(Integer, comment="成交量")
+    turnover = Column(Float, comment="成交额")
+    change_rate = Column(Float, comment="涨跌幅")
+    amplitude = Column(Float, comment="振幅")
+    created_at = Column(DateTime, default=datetime.utcnow, comment="创建时间")
     
     __table_args__ = (
         Index('idx_monthly_code_time', 'code', 'trade_time'),
-        Index('idx_monthly_code_key', 'code', 'time_key'),
+        Index('idx_monthly_code_key', 'code', 'time_key', unique=True),
     )
 
 
@@ -948,27 +933,10 @@ class StockInfo(BaseModel):
 
 
 class WatchlistGroup(BaseModel):
-    """自选股分组"""
+    """自选股分组（已废弃，使用CategoryDB代替）"""
     group_id: str
     group_name: str
     stocks: List[StockInfo]
-
-
-class QuoteData(BaseModel):
-    """行情数据"""
-    code: str
-    name: str
-    cur_price: float
-    prev_close_price: Optional[float] = None
-    open_price: Optional[float] = None
-    high_price: Optional[float] = None
-    low_price: Optional[float] = None
-    volume: Optional[int] = None
-    turnover: Optional[float] = None
-    change_val: Optional[float] = None
-    change_rate: Optional[float] = None
-    amplitude: Optional[float] = None
-    update_time: Optional[str] = None
 
 
 class KLineData(BaseModel):

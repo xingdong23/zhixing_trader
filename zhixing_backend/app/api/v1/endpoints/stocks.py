@@ -9,7 +9,7 @@ from ....core.container import container
 from ....repositories.stock_repository import StockRepository
 from ....repositories.kline_repository import KLineRepository
 from ....database import db_service
-from ....models import StockDB, QuoteDB
+from ....models import StockDB
 
 router = APIRouter()
 
@@ -49,18 +49,15 @@ async def get_all_stocks(
                     "symbol": stock.code,
                     "name": stock.name,
                     "market": stock.market,
-                    "group_id": stock.group_id,
-                    "group_name": stock.group_name,
                     "lot_size": stock.lot_size,
                     "sec_type": stock.sec_type,
                     "is_active": stock.is_active,
+                    "market_cap": stock.market_cap,
+                    "watch_level": stock.watch_level,
+                    "notes": stock.notes,
                     "added_at": stock.added_at.isoformat() if stock.added_at else None,
                     "updated_at": stock.updated_at.isoformat() if stock.updated_at else None
                 }
-
-                stock_data["market_cap"] = stock.market_cap
-                stock_data["watch_level"] = stock.watch_level
-                stock_data["notes"] = stock.notes
                 stock_list.append(stock_data)
 
             return {
@@ -252,8 +249,6 @@ async def get_stocks_overview(
                     "symbol": stock.code,
                     "name": stock.name,
                     "market": stock.market,
-                    "group_id": stock.group_id,
-                    "group_name": stock.group_name,
                     "updated_at": stock.updated_at.isoformat() if stock.updated_at else None,
                     "price": price,
                     "change_percent": change_percent,
