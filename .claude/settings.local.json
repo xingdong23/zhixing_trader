@@ -1,0 +1,27 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm run build:*)",
+      "Bash(rg:*)",
+      "Bash(ssh:*)",
+      "Bash(npm run dev:*)",
+      "Bash(python:*)",
+      "Bash(curl:*)",
+      "Bash(lsof:*)",
+      "Bash(pkill:*)",
+      "Bash(true:*)",
+      "Bash(open:*)",
+      "Bash(grep:*)",
+      "Bash(pkill -f \"uvicorn.*api-server\")",
+      "Bash(pkill -f \"uvicorn.*app.main\")",
+      "Bash(ls:*)",
+      "Bash(sqlite3:*)",
+      "Bash(cat:*)",
+      "Bash(source:*)",
+      "Bash(pip install:*)",
+      "Bash(find:*)",
+      "Bash(npm install)"
+    ],
+    "deny": []
+  }
+}

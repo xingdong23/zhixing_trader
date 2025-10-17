@@ -1,53 +1,123 @@
-# OS
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual Environment
+venv/
+ENV/
+env/
+.venv
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
 .DS_Store
 
-# Editor/IDE
-.idea/
-.vscode/
-.claude/
-.crush/
-
-# Node.js dependencies and build outputs (anywhere in repo)
-**/node_modules/
-**/.next/
-**/.nuxt/
-**/.turbo/
-**/.vercel/
-**/out/
-**/dist/
-
-# Python environments, caches, and build outputs (anywhere in repo)
-**/.venv/
-**/venv/
-**/env/
-**/__pycache__/
-**/*.py[cod]
-**/*$py.class
-**/.pytest_cache/
-**/.mypy_cache/
-**/.ruff_cache/
-**/.coverage*
-**/htmlcov/
-**/.tox/
-**/.nox/
-**/.eggs/
-**/*.egg-info/
-**/build/
-**/dist/
-
 # Logs
-**/logs/
+logs/
 *.log
 
-# Environment files (keep examples)
-.env
-.env.*
-!.env.example
-!**/.env.example
+# Database
+*.db
+*.sqlite
+*.sqlite3
 
-# Project-specific: ensure frontend/backend deps are excluded
-zhixing_fronted/**/node_modules/
-zhixing_backend/**/node_modules/
-zhixing_backend/**/venv/
-zhixing_backend/**/.venv/
-zhixing_backend/data/*.db
+# OS
+.DS_Store
+Thumbs.db
+*.bak
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.nox/
+coverage.xml
+*.cover
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# Data files (除了测试数据)
+data/*
+!data/README.md
+!data/test/
+data/test/*.csv
+data/backups/
+data/cache/
+
+# Secrets and credentials
+*.pem
+*.key
+secrets/
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# Node.js (前端)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# Next.js
+.next/
+out/
+
+# Production
+build/
+dist/
+
+# Cache
+.cache/
+*.cache
+
+# Lock files (可选择性忽略)
+# package-lock.json
+# pnpm-lock.yaml
+
+# Documentation build
+site/
+_build/
+
+# macOS
+.AppleDouble
+.LSOverride
+Icon
+._*
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
