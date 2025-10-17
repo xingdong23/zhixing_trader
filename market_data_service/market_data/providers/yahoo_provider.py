@@ -5,7 +5,7 @@ Yahoo Finance数据提供者
 import yfinance as yf
 import pandas as pd
 from datetime import datetime
-from typing import List, Dict, Optional, Any
+from typing import List, Dict, Optional, Any, Dict
 from loguru import logger
 import asyncio
 import time

@@ -6,7 +6,7 @@ Alpha Vantage 数据提供者
 import aiohttp
 import asyncio
 from datetime import datetime, timedelta
-from typing import List, Dict, Optional, Any
+from typing import List, Dict, Optional, Any, Dict
 from loguru import logger
 import os
 

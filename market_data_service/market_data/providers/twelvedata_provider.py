@@ -5,12 +5,12 @@ Twelve Data 数据提供者
 """
 import asyncio
 from datetime import datetime, timedelta
-from typing import List, Optional
+from typing import List, Optional, Dict
 import aiohttp
 from loguru import logger
 
-from app.core.interfaces import IMarketDataProvider, KLineData
-from app.models import StockInfo
+from ..interfaces import IMarketDataProvider, KLineData
+# StockInfo removed
 
 
 class TwelveDataProvider(IMarketDataProvider):
@@ -209,7 +209,7 @@ class TwelveDataProvider(IMarketDataProvider):
             logger.error(f"[TwelveData] 获取股票数据失败: {e}")
             return []
     
-    async def get_stock_info(self, symbol: str) -> Optional[StockInfo]:
+    async def get_stock_info(self, symbol: str) -> Optional[Dict]:
         """
         获取股票基本信息
         
