@@ -17,7 +17,8 @@ import {
   Plus,
   Camera,
   StickyNote,
-  AlertTriangle
+  AlertTriangle,
+  DollarSign
 } from "lucide-react";
 import type { Trade } from "@/app/trades/types";
 import { getViolationColor, getViolationLabel } from "@/lib/violations";
@@ -102,13 +103,28 @@ export default function TradeCard({
             </div>
           </div>
           <div className="flex gap-1">
-            <Button variant="ghost" size="sm" onClick={() => onViewDetails(trade)}>
-              <Eye className="w-4 h-4" />
-            </Button>
-            {onEdit && trade.status !== "closed" && (
-              <Button variant="ghost" size="sm" onClick={() => onEdit(trade)}>
-                <Edit className="w-4 h-4" />
+            {onEdit && (trade.status === "planned" || trade.status === "pending") ? (
+              // 计划状态：编辑按钮跳转到详情页
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={() => onEdit(trade)}
+                className="text-xs"
+              >
+                <Edit className="w-3 h-3 mr-1" />
+                查看/编辑
               </Button>
+            ) : (
+              <>
+                <Button variant="ghost" size="sm" onClick={() => onViewDetails(trade)}>
+                  <Eye className="w-4 h-4" />
+                </Button>
+                {onEdit && trade.status !== "closed" && (
+                  <Button variant="ghost" size="sm" onClick={() => onEdit(trade)}>
+                    <Edit className="w-4 h-4" />
+                  </Button>
+                )}
+              </>
             )}
           </div>
         </div>
@@ -120,6 +136,9 @@ export default function TradeCard({
               <div>
                 <p className="text-xs text-gray-500">计划入场</p>
                 <p className="font-semibold">{formatPrice(trade.planEntryPrice)}</p>
+                {trade.planEntryPriceRangeHigh && trade.planEntryPriceRangeHigh !== trade.planEntryPrice && (
+                  <p className="text-xs text-gray-400">~{formatPrice(trade.planEntryPriceRangeHigh)}</p>
+                )}
               </div>
               <div>
                 <p className="text-xs text-gray-500">计划数量</p>
@@ -127,11 +146,21 @@ export default function TradeCard({
               </div>
               <div>
                 <p className="text-xs text-gray-500">止损价</p>
-                <p className="font-semibold">{formatPrice(trade.planStopLoss)}</p>
+                <p className="font-semibold text-red-600">{formatPrice(trade.planStopLoss)}</p>
+                {trade.planEntryPrice && trade.planStopLoss && (
+                  <p className="text-xs text-red-500">
+                    {(((trade.planStopLoss - trade.planEntryPrice) / trade.planEntryPrice) * 100).toFixed(1)}%
+                  </p>
+                )}
               </div>
               <div>
                 <p className="text-xs text-gray-500">止盈价</p>
-                <p className="font-semibold">{formatPrice(trade.planTakeProfit)}</p>
+                <p className="font-semibold text-green-600">{formatPrice(trade.planTakeProfit)}</p>
+                {trade.planEntryPrice && trade.planTakeProfit && (
+                  <p className="text-xs text-green-500">
+                    +{(((trade.planTakeProfit - trade.planEntryPrice) / trade.planEntryPrice) * 100).toFixed(1)}%
+                  </p>
+                )}
               </div>
             </>
           ) : trade.status === "active" ? (
@@ -179,7 +208,17 @@ export default function TradeCard({
           )}
         </div>
 
-        {/* 策略和笔记 */}
+        {/* 买入理由（仅计划阶段显示） */}
+        {(trade.status === "planned" || trade.status === "pending") && trade.planNotes && (
+          <div className="p-3 bg-blue-50 dark:bg-blue-900/10 border border-blue-200 dark:border-blue-800 rounded-md">
+            <p className="text-xs font-semibold text-blue-700 dark:text-blue-400 mb-1">💡 买入理由</p>
+            <p className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-line line-clamp-3">
+              {trade.planNotes}
+            </p>
+          </div>
+        )}
+
+        {/* 策略和标签 */}
         {(trade.planStrategy || (trade.strategyTags && trade.strategyTags.length > 0)) && (
           <div className="text-sm text-gray-600 flex items-center gap-2 flex-wrap">
             {trade.planStrategy && (
@@ -238,6 +277,26 @@ export default function TradeCard({
                   <Clock className="w-4 h-4" />
                   <span>{getHoldingDays()}天</span>
                 </div>
+              )}
+              {(trade.status === "planned" || trade.status === "pending") && trade.planEntryPrice && trade.planStopLoss && trade.planTakeProfit && (
+                <>
+                  <div className="flex items-center gap-1">
+                    <Target className="w-4 h-4 text-blue-600" />
+                    <span className="font-medium">
+                      风险收益比: 1:{
+                        Math.abs((trade.planTakeProfit - trade.planEntryPrice) / (trade.planEntryPrice - trade.planStopLoss)).toFixed(2)
+                      }
+                    </span>
+                  </div>
+                  {trade.planQuantity && (
+                    <div className="flex items-center gap-1 text-green-600">
+                      <DollarSign className="w-4 h-4" />
+                      <span className="font-medium">
+                        预期收益: ${((trade.planTakeProfit - trade.planEntryPrice) * trade.planQuantity).toFixed(2)}
+                      </span>
+                    </div>
+                  )}
+                </>
               )}
               {trade.noteCount !== undefined && trade.noteCount > 0 && (
                 <div className="flex items-center gap-1">

@@ -57,6 +57,7 @@ export default function TradesView() {
   });
   const [goalTriggered, setGoalTriggered] = useState(false);
   const [ddTriggered, setDdTriggered] = useState(false);
+  const [highlightTradeId, setHighlightTradeId] = useState<number | null>(null);
 
   // 筛选交易
   const filteredTrades = useMemo(() => {
@@ -432,7 +433,7 @@ export default function TradesView() {
           className="rounded-b-none"
         >
           <Target className="w-4 h-4 mr-2" />
-          等待执行 ({mockStatistics.pendingTrades})
+          交易计划 ({mockStatistics.pendingTrades})
         </Button>
         <Button
           variant={activeTab === "history" ? "default" : "ghost"}
@@ -499,18 +500,32 @@ export default function TradesView() {
           </Card>
         ) : (
           filteredTrades.map(trade => (
-            <TradeCard
+            <div 
               key={trade.id}
-              trade={trade}
-              onViewDetails={setSelectedTrade}
-              onEdit={(t) => {
-                setEditingTrade(t);
-                setShowPlanForm(true);
-              }}
-              onAddNote={handleAddNote}
-              onAddScreenshot={handleAddScreenshot}
-              onAddAlert={handleAddAlert}
-            />
+              className={`transition-all duration-500 ${
+                highlightTradeId === trade.id 
+                  ? 'ring-4 ring-green-400 ring-opacity-50 rounded-lg scale-105' 
+                  : ''
+              }`}
+            >
+              <TradeCard
+                trade={trade}
+                onViewDetails={setSelectedTrade}
+                onEdit={(t) => {
+                  // 计划状态的交易，点击编辑直接跳转到详情页
+                  if (t.status === "planned" || t.status === "pending") {
+                    router.push(`/plan/${t.symbol}-${t.id}`);
+                  } else {
+                    // 其他状态使用编辑表单
+                    setEditingTrade(t);
+                    setShowPlanForm(true);
+                  }
+                }}
+                onAddNote={handleAddNote}
+                onAddScreenshot={handleAddScreenshot}
+                onAddAlert={handleAddAlert}
+              />
+            </div>
           ))
         )}
       </div>
@@ -540,9 +555,49 @@ export default function TradesView() {
               name={demoStock.name}
               currentPrice={demoStock.price}
               onSubmit={(plan: TradePlan) => {
-                const id = `${plan.symbol}-${Date.now()}`
-                setShowForcedPlanForm(false)
-                router.push(`/plan/${id}`)
+                // 将计划转换为交易记录并添加到列表
+                const newTrade: Trade = {
+                  id: Math.max(0, ...trades.map(t => t.id)) + 1,
+                  symbol: plan.symbol,
+                  stockName: plan.name,
+                  status: "planned",
+                  planType: "long",
+                  planEntryPrice: plan.targetBuyPrice,
+                  planEntryPriceRangeLow: plan.targetBuyPrice,
+                  planEntryPriceRangeHigh: plan.maxBuyPrice,
+                  planQuantity: plan.shares,
+                  planStopLoss: plan.stopLoss.price,
+                  planTakeProfit: plan.stopProfit.target3.price,
+                  planNotes: `${plan.buyReason.technical}\n${plan.buyReason.fundamental}\n${plan.buyReason.catalyst}`,
+                  planStrategy: plan.tradeType,
+                  strategyTags: [plan.tradeType],
+                  createdAt: new Date().toISOString(),
+                  updatedAt: new Date().toISOString(),
+                  planCreatedAt: new Date().toISOString(),
+                } as Trade;
+                
+                setTrades(prev => [newTrade, ...prev]);
+                
+                // 关闭对话框
+                setShowForcedPlanForm(false);
+                
+                // 自动切换到"等待执行"标签页
+                setActiveTab("pending");
+                
+                // 高亮显示新创建的计划（3秒后恢复）
+                setHighlightTradeId(newTrade.id);
+                setTimeout(() => setHighlightTradeId(null), 3000);
+                
+                // 显示成功提示，并提供查看详情的按钮
+                const scoreValue = typeof plan.score === 'number' ? plan.score : 0;
+                toast.success(`✅ 强制交易计划创建成功！`, {
+                  description: `${plan.symbol} - 评分: ${scoreValue}分 | 已添加到"交易计划"`,
+                  duration: 4000,
+                  action: {
+                    label: "查看详情",
+                    onClick: () => router.push(`/plan/${plan.symbol}-${newTrade.id}`)
+                  }
+                });
               }}
               onCancel={() => setShowForcedPlanForm(false)}
             />

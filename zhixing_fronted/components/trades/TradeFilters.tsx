@@ -46,7 +46,7 @@ export default function TradeFilters({ filters, onFilterChange, onReset }: Trade
           )}
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {/* 股票代码搜索 */}
           <div>
             <label className="text-sm text-gray-600 mb-1 block">股票代码</label>
@@ -124,31 +124,6 @@ export default function TradeFilters({ filters, onFilterChange, onReset }: Trade
               value={filters.maxPnl || ""}
               onChange={(e) => onFilterChange({ ...filters, maxPnl: e.target.value ? Number(e.target.value) : undefined })}
             />
-          </div>
-        </div>
-
-        {/* 状态筛选 */}
-        <div>
-          <label className="text-sm text-gray-600 mb-2 block">交易状态</label>
-          <div className="flex flex-wrap gap-2">
-            {statusOptions.map(opt => {
-              const isSelected = filters.status?.includes(opt.value);
-              return (
-                <Badge
-                  key={opt.value}
-                  variant={isSelected ? "default" : "outline"}
-                  className="cursor-pointer"
-                  onClick={() => {
-                    const newStatus = isSelected
-                      ? filters.status?.filter(s => s !== opt.value)
-                      : [...(filters.status || []), opt.value];
-                    onFilterChange({ ...filters, status: newStatus?.length ? newStatus : undefined });
-                  }}
-                >
-                  {opt.label}
-                </Badge>
-              );
-            })}
           </div>
         </div>
       </div>

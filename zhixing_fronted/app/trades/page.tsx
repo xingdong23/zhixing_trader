@@ -462,8 +462,14 @@ export default function TradesPage() {
               trade={trade}
               onViewDetails={setSelectedTrade}
               onEdit={(t) => {
-                setEditingTrade(t);
-                setShowPlanForm(true);
+                // 计划状态的交易，点击编辑直接跳转到详情页
+                if (t.status === "planned" || t.status === "pending") {
+                  router.push(`/plan/${t.symbol}-${t.id}`);
+                } else {
+                  // 其他状态使用编辑表单
+                  setEditingTrade(t);
+                  setShowPlanForm(true);
+                }
               }}
               onAddNote={handleAddNote}
               onAddScreenshot={handleAddScreenshot}
