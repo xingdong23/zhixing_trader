@@ -26,6 +26,7 @@ export interface Trade {
   planTakeProfit?: number;
   planNotes?: string;
   planStrategy?: string;
+  strategyTags?: string[];
   planCreatedAt?: string;
   
   // 执行阶段
@@ -76,6 +77,21 @@ export interface Trade {
   noteCount?: number;
   screenshotCount?: number;
   alertCount?: number;
+  
+  // 违规信息
+  violations?: TradeViolation[];
+  violationCost?: number; // 违规导致的额外损失
+}
+
+// 违规类型
+export interface TradeViolation {
+  type: "entry_price" | "stop_loss" | "take_profit" | "position_size" | "holding_time" | "add_position";
+  severity: "low" | "medium" | "high"; // 低/中/高
+  description: string;
+  plannedValue?: number | string;
+  actualValue?: number | string;
+  costImpact?: number; // 该违规导致的损失
+  detectedAt: string;
 }
 
 // 交易笔记关联

@@ -1,0 +1,12 @@
+symbol,name,side,quantity,price,date
+AAPL,Apple Inc.,buy,100,182.30,2025-10-18T10:00:00Z
+TSLA,Tesla Inc.,buy,50,258.50,2025-10-18T10:05:00Z
+NVDA,NVIDIA Corporation,buy,20,495.20,2025-10-17T15:30:00Z
+MSFT,Microsoft Corporation,buy,30,378.50,2025-10-16T14:00:00Z
+AAPL,Apple Inc.,sell,100,186.40,2025-10-19T09:30:00Z
+TSLA,Tesla Inc.,sell,50,265.00,2025-10-20T10:30:00Z
+GOOGL,Alphabet Inc.,buy,40,142.10,2025-10-15T09:45:00Z
+META,Meta Platforms Inc.,buy,25,324.80,2025-10-15T10:15:00Z
+AMZN,Amazon.com Inc.,buy,15,131.55,2025-10-14T13:20:00Z
+AMD,Advanced Micro Devices Inc.,buy,35,112.75,2025-10-13T11:05:00Z
+

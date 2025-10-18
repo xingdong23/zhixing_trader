@@ -7,7 +7,12 @@ export const mockTrades: Trade[] = [
     stockName: "苹果公司",
     status: "active",
     planType: "long",
-    entryPrice: 175.50,
+    planEntryPrice: 173.00, // 计划入场价
+    planQuantity: 100,
+    planStopLoss: 170.00,
+    planTakeProfit: 190.00,
+    entryPrice: 175.50, // 实际入场价偏离了1.4%
+    entryTime: "2024-10-15T10:30:00Z",
     currentPrice: 182.30,
     entryQuantity: 100,
     currentQuantity: 100,
@@ -19,6 +24,7 @@ export const mockTrades: Trade[] = [
     planCreatedAt: "2024-10-15T09:00:00Z",
     planNotes: "突破月线阻力位，MACD金叉",
     planStrategy: "动量突破",
+    strategyTags: ["swing", "momentum"],
   },
   {
     id: 2,
@@ -26,18 +32,24 @@ export const mockTrades: Trade[] = [
     stockName: "特斯拉",
     status: "active",
     planType: "long",
-    entryPrice: 265.00,
+    planEntryPrice: 260.00, // 计划入场价
+    planQuantity: 50,
+    planStopLoss: 255.00,
+    planTakeProfit: 280.00,
+    entryPrice: 265.00, // 实际入场价偏离了1.9%
+    entryTime: "2024-10-18T09:30:00Z",
     currentPrice: 258.50,
     entryQuantity: 50,
     currentQuantity: 50,
     unrealizedPnl: -325.00,
-    stopLossPrice: 260.00,
+    stopLossPrice: 260.00, // 止损价设置不当（偏离计划）
     takeProfitPrice: 280.00,
     createdAt: "2024-10-18T09:30:00Z",
     updatedAt: "2024-10-18T15:20:00Z",
     planCreatedAt: "2024-10-18T09:00:00Z",
     planNotes: "日内突破",
     planStrategy: "日内交易",
+    strategyTags: ["short_term", "breakout"],
   },
   {
     id: 3,
@@ -61,20 +73,24 @@ export const mockTrades: Trade[] = [
     stockName: "微软",
     status: "closed",
     planType: "long",
-    entryPrice: 320.00,
-    exitPrice: 335.50,
-    entryQuantity: 40,
-    exitQuantity: 40,
-    netPnl: 620.00,
+    planEntryPrice: 318.00, // 计划入场价
+    planQuantity: 50, // 计划数量
     planStopLoss: 315.00,
     planTakeProfit: 340.00,
+    entryPrice: 320.00, // 实际入场价
+    entryTime: "2024-10-10T10:00:00Z",
+    exitPrice: 335.50, // 提前止盈（未到340）
+    entryQuantity: 40, // 实际数量减少了20%
+    exitQuantity: 40,
+    netPnl: 620.00,
     createdAt: "2024-10-10T10:00:00Z",
     updatedAt: "2024-10-16T15:00:00Z",
     planCreatedAt: "2024-10-10T09:30:00Z",
     exitTime: "2024-10-16T15:00:00Z",
-    exitNotes: "到达目标价位",
+    exitNotes: "提前平仓（未达计划止盈）",
     planNotes: "财报超预期",
     planStrategy: "基本面突破",
+    strategyTags: ["value", "earnings"],
   },
   {
     id: 5,
@@ -82,13 +98,16 @@ export const mockTrades: Trade[] = [
     stockName: "Meta",
     status: "closed",
     planType: "long",
-    entryPrice: 295.00,
+    planEntryPrice: 290.00, // 计划入场价
+    planQuantity: 35,
+    planStopLoss: 286.00, // 计划止损
+    planTakeProfit: 310.00,
+    entryPrice: 295.00, // 实际入场价偏高
+    entryTime: "2024-10-12T11:00:00Z",
     exitPrice: 288.00,
     entryQuantity: 35,
     exitQuantity: 35,
     netPnl: -245.00,
-    planStopLoss: 290.00,
-    planTakeProfit: 310.00,
     createdAt: "2024-10-12T11:00:00Z",
     updatedAt: "2024-10-14T14:30:00Z",
     planCreatedAt: "2024-10-12T10:30:00Z",
@@ -96,6 +115,7 @@ export const mockTrades: Trade[] = [
     exitNotes: "止损出场",
     planNotes: "突破三角形态",
     planStrategy: "形态突破",
+    strategyTags: ["breakout", "pattern"],
   },
 ];
 

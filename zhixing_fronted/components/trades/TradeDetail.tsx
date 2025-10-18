@@ -68,6 +68,13 @@ export default function TradeDetail({
     return pnl > 0 ? "text-green-600" : pnl < 0 ? "text-red-600" : "text-gray-500";
   };
 
+  const diff = (plan?: number, actual?: number) => {
+    if (plan == null || actual == null) return { d: 0, pct: 0, has: false };
+    const d = actual - plan;
+    const pct = plan !== 0 ? (d / plan) * 100 : 0;
+    return { d, pct, has: true };
+  };
+
   return (
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto">
@@ -227,6 +234,33 @@ export default function TradeDetail({
                     </p>
                   </div>
                 )}
+              </Card>
+            )}
+
+            {/* 计划 vs 实际 对比 */}
+            {(trade.entryPrice || trade.stopLossPrice || trade.takeProfitPrice) && (
+              <Card className="p-4">
+                <h3 className="font-semibold mb-4 flex items-center gap-2">
+                  <Target className="w-4 h-4" />
+                  计划 vs 实际 对比
+                </h3>
+                <div className="grid grid-cols-3 gap-4 text-sm">
+                  <div className="p-3 rounded border">
+                    <div className="text-gray-500 mb-1">入场价格</div>
+                    <div>计划: {formatPrice(trade.planEntryPrice)} | 实际: {formatPrice(trade.entryPrice)}</div>
+                    {(() => { const r = diff(trade.planEntryPrice, trade.entryPrice); return r.has ? (<div className={`${r.d>0?'text-red-600':r.d<0?'text-green-600':'text-gray-500'}`}>偏差: {r.d.toFixed(2)} ({r.pct.toFixed(2)}%)</div>) : null })()}
+                  </div>
+                  <div className="p-3 rounded border">
+                    <div className="text-gray-500 mb-1">止损价格</div>
+                    <div>计划: {formatPrice(trade.planStopLoss)} | 实际: {formatPrice(trade.stopLossPrice)}</div>
+                    {(() => { const r = diff(trade.planStopLoss, trade.stopLossPrice); return r.has ? (<div className={`${r.d<0?'text-red-600':r.d>0?'text-green-600':'text-gray-500'}`}>调整: {r.d.toFixed(2)} ({r.pct.toFixed(2)}%)</div>) : null })()}
+                  </div>
+                  <div className="p-3 rounded border">
+                    <div className="text-gray-500 mb-1">止盈价格</div>
+                    <div>计划: {formatPrice(trade.planTakeProfit)} | 实际: {formatPrice(trade.takeProfitPrice)}</div>
+                    {(() => { const r = diff(trade.planTakeProfit, trade.takeProfitPrice); return r.has ? (<div className={`${r.d>0?'text-green-600':r.d<0?'text-yellow-600':'text-gray-500'}`}>调整: {r.d.toFixed(2)} ({r.pct.toFixed(2)}%)</div>) : null })()}
+                  </div>
+                </div>
               </Card>
             )}
 
