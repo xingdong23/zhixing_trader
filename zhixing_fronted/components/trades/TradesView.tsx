@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -13,16 +14,22 @@ import TradeFilters from "@/components/trades/TradeFilters";
 import TradePlanForm from "@/components/trades/TradePlanForm";
 import TradeDetail from "@/components/trades/TradeDetail";
 import type { Trade, TradeFilters as TradeFiltersType, TradeStatistics } from "@/app/trades/types";
+import ForcedTradePlanForm from "@/components/tradePlan/ForcedTradePlanForm";
+import type { TradePlan } from "@/lib/tradePlan";
 
 // Mock 数据
 import { mockTrades, mockStatistics } from "@/app/trades/mockData";
 
 export default function TradesView() {
+  const router = useRouter();
   const [trades, setTrades] = useState<Trade[]>(mockTrades);
   const [filters, setFilters] = useState<TradeFiltersType>({});
   const [showPlanForm, setShowPlanForm] = useState(false);
   const [editingTrade, setEditingTrade] = useState<Trade | null>(null);
   const [selectedTrade, setSelectedTrade] = useState<Trade | null>(null);
+  // 强制计划表单（演示）
+  const [showForcedPlanForm, setShowForcedPlanForm] = useState(false);
+  const demoStock = { symbol: "AAPL", name: "苹果公司", price: 182.3 };
   const [activeTab, setActiveTab] = useState<"active" | "pending" | "history">("active");
   const [noteDialogOpen, setNoteDialogOpen] = useState(false);
   const [screenshotDialogOpen, setScreenshotDialogOpen] = useState(false);
@@ -183,9 +190,9 @@ export default function TradesView() {
       {/* 操作按钮 */}
       <div className="flex justify-between items-center">
         <div></div>
-        <Button onClick={() => setShowPlanForm(true)}>
+        <Button onClick={() => setShowForcedPlanForm(true)}>
           <Plus className="w-4 h-4 mr-2" />
-          创建交易计划
+          创建强制交易计划（AAPL演示）
         </Button>
       </div>
 
@@ -288,7 +295,7 @@ export default function TradesView() {
         )}
       </div>
 
-      {/* 交易计划表单 */}
+      {/* 交易计划表单（普通） */}
       <TradePlanForm
         trade={editingTrade}
         open={showPlanForm}
@@ -298,6 +305,30 @@ export default function TradesView() {
         }}
         onSave={handleSavePlan}
       />
+
+      {/* 强制交易计划表单（演示专用） */}
+      <Dialog open={showForcedPlanForm} onOpenChange={setShowForcedPlanForm}>
+        <DialogContent className="max-w-[96vw] min-w-[1100px] w-[1400px] h-[90vh] flex flex-col p-0">
+          <div className="flex-shrink-0 bg-white dark:bg-gray-900 border-b px-6 py-4">
+            <DialogHeader>
+              <DialogTitle className="text-2xl">💪 创建强制交易计划 - {demoStock.symbol} ({demoStock.name})</DialogTitle>
+            </DialogHeader>
+          </div>
+          <div className="flex-1 overflow-hidden min-h-0">
+            <ForcedTradePlanForm
+              symbol={demoStock.symbol}
+              name={demoStock.name}
+              currentPrice={demoStock.price}
+              onSubmit={(plan: TradePlan) => {
+                const id = `${plan.symbol}-${Date.now()}`
+                setShowForcedPlanForm(false)
+                router.push(`/plan/${id}`)
+              }}
+              onCancel={() => setShowForcedPlanForm(false)}
+            />
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {/* 交易详情 */}
       {selectedTrade && (
