@@ -264,15 +264,16 @@ export default function TradingSystem() {
             {[
               { id: "dashboard", label: "自选股票", icon: Heart },
               { id: "plans", label: "交易计划", icon: ClipboardList },
+              { id: "notes", label: "交易笔记", icon: PenTool, isRoute: true },
               { id: "strategies", label: "策略管理", icon: ClipboardCheck },
               { id: "trading", label: "交易执行", icon: Zap },
               { id: "influencer", label: "大佬追踪", icon: Target },
               { id: "mindset", label: "心态建设", icon: HeartPulse },
               { id: "review", label: "交易复盘", icon: BarChart3 },
-            ].map(({ id, label, icon: Icon }) => (
+            ].map(({ id, label, icon: Icon, isRoute }) => (
               <button
                 key={id}
-                onClick={() => setCurrentPage(id)}
+                onClick={() => isRoute ? router.push(`/${id}`) : setCurrentPage(id)}
                 className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-left transition-colors ${
                   currentPage === id
                     ? "bg-sidebar-primary text-sidebar-primary-foreground"
