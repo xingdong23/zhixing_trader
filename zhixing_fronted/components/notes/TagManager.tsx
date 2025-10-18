@@ -7,13 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Plus, Edit, Trash2, Save, X } from "lucide-react";
-
-interface NoteTag {
-  id: number;
-  name: string;
-  color: string;
-  count: number;
-}
+import type { NoteTag } from "@/app/notes/types";
 
 interface TagManagerProps {
   tags: NoteTag[];
@@ -178,7 +172,7 @@ export default function TagManager({
                         {tag.name}
                       </Badge>
                       <span className="text-sm text-gray-500">
-                        使用次数: {tag.count}
+                        使用次数: {tag.count || 0}
                       </span>
                     </div>
                     <div className="flex items-center gap-1">
@@ -193,7 +187,7 @@ export default function TagManager({
                         variant="ghost"
                         size="sm"
                         onClick={() => handleDelete(tag.id)}
-                        disabled={tag.count > 0}
+                        disabled={(tag.count || 0) > 0}
                       >
                         <Trash2 className="w-4 h-4" />
                       </Button>
