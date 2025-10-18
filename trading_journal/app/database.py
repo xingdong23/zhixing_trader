@@ -29,36 +29,40 @@ class DatabaseService:
     def init_database(self):
         """初始化数据库 - 强制使用MySQL，杜绝SQLite"""
         try:
-            # 验证数据库URL，确保不是SQLite
-            if settings.database_url.startswith("sqlite"):
-                raise ValueError("❌ 禁止使用SQLite数据库！系统强制要求使用MySQL以避免内存问题。")
+            # 验证数据库URL，确保不是SQLite（除非显式允许用于开发）
+            if settings.database_url.startswith("sqlite") and not getattr(settings, "allow_sqlite_dev", False):
+                raise ValueError("❌ 禁止使用SQLite数据库！系统强制要求使用MySQL以避免内存问题。若需本地快速体验，请设置环境变量 ALLOW_SQLITE_DEV=true 并使用 sqlite:///./dev.db")
             
-            # 确保使用MySQL数据库
-            if not settings.database_url.startswith("mysql"):
-                raise ValueError(f"❌ 不支持的数据库类型: {settings.database_url}。系统只支持MySQL数据库。")
+            # 确保使用MySQL数据库（如果不是SQLite dev 模式）
+            if (not settings.database_url.startswith("mysql")) and (not settings.database_url.startswith("sqlite")):
+                raise ValueError(f"❌ 不支持的数据库类型: {settings.database_url}。系统只支持MySQL（或开发模式下SQLite）。")
             
-            # 创建MySQL数据库（如果不存在）
-            try:
-                from sqlalchemy.engine.url import make_url
-                from sqlalchemy import text
-                url = make_url(settings.database_url)
-                db_name = url.database
-                server_url = url.set(database=None)
-                server_engine = create_engine(server_url)
-                with server_engine.connect().execution_options(isolation_level="AUTOCOMMIT") as conn:
-                    conn.execute(text(f"CREATE DATABASE IF NOT EXISTS `{db_name}` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci"))
-                logger.info(f"✅ MySQL数据库 '{db_name}' 已确保存在")
-            except Exception as e:
-                logger.error(f"❌ 创建MySQL数据库失败: {e}")
-                raise
+            # 如果使用MySQL，确保数据库存在
+            if settings.database_url.startswith("mysql"):
+                try:
+                    from sqlalchemy.engine.url import make_url
+                    from sqlalchemy import text
+                    url = make_url(settings.database_url)
+                    db_name = url.database
+                    server_url = url.set(database=None)
+                    server_engine = create_engine(server_url)
+                    with server_engine.connect().execution_options(isolation_level="AUTOCOMMIT") as conn:
+                        conn.execute(text(f"CREATE DATABASE IF NOT EXISTS `{db_name}` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci"))
+                    logger.info(f"✅ MySQL数据库 '{db_name}' 已确保存在")
+                except Exception as e:
+                    logger.error(f"❌ 创建MySQL数据库失败: {e}")
+                    raise
 
-            # 创建MySQL数据库引擎
-            self.engine = create_engine(
-                settings.database_url,
-                pool_pre_ping=True,
-                pool_recycle=3600,
-                echo=False  # 设为True可以看到SQL语句
-            )
+            # 创建数据库引擎
+            engine_kwargs = {
+                "pool_pre_ping": True,
+                "pool_recycle": 3600,
+                "echo": False,
+            }
+            # SQLite 不支持某些pool参数，简化处理
+            if settings.database_url.startswith("sqlite"):
+                engine_kwargs = {"echo": False}
+            self.engine = create_engine(settings.database_url, **engine_kwargs)
             
             # 创建会话工厂
             self.SessionLocal = sessionmaker(

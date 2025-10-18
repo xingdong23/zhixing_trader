@@ -19,6 +19,8 @@ class Settings(BaseSettings):
     api_host: str = "0.0.0.0"
     api_port: int = 8000
     debug: bool = True
+    # 是否允许在开发环境下使用SQLite（默认关闭，需通过环境变量开启）
+    allow_sqlite_dev: bool = False
     
     # 数据库配置 - 强制使用MySQL，杜绝SQLite避免内存问题
     # 默认使用本地MySQL配置，可通过环境变量覆盖
