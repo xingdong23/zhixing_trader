@@ -10,16 +10,18 @@ interface NoteTag {
   id: number;
   name: string;
   color: string;
+  count?: number;
 }
 
 interface Note {
-  id: number;
+  id?: number;
   type: "trade" | "day" | "misc";
   title: string;
   content: string;
   isStarred: boolean;
   tags: NoteTag[];
-  createdAt: string;
+  createdAt?: string;
+  relatedId?: number;
   relatedInfo?: {
     type: string;
     label: string;
@@ -28,7 +30,7 @@ interface Note {
 }
 
 interface NoteCardProps {
-  note: Note;
+  note: Note & { id: number; createdAt: string };
   onEdit?: (note: Note) => void;
   onDelete?: (noteId: number) => void;
   onToggleStar?: (noteId: number) => void;

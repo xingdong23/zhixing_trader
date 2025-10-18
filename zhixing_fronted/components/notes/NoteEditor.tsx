@@ -14,6 +14,7 @@ interface NoteTag {
   id: number;
   name: string;
   color: string;
+  count?: number;
 }
 
 interface Note {
