@@ -16,19 +16,22 @@ interface NoteTag {
 }
 
 interface Note {
-  id: number;
+  id?: number;
   type: "trade" | "day" | "misc";
   title: string;
   content: string;
   isStarred: boolean;
   tags: NoteTag[];
-  createdAt: string;
+  createdAt?: string;
+  relatedId?: number;
   relatedInfo?: {
     type: string;
     label: string;
     link?: string;
   };
 }
+
+type NoteWithId = Note & { id: number; createdAt: string };
 
 // 模拟数据
 const mockTags: NoteTag[] = [
@@ -42,7 +45,7 @@ const mockTags: NoteTag[] = [
   { id: 8, name: "待验证", color: "#f59e0b", count: 10 },
 ];
 
-const mockNotes: Note[] = [
+const mockNotes: NoteWithId[] = [
   {
     id: 1,
     type: "trade",
@@ -180,7 +183,7 @@ const mockNotes: Note[] = [
 ];
 
 export default function NotesPage() {
-  const [notes, setNotes] = useState<Note[]>(mockNotes);
+  const [notes, setNotes] = useState<NoteWithId[]>(mockNotes);
   const [tags, setTags] = useState<NoteTag[]>(mockTags);
 
   // UI 状态
