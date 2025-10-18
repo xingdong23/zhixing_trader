@@ -1,319 +1,365 @@
-# Market Data Service 市场数据服务
+# 📊 Market Data Service - 市场数据服务
 
-独立的市场数据获取服务模块，提供统一的API接口访问多个数据源。
+独立的市场数据服务模块，提供统一的数据源接入能力，支持历史数据、实时K线、股票信息等。
 
-## 🎯 特性
+---
 
-- ✅ **多数据源支持**: Yahoo Finance, Alpha Vantage, Finnhub, Twelve Data, IEX Cloud, FMP
-- ✅ **智能负载均衡**: 自动分配请求到多个数据源
-- ✅ **速率限制管理**: 自动处理各数据源的API限制
-- ✅ **多账户支持**: 单个数据源支持多个API Key轮换
-- ✅ **自动故障转移**: 一个数据源失败自动切换到备用源
-- ✅ **缓存机制**: 减少重复请求，提升性能
-- ✅ **异步支持**: 高性能异步数据获取
+## 📖 快速导航
 
-## 📦 安装
+### 🚀 快速开始
+- **[集成指南](文档/快速开始/集成指南.md)** - 如何在项目中集成本服务
+- **[数据源准备](文档/快速开始/数据源准备.md)** - 数据源API密钥申请
+- **[最终配置方案](文档/快速开始/最终配置方案.md)** - 推荐的配置方案
 
+### 🔌 数据源配置
+- **[数据源能力对比](文档/数据源配置/数据源能力对比.md)** - 各数据源功能对比
+- **[数据源调研](文档/数据源配置/数据源调研.md)** - 数据源详细调研
+- **[多数据源配置](文档/数据源配置/多数据源配置.md)** - 配置多个数据源
+- **[AlphaVantage配置](文档/数据源配置/AlphaVantage配置.md)** - Alpha Vantage配置
+- **[AlphaVantage信息](文档/数据源配置/AlphaVantage信息.md)** - Alpha Vantage详情
+- **[AlphaVantage集成](文档/数据源配置/AlphaVantage集成.md)** - 集成步骤
+- **[AlphaVantage详细配置](文档/数据源配置/AlphaVantage详细配置.md)** - 详细配置说明
+
+### 📈 测试报告
+- **[数据源测试报告](文档/测试报告/数据源测试报告.md)** - 完整测试报告
+- **[数据源测试结果](文档/测试报告/数据源测试结果.md)** - 测试结果汇总
+- **[AlphaVantage测试报告](文档/测试报告/AlphaVantage测试报告.md)** - AV专项测试
+
+### 🚀 高级功能
+- **[高级优化](文档/高级功能/高级优化.md)** - 性能优化技巧
+- **[多账户指南](文档/高级功能/多账户指南.md)** - 多账户负载均衡
+- **[多数据源总结](文档/高级功能/多数据源总结.md)** - 多源策略总结
+
+---
+
+## 🎯 核心特性
+
+### ✨ 主要功能
+- ✅ **多数据源支持** - Yahoo Finance, Alpha Vantage, Twelve Data, Finnhub
+- ✅ **智能切换** - 自动故障转移，负载均衡
+- ✅ **统一接口** - 一致的API，简化集成
+- ✅ **高可用性** - 多账户轮询，突破限流
+
+### 📊 数据类型
+- **历史K线** - 日线、周线、月线等
+- **实时数据** - 实时价格、成交量
+- **股票信息** - 公司概况、行业分类
+- **技术指标** - 内置常用技术指标
+
+---
+
+## 🚀 快速开始
+
+### 1. 安装依赖
 ```bash
 cd market_data_service
 pip install -r requirements.txt
 ```
 
-## ⚙️ 配置
-
-### 1. 复制配置文件
-
+### 2. 配置API密钥
 ```bash
+# 复制配置示例
 cp env.example .env
+
+# 编辑配置文件
+vim .env
 ```
 
-### 2. 编辑 `.env` 文件，填入你的API Keys
-
+配置示例：
 ```bash
-# Alpha Vantage (推荐 - 免费)
-ALPHA_VANTAGE_API_KEY_1=your_key_here
-ALPHA_VANTAGE_API_KEY_2=your_key_here
-ALPHA_VANTAGE_API_KEY_3=your_key_here
+# Yahoo Finance（免费，无需密钥）
+YAHOO_FINANCE_ENABLED=true
 
-# Twelve Data (推荐 - 免费)
-TWELVEDATA_API_KEY=your_key_here
+# Alpha Vantage
+ALPHA_VANTAGE_API_KEY_1=your_key_1
+ALPHA_VANTAGE_API_KEY_2=your_key_2
 
-# Finnhub (可选)
-FINNHUB_API_KEY_1=your_key_here
+# Twelve Data
+TWELVE_DATA_API_KEY=your_key
 
-# IEX Cloud (可选)
-IEX_API_KEY=your_key_here
+# Finnhub
+FINNHUB_API_KEY_1=your_key_1
 ```
 
-### 3. 数据源配置策略
+### 3. 使用示例
+```python
+from market_data import MarketDataProviderFactory
 
-在 `.env` 中配置数据源优先级和权重：
+# 创建提供者
+provider = MarketDataProviderFactory.create_hybrid_provider()
 
-```bash
-# 格式: provider:priority:weight
-DATA_SOURCES_CONFIG=alphavantage1:1:25,alphavantage2:1:25,alphavantage3:1:20,twelvedata:1:20,yahoo:2:10
+# 获取历史数据
+df = provider.get_historical_data("AAPL", period="1y")
+
+# 获取股票信息
+info = provider.get_stock_info("AAPL")
 ```
 
-- **priority**: 1=高优先级, 2=中优先级, 3=低优先级
-- **weight**: 负载均衡权重（0-100）
+更多示例见 [examples/](examples/) 目录
 
-## 🚀 快速开始
+---
+
+## 📦 项目结构
+
+```
+market_data_service/
+├── market_data/              # 核心代码
+│   ├── providers/            # 数据提供者
+│   │   ├── yahoo_provider.py        # Yahoo Finance
+│   │   ├── alphavantage_provider.py # Alpha Vantage
+│   │   ├── twelvedata_provider.py   # Twelve Data
+│   │   ├── finnhub_provider.py      # Finnhub
+│   │   ├── hybrid_provider.py       # 混合策略
+│   │   └── multi_provider.py        # 多源策略
+│   └── __init__.py           # 导出接口
+├── examples/                 # 使用示例
+│   ├── quick_start.py        # 快速开始
+│   └── advanced_usage.py     # 高级用法
+├── 文档/                     # 📚 项目文档
+│   ├── 快速开始/
+│   ├── 数据源配置/
+│   ├── 测试报告/
+│   └── 高级功能/
+├── config.py                 # 配置管理
+├── requirements.txt          # 依赖列表
+└── README.md                 # 本文件
+```
+
+---
+
+## 🔌 支持的数据源
+
+### Yahoo Finance ⭐⭐⭐⭐⭐
+- **优点**: 免费、稳定、数据全
+- **限制**: 有时会被限流
+- **推荐**: 作为主要数据源
+
+### Alpha Vantage ⭐⭐⭐⭐
+- **优点**: 数据准确、API完善
+- **限制**: 免费版 25请求/天
+- **推荐**: 作为备用数据源
+
+### Twelve Data ⭐⭐⭐⭐
+- **优点**: 数据质量高、限流较宽松
+- **限制**: 免费版 800请求/天
+- **推荐**: 作为补充数据源
+
+### Finnhub ⭐⭐⭐
+- **优点**: 实时数据快
+- **限制**: 免费版功能有限
+- **推荐**: 用于实时数据
+
+详细对比见 [数据源能力对比](文档/数据源配置/数据源能力对比.md)
+
+---
+
+## 🎮 使用示例
 
 ### 基础用法
-
 ```python
-from market_data import YahooFinanceProvider, AlphaVantageProvider
-import asyncio
+from market_data import YahooFinanceProvider
 
-async def main():
-    # 1. 使用单一数据源
-    provider = YahooFinanceProvider()
-    
-    # 获取K线数据
-    klines = await provider.get_stock_data(
-        symbol="AAPL",
-        period="1mo",
-        interval="1d"
-    )
-    
-    print(f"获取到 {len(klines)} 条K线数据")
-    print(f"最新价格: ${klines[-1].close}")
+# 创建提供者
+provider = YahooFinanceProvider()
 
-asyncio.run(main())
+# 获取历史数据
+df = provider.get_historical_data(
+    symbol="AAPL",
+    period="1mo",
+    interval="1d"
+)
+
+# 获取实时价格
+price = provider.get_realtime_price("AAPL")
 ```
 
-### 多数据源策略
-
+### 混合策略（推荐）
 ```python
-from market_data import MultiProviderStrategy
-from config import settings
-import asyncio
+from market_data import MarketDataProviderFactory
 
-async def main():
-    # 2. 使用多数据源策略（推荐）
-    strategy = MultiProviderStrategy()
-    
-    # 自动选择最佳数据源
-    klines = await strategy.get_stock_data(
-        symbol="AAPL",
-        period="1mo",
-        interval="1d"
-    )
-    
-    # 获取股票信息（含Sector/Industry）
-    info = await strategy.get_stock_info("AAPL")
-    print(f"公司: {info['name']}")
-    print(f"行业: {info['sector']} / {info['industry']}")
-    print(f"市值: ${info['market_cap']/1e9:.2f}B")
+# 创建混合策略提供者
+provider = MarketDataProviderFactory.create_hybrid_provider()
 
-asyncio.run(main())
+# 自动选择最优数据源
+df = provider.get_historical_data("AAPL", period="1y")
+info = provider.get_stock_info("AAPL")
 ```
 
-### 多账户支持
-
+### 多账户负载均衡
 ```python
-from market_data.providers import MultiAccountProvider
-from market_data.providers import AlphaVantageProvider
-from config import get_alpha_vantage_keys
-import asyncio
+from market_data import MultiAccountProvider
 
-async def main():
-    # 3. 使用多账户轮换（突破单账户限制）
-    alpha_keys = get_alpha_vantage_keys()
-    
-    providers = [
-        AlphaVantageProvider(api_key=key, rate_limit_delay=12.0)
-        for key in alpha_keys
-    ]
-    
-    multi_account = MultiAccountProvider(providers)
-    
-    # 自动轮换使用不同账户
-    for symbol in ["AAPL", "MSFT", "GOOGL", "AMZN"]:
-        info = await multi_account.get_stock_info(symbol)
-        print(f"{symbol}: {info['name']}")
+# 配置多个API密钥
+provider = MultiAccountProvider(
+    provider_type="alphavantage",
+    api_keys=["key1", "key2", "key3"]
+)
 
-asyncio.run(main())
+# 自动轮询使用不同账户
+for symbol in ["AAPL", "GOOGL", "MSFT"]:
+    data = provider.get_historical_data(symbol)
 ```
 
-## 📚 API 文档
+更多示例见 [examples/](examples/) 目录
 
-### IMarketDataProvider 接口
+---
 
-所有数据提供者实现以下接口：
+## ⚙️ 配置说明
 
-```python
-class IMarketDataProvider(ABC):
-    """市场数据提供者接口"""
-    
-    async def get_stock_data(
-        self,
-        symbol: str,
-        period: str = "1mo",
-        interval: str = "1d"
-    ) -> List[KLineData]:
-        """获取K线数据"""
-        pass
-    
-    async def get_quote(self, symbol: str) -> Optional[QuoteData]:
-        """获取实时报价"""
-        pass
-    
-    async def get_stock_info(self, symbol: str) -> Optional[Dict]:
-        """获取股票信息"""
-        pass
+### 环境变量
+```bash
+# 数据源开关
+YAHOO_FINANCE_ENABLED=true
+ALPHA_VANTAGE_ENABLED=true
+TWELVE_DATA_ENABLED=true
+FINNHUB_ENABLED=true
+
+# API密钥（多账户）
+ALPHA_VANTAGE_API_KEY_1=xxx
+ALPHA_VANTAGE_API_KEY_2=xxx
+TWELVE_DATA_API_KEY=xxx
+FINNHUB_API_KEY_1=xxx
+FINNHUB_API_KEY_2=xxx
+
+# 优先级配置
+PRIMARY_PROVIDER=yahoo
+FALLBACK_PROVIDERS=alphavantage,twelvedata
 ```
 
-### 支持的数据源
+详细配置见 [最终配置方案](文档/快速开始/最终配置方案.md)
 
-| 数据源 | 历史数据 | 实时报价 | 股票信息 | Sector/Industry | 免费额度 |
-|--------|---------|---------|---------|----------------|---------|
-| **Yahoo Finance** | ✅ | ✅ | ✅ | ✅ | 无限（有限流） |
-| **Alpha Vantage** | ✅ | ✅ | ✅ | ✅ | 25次/天/key |
-| **Twelve Data** | ✅ | ✅ | ❌ | ❌ | 800次/天 |
-| **Finnhub** | ❌ | ✅ | ❌ | ❌ | 60次/分钟 |
-| **IEX Cloud** | ✅ | ✅ | ✅ | ✅ | 50K credits/月 |
-| **FMP** | ❌ | ❌ | ❌ | ❌ | 已停止免费 |
+---
+
+## 🔄 智能切换策略
+
+### 场景路由
+系统根据不同场景自动选择最优数据源：
+
+| 场景 | 优先数据源 | 备用数据源 |
+|------|-----------|----------|
+| 历史K线 | Yahoo Finance | Alpha Vantage |
+| 股票信息 | Alpha Vantage | Twelve Data |
+| 实时数据 | Finnhub | Yahoo Finance |
+| 批量查询 | 多账户轮询 | 混合策略 |
+
+### 故障转移
+- 自动检测API错误
+- 自动切换到备用数据源
+- 记录失败次数，智能降级
+
+详见 [高级优化](文档/高级功能/高级优化.md)
+
+---
+
+## 📊 性能优化
+
+### 缓存策略
+```python
+# 启用缓存
+provider = YahooFinanceProvider(enable_cache=True)
+
+# 历史数据缓存1小时
+df = provider.get_historical_data("AAPL", cache_ttl=3600)
+```
+
+### 批量请求
+```python
+# 批量获取多只股票
+symbols = ["AAPL", "GOOGL", "MSFT"]
+data = provider.get_batch_data(symbols)
+```
+
+### 并发控制
+```python
+# 控制并发数，避免限流
+provider = MultiAccountProvider(
+    max_concurrent=5,
+    rate_limit=10  # 10请求/秒
+)
+```
+
+---
 
 ## 🧪 测试
 
+### 运行测试
 ```bash
-# 测试所有数据源
-python scripts/test_multi_data_sources.py
+# 运行所有测试
+pytest tests/
 
-# 分析数据源能力
-python scripts/analyze_data_source_capabilities.py
+# 测试特定数据源
+pytest tests/test_yahoo.py
+pytest tests/test_alphavantage.py
 ```
 
-## 📖 详细文档
+### 查看测试报告
+- [数据源测试报告](文档/测试报告/数据源测试报告.md)
+- [测试结果汇总](文档/测试报告/数据源测试结果.md)
 
-- [数据源能力对比](docs/DATA_SOURCE_CAPABILITIES.md)
-- [Alpha Vantage集成指南](docs/ALPHA_VANTAGE_INTEGRATION.md)
-- [多数据源策略](docs/MULTI_DATA_SOURCE_SUMMARY.md)
-- [数据源测试报告](docs/DATA_SOURCE_TEST_REPORT.md)
-- [富途API指南](docs/FUTU_API_GUIDE.md) (如果使用)
+---
 
-## 🔧 高级配置
+## 🔧 开发指南
 
-### 自定义数据源策略
-
+### 添加新数据源
 ```python
-from market_data import MultiProviderStrategy
+from market_data.providers.base import BaseProvider
 
-# 创建自定义策略
-strategy = MultiProviderStrategy()
-
-# 配置数据源
-strategy.configure({
-    'alphavantage1': {'priority': 1, 'weight': 30},
-    'alphavantage2': {'priority': 1, 'weight': 30},
-    'twelvedata': {'priority': 1, 'weight': 25},
-    'yahoo': {'priority': 2, 'weight': 15},
-})
+class NewProvider(BaseProvider):
+    def get_historical_data(self, symbol, **kwargs):
+        # 实现你的逻辑
+        pass
+    
+    def get_stock_info(self, symbol):
+        # 实现你的逻辑
+        pass
 ```
 
-### 缓存配置
+### 集成到项目
+详见 [集成指南](文档/快速开始/集成指南.md)
 
-```python
-# 在 config.py 中配置
-ENABLE_CACHE = True
-CACHE_TTL_QUOTE = 60      # 实时报价缓存1分钟
-CACHE_TTL_KLINE = 3600    # K线数据缓存1小时
-CACHE_TTL_INFO = 86400    # 股票信息缓存24小时
-```
+---
 
-## 🤝 集成到其他项目
+## 💰 成本估算
 
-### 作为Python包使用
+### 免费方案（推荐）
+- Yahoo Finance: 无限制
+- Alpha Vantage: 25请求/天（多账户扩展）
+- Twelve Data: 800请求/天
+- **总成本**: $0/月
 
-```python
-# 在其他项目中
-import sys
-sys.path.insert(0, '/path/to/market_data_service')
+### 付费方案
+- Alpha Vantage Pro: $49.99/月
+- Twelve Data Pro: $79/月
+- Finnhub Pro: $59/月
 
-from market_data import MultiProviderStrategy
-from config import settings
+详见 [数据源调研](文档/数据源配置/数据源调研.md)
 
-# 使用
-strategy = MultiProviderStrategy()
-data = await strategy.get_stock_data("AAPL")
-```
+---
 
-### 作为微服务使用
+## 🤝 贡献
 
-```python
-# 创建一个简单的FastAPI服务
-from fastapi import FastAPI
-from market_data import MultiProviderStrategy
+欢迎提交 Issue 和 Pull Request！
 
-app = FastAPI()
-strategy = MultiProviderStrategy()
+### 贡献指南
+1. Fork 本项目
+2. 创建特性分支
+3. 提交代码
+4. 发起 Pull Request
 
-@app.get("/api/kline/{symbol}")
-async def get_kline(symbol: str, period: str = "1mo"):
-    return await strategy.get_stock_data(symbol, period=period)
-
-@app.get("/api/quote/{symbol}")
-async def get_quote(symbol: str):
-    return await strategy.get_quote(symbol)
-
-@app.get("/api/info/{symbol}")
-async def get_info(symbol: str):
-    return await strategy.get_stock_info(symbol)
-```
-
-## 📊 性能建议
-
-1. **使用多数据源策略**: 分散请求，提高可用性
-2. **配置多个API Key**: 突破单账户限制
-3. **启用缓存**: 减少重复请求
-4. **合理设置速率限制**: 避免被封禁
-5. **使用异步接口**: 提升并发性能
-
-## 🐛 故障排查
-
-### 常见问题
-
-**Q: Alpha Vantage返回空数据？**
-A: 检查是否超过每日25次限制，配置多个API Key。
-
-**Q: Yahoo Finance频繁限流？**
-A: 增加`YAHOO_RATE_LIMIT`值，或使用多数据源策略。
-
-**Q: Finnhub无法获取历史数据？**
-A: Finnhub免费版只支持实时报价，不支持历史K线。
-
-**Q: 如何知道当前使用的是哪个数据源？**
-A: 查看日志输出，会显示实际使用的provider。
-
-## 📝 版本历史
-
-### v1.0.0 (2025-10-17)
-- ✅ 初始版本
-- ✅ 支持5个主要数据源
-- ✅ 多数据源策略
-- ✅ 多账户支持
-- ✅ 缓存机制
-- ✅ 异步支持
+---
 
 ## 📄 许可证
 
 MIT License
 
-## 👥 贡献者
+---
 
-欢迎贡献！请提交Pull Request或Issue。
+## 📞 获取帮助
 
-## 🔗 相关链接
-
-- [Alpha Vantage](https://www.alphavantage.co/)
-- [Twelve Data](https://twelvedata.com/)
-- [Yahoo Finance](https://finance.yahoo.com/)
-- [IEX Cloud](https://iexcloud.io/)
-- [Finnhub](https://finnhub.io/)
+- 查看 [集成指南](文档/快速开始/集成指南.md)
+- 阅读 [数据源配置](文档/数据源配置/)
+- 参考 [使用示例](examples/)
 
 ---
 
-**注意**: 请遵守各数据源的使用条款和速率限制。
-
-
+**独立模块**: 本模块可独立使用，也可集成到其他项目中。
