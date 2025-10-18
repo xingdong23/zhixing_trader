@@ -319,13 +319,13 @@ export default function TradingSystem() {
               { id: "dashboard", label: "股票", icon: Heart },
               { id: "trades", label: "交易", icon: Activity },
               { id: "notes", label: "笔记", icon: PenTool },
-              { id: "review", label: "复盘系统", icon: BookOpen },
-              { id: "strategies", label: "策略管理", icon: Target },
-              { id: "checklist", label: "检查清单", icon: CheckCircle },
-              { id: "psychology", label: "心理分析", icon: Brain },
-              { id: "errors", label: "错误分析", icon: AlertTriangle },
-              { id: "pivot", label: "数据透视", icon: BarChart3 },
-              { id: "brokers", label: "券商设置", icon: Settings },
+              { id: "review", label: "复盘", icon: BookOpen },
+              { id: "strategies", label: "策略", icon: Target },
+              { id: "checklist", label: "清单", icon: CheckCircle },
+              { id: "psychology", label: "心理", icon: Brain },
+              { id: "errors", label: "错误", icon: AlertTriangle },
+              { id: "pivot", label: "透视", icon: BarChart3 },
+              { id: "brokers", label: "券商", icon: Settings },
             ].map(({ id, label, icon: Icon }) => (
               <button
                 key={id}
