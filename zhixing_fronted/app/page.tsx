@@ -264,6 +264,7 @@ export default function TradingSystem() {
             {[
               { id: "dashboard", label: "自选股票", icon: Heart },
               { id: "plans", label: "交易计划", icon: ClipboardList },
+              { id: "trades", label: "我的交易", icon: Activity, isRoute: true },
               { id: "notes", label: "交易笔记", icon: PenTool, isRoute: true },
               { id: "strategies", label: "策略管理", icon: ClipboardCheck },
               { id: "trading", label: "交易执行", icon: Zap },
