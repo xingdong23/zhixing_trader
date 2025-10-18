@@ -1,6 +1,6 @@
-# 🪙 Bitcoin Trader - 比特币短线量化交易系统
+# 🪙 Bitcoin Trader - 比特币自动化量化交易系统
 
-基于技术指标的比特币短线自动交易系统，采用稳健盈利策略。
+基于 **CCXT** 的加密货币自动交易系统，集成稳健盈利策略，支持多交易所、实时监控和完整风险管理。
 
 ---
 
@@ -8,6 +8,7 @@
 
 ### 🚀 立即开始
 - **[快速开始](文档/快速开始.md)** - 5分钟快速上手
+- **[CCXT 集成指南](文档/CCXT集成指南.md)** - ⭐ 完整使用教程
 - **[快速参考](文档/快速参考.md)** - 常用命令和配置
 
 ### 📚 核心文档
@@ -24,16 +25,25 @@
 ## 🎯 系统特点
 
 ### ✨ 核心功能
-- ✅ **短线交易** - 专注比特币短期价格波动
-- ✅ **自动执行** - 24/7 全自动交易
-- ✅ **稳健盈利** - 控制风险，稳定盈利
-- ✅ **策略可定制** - 支持自定义交易策略
+- ✅ **CCXT 集成** - 支持 Binance、OKX 等主流交易所
+- ✅ **自动交易** - 24/7 全自动策略执行
+- ✅ **实时监控** - WebSocket 实时行情和订单簿
+- ✅ **风险管理** - 完整的仓位控制和资金管理
+- ✅ **多交易对** - 同时管理多个交易对
+- ✅ **策略可定制** - 灵活的策略参数配置
 
 ### 📊 技术特点
-- **多指标组合** - RSI、MACD、布林带等
-- **风险控制** - 止损、止盈、仓位管理
-- **实时监控** - 实时价格监控和订单管理
+- **交易执行引擎** - 市价单、限价单、止损止盈
+- **实时行情监控** - Ticker、K线、订单簿实时更新
+- **风险控制系统** - 仓位计算、亏损限制、频率控制
+- **多指标组合** - RSI、MACD、ATR、ADX、布林带
 - **回测支持** - 策略回测验证
+
+### 🏗️ 核心模块
+- **TradingEngine** - 订单执行和持仓管理
+- **MarketMonitor** - 实时行情监控
+- **RiskManager** - 风险管理和资金控制
+- **TradingBot** - 自动交易机器人
 
 ---
 
@@ -97,24 +107,83 @@ bitcoin_trader/
 
 ## 🎮 使用示例
 
-### 启动交易机器人
+### 示例1: 基础自动交易机器人
+
 ```python
+import asyncio
+import ccxt.async_support as ccxt_async
+from app.core.trading_bot import TradingBot
 from app.core.strategies import SteadyProfitStrategy
-from app.core.exchanges import BinanceExchange
+from app.core.risk_manager import RiskLimits
 
-# 初始化交易所
-exchange = BinanceExchange(api_key, api_secret)
+async def main():
+    # 1. 创建交易所实例
+    exchange = ccxt_async.binance({
+        'apiKey': 'your_api_key',
+        'secret': 'your_api_secret',
+        'enableRateLimit': True
+    })
+    exchange.set_sandbox_mode(True)  # 使用测试网
+    
+    try:
+        # 2. 创建策略
+        strategy = SteadyProfitStrategy()
+        
+        # 3. 配置风险限制
+        risk_limits = RiskLimits(
+            max_position_size=0.1,
+            max_daily_loss=0.02,
+            max_trades_per_day=10
+        )
+        
+        # 4. 创建交易机器人
+        bot = TradingBot(
+            exchange=exchange,
+            strategy=strategy,
+            symbol='BTC/USDT',
+            timeframe='15m',
+            initial_capital=10000.0,
+            risk_limits=risk_limits,
+            config={'mode': 'paper'}  # paper=模拟, live=实盘
+        )
+        
+        # 5. 启动机器人
+        await bot.start()
+        
+    finally:
+        await exchange.close()
 
-# 创建策略
-strategy = SteadyProfitStrategy(exchange)
-
-# 开始交易
-strategy.run()
+asyncio.run(main())
 ```
 
-### 回测策略
+### 示例2: 多交易对交易
+
+```python
+from app.core.trading_bot import MultiSymbolTradingBot
+
+# 配置多个交易对
+configs = [
+    {'symbol': 'BTC/USDT', 'strategy': SteadyProfitStrategy(), 'timeframe': '15m'},
+    {'symbol': 'ETH/USDT', 'strategy': SteadyProfitStrategy(), 'timeframe': '15m'},
+]
+
+multi_bot = MultiSymbolTradingBot(
+    exchange=exchange,
+    strategy_configs=configs,
+    initial_capital=20000.0
+)
+
+await multi_bot.start()
+```
+
+### 示例3: 运行完整示例
+
 ```bash
-python scripts/backtest.py --strategy steady_profit --days 30
+# 运行自动交易示例
+python examples/auto_trading_example.py
+
+# 运行稳健盈利策略示例
+python examples/steady_profit_example.py
 ```
 
 ---
