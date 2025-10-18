@@ -23,7 +23,7 @@ class Settings(BaseSettings):
     # 数据库配置 - 强制使用MySQL，杜绝SQLite避免内存问题
     # 默认使用本地MySQL配置，可通过环境变量覆盖
     # 请根据你的实际MySQL配置修改用户名、密码和数据库名
-    database_url: str = os.getenv("DATABASE_URL", "mysql+pymysql://root:Cz159csa@127.0.0.1:3306/zhixing_trader")
+    database_url: str = os.getenv("DATABASE_URL", "mysql+pymysql://trader:Cz159csa@127.0.0.1:3306/zhixing_trader")
     
     # 日志配置
     log_level: str = "WARNING"
