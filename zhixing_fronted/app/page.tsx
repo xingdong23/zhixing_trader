@@ -6,8 +6,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog"
 import { Alert, AlertDescription } from "@/components/ui/alert"
+import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
 import {
   LayoutDashboard,
   ClipboardList,
@@ -58,7 +60,7 @@ import {
 } from "lucide-react"
 
 // 导入策略管理组件
-import StrategyManagement from '@/components/strategies/StrategyManagement'
+// import StrategyManagement from '@/components/strategies/StrategyManagement' // 暂时不需要
 
 import { StockList } from '@/components/stocks/StockList'
 import { NotificationCenter } from '@/components/notifications/NotificationCenter'
@@ -68,6 +70,9 @@ import CategorySelector from '@/components/categories/CategorySelector'
 // 导入交易和笔记视图组件
 import TradesView from '@/components/trades/TradesView'
 import NotesView from '@/components/notes/NotesView'
+
+// 导入Mock数据
+import { getMockStocks } from './mockStockData'
 
 interface Stock {
   id: number
@@ -102,6 +107,11 @@ export default function TradingSystem() {
   // 分类筛选状态
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null)
   
+  // 快速操作状态
+  const [showAddNoteDialog, setShowAddNoteDialog] = useState(false)
+  const [showAddAlertDialog, setShowAddAlertDialog] = useState(false)
+  const [selectedStock, setSelectedStock] = useState<Stock | null>(null)
+  
   // 排序状态
   const [sortField, setSortField] = useState<string>('updated_at')
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc')
@@ -129,6 +139,23 @@ export default function TradingSystem() {
   // 获取后端股票数据
   async function fetchBackendStocks() {
     try {
+      // 使用Mock数据（临时替代后端API）
+      const mockResponse = getMockStocks({
+        page,
+        pageSize,
+        sortField,
+        sortOrder,
+        priceMin: priceRange.min,
+        priceMax: priceRange.max,
+        changePercentMin: changePercentRange.min,
+        changePercentMax: changePercentRange.max,
+      });
+      
+      console.log('Using mock data:', mockResponse);
+      setBackendStocks(mockResponse.items);
+      setTotal(mockResponse.total);
+      
+      /* TODO: 实际使用时切换回后端API
       const base = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000'
       let url = `${base}/api/v1/stocks/overview?page=${page}&page_size=${pageSize}`
       
@@ -185,6 +212,7 @@ export default function TradingSystem() {
         change_percent: s.change_percent
       })))
       setTotal(total)
+      */
     } catch (err) {
       console.error('fetch backend stocks error', err)
     }
@@ -266,14 +294,9 @@ export default function TradingSystem() {
 
           <nav className="space-y-2">
             {[
-              { id: "dashboard", label: "自选股票", icon: Heart },
-              { id: "trades", label: "我的交易", icon: Activity },
+              { id: "dashboard", label: "股票", icon: Heart },
+              { id: "trades", label: "交易", icon: Activity },
               { id: "notes", label: "笔记", icon: PenTool },
-              { id: "strategies", label: "策略管理", icon: ClipboardCheck },
-              { id: "trading", label: "交易执行", icon: Zap },
-              { id: "influencer", label: "大佬追踪", icon: Target },
-              { id: "mindset", label: "心态建设", icon: HeartPulse },
-              { id: "review", label: "交易复盘", icon: BarChart3 },
             ].map(({ id, label, icon: Icon }) => (
               <button
                 key={id}
@@ -298,14 +321,9 @@ export default function TradingSystem() {
             <div className="flex justify-between items-center">
               <div className="flex items-center gap-4">
                 <h2 className="text-xl font-semibold text-sidebar-foreground">
-                  {currentPage === "dashboard" && "自选股票"}
-                  {currentPage === "trades" && "我的交易"}
+                  {currentPage === "dashboard" && "股票"}
+                  {currentPage === "trades" && "交易"}
                   {currentPage === "notes" && "笔记"}
-                  {currentPage === "strategies" && "策略管理"}
-                  {currentPage === "trading" && "交易执行"}
-                  {currentPage === "influencer" && "大佬追踪"}
-                  {currentPage === "mindset" && "心态建设"}
-                  {currentPage === "review" && "交易复盘"}
                 </h2>
 
                 {triggeredAlerts.length > 0 && (
@@ -640,6 +658,28 @@ export default function TradingSystem() {
                                   <Button 
                                     size="sm" 
                                     variant="outline" 
+                                    onClick={() => {
+                                      setSelectedStock(s)
+                                      setShowAddNoteDialog(true)
+                                    }}
+                                    title="添加笔记"
+                                  >
+                                    <PenTool className="w-4 h-4" />
+                                  </Button>
+                                  <Button 
+                                    size="sm" 
+                                    variant="outline" 
+                                    onClick={() => {
+                                      setSelectedStock(s)
+                                      setShowAddAlertDialog(true)
+                                    }}
+                                    title="设定提醒"
+                                  >
+                                    <Bell className="w-4 h-4" />
+                                  </Button>
+                                  <Button 
+                                    size="sm" 
+                                    variant="outline" 
                                     onClick={() => router.push(`/stock/${s.symbol}`)}
                                   >
                                     详情
@@ -699,40 +739,108 @@ export default function TradingSystem() {
               <NotesView />
             )}
 
-            {currentPage === "strategies" && (
-              <StrategyManagement />
-            )}
-
-            {currentPage === "trading" && (
-              <div className="text-center py-12">
-                <h3 className="text-lg font-medium mb-2">交易执行</h3>
-                <p className="text-muted-foreground">功能开发中...</p>
-              </div>
-            )}
-
-            {currentPage === "influencer" && (
-              <div className="text-center py-12">
-                <h3 className="text-lg font-medium mb-2">大佬追踪</h3>
-                <p className="text-muted-foreground">功能开发中...</p>
-              </div>
-            )}
-
-            {currentPage === "mindset" && (
-              <div className="text-center py-12">
-                <h3 className="text-lg font-medium mb-2">心态建设</h3>
-                <p className="text-muted-foreground">功能开发中...</p>
-              </div>
-            )}
-
-            {currentPage === "review" && (
-              <div className="text-center py-12">
-                <h3 className="text-lg font-medium mb-2">交易复盘</h3>
-                <p className="text-muted-foreground">功能开发中...</p>
-              </div>
-            )}
           </main>
         </div>
       </div>
+      
+      {/* 添加笔记对话框 */}
+      <Dialog open={showAddNoteDialog} onOpenChange={setShowAddNoteDialog}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>为 {selectedStock?.name} ({selectedStock?.symbol}) 添加笔记</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="note-title">标题</Label>
+              <Input id="note-title" placeholder="笔记标题" />
+            </div>
+            <div>
+              <Label htmlFor="note-content">内容</Label>
+              <Textarea 
+                id="note-content" 
+                placeholder="记录你的分析和想法..." 
+                rows={10}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowAddNoteDialog(false)}>
+              取消
+            </Button>
+            <Button onClick={() => {
+              // TODO: 保存笔记逻辑
+              console.log('保存笔记:', selectedStock);
+              setShowAddNoteDialog(false);
+              alert(`笔记已保存到 ${selectedStock?.name}`);
+            }}>
+              保存笔记
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      
+      {/* 设定提醒对话框 */}
+      <Dialog open={showAddAlertDialog} onOpenChange={setShowAddAlertDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>为 {selectedStock?.name} ({selectedStock?.symbol}) 设定提醒</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="alert-type">提醒类型</Label>
+              <select 
+                id="alert-type" 
+                className="w-full p-2 border rounded"
+                defaultValue="price"
+              >
+                <option value="price">价格提醒</option>
+                <option value="change">涨跌幅提醒</option>
+                <option value="volume">成交量提醒</option>
+              </select>
+            </div>
+            <div>
+              <Label htmlFor="alert-condition">触发条件</Label>
+              <select 
+                id="alert-condition" 
+                className="w-full p-2 border rounded mb-2"
+                defaultValue="above"
+              >
+                <option value="above">价格高于</option>
+                <option value="below">价格低于</option>
+              </select>
+              <Input 
+                id="alert-value" 
+                type="number" 
+                placeholder="输入目标价格"
+                step="0.01"
+              />
+            </div>
+            <div>
+              <Label htmlFor="alert-note">备注（可选）</Label>
+              <Textarea 
+                id="alert-note" 
+                placeholder="提醒原因或说明..." 
+                rows={3}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowAddAlertDialog(false)}>
+              取消
+            </Button>
+            <Button onClick={() => {
+              // TODO: 保存提醒逻辑
+              const value = (document.getElementById('alert-value') as HTMLInputElement)?.value;
+              console.log('设定提醒:', selectedStock, value);
+              setShowAddAlertDialog(false);
+              alert(`已为 ${selectedStock?.name} 设定提醒`);
+            }}>
+              <Bell className="w-4 h-4 mr-2" />
+              设定提醒
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
