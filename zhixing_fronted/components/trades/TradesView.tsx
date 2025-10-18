@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import React, { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -16,6 +16,16 @@ import TradeDetail from "@/components/trades/TradeDetail";
 import type { Trade, TradeFilters as TradeFiltersType, TradeStatistics } from "@/app/trades/types";
 import ForcedTradePlanForm from "@/components/tradePlan/ForcedTradePlanForm";
 import type { TradePlan } from "@/lib/tradePlan";
+import ManualTradeDialog from "@/components/trades/ManualTradeDialog";
+import PnlChartCard from "@/components/trades/PnlChartCard";
+import RiskWidget from "@/components/trades/RiskWidget";
+import SavedFiltersMenu from "@/components/trades/SavedFiltersMenu";
+import AlertConfigDialog, { AlertConfig } from "@/components/trades/AlertConfigDialog";
+import ViolationStats from "@/components/trades/ViolationStats";
+import GoalProgressCard from "@/components/trades/GoalProgressCard";
+import { computeEquityCurve, computeMaxDrawdown } from "@/lib/metrics";
+import { detectViolations, calculateViolationCost } from "@/lib/violations";
+import { toast } from "sonner";
 
 // Mock 数据
 import { mockTrades, mockStatistics } from "@/app/trades/mockData";
@@ -35,6 +45,18 @@ export default function TradesView() {
   const [screenshotDialogOpen, setScreenshotDialogOpen] = useState(false);
   const [alertDialogOpen, setAlertDialogOpen] = useState(false);
   const [currentTrade, setCurrentTrade] = useState<Trade | null>(null);
+  const fileInputRef = React.useRef<HTMLInputElement>(null as any);
+  const [importMessage, setImportMessage] = useState<string>("");
+  const [manualOpen, setManualOpen] = useState(false);
+  const [alertOpen, setAlertOpen] = useState(false);
+  const [alertCfg, setAlertCfg] = useState<AlertConfig>(() => {
+    try {
+      const raw = localStorage.getItem("alertConfig");
+      return raw ? JSON.parse(raw) : {};
+    } catch { return {}; }
+  });
+  const [goalTriggered, setGoalTriggered] = useState(false);
+  const [ddTriggered, setDdTriggered] = useState(false);
 
   // 筛选交易
   const filteredTrades = useMemo(() => {
@@ -98,6 +120,184 @@ export default function TradesView() {
       };
     }
   }, [filteredTrades, activeTab]);
+
+  // 自动检测违规
+  React.useEffect(() => {
+    const tradesWithViolations = trades.map(trade => {
+      const violations = detectViolations(trade);
+      const violationCost = calculateViolationCost({ ...trade, violations });
+      return {
+        ...trade,
+        violations,
+        violationCost,
+      };
+    });
+    
+    // 只有当违规信息改变时才更新状态
+    const hasChanges = tradesWithViolations.some((t, i) => {
+      const original = trades[i];
+      return (
+        (t.violations?.length || 0) !== (original.violations?.length || 0) ||
+        t.violationCost !== original.violationCost
+      );
+    });
+    
+    if (hasChanges) {
+      setTrades(tradesWithViolations);
+    }
+  }, [trades.map(t => `${t.id}-${t.status}-${t.entryPrice}-${t.exitPrice}`).join(",")]);
+
+  // 持久化（本地）
+  React.useEffect(() => {
+    const saved = localStorage.getItem("tradesData");
+    if (saved) {
+      try {
+        const parsed: Trade[] = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          setTrades(parsed);
+        }
+      } catch {}
+    }
+  }, []);
+
+  React.useEffect(() => {
+    try {
+      localStorage.setItem("tradesData", JSON.stringify(trades));
+    } catch {}
+  }, [trades]);
+
+  // 提醒触发检查
+  React.useEffect(() => {
+    const totalPnl = trades.reduce((s, t) => s + (t.netPnl || t.realizedPnl || 0), 0);
+    const curve = computeEquityCurve(trades, 100000, "day");
+    const dd = computeMaxDrawdown(curve);
+    if (alertCfg?.targetTotalPnl != null && totalPnl >= (alertCfg.targetTotalPnl || 0)) {
+      if (!goalTriggered) {
+        toast.success(`🎯 盈利目标已达成：$${totalPnl.toFixed(2)}`);
+        setGoalTriggered(true);
+      }
+    } else {
+      setGoalTriggered(false);
+    }
+    if (alertCfg?.maxDrawdownPct != null && dd >= (alertCfg.maxDrawdownPct || 0)) {
+      if (!ddTriggered) {
+        toast.warning(`⚠️ 最大回撤达到 ${dd.toFixed(2)}%`);
+        setDdTriggered(true);
+      }
+    } else {
+      setDdTriggered(false);
+    }
+  }, [trades, alertCfg]);
+
+  // CSV 导入/导出（轻量实现）
+  const triggerPickCsv = () => fileInputRef.current?.click();
+
+  const parseCsv = (text: string): Array<Record<string, string>> => {
+    const lines = text.split(/\r?\n/).filter(Boolean);
+    if (lines.length === 0) return [];
+    const header = lines[0];
+    const columns = header.split(",").map((c) => c.trim());
+    const rows: Array<Record<string, string>> = [];
+    for (let i = 1; i < lines.length; i++) {
+      const raw = lines[i];
+      // 简易CSV解析（不支持复杂嵌套逗号场景），MVP足够
+      const parts = raw
+        .split(/,(?=(?:[^"]*"[^"]*")*[^"]*$)/) // 处理引号包含逗号
+        .map((s) => s.replace(/^"|"$/g, "").trim());
+      if (parts.length !== columns.length) continue;
+      const obj: Record<string, string> = {};
+      columns.forEach((c, idx) => (obj[c] = parts[idx] ?? ""));
+      rows.push(obj);
+    }
+    return rows;
+  };
+
+  const handleCsvPicked = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      try {
+        const text = String(reader.result || "");
+        const rows = parseCsv(text);
+        if (rows.length === 0) {
+          setImportMessage("CSV为空或格式不正确");
+          return;
+        }
+        let added = 0;
+        const now = new Date().toISOString();
+        const nextIdBase = trades.length > 0 ? Math.max(...trades.map((t) => t.id)) + 1 : 1;
+        let idCursor = nextIdBase;
+        const existingKey = new Set(trades.map((t) => `${t.symbol}|${t.createdAt}`));
+        const newOnes: Trade[] = [];
+        rows.forEach((r) => {
+          const symbol = r.symbol || r.Symbol || r.SYMBOL;
+          const stockName = r.name || r.stockName || "";
+          const date = r.date || r.createdAt || r.time || now;
+          const side = (r.side || r.action || "").toLowerCase();
+          const qty = Number(r.quantity || r.qty || r.shares || 0) || undefined;
+          const price = Number(r.price || r.entryPrice || r.planEntryPrice || 0) || undefined;
+          if (!symbol || !price) return; // 基本校验
+          const key = `${symbol}|${date}`;
+          if (existingKey.has(key)) return; // 简易去重
+          const trade: Trade = {
+            id: idCursor++,
+            symbol,
+            stockName,
+            status: "pending",
+            planType: side === "short" ? "short" : "long",
+            entryPrice: price,
+            entryQuantity: qty,
+            createdAt: date,
+            updatedAt: now,
+          } as Trade;
+          newOnes.push(trade);
+          added++;
+        });
+        if (newOnes.length > 0) {
+          setTrades((prev) => [...newOnes, ...prev]);
+        }
+        setImportMessage(`导入完成：新增 ${added} 条，重复 ${rows.length - added} 条`);
+      } catch (err) {
+        setImportMessage("解析失败，请检查CSV格式");
+      }
+    };
+    reader.readAsText(file);
+    // 清空选择
+    e.target.value = "";
+  };
+
+  const exportCsv = () => {
+    const cols = [
+      "id",
+      "symbol",
+      "stockName",
+      "status",
+      "planType",
+      "entryPrice",
+      "entryQuantity",
+      "createdAt",
+      "updatedAt",
+    ];
+    const lines = [cols.join(",")];
+    filteredTrades.forEach((t) => {
+      const row = cols
+        .map((c) => {
+          const v: any = (t as any)[c];
+          const s = v == null ? "" : String(v);
+          return s.includes(",") ? `"${s.replace(/"/g, '""')}"` : s;
+        })
+        .join(",");
+      lines.push(row);
+    });
+    const blob = new Blob([lines.join("\n")], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `trades-export-${Date.now()}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
 
   // 处理创建/更新交易计划
   const handleSavePlan = (tradeData: Partial<Trade>) => {
@@ -187,9 +387,29 @@ export default function TradesView() {
         </Card>
       </div>
 
+      {/* 盈亏曲线 + 风险指标 */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="md:col-span-2"><PnlChartCard trades={trades} /></div>
+        <RiskWidget trades={trades} />
+      </div>
+
+      {/* 违规统计 + 目标进度 */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <ViolationStats trades={trades} />
+        <GoalProgressCard trades={trades} />
+      </div>
+
       {/* 操作按钮 */}
       <div className="flex justify-between items-center">
-        <div></div>
+        <div className="flex items-center gap-2">
+          <input ref={fileInputRef} type="file" accept=".csv,text/csv" className="hidden" onChange={handleCsvPicked} />
+          <Button variant="outline" onClick={triggerPickCsv}>导入CSV</Button>
+          <Button variant="outline" onClick={exportCsv}>导出CSV（当前筛选）</Button>
+          <SavedFiltersMenu current={filters} onApply={setFilters} />
+          <Button variant="outline" onClick={() => setAlertOpen(true)}>配置提醒</Button>
+          <Button variant="outline" onClick={() => setManualOpen(true)}>手动录入</Button>
+          {importMessage && <span className="text-xs text-muted-foreground ml-2">{importMessage}</span>}
+        </div>
         <Button onClick={() => setShowForcedPlanForm(true)}>
           <Plus className="w-4 h-4 mr-2" />
           创建强制交易计划（AAPL演示）
@@ -338,6 +558,28 @@ export default function TradesView() {
           onClose={() => setSelectedTrade(null)}
         />
       )}
+
+      {/* 手动录入弹窗 */}
+      <ManualTradeDialog
+        open={manualOpen}
+        onClose={() => setManualOpen(false)}
+        nextId={(trades.length > 0 ? Math.max(...trades.map(t => t.id)) + 1 : 1)}
+        onSave={(t) => {
+          setTrades(prev => [t, ...prev]);
+          setManualOpen(false);
+        }}
+      />
+
+      {/* 提醒配置 */}
+      <AlertConfigDialog
+        open={alertOpen}
+        onClose={() => setAlertOpen(false)}
+        initial={alertCfg}
+        onSave={(cfg) => {
+          setAlertCfg(cfg);
+          try { localStorage.setItem("alertConfig", JSON.stringify(cfg)); } catch {}
+        }}
+      />
 
       {/* 添加笔记对话框 */}
       <Dialog open={noteDialogOpen} onOpenChange={setNoteDialogOpen}>

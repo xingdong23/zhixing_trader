@@ -62,6 +62,7 @@ export default function ForcedTradePlanForm({
   const [score, setScore] = useState(evaluateTradePlan(plan));
   const [chartImages, setChartImages] = useState<string[]>([]);
   const technicalTextareaRef = useRef<HTMLTextAreaElement>(null);
+  const [suggestedShares, setSuggestedShares] = useState<number>(0);
 
   // 实时更新评分和风险收益比
   useEffect(() => {
@@ -89,6 +90,20 @@ export default function ForcedTradePlanForm({
     plan.positionSize,
     plan.expectedHoldDays,
   ]);
+
+  // 根据风险预算建议股数
+  useEffect(() => {
+    const balance = plan.accountBalance || 0;
+    const riskPct = plan.riskBudgetPercent || 0;
+    const riskAmt = plan.riskAmount || (balance * riskPct / 100);
+    const riskPerShare = Math.max(plan.targetBuyPrice - plan.stopLoss.price, 0);
+    if (riskAmt > 0 && riskPerShare > 0) {
+      const shares = Math.floor(riskAmt / riskPerShare);
+      setSuggestedShares(shares);
+    } else {
+      setSuggestedShares(0);
+    }
+  }, [plan.accountBalance, plan.riskBudgetPercent, plan.riskAmount, plan.targetBuyPrice, plan.stopLoss.price]);
 
   // 处理图片粘贴
   const handlePaste = (e: React.ClipboardEvent) => {
@@ -381,6 +396,31 @@ export default function ForcedTradePlanForm({
           </CardContent>
         </Card>
 
+        {/* 风险预算与仓位计算（增强） */}
+        <Card className="border-2">
+          <CardHeader className="pb-4">
+            <CardTitle className="text-lg">风险预算与仓位建议</CardTitle>
+            <CardDescription>根据账户规模与止损距离，给出建议股数</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-3 gap-4">
+              <div>
+                <Label className="text-sm font-medium">账户规模（$）</Label>
+                <Input type="number" value={plan.accountBalance || ''} onChange={(e) => setPlan({ ...plan, accountBalance: parseFloat(e.target.value) || 0 })} className="mt-1.5" />
+              </div>
+              <div>
+                <Label className="text-sm font-medium">单笔风险（%）</Label>
+                <Input type="number" value={plan.riskBudgetPercent || ''} onChange={(e) => setPlan({ ...plan, riskBudgetPercent: parseFloat(e.target.value) || 0 })} className="mt-1.5" />
+              </div>
+              <div>
+                <Label className="text-sm font-medium">或最大亏损金额（$）</Label>
+                <Input type="number" value={plan.riskAmount || ''} onChange={(e) => setPlan({ ...plan, riskAmount: parseFloat(e.target.value) || 0 })} className="mt-1.5" />
+              </div>
+            </div>
+            <div className="text-sm text-gray-600">建议股数：<span className="font-semibold">{suggestedShares}</span> 股（基于风险预算与止损距离）</div>
+          </CardContent>
+        </Card>
+
         {/* 止损设置 */}
         <Card className="border-2 border-red-200 dark:border-red-800">
           <CardHeader className="pb-4">
@@ -491,6 +531,30 @@ export default function ForcedTradePlanForm({
               <p className="text-xs text-gray-500 mt-2">
                 💡 建议：{TRADE_TYPE_CONFIG[plan.tradeType].expectedDays}
               </p>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* 市场与信心 */}
+        <Card className="border-2">
+          <CardHeader className="pb-4">
+            <CardTitle className="text-lg">市场与信心</CardTitle>
+          </CardHeader>
+          <CardContent className="grid grid-cols-3 gap-4">
+            <div>
+              <Label className="text-sm font-medium">市场环境</Label>
+              <Select value={plan.marketCondition || 'sideways'} onValueChange={(v: any) => setPlan({ ...plan, marketCondition: v })}>
+                <SelectTrigger className="mt-1.5"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="bull">牛市</SelectItem>
+                  <SelectItem value="bear">熊市</SelectItem>
+                  <SelectItem value="sideways">震荡</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label className="text-sm font-medium">信心评分（1-5）</Label>
+              <Input type="number" min={1} max={5} value={plan.confidenceRating || 3} onChange={(e) => setPlan({ ...plan, confidenceRating: Math.max(1, Math.min(5, parseInt(e.target.value) || 3)) })} className="mt-1.5" />
             </div>
           </CardContent>
         </Card>

@@ -16,9 +16,11 @@ import {
   Eye,
   Plus,
   Camera,
-  StickyNote
+  StickyNote,
+  AlertTriangle
 } from "lucide-react";
 import type { Trade } from "@/app/trades/types";
+import { getViolationColor, getViolationLabel } from "@/lib/violations";
 
 interface TradeCardProps {
   trade: Trade;
@@ -178,10 +180,51 @@ export default function TradeCard({
         </div>
 
         {/* 策略和笔记 */}
-        {trade.planStrategy && (
-          <div className="text-sm text-gray-600">
-            <span className="font-medium">策略：</span>
-            {trade.planStrategy}
+        {(trade.planStrategy || (trade.strategyTags && trade.strategyTags.length > 0)) && (
+          <div className="text-sm text-gray-600 flex items-center gap-2 flex-wrap">
+            {trade.planStrategy && (
+              <span><span className="font-medium">策略：</span>{trade.planStrategy}</span>
+            )}
+            {trade.strategyTags && trade.strategyTags.length > 0 && (
+              <div className="flex items-center gap-1 flex-wrap">
+                {trade.strategyTags.map((t, i) => (
+                  <Badge key={i} variant="secondary" className="text-xs">{t}</Badge>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* 违规标记 */}
+        {trade.violations && trade.violations.length > 0 && (
+          <div className="flex items-start gap-2 p-2 bg-red-50 dark:bg-red-900/10 border border-red-200 dark:border-red-800 rounded-md">
+            <AlertTriangle className="w-4 h-4 text-red-600 flex-shrink-0 mt-0.5" />
+            <div className="flex-1 min-w-0">
+              <p className="text-xs font-semibold text-red-700 dark:text-red-400 mb-1">
+                检测到 {trade.violations.length} 项违规
+              </p>
+              <div className="flex flex-wrap gap-1">
+                {trade.violations.slice(0, 3).map((v, i) => (
+                  <Badge 
+                    key={i} 
+                    variant="outline" 
+                    className={`text-xs ${getViolationColor(v.severity)}`}
+                  >
+                    {getViolationLabel(v.type)}
+                  </Badge>
+                ))}
+                {trade.violations.length > 3 && (
+                  <Badge variant="outline" className="text-xs">
+                    +{trade.violations.length - 3}
+                  </Badge>
+                )}
+              </div>
+              {trade.violationCost && trade.violationCost > 0 && (
+                <p className="text-xs text-red-600 dark:text-red-400 mt-1">
+                  预估损失: ${trade.violationCost.toFixed(2)}
+                </p>
+              )}
+            </div>
           </div>
         )}
 
