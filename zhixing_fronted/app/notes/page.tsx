@@ -1,13 +1,14 @@
 "use client";
 
 import { useState, useMemo } from "react";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { Plus, Download, Tags } from "lucide-react";
+import { Plus, Download, Tags, ArrowLeft } from "lucide-react";
 import NoteCard from "@/components/notes/NoteCard";
 import NoteFilters from "@/components/notes/NoteFilters";
 import NoteEditor from "@/components/notes/NoteEditor";
 import TagManager from "@/components/notes/TagManager";
-import type { Note, NoteTag, NoteWithId } from "./types";
+import type { Note, NoteTag, NoteWithId, NoteType } from "./types";
 
 // 模拟数据
 const mockTags: NoteTag[] = [
@@ -24,118 +25,171 @@ const mockTags: NoteTag[] = [
 const mockNotes: NoteWithId[] = [
   {
     id: 1,
-    type: "trade",
-    title: "AAPL 突破月线阻力位买入",
-    content: `## 入场理由
+    type: "stock",
+    title: "AAPL - 苹果公司基本面分析",
+    content: `## 基本面
 
-- 突破月线阻力位
-- MACD金叉
-- 基本面支撑：Q3财报超预期
+- Q3财报超预期，营收增长12%
+- iPhone 15 系列销售强劲
+- 服务业务持续增长
 
-## 实际执行
+## 技术面
 
-入场点位精准，但止损设置过紧，被扫出后继续上涨。
+- 突破月线阻力位 $180
+- MACD金叉，动能良好
+- 支撑位：$172
 
-## 教训
+## 交易想法
 
-- 需要给予更大的波动空间
-- 下次类似情况考虑分批建仓`,
+- 回调到$175附近分批买入
+- 目标价：$195
+- 止损：$170`,
     isStarred: true,
     tags: [mockTags[0], mockTags[2]],
     createdAt: "2024-10-15T14:30:00Z",
+    relatedId: "AAPL",
     relatedInfo: {
-      type: "trade",
-      label: "AAPL 买入 100股 @175.50",
-      link: "/trades/12345",
+      type: "stock",
+      label: "AAPL - 苹果公司",
+      link: "/stock/AAPL",
     },
   },
   {
     id: 2,
-    type: "day",
-    title: "大盘震荡，科技股活跃",
+    type: "market",
+    title: "美股大盘观察 - 震荡行情",
     content: `## 市场情况
 
-- 大盘震荡，科技股活跃
-- 成交量萎缩
+- 纳斯达克震荡，科技股活跃
+- 成交量萎缩，观望情绪浓厚
+- VIX指数下降，恐慌情绪缓解
 
-## 今日交易
+## 板块轮动
 
-- 3笔交易，2胜1负
-- 总盈利: +$520
-- 最大回撤: -$180
+- AI概念股领涨
+- 传统能源股回调
+- 消费股表现平淡
 
-## 心态
+## 操作建议
 
-- 早盘过于激进，追高被套
-- 下午调整策略，等待回调买入
-
-## 明日计划
-
-- 关注AI概念股
-- 耐心等待更好的入场点`,
+- 短线操作为主
+- 控制仓位，降低风险
+- 关注科技股龙头`,
     isStarred: false,
-    tags: [mockTags[4], mockTags[2]],
+    tags: [mockTags[4]],
     createdAt: "2024-10-15T18:00:00Z",
+    relatedId: "US_MARKET",
     relatedInfo: {
-      type: "day",
-      label: "2024-10-15 交易日",
-      link: "/days/2024-10-15",
+      type: "market",
+      label: "美股市场",
     },
   },
   {
     id: 3,
-    type: "misc",
-    title: "龙头战法研究",
-    content: `## 核心思路
-
-1. 识别行业热点
-2. 找出行业龙头
-3. 等待回调买入
-4. 止损：跌破5日线
-
-## 待验证
-
-- 如何准确识别真假热点
-- 龙头股的定量标准
-
-## 下一步
-
-- 回测近3个月数据
-- 建立选股模型`,
-    isStarred: false,
-    tags: [mockTags[7]],
-    createdAt: "2024-10-12T09:15:00Z",
-  },
-  {
-    id: 4,
     type: "trade",
-    title: "TSLA 追高失败记录",
-    content: `## 问题分析
+    title: "TSLA 突破交易复盘",
+    content: `## 入场理由
 
-早盘看到 TSLA 大涨就冲动追入，结果买在高点。
+- 突破三角形整理
+- 成交量放大
+- 马斯克发布利好消息
 
-## 错误
+## 实际执行
 
-1. 没有等待回调
-2. 仓位过重
-3. 情绪化交易
+- 入场：$265
+- 出场：$278
+- 盈利：+4.9%
 
-## 改进
+## 教训
 
-- 严格执行交易计划
-- 绝不追高
-- 控制仓位`,
+- 追高买入风险大
+- 下次等待回调
+- 严格执行止损`,
     isStarred: true,
-    tags: [mockTags[1], mockTags[5], mockTags[6]],
+    tags: [mockTags[0], mockTags[6]],
     createdAt: "2024-10-14T10:30:00Z",
+    relatedId: "TSLA",
     relatedInfo: {
       type: "trade",
-      label: "TSLA 买入 50股 @265.00",
+      label: "TSLA 交易",
       link: "/trades/12346",
     },
   },
   {
+    id: 4,
+    type: "pattern",
+    title: "杯柄形态 (Cup and Handle) 研究",
+    content: `## 形态特征
+
+1. 圆弧底（杯底）
+2. 小幅回调（手柄）
+3. 突破颈线位
+
+## 成功要素
+
+- 形成时间：4-12周
+- 回调幅度：10-15%
+- 突破时放量
+
+## 实战案例
+
+- NVDA 2024年3月：成功率 85%
+- META 2024年2月：成功率 78%
+
+## 注意事项
+
+- 假突破风险
+- 需要配合基本面
+- 止损设在手柄低点`,
+    isStarred: false,
+    tags: [mockTags[7]],
+    createdAt: "2024-10-12T09:15:00Z",
+    relatedId: "CUP_HANDLE",
+    relatedInfo: {
+      type: "pattern",
+      label: "杯柄形态",
+    },
+  },
+  {
     id: 5,
+    type: "strategy",
+    title: "动量突破策略详解",
+    content: `## 策略核心
+
+1. 识别强势股
+2. 等待整理突破
+3. 突破时重仓买入
+4. 快速止盈止损
+
+## 选股条件
+
+- 近期涨幅 > 20%
+- 成交量持续放大
+- 基本面良好
+
+## 风控规则
+
+- 单笔止损 < 2%
+- 最大持仓 < 30%
+- 快进快出
+
+## 回测数据
+
+- 胜率：62%
+- 盈亏比：2.3:1
+- 年化收益：35%`,
+    isStarred: true,
+    tags: [mockTags[7], mockTags[2]],
+    createdAt: "2024-10-10T20:00:00Z",
+    relatedId: "MOMENTUM_BREAKOUT",
+    relatedInfo: {
+      type: "strategy",
+      label: "动量突破策略",
+      link: "/strategy/momentum-breakout",
+    },
+  },
+  {
+    id: 6,
     type: "misc",
     title: "《股票大作手回忆录》读书笔记",
     content: `## 核心观点
@@ -151,14 +205,16 @@ const mockNotes: NoteWithId[] = [
 ## 应用到实盘
 
 - 建立趋势跟踪系统
-- 制定严格的止损策略`,
+- 制定严格的止损策略
+- 控制情绪，避免冲动交易`,
     isStarred: false,
     tags: [],
-    createdAt: "2024-10-10T20:00:00Z",
+    createdAt: "2024-10-08T20:00:00Z",
   },
 ];
 
 export default function NotesPage() {
+  const router = useRouter();
   const [notes, setNotes] = useState<NoteWithId[]>(mockNotes);
   const [tags, setTags] = useState<NoteTag[]>(mockTags);
 
@@ -170,7 +226,7 @@ export default function NotesPage() {
   // 过滤器状态
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedTags, setSelectedTags] = useState<number[]>([]);
-  const [noteType, setNoteType] = useState<"all" | "trade" | "day" | "misc">("all");
+  const [noteType, setNoteType] = useState<"all" | NoteType>("all");
   const [starredOnly, setStarredOnly] = useState(false);
   const [dateRange, setDateRange] = useState({
     start: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split("T")[0],
@@ -293,11 +349,21 @@ export default function NotesPage() {
     <div className="container mx-auto py-6 space-y-6">
       {/* 顶部栏 */}
       <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">📝 交易笔记</h1>
-          <p className="text-gray-500 mt-1">
-            记录交易思考，积累交易经验
-          </p>
+        <div className="flex items-center gap-4">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => router.push("/")}
+            className="hover:bg-gray-100 dark:hover:bg-gray-800"
+          >
+            <ArrowLeft className="w-5 h-5" />
+          </Button>
+          <div>
+            <h1 className="text-3xl font-bold">📝 笔记</h1>
+            <p className="text-gray-500 mt-1">
+              记录个股分析、市场观察、交易复盘、策略研究
+            </p>
+          </div>
         </div>
         <div className="flex items-center gap-2">
           <Button variant="outline" onClick={() => setShowTagManager(true)}>

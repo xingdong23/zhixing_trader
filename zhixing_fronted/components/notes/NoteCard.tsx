@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Star, Edit, Trash2, ExternalLink, Calendar } from "lucide-react";
 import { useState } from "react";
 import type { Note, NoteTag, NoteWithId } from "@/app/notes/types";
+import { NOTE_TYPE_CONFIG } from "@/app/notes/types";
 
 interface NoteCardProps {
   note: NoteWithId;
@@ -14,15 +15,9 @@ interface NoteCardProps {
   onToggleStar?: (noteId: number) => void;
 }
 
-const noteTypeConfig = {
-  trade: { label: "交易笔记", bgColor: "bg-blue-100 dark:bg-blue-900", textColor: "text-blue-700 dark:text-blue-300" },
-  day: { label: "日笔记", bgColor: "bg-green-100 dark:bg-green-900", textColor: "text-green-700 dark:text-green-300" },
-  misc: { label: "杂项笔记", bgColor: "bg-purple-100 dark:bg-purple-900", textColor: "text-purple-700 dark:text-purple-300" },
-};
-
 export default function NoteCard({ note, onEdit, onDelete, onToggleStar }: NoteCardProps) {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-  const typeConfig = noteTypeConfig[note.type];
+  const typeConfig = NOTE_TYPE_CONFIG[note.type];
 
   const handleDelete = () => {
     if (showDeleteConfirm) {
@@ -54,8 +49,8 @@ export default function NoteCard({ note, onEdit, onDelete, onToggleStar }: NoteC
               <h3 className="text-lg font-semibold truncate">{note.title}</h3>
             </div>
             <div className="flex items-center gap-2 flex-wrap">
-              <Badge className={`${typeConfig.bgColor} ${typeConfig.textColor} border-0`}>
-                {typeConfig.label}
+              <Badge className={`${typeConfig.color} border-0`}>
+                {typeConfig.icon} {typeConfig.label}
               </Badge>
               {note.tags.map((tag) => (
                 <Badge

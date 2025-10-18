@@ -13,7 +13,10 @@ import {
   Image as ImageIcon,
   Bell,
   Edit,
-  Eye
+  Eye,
+  Plus,
+  Camera,
+  StickyNote
 } from "lucide-react";
 import type { Trade } from "@/app/trades/types";
 
@@ -21,6 +24,9 @@ interface TradeCardProps {
   trade: Trade;
   onViewDetails: (trade: Trade) => void;
   onEdit?: (trade: Trade) => void;
+  onAddNote?: (trade: Trade) => void;
+  onAddScreenshot?: (trade: Trade) => void;
+  onAddAlert?: (trade: Trade) => void;
 }
 
 // 状态配置
@@ -38,7 +44,14 @@ const tradeTypeConfig = {
   short: { label: "做空", color: "text-red-600", icon: TrendingDown },
 };
 
-export default function TradeCard({ trade, onViewDetails, onEdit }: TradeCardProps) {
+export default function TradeCard({ 
+  trade, 
+  onViewDetails, 
+  onEdit,
+  onAddNote,
+  onAddScreenshot,
+  onAddAlert
+}: TradeCardProps) {
   const status = statusConfig[trade.status];
   const tradeType = tradeTypeConfig[trade.planType];
   const TradeIcon = tradeType.icon;
@@ -173,46 +186,95 @@ export default function TradeCard({ trade, onViewDetails, onEdit }: TradeCardPro
         )}
 
         {/* 底部：统计和操作 */}
-        <div className="flex items-center justify-between pt-2 border-t">
-          <div className="flex items-center gap-4 text-sm text-gray-500">
-            {trade.status === "active" && getHoldingDays() !== null && (
-              <div className="flex items-center gap-1">
-                <Clock className="w-4 h-4" />
-                <span>{getHoldingDays()}天</span>
-              </div>
-            )}
-            {trade.noteCount !== undefined && trade.noteCount > 0 && (
-              <div className="flex items-center gap-1">
-                <FileText className="w-4 h-4" />
-                <span>{trade.noteCount}</span>
-              </div>
-            )}
-            {trade.screenshotCount !== undefined && trade.screenshotCount > 0 && (
-              <div className="flex items-center gap-1">
-                <ImageIcon className="w-4 h-4" />
-                <span>{trade.screenshotCount}</span>
-              </div>
-            )}
-            {trade.alertCount !== undefined && trade.alertCount > 0 && (
-              <div className="flex items-center gap-1">
-                <Bell className="w-4 h-4" />
-                <span>{trade.alertCount}</span>
+        <div className="space-y-2 pt-2 border-t">
+          {/* 统计信息行 */}
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4 text-sm text-gray-500">
+              {trade.status === "active" && getHoldingDays() !== null && (
+                <div className="flex items-center gap-1">
+                  <Clock className="w-4 h-4" />
+                  <span>{getHoldingDays()}天</span>
+                </div>
+              )}
+              {trade.noteCount !== undefined && trade.noteCount > 0 && (
+                <div className="flex items-center gap-1">
+                  <FileText className="w-4 h-4" />
+                  <span>{trade.noteCount}</span>
+                </div>
+              )}
+              {trade.screenshotCount !== undefined && trade.screenshotCount > 0 && (
+                <div className="flex items-center gap-1">
+                  <ImageIcon className="w-4 h-4" />
+                  <span>{trade.screenshotCount}</span>
+                </div>
+              )}
+              {trade.alertCount !== undefined && trade.alertCount > 0 && (
+                <div className="flex items-center gap-1">
+                  <Bell className="w-4 h-4" />
+                  <span>{trade.alertCount}</span>
+                </div>
+              )}
+            </div>
+            
+            {trade.status === "active" && (
+              <div className="flex items-center gap-2 text-xs">
+                <div className="flex items-center gap-1 text-gray-500">
+                  <Target className="w-3 h-3" />
+                  <span>止损: {formatPrice(trade.stopLossPrice)}</span>
+                </div>
+                <div className="flex items-center gap-1 text-gray-500">
+                  <Target className="w-3 h-3" />
+                  <span>止盈: {formatPrice(trade.takeProfitPrice)}</span>
+                </div>
               </div>
             )}
           </div>
-          
-          {trade.status === "active" && (
-            <div className="flex items-center gap-2 text-xs">
-              <div className="flex items-center gap-1 text-gray-500">
-                <Target className="w-3 h-3" />
-                <span>止损: {formatPrice(trade.stopLossPrice)}</span>
-              </div>
-              <div className="flex items-center gap-1 text-gray-500">
-                <Target className="w-3 h-3" />
-                <span>止盈: {formatPrice(trade.takeProfitPrice)}</span>
-              </div>
-            </div>
-          )}
+
+          {/* 快速操作按钮 */}
+          <div className="flex items-center gap-2">
+            {onAddNote && (
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onAddNote(trade);
+                }}
+                className="flex-1"
+              >
+                <StickyNote className="w-4 h-4 mr-1" />
+                添加笔记
+              </Button>
+            )}
+            {onAddScreenshot && (
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onAddScreenshot(trade);
+                }}
+                className="flex-1"
+              >
+                <Camera className="w-4 h-4 mr-1" />
+                上传截图
+              </Button>
+            )}
+            {onAddAlert && trade.status === "active" && (
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onAddAlert(trade);
+                }}
+                className="flex-1"
+              >
+                <Bell className="w-4 h-4 mr-1" />
+                设置提醒
+              </Button>
+            )}
+          </div>
         </div>
       </div>
     </Card>

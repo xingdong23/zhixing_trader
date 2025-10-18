@@ -1,197 +1,23 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { Plus, TrendingUp, TrendingDown, DollarSign, Target, Upload, X, ArrowLeft } from "lucide-react";
+import { Plus, TrendingUp, TrendingDown, DollarSign, Target, Upload } from "lucide-react";
 import TradeCard from "@/components/trades/TradeCard";
 import TradeFilters from "@/components/trades/TradeFilters";
 import TradePlanForm from "@/components/trades/TradePlanForm";
 import TradeDetail from "@/components/trades/TradeDetail";
-import type { Trade, TradeFilters as TradeFiltersType, TradeStatistics } from "./types";
+import type { Trade, TradeFilters as TradeFiltersType, TradeStatistics } from "@/app/trades/types";
 
 // Mock 数据
-const mockTrades: Trade[] = [
-  {
-    id: 1,
-    symbol: "AAPL",
-    stockName: "Apple Inc.",
-    status: "active",
-    planType: "long",
-    planEntryPrice: 180.50,
-    planEntryPriceRangeLow: 179.00,
-    planEntryPriceRangeHigh: 182.00,
-    planQuantity: 100,
-    planStopLoss: 175.00,
-    planTakeProfit: 190.00,
-    planNotes: "突破月线阻力位，成交量放大",
-    planStrategy: "技术面突破+基本面支撑，iPhone销量超预期",
-    planCreatedAt: "2024-10-15T10:00:00Z",
-    entryPrice: 180.80,
-    entryTime: "2024-10-15T14:30:00Z",
-    entryQuantity: 100,
-    entryNotes: "按计划入场，突破后回踩确认支撑",
-    currentPrice: 185.20,
-    currentQuantity: 100,
-    unrealizedPnl: 440.00,
-    unrealizedPnlPct: 2.43,
-    stopLossPrice: 177.00,
-    takeProfitPrice: 190.00,
-    createdAt: "2024-10-15T10:00:00Z",
-    updatedAt: "2024-10-18T09:00:00Z",
-    noteCount: 3,
-    screenshotCount: 2,
-    alertCount: 2,
-  },
-  {
-    id: 2,
-    symbol: "TSLA",
-    stockName: "Tesla Inc.",
-    status: "active",
-    planType: "long",
-    planEntryPrice: 220.00,
-    planQuantity: 50,
-    planStopLoss: 210.00,
-    planTakeProfit: 240.00,
-    planStrategy: "新能源板块轮动，关注交付数据",
-    planCreatedAt: "2024-10-12T09:00:00Z",
-    entryPrice: 221.50,
-    entryTime: "2024-10-13T10:30:00Z",
-    entryQuantity: 50,
-    currentPrice: 215.80,
-    currentQuantity: 50,
-    unrealizedPnl: -285.00,
-    unrealizedPnlPct: -2.57,
-    stopLossPrice: 210.00,
-    takeProfitPrice: 240.00,
-    createdAt: "2024-10-12T09:00:00Z",
-    updatedAt: "2024-10-18T09:00:00Z",
-    noteCount: 2,
-    screenshotCount: 1,
-    alertCount: 1,
-  },
-  {
-    id: 3,
-    symbol: "NVDA",
-    stockName: "NVIDIA Corporation",
-    status: "pending",
-    planType: "long",
-    planEntryPrice: 450.00,
-    planEntryPriceRangeLow: 445.00,
-    planEntryPriceRangeHigh: 455.00,
-    planQuantity: 20,
-    planStopLoss: 430.00,
-    planTakeProfit: 480.00,
-    planStrategy: "AI芯片需求强劲，等待回调入场",
-    planNotes: "关注财报日期，注意市场情绪",
-    planCreatedAt: "2024-10-17T15:00:00Z",
-    createdAt: "2024-10-17T15:00:00Z",
-    updatedAt: "2024-10-17T15:00:00Z",
-    noteCount: 1,
-    alertCount: 1,
-  },
-  {
-    id: 4,
-    symbol: "MSFT",
-    stockName: "Microsoft Corporation",
-    status: "closed",
-    planType: "long",
-    planEntryPrice: 340.00,
-    planQuantity: 30,
-    planStopLoss: 330.00,
-    planTakeProfit: 360.00,
-    planStrategy: "云服务增长稳定，AI业务加持",
-    planCreatedAt: "2024-10-01T10:00:00Z",
-    entryPrice: 341.20,
-    entryTime: "2024-10-02T11:00:00Z",
-    entryQuantity: 30,
-    exitPrice: 355.80,
-    exitTime: "2024-10-10T15:00:00Z",
-    exitQuantity: 30,
-    realizedPnl: 438.00,
-    realizedPnlPct: 4.28,
-    commission: 10.00,
-    netPnl: 428.00,
-    createdAt: "2024-10-01T10:00:00Z",
-    updatedAt: "2024-10-10T15:00:00Z",
-    reviewRating: 5,
-    reviewNotes: "完美执行，达到止盈目标",
-    noteCount: 4,
-    screenshotCount: 3,
-  },
-  {
-    id: 5,
-    symbol: "GOOGL",
-    stockName: "Alphabet Inc.",
-    status: "closed",
-    planType: "long",
-    planEntryPrice: 140.00,
-    planQuantity: 50,
-    planStopLoss: 135.00,
-    planTakeProfit: 150.00,
-    planCreatedAt: "2024-09-20T10:00:00Z",
-    entryPrice: 139.80,
-    entryTime: "2024-09-21T10:00:00Z",
-    entryQuantity: 50,
-    exitPrice: 136.50,
-    exitTime: "2024-09-28T14:00:00Z",
-    exitQuantity: 50,
-    realizedPnl: -165.00,
-    realizedPnlPct: -2.36,
-    commission: 10.00,
-    netPnl: -175.00,
-    createdAt: "2024-09-20T10:00:00Z",
-    updatedAt: "2024-09-28T14:00:00Z",
-    reviewRating: 3,
-    reviewNotes: "止损出局，市场环境转差",
-    reviewLessons: "应该更早关注大盘走势",
-    noteCount: 3,
-    screenshotCount: 2,
-  },
-  {
-    id: 6,
-    symbol: "META",
-    stockName: "Meta Platforms Inc.",
-    status: "pending",
-    planType: "long",
-    planEntryPrice: 320.00,
-    planEntryPriceRangeLow: 315.00,
-    planEntryPriceRangeHigh: 325.00,
-    planQuantity: 25,
-    planStopLoss: 305.00,
-    planTakeProfit: 345.00,
-    planStrategy: "VR/AR业务转折点，广告收入恢复",
-    planNotes: "等待Q3财报，关注用户增长数据",
-    planCreatedAt: "2024-10-18T08:00:00Z",
-    createdAt: "2024-10-18T08:00:00Z",
-    updatedAt: "2024-10-18T08:00:00Z",
-    noteCount: 1,
-  },
-];
+import { mockTrades, mockStatistics } from "@/app/trades/mockData";
 
-const mockStatistics: TradeStatistics = {
-  totalTrades: 6,
-  activeTrades: 2,
-  pendingTrades: 2,
-  closedTrades: 2,
-  winCount: 1,
-  lossCount: 1,
-  winRate: 50.0,
-  totalPnl: 253.00,
-  avgPnl: 126.50,
-  maxProfit: 428.00,
-  maxLoss: -175.00,
-  maxConsecutiveWins: 1,
-  maxConsecutiveLosses: 1,
-};
-
-export default function TradesPage() {
-  const router = useRouter();
+export default function TradesView() {
   const [trades, setTrades] = useState<Trade[]>(mockTrades);
   const [filters, setFilters] = useState<TradeFiltersType>({});
   const [showPlanForm, setShowPlanForm] = useState(false);
@@ -311,29 +137,7 @@ export default function TradesPage() {
   };
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
-      {/* 标题和操作 */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => router.push("/")}
-            className="hover:bg-gray-100 dark:hover:bg-gray-800"
-          >
-            <ArrowLeft className="w-5 h-5" />
-          </Button>
-          <div>
-            <h1 className="text-3xl font-bold">我的交易</h1>
-            <p className="text-gray-500 mt-1">管理你的交易计划、持仓和历史记录</p>
-          </div>
-        </div>
-        <Button onClick={() => setShowPlanForm(true)}>
-          <Plus className="w-4 h-4 mr-2" />
-          创建交易计划
-        </Button>
-      </div>
-
+    <div className="space-y-6">
       {/* 统计卡片 */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card className="p-4">
@@ -374,6 +178,15 @@ export default function TradesPage() {
             <DollarSign className="w-8 h-8 text-yellow-500" />
           </div>
         </Card>
+      </div>
+
+      {/* 操作按钮 */}
+      <div className="flex justify-between items-center">
+        <div></div>
+        <Button onClick={() => setShowPlanForm(true)}>
+          <Plus className="w-4 h-4 mr-2" />
+          创建交易计划
+        </Button>
       </div>
 
       {/* 标签页切换 */}
@@ -487,51 +300,29 @@ export default function TradesPage() {
       />
 
       {/* 交易详情 */}
-      <TradeDetail
-        trade={selectedTrade}
-        open={!!selectedTrade}
-        onClose={() => setSelectedTrade(null)}
-      />
+      {selectedTrade && (
+        <TradeDetail
+          trade={selectedTrade}
+          open={!!selectedTrade}
+          onClose={() => setSelectedTrade(null)}
+        />
+      )}
 
       {/* 添加笔记对话框 */}
       <Dialog open={noteDialogOpen} onOpenChange={setNoteDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>
-              添加笔记 - {currentTrade?.symbol} {currentTrade?.stockName}
-            </DialogTitle>
+            <DialogTitle>添加交易笔记</DialogTitle>
           </DialogHeader>
-          <div className="space-y-4 py-4">
+          <div className="space-y-4">
             <div>
-              <Label htmlFor="note-title">笔记标题</Label>
-              <Input
-                id="note-title"
-                placeholder="例如：入场观察、持仓分析、平仓总结..."
-              />
-            </div>
-            <div>
-              <Label htmlFor="note-content">笔记内容</Label>
-              <Textarea
-                id="note-content"
-                placeholder="记录你对这次交易的想法、观察、分析..."
-                rows={8}
-              />
-            </div>
-            <div className="text-sm text-gray-500">
-              💡 提示：你可以记录K线形态、技术指标、市场情绪、新闻事件等任何与交易相关的内容
+              <Label>笔记内容</Label>
+              <Textarea placeholder="记录你的交易想法..." rows={6} />
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setNoteDialogOpen(false)}>
-              取消
-            </Button>
-            <Button onClick={() => {
-              // TODO: 保存笔记
-              alert("笔记已保存（演示模式）");
-              setNoteDialogOpen(false);
-            }}>
-              保存笔记
-            </Button>
+            <Button variant="outline" onClick={() => setNoteDialogOpen(false)}>取消</Button>
+            <Button onClick={() => setNoteDialogOpen(false)}>保存</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -540,57 +331,18 @@ export default function TradesPage() {
       <Dialog open={screenshotDialogOpen} onOpenChange={setScreenshotDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>
-              上传截图 - {currentTrade?.symbol} {currentTrade?.stockName}
-            </DialogTitle>
+            <DialogTitle>上传K线截图</DialogTitle>
           </DialogHeader>
-          <div className="space-y-4 py-4">
+          <div className="space-y-4">
             <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
-              <Upload className="w-12 h-12 mx-auto mb-4 text-gray-400" />
-              <p className="text-sm text-gray-600 mb-2">
-                点击上传或拖拽图片到这里
-              </p>
-              <p className="text-xs text-gray-400">
-                支持 JPG、PNG、GIF 格式，最大 10MB
-              </p>
-              <Input
-                type="file"
-                accept="image/*"
-                className="mt-4"
-                onChange={(e) => {
-                  if (e.target.files && e.target.files[0]) {
-                    alert(`已选择文件：${e.target.files[0].name}（演示模式）`);
-                  }
-                }}
-              />
-            </div>
-            <div>
-              <Label htmlFor="screenshot-desc">截图说明</Label>
-              <Textarea
-                id="screenshot-desc"
-                placeholder="描述这张截图的内容和重要性..."
-                rows={3}
-              />
-            </div>
-            <div className="flex gap-2 flex-wrap">
-              <Button variant="outline" size="sm">K线图</Button>
-              <Button variant="outline" size="sm">入场点</Button>
-              <Button variant="outline" size="sm">平仓点</Button>
-              <Button variant="outline" size="sm">技术指标</Button>
-              <Button variant="outline" size="sm">其他</Button>
+              <Upload className="w-12 h-12 mx-auto text-gray-400 mb-2" />
+              <p className="text-sm text-gray-500">点击或拖拽图片到这里</p>
+              <Input type="file" accept="image/*" className="hidden" />
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setScreenshotDialogOpen(false)}>
-              取消
-            </Button>
-            <Button onClick={() => {
-              // TODO: 上传截图
-              alert("截图已上传（演示模式）");
-              setScreenshotDialogOpen(false);
-            }}>
-              上传
-            </Button>
+            <Button variant="outline" onClick={() => setScreenshotDialogOpen(false)}>取消</Button>
+            <Button onClick={() => setScreenshotDialogOpen(false)}>上传</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -599,52 +351,21 @@ export default function TradesPage() {
       <Dialog open={alertDialogOpen} onOpenChange={setAlertDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>
-              设置提醒 - {currentTrade?.symbol} {currentTrade?.stockName}
-            </DialogTitle>
+            <DialogTitle>设置提醒</DialogTitle>
           </DialogHeader>
-          <div className="space-y-4 py-4">
+          <div className="space-y-4">
             <div>
-              <Label htmlFor="alert-type">提醒类型</Label>
-              <select className="w-full border rounded-md p-2" id="alert-type">
-                <option value="price">价格提醒</option>
-                <option value="pnl">盈亏提醒</option>
-                <option value="time">时间提醒</option>
-              </select>
+              <Label>提醒类型</Label>
+              <Input placeholder="如：价格到达目标、止损提醒等" />
             </div>
             <div>
-              <Label htmlFor="alert-price">触发价格</Label>
-              <Input
-                id="alert-price"
-                type="number"
-                step="0.01"
-                placeholder="例如：190.00"
-              />
-            </div>
-            <div>
-              <Label htmlFor="alert-message">提醒内容</Label>
-              <Textarea
-                id="alert-message"
-                placeholder="价格突破目标位，考虑止盈..."
-                rows={3}
-              />
-            </div>
-            <div className="flex items-center gap-2">
-              <input type="checkbox" id="notify-browser" className="rounded" defaultChecked />
-              <Label htmlFor="notify-browser" className="cursor-pointer">浏览器通知</Label>
+              <Label>提醒条件</Label>
+              <Input placeholder="如：价格 >= $100" />
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setAlertDialogOpen(false)}>
-              取消
-            </Button>
-            <Button onClick={() => {
-              // TODO: 保存提醒
-              alert("提醒已设置（演示模式）");
-              setAlertDialogOpen(false);
-            }}>
-              设置提醒
-            </Button>
+            <Button variant="outline" onClick={() => setAlertDialogOpen(false)}>取消</Button>
+            <Button onClick={() => setAlertDialogOpen(false)}>设置</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

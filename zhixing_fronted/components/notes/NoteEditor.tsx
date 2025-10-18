@@ -9,7 +9,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Star, Save, X, Plus, Tag } from "lucide-react";
-import type { Note, NoteTag } from "@/app/notes/types";
+import type { Note, NoteTag, NoteType } from "@/app/notes/types";
+import { NOTE_TYPE_CONFIG } from "@/app/notes/types";
 
 interface NoteEditorProps {
   note?: Note | null;
@@ -71,11 +72,13 @@ export default function NoteEditor({
     );
   };
 
-  const noteTypes = [
-    { value: "trade", label: "交易笔记" },
-    { value: "day", label: "日笔记" },
-    { value: "misc", label: "杂项笔记" },
-  ];
+  const noteTypes: { value: NoteType; label: string; icon: string }[] = Object.entries(NOTE_TYPE_CONFIG).map(
+    ([key, config]) => ({
+      value: key as NoteType,
+      label: config.label,
+      icon: config.icon,
+    })
+  );
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
@@ -99,7 +102,7 @@ export default function NoteEditor({
             <Label>笔记类型</Label>
             <Select
               value={formData.type}
-              onValueChange={(value: "trade" | "day" | "misc") =>
+              onValueChange={(value: NoteType) =>
                 setFormData({ ...formData, type: value })
               }
             >
@@ -109,22 +112,34 @@ export default function NoteEditor({
               <SelectContent>
                 {noteTypes.map((type) => (
                   <SelectItem key={type.value} value={type.value}>
-                    {type.label}
+                    {type.icon} {type.label}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
           </div>
 
-          {/* 关联对象（简化版，实际需要根据类型动态选择） */}
+          {/* 关联对象（根据类型显示不同的输入框） */}
           {formData.type !== "misc" && (
             <div className="space-y-2">
               <Label>
-                {formData.type === "trade" ? "关联交易" : "关联日期"}
+                {formData.type === "stock" && "股票代码"}
+                {formData.type === "market" && "市场"}
+                {formData.type === "trade" && "关联交易"}
+                {formData.type === "pattern" && "模式名称"}
+                {formData.type === "strategy" && "策略名称"}
               </Label>
               <Input
-                placeholder={formData.type === "trade" ? "选择交易..." : "选择日期..."}
-                disabled
+                placeholder={
+                  formData.type === "stock" ? "例如：AAPL" :
+                  formData.type === "market" ? "例如：美股、A股" :
+                  formData.type === "trade" ? "选择交易..." :
+                  formData.type === "pattern" ? "例如：杯柄形态" :
+                  formData.type === "strategy" ? "例如：动量突破" :
+                  ""
+                }
+                value={formData.relatedId || ""}
+                onChange={(e) => setFormData({ ...formData, relatedId: e.target.value })}
               />
             </div>
           )}

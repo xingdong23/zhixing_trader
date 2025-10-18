@@ -65,6 +65,10 @@ import { NotificationCenter } from '@/components/notifications/NotificationCente
 import DataSyncButton from '@/components/common/DataSyncButton'
 import CategorySelector from '@/components/categories/CategorySelector'
 
+// 导入交易和笔记视图组件
+import TradesView from '@/components/trades/TradesView'
+import NotesView from '@/components/notes/NotesView'
+
 interface Stock {
   id: number
   symbol: string
@@ -263,18 +267,17 @@ export default function TradingSystem() {
           <nav className="space-y-2">
             {[
               { id: "dashboard", label: "自选股票", icon: Heart },
-              { id: "plans", label: "交易计划", icon: ClipboardList },
-              { id: "trades", label: "我的交易", icon: Activity, isRoute: true },
-              { id: "notes", label: "交易笔记", icon: PenTool, isRoute: true },
+              { id: "trades", label: "我的交易", icon: Activity },
+              { id: "notes", label: "笔记", icon: PenTool },
               { id: "strategies", label: "策略管理", icon: ClipboardCheck },
               { id: "trading", label: "交易执行", icon: Zap },
               { id: "influencer", label: "大佬追踪", icon: Target },
               { id: "mindset", label: "心态建设", icon: HeartPulse },
               { id: "review", label: "交易复盘", icon: BarChart3 },
-            ].map(({ id, label, icon: Icon, isRoute }) => (
+            ].map(({ id, label, icon: Icon }) => (
               <button
                 key={id}
-                onClick={() => isRoute ? router.push(`/${id}`) : setCurrentPage(id)}
+                onClick={() => setCurrentPage(id)}
                 className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-left transition-colors ${
                   currentPage === id
                     ? "bg-sidebar-primary text-sidebar-primary-foreground"
@@ -296,7 +299,8 @@ export default function TradingSystem() {
               <div className="flex items-center gap-4">
                 <h2 className="text-xl font-semibold text-sidebar-foreground">
                   {currentPage === "dashboard" && "自选股票"}
-                  {currentPage === "plans" && "交易计划"}
+                  {currentPage === "trades" && "我的交易"}
+                  {currentPage === "notes" && "笔记"}
                   {currentPage === "strategies" && "策略管理"}
                   {currentPage === "trading" && "交易执行"}
                   {currentPage === "influencer" && "大佬追踪"}
@@ -686,6 +690,14 @@ export default function TradingSystem() {
                 <p className="text-muted-foreground">功能开发中...</p>
                           </div>
                         )}
+
+            {currentPage === "trades" && (
+              <TradesView />
+            )}
+
+            {currentPage === "notes" && (
+              <NotesView />
+            )}
 
             {currentPage === "strategies" && (
               <StrategyManagement />
