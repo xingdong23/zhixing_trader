@@ -70,6 +70,8 @@ import CategorySelector from '@/components/categories/CategorySelector'
 // 导入交易和笔记视图组件
 import TradesView from '@/components/trades/TradesView'
 import NotesView from '@/components/notes/NotesView'
+import ForcedTradePlanForm from "@/components/tradePlan/ForcedTradePlanForm"
+import type { TradePlan } from "@/lib/tradePlan"
 
 // 导入Mock数据
 import { getMockStocks } from './mockStockData'
@@ -111,6 +113,19 @@ export default function TradingSystem() {
   const [showAddNoteDialog, setShowAddNoteDialog] = useState(false)
   const [showAddAlertDialog, setShowAddAlertDialog] = useState(false)
   const [selectedStock, setSelectedStock] = useState<Stock | null>(null)
+  // 交易计划演示（内嵌）
+  const [showPlanDemo, setShowPlanDemo] = useState(false)
+  const demoStock = { symbol: "AAPL", name: "苹果公司", price: 182.3 }
+  // 交易页内置强制计划模块
+  const demoStocks = [
+    { symbol: "AAPL", name: "苹果公司", price: 182.30 },
+    { symbol: "TSLA", name: "特斯拉", price: 258.50 },
+    { symbol: "NVDA", name: "英伟达", price: 495.20 },
+    { symbol: "MSFT", name: "微软", price: 378.50 },
+  ]
+  const [showForcedPlanInTrades, setShowForcedPlanInTrades] = useState(false)
+  const [selectedDemoStockTrades, setSelectedDemoStockTrades] = useState(demoStocks[0])
+  const [forcedPlansTrades, setForcedPlansTrades] = useState<TradePlan[]>([])
   
   // 排序状态
   const [sortField, setSortField] = useState<string>('updated_at')
@@ -293,11 +308,11 @@ export default function TradingSystem() {
           </div>
 
           <nav className="space-y-2">
-            {[
-              { id: "dashboard", label: "股票", icon: Heart },
-              { id: "trades", label: "交易", icon: Activity },
-              { id: "notes", label: "笔记", icon: PenTool },
-              { id: "trade-plan-demo", label: "💪 交易计划演示", icon: Target, isRoute: true },
+            {[ 
+              { id: "dashboard", label: "股票", icon: Heart, isRoute: false },
+              { id: "trades", label: "交易", icon: Activity, isRoute: false },
+              { id: "notes", label: "笔记", icon: PenTool, isRoute: false },
+              { id: "trade-plan-demo", label: "💪 交易计划演示", icon: Target, isRoute: false },
             ].map(({ id, label, icon: Icon, isRoute }) => (
               <button
                 key={id}
@@ -733,11 +748,133 @@ export default function TradingSystem() {
                         )}
 
             {currentPage === "trades" && (
-              <TradesView />
+              <div className="space-y-6">
+                {/* 强制交易计划（演示） */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle>💪 强制交易计划（演示）</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="flex items-center justify-between mb-4">
+                      <p className="text-sm text-muted-foreground">买入前必须填写完整计划（评分≥60分）</p>
+                      <Button onClick={() => { setSelectedDemoStockTrades(demoStocks[0]); setShowForcedPlanInTrades(true) }}>创建交易计划（AAPL演示）</Button>
+                    </div>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                      {demoStocks.map((s) => (
+                        <Card key={s.symbol} className="p-4 hover:shadow-lg transition-shadow cursor-pointer" onClick={() => { setSelectedDemoStockTrades(s); setShowForcedPlanInTrades(true) }}>
+                          <div className="font-bold text-lg">{s.symbol}</div>
+                          <div className="text-sm text-gray-600">{s.name}</div>
+                          <div className="text-2xl font-bold mt-2">${s.price.toFixed(2)}</div>
+                          <Button size="sm" className="w-full mt-3">创建交易计划</Button>
+                        </Card>
+                      ))}
+                    </div>
+
+                    {forcedPlansTrades.length > 0 && (
+                      <div className="mt-6">
+                        <h3 className="text-lg font-semibold mb-3">✅ 已创建的交易计划（演示）({forcedPlansTrades.length})</h3>
+                        <div className="space-y-3">
+                          {forcedPlansTrades.map((plan, idx) => (
+                            <Card key={idx} className="p-4 bg-green-50 dark:bg-green-900/20 hover:shadow-md cursor-pointer" onClick={() => router.push(`/plan/${plan.id || plan.symbol}`)}>
+                              <div className="flex items-center justify-between">
+                                <div>
+                                  <div className="font-bold text-lg">{plan.symbol} - {plan.name}</div>
+                                  <div className="text-sm text-gray-600 mt-1">
+                                    类型：{plan.tradeType === 'short_term' ? '短期投机' : plan.tradeType === 'swing' ? '波段交易' : '价值投资'} | 买入价：${plan.targetBuyPrice.toFixed(2)} | 止损：${plan.stopLoss.price.toFixed(2)} ({plan.stopLoss.percent.toFixed(2)}%)
+                                  </div>
+                                </div>
+                                <div className="text-right">
+                                  <div className="text-3xl font-bold text-green-600">{plan.score}分</div>
+                                  <div className="text-xs text-gray-500">计划评分</div>
+                                </div>
+                              </div>
+                              <div className="mt-3 flex gap-2 justify-end">
+                                <Button size="sm" variant="outline" onClick={(e) => { e.stopPropagation(); router.push(`/plan/${plan.id || plan.symbol}`) }}>查看详情/添加笔记</Button>
+                              </div>
+                            </Card>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+
+                {/* 原交易视图 */}
+                <TradesView />
+
+                {/* 创建强制计划表单 */}
+                <Dialog open={showForcedPlanInTrades} onOpenChange={setShowForcedPlanInTrades}>
+                  <DialogContent className="max-w-[96vw] min-w-[1100px] w-[1400px] h-[90vh] flex flex-col p-0">
+                    <div className="flex-shrink-0 bg-white dark:bg-gray-900 border-b px-6 py-4">
+                      <DialogHeader>
+                        <DialogTitle className="text-2xl">💪 创建强制交易计划 - {selectedDemoStockTrades.symbol} ({selectedDemoStockTrades.name})</DialogTitle>
+                      </DialogHeader>
+                    </div>
+                    <div className="flex-1 overflow-hidden min-h-0">
+                      <ForcedTradePlanForm
+                        symbol={selectedDemoStockTrades.symbol}
+                        name={selectedDemoStockTrades.name}
+                        currentPrice={selectedDemoStockTrades.price}
+                        onSubmit={(plan: TradePlan) => {
+                          const id = `${plan.symbol}-${Date.now()}`
+                          const saved = { ...plan, id }
+                          setForcedPlansTrades(prev => [...prev, saved])
+                          setShowForcedPlanInTrades(false)
+                          router.push(`/plan/${id}`)
+                        }}
+                        onCancel={() => setShowForcedPlanInTrades(false)}
+                      />
+                    </div>
+                  </DialogContent>
+                </Dialog>
+              </div>
             )}
 
             {currentPage === "notes" && (
               <NotesView />
+            )}
+
+            {currentPage === "trade-plan-demo" && (
+              <div className="space-y-6">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>强制交易计划（演示入口）</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-sm text-muted-foreground mb-4">
+                      在不离开主界面的情况下，直接打开交易计划表单进行演示体验。
+                    </p>
+                    <Button onClick={() => setShowPlanDemo(true)}>
+                      打开创建交易计划（AAPL演示）
+                    </Button>
+                  </CardContent>
+                </Card>
+
+                <Dialog open={showPlanDemo} onOpenChange={setShowPlanDemo}>
+                  <DialogContent className="max-w-[96vw] min-w-[1100px] w-[1400px] h-[90vh] flex flex-col p-0 gap-0">
+                    <div className="flex-shrink-0 bg-white dark:bg-gray-900 border-b px-6 py-4">
+                      <DialogHeader>
+                        <DialogTitle className="text-2xl">
+                          💪 创建强制交易计划 - {demoStock.symbol} ({demoStock.name})
+                        </DialogTitle>
+                      </DialogHeader>
+                    </div>
+                    <div className="flex-1 overflow-hidden min-h-0">
+                      <ForcedTradePlanForm
+                        symbol={demoStock.symbol}
+                        name={demoStock.name}
+                        currentPrice={demoStock.price}
+                        onSubmit={(plan: any) => {
+                          const id = `${plan.symbol}-${Date.now()}`
+                          setShowPlanDemo(false)
+                          router.push(`/plan/${id}`)
+                        }}
+                        onCancel={() => setShowPlanDemo(false)}
+                      />
+                    </div>
+                  </DialogContent>
+                </Dialog>
+              </div>
             )}
 
           </main>

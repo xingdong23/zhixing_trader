@@ -14,6 +14,8 @@ import TradeFilters from "@/components/trades/TradeFilters";
 import TradePlanForm from "@/components/trades/TradePlanForm";
 import TradeDetail from "@/components/trades/TradeDetail";
 import type { Trade, TradeFilters as TradeFiltersType, TradeStatistics } from "./types";
+import ForcedTradePlanForm from "@/components/tradePlan/ForcedTradePlanForm";
+import type { TradePlan } from "@/lib/tradePlan";
 
 // Mock 数据
 const mockTrades: Trade[] = [
@@ -195,6 +197,16 @@ export default function TradesPage() {
   const [trades, setTrades] = useState<Trade[]>(mockTrades);
   const [filters, setFilters] = useState<TradeFiltersType>({});
   const [showPlanForm, setShowPlanForm] = useState(false);
+  // 强制交易计划（演示）
+  const [showForcedPlanForm, setShowForcedPlanForm] = useState(false);
+  const demoStocks = [
+    { symbol: "AAPL", name: "苹果公司", price: 182.30 },
+    { symbol: "TSLA", name: "特斯拉", price: 258.50 },
+    { symbol: "NVDA", name: "英伟达", price: 495.20 },
+    { symbol: "MSFT", name: "微软", price: 378.50 },
+  ];
+  const [selectedDemoStock, setSelectedDemoStock] = useState(demoStocks[0]);
+  const [forcedPlans, setForcedPlans] = useState<TradePlan[]>([]);
   const [editingTrade, setEditingTrade] = useState<Trade | null>(null);
   const [selectedTrade, setSelectedTrade] = useState<Trade | null>(null);
   const [activeTab, setActiveTab] = useState<"active" | "pending" | "history">("active");
@@ -312,6 +324,103 @@ export default function TradesPage() {
 
   return (
     <div className="container mx-auto p-6 space-y-6">
+      {/* 强制交易计划（演示） - 整合自 trade-plan-demo */}
+      <Card className="p-6">
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <h2 className="text-xl font-bold">💪 强制交易计划（演示）</h2>
+            <p className="text-gray-500 mt-1">买入前必须填写完整计划（评分≥60分）</p>
+          </div>
+          <Button onClick={() => { setSelectedDemoStock(demoStocks[0]); setShowForcedPlanForm(true); }}>
+            创建交易计划（AAPL演示）
+          </Button>
+        </div>
+
+        <div className="grid grid-cols-5 gap-4 mb-4">
+          <div className="text-center p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
+            <div className="text-3xl font-bold text-purple-600">30分</div>
+            <div className="text-sm text-gray-600 dark:text-gray-400 mt-2">买入理由</div>
+            <div className="text-xs text-gray-500 mt-1">技术+基本面+消息面</div>
+          </div>
+          <div className="text-center p-4 bg-red-50 dark:bg-red-900/20 rounded-lg">
+            <div className="text-3xl font-bold text-red-600">25分</div>
+            <div className="text-sm text-gray-600 dark:text-gray-400 mt-2">止损设置</div>
+            <div className="text-xs text-gray-500 mt-1">必须设置且合理</div>
+          </div>
+          <div className="text-center p-4 bg-green-50 dark:bg-green-900/20 rounded-lg">
+            <div className="text-3xl font-bold text-green-600">20分</div>
+            <div className="text-sm text-gray-600 dark:text-gray-400 mt-2">止盈设置</div>
+            <div className="text-xs text-gray-500 mt-1">分批止盈策略</div>
+          </div>
+          <div className="text-center p-4 bg-orange-50 dark:bg-orange-900/20 rounded-lg">
+            <div className="text-3xl font-bold text-orange-600">15分</div>
+            <div className="text-sm text-gray-600 dark:text-gray-400 mt-2">仓位管理</div>
+            <div className="text-xs text-gray-500 mt-1">根据类型限制</div>
+          </div>
+          <div className="text-center p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+            <div className="text-3xl font-bold text-blue-600">10分</div>
+            <div className="text-sm text-gray-600 dark:text-gray-400 mt-2">时间规划</div>
+            <div className="text-xs text-gray-500 mt-1">持有周期合理</div>
+          </div>
+        </div>
+        <div className="mt-2 p-4 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg border border-yellow-200">
+          <p className="text-sm text-yellow-800 dark:text-yellow-200">
+            <strong>⚠️ 强制执行规则：</strong>
+            评分少于60分：❌ 禁止交易 | 60-80分：⚠️ 可交易但需改进 | 大于80分：✅ 计划良好
+          </p>
+        </div>
+
+        <div className="mt-6">
+          <h3 className="text-lg font-semibold mb-3">📈 选择股票并创建交易计划</h3>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {demoStocks.map((stock) => (
+              <Card
+                key={stock.symbol}
+                className="p-4 hover:shadow-lg transition-shadow cursor-pointer"
+                onClick={() => { setSelectedDemoStock(stock); setShowForcedPlanForm(true); }}
+              >
+                <div className="font-bold text-lg">{stock.symbol}</div>
+                <div className="text-sm text-gray-600">{stock.name}</div>
+                <div className="text-2xl font-bold mt-2">${stock.price.toFixed(2)}</div>
+                <Button size="sm" className="w-full mt-3">
+                  创建交易计划
+                </Button>
+              </Card>
+            ))}
+          </div>
+        </div>
+
+        {forcedPlans.length > 0 && (
+          <div className="mt-6">
+            <h3 className="text-lg font-semibold mb-3">✅ 已创建的交易计划（演示）({forcedPlans.length})</h3>
+            <div className="space-y-3">
+              {forcedPlans.map((plan, idx) => (
+                <Card
+                  key={idx}
+                  className="p-4 bg-green-50 dark:bg-green-900/20 hover:shadow-md cursor-pointer"
+                  onClick={() => router.push(`/plan/${plan.id || plan.symbol}`)}
+                >
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <div className="font-bold text-lg">{plan.symbol} - {plan.name}</div>
+                      <div className="text-sm text-gray-600 mt-1">
+                        类型：{plan.tradeType === 'short_term' ? '短期投机' : plan.tradeType === 'swing' ? '波段交易' : '价值投资'} | 买入价：${plan.targetBuyPrice.toFixed(2)} | 止损：${plan.stopLoss.price.toFixed(2)} ({plan.stopLoss.percent.toFixed(2)}%)
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-3xl font-bold text-green-600">{plan.score}分</div>
+                      <div className="text-xs text-gray-500">计划评分</div>
+                    </div>
+                  </div>
+                  <div className="mt-3 flex gap-2 justify-end">
+                    <Button size="sm" variant="outline" onClick={(e) => { e.stopPropagation(); router.push(`/plan/${plan.id || plan.symbol}`) }}>查看详情/添加笔记</Button>
+                  </div>
+                </Card>
+              ))}
+            </div>
+          </div>
+        )}
+      </Card>
       {/* 标题和操作 */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
@@ -485,6 +594,32 @@ export default function TradesPage() {
         }}
         onSave={handleSavePlan}
       />
+
+      {/* 强制交易计划（演示）对话框 */}
+      <Dialog open={showForcedPlanForm} onOpenChange={setShowForcedPlanForm}>
+        <DialogContent className="max-w-[96vw] min-w-[1100px] w-[1400px] h-[90vh] flex flex-col p-0">
+          <div className="flex-shrink-0 bg-white dark:bg-gray-900 border-b px-6 py-4">
+            <DialogHeader>
+              <DialogTitle className="text-2xl">💪 创建强制交易计划 - {selectedDemoStock.symbol} ({selectedDemoStock.name})</DialogTitle>
+            </DialogHeader>
+          </div>
+          <div className="flex-1 overflow-hidden min-h-0">
+            <ForcedTradePlanForm
+              symbol={selectedDemoStock.symbol}
+              name={selectedDemoStock.name}
+              currentPrice={selectedDemoStock.price}
+              onSubmit={(plan: TradePlan) => {
+                const id = `${plan.symbol}-${Date.now()}`
+                const saved = { ...plan, id }
+                setForcedPlans(prev => [...prev, saved])
+                setShowForcedPlanForm(false)
+                router.push(`/plan/${id}`)
+              }}
+              onCancel={() => setShowForcedPlanForm(false)}
+            />
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {/* 交易详情 */}
       <TradeDetail
