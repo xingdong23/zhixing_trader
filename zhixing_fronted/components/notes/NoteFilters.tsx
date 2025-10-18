@@ -6,7 +6,8 @@ import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { Search, Filter, X, Star, Calendar } from "lucide-react";
 import { useState } from "react";
-import type { NoteTag } from "@/app/notes/types";
+import type { NoteTag, NoteType } from "@/app/notes/types";
+import { NOTE_TYPE_CONFIG } from "@/app/notes/types";
 
 interface NoteFiltersProps {
   tags: NoteTag[];
@@ -14,8 +15,8 @@ interface NoteFiltersProps {
   onTagToggle: (tagId: number) => void;
   searchQuery: string;
   onSearchChange: (query: string) => void;
-  noteType: "all" | "trade" | "day" | "misc";
-  onTypeChange: (type: "all" | "trade" | "day" | "misc") => void;
+  noteType: "all" | NoteType;
+  onTypeChange: (type: "all" | NoteType) => void;
   starredOnly: boolean;
   onStarredToggle: () => void;
   dateRange: { start: string; end: string };
@@ -38,10 +39,12 @@ export default function NoteFilters({
   const [showFilters, setShowFilters] = useState(true);
 
   const noteTypes = [
-    { value: "all" as const, label: "全部笔记" },
-    { value: "trade" as const, label: "交易笔记" },
-    { value: "day" as const, label: "日笔记" },
-    { value: "misc" as const, label: "杂项笔记" },
+    { value: "all" as const, label: "全部笔记", icon: "📋" },
+    ...Object.entries(NOTE_TYPE_CONFIG).map(([key, config]) => ({
+      value: key as NoteType,
+      label: config.label,
+      icon: config.icon,
+    })),
   ];
 
   const clearFilters = () => {
@@ -133,7 +136,7 @@ export default function NoteFilters({
                   onClick={() => onTypeChange(type.value)}
                   className="flex-shrink-0"
                 >
-                  {type.label}
+                  {type.icon} {type.label}
                 </Button>
               ))}
             </div>
