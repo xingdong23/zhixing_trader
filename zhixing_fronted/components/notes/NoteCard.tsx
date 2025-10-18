@@ -5,32 +5,10 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Star, Edit, Trash2, ExternalLink, Calendar } from "lucide-react";
 import { useState } from "react";
-
-interface NoteTag {
-  id: number;
-  name: string;
-  color: string;
-  count?: number;
-}
-
-interface Note {
-  id?: number;
-  type: "trade" | "day" | "misc";
-  title: string;
-  content: string;
-  isStarred: boolean;
-  tags: NoteTag[];
-  createdAt?: string;
-  relatedId?: number;
-  relatedInfo?: {
-    type: string;
-    label: string;
-    link?: string;
-  };
-}
+import type { Note, NoteTag, NoteWithId } from "@/app/notes/types";
 
 interface NoteCardProps {
-  note: Note & { id: number; createdAt: string };
+  note: NoteWithId;
   onEdit?: (note: Note) => void;
   onDelete?: (noteId: number) => void;
   onToggleStar?: (noteId: number) => void;

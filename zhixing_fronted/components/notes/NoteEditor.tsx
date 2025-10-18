@@ -9,23 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Star, Save, X, Plus, Tag } from "lucide-react";
-
-interface NoteTag {
-  id: number;
-  name: string;
-  color: string;
-  count?: number;
-}
-
-interface Note {
-  id?: number;
-  type: "trade" | "day" | "misc";
-  title: string;
-  content: string;
-  isStarred: boolean;
-  tags: NoteTag[];
-  relatedId?: number;
-}
+import type { Note, NoteTag } from "@/app/notes/types";
 
 interface NoteEditorProps {
   note?: Note | null;

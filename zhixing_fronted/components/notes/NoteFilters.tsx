@@ -6,13 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { Search, Filter, X, Star, Calendar } from "lucide-react";
 import { useState } from "react";
-
-interface NoteTag {
-  id: number;
-  name: string;
-  color: string;
-  count: number;
-}
+import type { NoteTag } from "@/app/notes/types";
 
 interface NoteFiltersProps {
   tags: NoteTag[];

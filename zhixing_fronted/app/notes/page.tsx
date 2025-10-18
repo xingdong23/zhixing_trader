@@ -7,31 +7,7 @@ import NoteCard from "@/components/notes/NoteCard";
 import NoteFilters from "@/components/notes/NoteFilters";
 import NoteEditor from "@/components/notes/NoteEditor";
 import TagManager from "@/components/notes/TagManager";
-
-interface NoteTag {
-  id: number;
-  name: string;
-  color: string;
-  count: number;
-}
-
-interface Note {
-  id?: number;
-  type: "trade" | "day" | "misc";
-  title: string;
-  content: string;
-  isStarred: boolean;
-  tags: NoteTag[];
-  createdAt?: string;
-  relatedId?: number;
-  relatedInfo?: {
-    type: string;
-    label: string;
-    link?: string;
-  };
-}
-
-type NoteWithId = Note & { id: number; createdAt: string };
+import type { Note, NoteTag, NoteWithId } from "./types";
 
 // 模拟数据
 const mockTags: NoteTag[] = [
@@ -266,14 +242,14 @@ export default function NotesPage() {
   };
 
   const handleSaveNote = (note: Note) => {
-    if (note.id) {
+    if (note.id && note.createdAt) {
       // 更新
-      setNotes((prev) => prev.map((n) => (n.id === note.id ? note : n)));
+      setNotes((prev) => prev.map((n) => (n.id === note.id ? { ...note, id: note.id, createdAt: note.createdAt! } as NoteWithId : n)));
     } else {
       // 新建
-      const newNote = {
+      const newNote: NoteWithId = {
         ...note,
-        id: Math.max(...notes.map((n) => n.id)) + 1,
+        id: notes.length > 0 ? Math.max(...notes.map((n) => n.id)) + 1 : 1,
         createdAt: new Date().toISOString(),
       };
       setNotes((prev) => [newNote, ...prev]);
