@@ -71,6 +71,12 @@ import CategorySelector from '@/components/categories/CategorySelector'
 import TradesView from '@/components/trades/TradesView'
 import NotesView from '@/components/notes/NotesView'
 import BrokersView from '@/components/brokers/BrokersView'
+import ReviewView from '@/components/review/ReviewView'
+import StrategiesView from '@/components/strategies/StrategiesView'
+import ChecklistView from '@/components/checklist/ChecklistView'
+import PsychologyView from '@/components/psychology/PsychologyView'
+import ErrorsView from '@/components/errors/ErrorsView'
+import PivotView from '@/components/pivot/PivotView'
 import ForcedTradePlanForm from "@/components/tradePlan/ForcedTradePlanForm"
 import type { TradePlan } from "@/lib/tradePlan"
 
@@ -313,6 +319,12 @@ export default function TradingSystem() {
               { id: "dashboard", label: "股票", icon: Heart },
               { id: "trades", label: "交易", icon: Activity },
               { id: "notes", label: "笔记", icon: PenTool },
+              { id: "review", label: "复盘系统", icon: BookOpen },
+              { id: "strategies", label: "策略管理", icon: Target },
+              { id: "checklist", label: "检查清单", icon: CheckCircle },
+              { id: "psychology", label: "心理分析", icon: Brain },
+              { id: "errors", label: "错误分析", icon: AlertTriangle },
+              { id: "pivot", label: "数据透视", icon: BarChart3 },
               { id: "brokers", label: "券商设置", icon: Settings },
             ].map(({ id, label, icon: Icon }) => (
               <button
@@ -754,6 +766,30 @@ export default function TradingSystem() {
 
             {currentPage === "notes" && (
               <NotesView />
+            )}
+
+            {currentPage === "review" && (
+              <ReviewView />
+            )}
+
+            {currentPage === "strategies" && (
+              <StrategiesView />
+            )}
+
+            {currentPage === "checklist" && (
+              <ChecklistView />
+            )}
+
+            {currentPage === "psychology" && (
+              <PsychologyView />
+            )}
+
+            {currentPage === "errors" && (
+              <ErrorsView />
+            )}
+
+            {currentPage === "pivot" && (
+              <PivotView />
             )}
 
             {currentPage === "brokers" && (
