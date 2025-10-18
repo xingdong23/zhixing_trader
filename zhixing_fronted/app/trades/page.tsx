@@ -437,10 +437,6 @@ export default function TradesPage() {
             <p className="text-gray-500 mt-1">管理你的交易计划、持仓和历史记录</p>
           </div>
         </div>
-        <Button onClick={() => setShowPlanForm(true)}>
-          <Plus className="w-4 h-4 mr-2" />
-          创建交易计划
-        </Button>
       </div>
 
       {/* 统计卡片 */}
