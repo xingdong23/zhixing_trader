@@ -12,7 +12,7 @@ class Settings(BaseSettings):
     APP_NAME: str = "BitcoinTrader"
     APP_ENV: str = "development"
     DEBUG: bool = True
-    API_PORT: int = 8001
+    API_PORT: int = 8003
     
     # 数据库配置
     DB_HOST: str = "localhost"
@@ -62,7 +62,7 @@ class Settings(BaseSettings):
     @property
     def database_url(self) -> str:
         """数据库连接URL"""
-        return f"mysql+pymysql://{self.DB_USER}:{self.DB_PASSWORD}@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
+        return f"mysql+pymysql://trader:Cz159csa@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
     
     @property
     def redis_url(self) -> str:
