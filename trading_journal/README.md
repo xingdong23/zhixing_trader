@@ -14,18 +14,10 @@
 - **[数据库优化](文档/数据库/数据库优化.md)** - 数据库性能优化
 - **[数据库变更总结](文档/数据库/数据库变更总结.md)** - 数据库变更记录
 
-### 📊 数据源
-- **[数据源选择方案](文档/数据源/数据源选择方案.md)** - 数据源对比和选择
-
 ### 📈 股票初始化
 - **[股票初始化指南](文档/股票初始化/股票初始化指南.md)** - 如何初始化股票数据
 - **[股票初始化总结](文档/股票初始化/股票初始化总结.md)** - 初始化过程总结
 - **[测试数据创建总结](文档/股票初始化/测试数据创建总结.md)** - 测试数据创建
-
-### 🏢 富途集成
-- **[富途API指南](文档/富途集成/富途API指南.md)** - 富途OpenAPI集成
-- **[富途快速开始](文档/富途集成/富途快速开始.md)** - 快速接入富途
-- **[富途定价分析](文档/富途集成/富途定价分析.md)** - 富途服务定价
 
 ### ⚙️ 功能特性
 - **[高级交易系统](文档/功能特性/高级交易系统.md)** - 高级功能介绍
@@ -137,9 +129,7 @@ trading_journal/
 ├── 文档/                         # 📚 项目文档
 │   ├── 快速开始/
 │   ├── 数据库/
-│   ├── 数据源/
 │   ├── 股票初始化/
-│   ├── 富途集成/
 │   ├── 功能特性/
 │   ├── 测试/
 │   └── 架构设计/
@@ -220,15 +210,13 @@ curl -X POST http://localhost:8001/api/v1/sync/stocks \
 
 ## 🔌 数据源集成
 
-系统支持多种数据源：
+系统通过 `market_data_service` 模块统一接入市场数据：
 - **Yahoo Finance** - 主要数据源
 - **Alpha Vantage** - 备用数据源
 - **Twelve Data** - 补充数据源
-- **富途OpenAPI** - 港股美股实时数据
+- **富途 OpenAPI** - 港股美股实时数据
 
-通过 `market_data_service` 模块统一接入。
-
-详见 [数据源选择方案](文档/数据源/数据源选择方案.md)
+详见 [Market Data Service 文档](../market_data_service/README.md)
 
 ---
 
@@ -276,30 +264,6 @@ curl -X POST http://localhost:8001/api/v1/sync/stocks \
 
 ---
 
-## 🏢 富途集成
-
-### 功能支持
-- 实时行情
-- 历史K线
-- 股票信息
-- 交易功能（待开发）
-
-### 快速接入
-```python
-from futu import OpenQuoteContext
-
-# 创建行情连接
-quote_ctx = OpenQuoteContext(host='127.0.0.1', port=11111)
-
-# 获取实时报价
-ret, data = quote_ctx.get_stock_quote(['US.AAPL'])
-
-quote_ctx.close()
-```
-
-详见 [富途快速开始](文档/富途集成/富途快速开始.md)
-
----
 
 ## ⚙️ 配置说明
 
@@ -309,12 +273,7 @@ quote_ctx.close()
 DATABASE_URL=mysql+pymysql://user:pass@localhost:3306/trading_journal
 
 # 数据源配置（使用 market_data_service）
-YAHOO_FINANCE_ENABLED=true
-ALPHA_VANTAGE_API_KEY=your_key
-
-# 富途配置
-FUTU_HOST=127.0.0.1
-FUTU_PORT=11111
+# 详见 market_data_service 模块文档
 ```
 
 详见 [环境变量示例](文档/快速开始/环境变量示例.md)
