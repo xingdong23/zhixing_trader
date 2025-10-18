@@ -297,10 +297,11 @@ export default function TradingSystem() {
               { id: "dashboard", label: "股票", icon: Heart },
               { id: "trades", label: "交易", icon: Activity },
               { id: "notes", label: "笔记", icon: PenTool },
-            ].map(({ id, label, icon: Icon }) => (
+              { id: "trade-plan-demo", label: "💪 交易计划演示", icon: Target, isRoute: true },
+            ].map(({ id, label, icon: Icon, isRoute }) => (
               <button
                 key={id}
-                onClick={() => setCurrentPage(id)}
+                onClick={() => isRoute ? router.push(`/${id}`) : setCurrentPage(id)}
                 className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-left transition-colors ${
                   currentPage === id
                     ? "bg-sidebar-primary text-sidebar-primary-foreground"

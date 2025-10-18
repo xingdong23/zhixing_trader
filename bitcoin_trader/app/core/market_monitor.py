@@ -123,15 +123,27 @@ class MarketMonitor:
     
     async def _watch_ticker(self, symbol: str):
         """监控实时行情"""
+        use_websocket = True  # 首次尝试使用 WebSocket
+        
         while self.running:
             try:
-                # 检查交易所是否支持 WebSocket
-                if hasattr(self.exchange, 'watch_ticker'):
-                    ticker = await self.exchange.watch_ticker(symbol)
+                # 尝试使用 WebSocket
+                if use_websocket and hasattr(self.exchange, 'watch_ticker'):
+                    try:
+                        ticker = await self.exchange.watch_ticker(symbol)
+                    except Exception as ws_error:
+                        # WebSocket 不支持，切换到轮询模式
+                        if 'not supported' in str(ws_error).lower():
+                            logger.info(f"{symbol} WebSocket 不支持，切换到轮询模式")
+                            use_websocket = False
+                            ticker = await self.exchange.fetch_ticker(symbol)
+                            await asyncio.sleep(2)  # 轮询间隔
+                        else:
+                            raise
                 else:
                     # 降级到轮询模式
                     ticker = await self.exchange.fetch_ticker(symbol)
-                    await asyncio.sleep(1)  # 避免频繁请求
+                    await asyncio.sleep(2)  # 避免频繁请求
                 
                 # 更新缓存
                 self.tickers[symbol] = ticker
@@ -338,11 +350,23 @@ class KlineMonitor:
             logger.error(f"加载历史K线失败: {e}")
         
         # 持续更新
+        use_websocket = True  # 首次尝试使用 WebSocket
+        
         while self.running:
             try:
-                if hasattr(self.exchange, 'watch_ohlcv'):
-                    # WebSocket 模式
-                    ohlcv = await self.exchange.watch_ohlcv(symbol, timeframe)
+                # 尝试使用 WebSocket
+                if use_websocket and hasattr(self.exchange, 'watch_ohlcv'):
+                    try:
+                        ohlcv = await self.exchange.watch_ohlcv(symbol, timeframe)
+                    except Exception as ws_error:
+                        # WebSocket 不支持，切换到轮询模式
+                        if 'not supported' in str(ws_error).lower():
+                            logger.info(f"{symbol} {timeframe} K线 WebSocket 不支持，切换到轮询模式")
+                            use_websocket = False
+                            ohlcv = await self.exchange.fetch_ohlcv(symbol, timeframe, limit=1)
+                            await asyncio.sleep(self._get_sleep_time(timeframe))
+                        else:
+                            raise
                 else:
                     # 轮询模式
                     ohlcv = await self.exchange.fetch_ohlcv(symbol, timeframe, limit=1)
