@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,7 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { AlertCircle, CheckCircle, Info, TrendingUp, Shield, Target, Clock } from "lucide-react";
+import { AlertCircle, CheckCircle, Info, TrendingUp, Shield, Target, Clock, Image as ImageIcon, X } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import {
   TradePlan,
@@ -60,20 +60,60 @@ export default function ForcedTradePlanForm({
   });
 
   const [score, setScore] = useState(evaluateTradePlan(plan));
+  const [chartImages, setChartImages] = useState<string[]>([]);
+  const technicalTextareaRef = useRef<HTMLTextAreaElement>(null);
 
-  // 实时更新评分
+  // 实时更新评分和风险收益比
   useEffect(() => {
     const newScore = evaluateTradePlan(plan);
     setScore(newScore);
     
-    // 计算风险收益比
     const rrr = calculateRiskRewardRatio(
       plan.targetBuyPrice,
       plan.stopLoss.price,
       plan.stopProfit.target2.price
     );
-    setPlan((prev) => ({ ...prev, riskRewardRatio: rrr }));
-  }, [plan]);
+    if (Math.abs(plan.riskRewardRatio - rrr) > 0.01) {
+      setPlan((prev) => ({ ...prev, riskRewardRatio: rrr }));
+    }
+  }, [
+    plan.tradeType,
+    plan.buyReason.technical,
+    plan.buyReason.fundamental,
+    plan.buyReason.catalyst,
+    plan.targetBuyPrice,
+    plan.stopLoss.price,
+    plan.stopProfit.target1.price,
+    plan.stopProfit.target2.price,
+    plan.stopProfit.target3.price,
+    plan.positionSize,
+    plan.expectedHoldDays,
+  ]);
+
+  // 处理图片粘贴
+  const handlePaste = (e: React.ClipboardEvent) => {
+    const items = e.clipboardData?.items;
+    if (!items) return;
+
+    for (let i = 0; i < items.length; i++) {
+      if (items[i].type.indexOf('image') !== -1) {
+        e.preventDefault();
+        const blob = items[i].getAsFile();
+        if (blob) {
+          const reader = new FileReader();
+          reader.onload = (event) => {
+            const imageUrl = event.target?.result as string;
+            setChartImages((prev) => [...prev, imageUrl]);
+          };
+          reader.readAsDataURL(blob);
+        }
+      }
+    }
+  };
+
+  const removeImage = (index: number) => {
+    setChartImages((prev) => prev.filter((_, i) => i !== index));
+  };
 
   const handleTradeTypeChange = (type: TradeType) => {
     const config = TRADE_TYPE_CONFIG[type];
@@ -87,13 +127,11 @@ export default function ForcedTradePlanForm({
   const handlePriceChange = (field: string, value: number) => {
     const updates: any = { [field]: value };
     
-    // 自动计算止损百分比
     if (field === "stopLoss.price") {
       const percent = ((plan.targetBuyPrice - value) / plan.targetBuyPrice) * 100;
       updates.stopLoss = { price: value, percent };
     }
     
-    // 自动计算止盈百分比
     if (field.startsWith("stopProfit.target")) {
       const targetNum = field.includes("target1") ? 1 : field.includes("target2") ? 2 : 3;
       const percent = ((value - plan.targetBuyPrice) / plan.targetBuyPrice) * 100;
@@ -129,385 +167,465 @@ export default function ForcedTradePlanForm({
   };
 
   return (
-    <div className="space-y-6 max-h-[80vh] overflow-y-auto p-6">
-      {/* 评分展示 */}
-      <Card className={`border-2 ${score.canTrade ? "border-green-500" : "border-red-500"}`}>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <CardTitle>交易计划评分</CardTitle>
-            <Badge className={`${getScoreBadgeColor(score.total)} text-xl px-4 py-2 border`}>
-              {score.total} 分
-            </Badge>
-          </div>
-          <CardDescription>
-            {score.canTrade ? "✅ 计划符合要求，可以执行交易" : "⚠️ 计划不完整，必须完善后才能交易"}
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-5 gap-4 mb-4">
-            <div className="text-center">
-              <div className={`text-2xl font-bold ${getScoreColor(score.breakdown.buyReason)}`}>
-                {score.breakdown.buyReason}
+    <div className="flex h-full w-full">
+      {/* 左侧：表单区域 */}
+      <div className="flex-1 overflow-y-auto p-6 space-y-6 min-w-0">
+        {/* 基本信息 */}
+        <Card className="border-2">
+          <CardHeader className="pb-4">
+            <CardTitle className="flex items-center gap-2 text-lg">
+              <Info className="w-5 h-5" />
+              基本信息
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-3 gap-4">
+              <div>
+                <Label className="text-sm font-medium">股票代码</Label>
+                <Input value={plan.symbol} disabled className="mt-1.5" />
               </div>
-              <div className="text-xs text-gray-500">买入理由 (30)</div>
-            </div>
-            <div className="text-center">
-              <div className={`text-2xl font-bold ${getScoreColor(score.breakdown.stopLoss)}`}>
-                {score.breakdown.stopLoss}
+              <div>
+                <Label className="text-sm font-medium">股票名称</Label>
+                <Input value={plan.name} disabled className="mt-1.5" />
               </div>
-              <div className="text-xs text-gray-500">止损设置 (25)</div>
-            </div>
-            <div className="text-center">
-              <div className={`text-2xl font-bold ${getScoreColor(score.breakdown.stopProfit)}`}>
-                {score.breakdown.stopProfit}
+              <div>
+                <Label className="text-sm font-medium">当前价格</Label>
+                <Input value={`$${currentPrice.toFixed(2)}`} disabled className="mt-1.5" />
               </div>
-              <div className="text-xs text-gray-500">止盈设置 (20)</div>
             </div>
-            <div className="text-center">
-              <div className={`text-2xl font-bold ${getScoreColor(score.breakdown.positionSize)}`}>
-                {score.breakdown.positionSize}
-              </div>
-              <div className="text-xs text-gray-500">仓位管理 (15)</div>
-            </div>
-            <div className="text-center">
-              <div className={`text-2xl font-bold ${getScoreColor(score.breakdown.timeFrame)}`}>
-                {score.breakdown.timeFrame}
-              </div>
-              <div className="text-xs text-gray-500">时间规划 (10)</div>
-            </div>
-          </div>
 
-          {/* 建议 */}
-          <div className="space-y-2">
+            <div>
+              <Label className="text-sm font-medium">交易类型 *</Label>
+              <Select value={plan.tradeType} onValueChange={(value: TradeType) => handleTradeTypeChange(value)}>
+                <SelectTrigger className="mt-1.5">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {Object.entries(TRADE_TYPE_CONFIG).map(([key, config]) => (
+                    <SelectItem key={key} value={key}>
+                      <div>
+                        <div className="font-medium">{config.label}</div>
+                        <div className="text-xs text-gray-500">{config.description}</div>
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-gray-500 mt-2">
+                💡 建议持有：{TRADE_TYPE_CONFIG[plan.tradeType].expectedDays} | 
+                最大仓位：{TRADE_TYPE_CONFIG[plan.tradeType].positionSizeMax}% |
+                最大止损：{TRADE_TYPE_CONFIG[plan.tradeType].stopLossMax}%
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* 买入理由 */}
+        <Card className="border-2 border-purple-200 dark:border-purple-800">
+          <CardHeader className="pb-4">
+            <CardTitle className="flex items-center gap-2 text-lg">
+              <TrendingUp className="w-5 h-5 text-purple-600" />
+              买入理由（30分）
+            </CardTitle>
+            <CardDescription>详细的分析是成功交易的基础</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div>
+              <Label className="text-sm font-medium flex items-center justify-between">
+                <span>📊 技术面分析（至少20字）</span>
+                <span className={`text-xs ${plan.buyReason.technical.length >= 20 ? 'text-green-600' : 'text-gray-400'}`}>
+                  {plan.buyReason.technical.length}/20
+                </span>
+              </Label>
+              <Textarea
+                ref={technicalTextareaRef}
+                placeholder="例如：突破20日均线，MACD金叉，成交量放大，RSI处于50-70区间...&#10;&#10;💡 提示：可以直接粘贴K线截图！"
+                value={plan.buyReason.technical}
+                onChange={(e) =>
+                  setPlan({
+                    ...plan,
+                    buyReason: { ...plan.buyReason, technical: e.target.value },
+                  })
+                }
+                onPaste={handlePaste}
+                rows={4}
+                className="mt-1.5 resize-none"
+              />
+              
+              {/* 图片预览区域 */}
+              {chartImages.length > 0 && (
+                <div className="mt-3 grid grid-cols-2 gap-3">
+                  {chartImages.map((img, index) => (
+                    <div key={index} className="relative group">
+                      <img 
+                        src={img} 
+                        alt={`K线图 ${index + 1}`} 
+                        className="w-full h-32 object-cover rounded-lg border-2 border-purple-200"
+                      />
+                      <Button
+                        size="icon"
+                        variant="destructive"
+                        className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity h-6 w-6"
+                        onClick={() => removeImage(index)}
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              )}
+              
+              <Alert className="mt-3">
+                <ImageIcon className="w-4 h-4" />
+                <AlertDescription className="text-xs">
+                  💡 提示：可以直接 Ctrl+V (Mac: Cmd+V) 粘贴K线截图到文本框中
+                </AlertDescription>
+              </Alert>
+            </div>
+
+            <div>
+              <Label className="text-sm font-medium flex items-center justify-between">
+                <span>📈 基本面分析（至少20字）</span>
+                <span className={`text-xs ${plan.buyReason.fundamental.length >= 20 ? 'text-green-600' : 'text-gray-400'}`}>
+                  {plan.buyReason.fundamental.length}/20
+                </span>
+              </Label>
+              <Textarea
+                placeholder="例如：公司业绩持续增长，ROE大于15%，行业地位前三，财务健康，市盈率合理..."
+                value={plan.buyReason.fundamental}
+                onChange={(e) =>
+                  setPlan({
+                    ...plan,
+                    buyReason: { ...plan.buyReason, fundamental: e.target.value },
+                  })
+                }
+                rows={4}
+                className="mt-1.5 resize-none"
+              />
+            </div>
+
+            <div>
+              <Label className="text-sm font-medium flex items-center justify-between">
+                <span>📰 消息面/催化剂（至少10字）</span>
+                <span className={`text-xs ${plan.buyReason.catalyst.length >= 10 ? 'text-green-600' : 'text-gray-400'}`}>
+                  {plan.buyReason.catalyst.length}/10
+                </span>
+              </Label>
+              <Textarea
+                placeholder="例如：新产品发布，行业政策利好，订单增长超预期，机构增持..."
+                value={plan.buyReason.catalyst}
+                onChange={(e) =>
+                  setPlan({
+                    ...plan,
+                    buyReason: { ...plan.buyReason, catalyst: e.target.value },
+                  })
+                }
+                rows={3}
+                className="mt-1.5 resize-none"
+              />
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* 价格和仓位 */}
+        <Card className="border-2 border-blue-200 dark:border-blue-800">
+          <CardHeader className="pb-4">
+            <CardTitle className="flex items-center gap-2 text-lg">
+              <Target className="w-5 h-5 text-blue-600" />
+              价格和仓位设置（15分）
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-3 gap-4">
+              <div>
+                <Label className="text-sm font-medium">目标买入价 *</Label>
+                <Input
+                  type="number"
+                  step="0.01"
+                  value={plan.targetBuyPrice}
+                  onChange={(e) =>
+                    setPlan({ ...plan, targetBuyPrice: parseFloat(e.target.value) || 0 })
+                  }
+                  className="mt-1.5"
+                />
+              </div>
+              <div>
+                <Label className="text-sm font-medium">最高买入价 *</Label>
+                <Input
+                  type="number"
+                  step="0.01"
+                  value={plan.maxBuyPrice}
+                  onChange={(e) =>
+                    setPlan({ ...plan, maxBuyPrice: parseFloat(e.target.value) || 0 })
+                  }
+                  className="mt-1.5"
+                />
+              </div>
+              <div>
+                <Label className="text-sm font-medium">仓位比例（%）*</Label>
+                <Input
+                  type="number"
+                  step="1"
+                  max={TRADE_TYPE_CONFIG[plan.tradeType].positionSizeMax}
+                  value={plan.positionSize}
+                  onChange={(e) =>
+                    setPlan({ ...plan, positionSize: parseFloat(e.target.value) || 0 })
+                  }
+                  className="mt-1.5"
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  建议≤{TRADE_TYPE_CONFIG[plan.tradeType].positionSizeMax}%
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* 止损设置 */}
+        <Card className="border-2 border-red-200 dark:border-red-800">
+          <CardHeader className="pb-4">
+            <CardTitle className="flex items-center gap-2 text-lg">
+              <Shield className="w-5 h-5 text-red-600" />
+              止损设置（25分）
+            </CardTitle>
+            <CardDescription>严格的止损是保护本金的关键</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div>
+              <Label className="text-sm font-medium">止损价格 *</Label>
+              <Input
+                type="number"
+                step="0.01"
+                value={plan.stopLoss.price}
+                onChange={(e) => handlePriceChange("stopLoss.price", parseFloat(e.target.value) || 0)}
+                className="mt-1.5"
+              />
+              <p className={`text-sm mt-2 ${plan.stopLoss.percent <= TRADE_TYPE_CONFIG[plan.tradeType].stopLossMax ? 'text-green-600' : 'text-red-600'}`}>
+                止损幅度：{plan.stopLoss.percent.toFixed(2)}%
+                （建议≤{TRADE_TYPE_CONFIG[plan.tradeType].stopLossMax}%）
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* 止盈设置 */}
+        <Card className="border-2 border-green-200 dark:border-green-800">
+          <CardHeader className="pb-4">
+            <CardTitle className="flex items-center gap-2 text-lg">
+              <TrendingUp className="w-5 h-5 text-green-600" />
+              止盈设置（20分）
+            </CardTitle>
+            <CardDescription>分批止盈，让利润奔跑</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-3 gap-4">
+              <div>
+                <Label className="text-sm font-medium">第一目标（保守）</Label>
+                <Input
+                  type="number"
+                  step="0.01"
+                  value={plan.stopProfit.target1.price}
+                  onChange={(e) =>
+                    handlePriceChange("stopProfit.target1.price", parseFloat(e.target.value) || 0)
+                  }
+                  className="mt-1.5"
+                />
+                <p className="text-xs text-green-600 mt-1">
+                  +{plan.stopProfit.target1.percent.toFixed(2)}% (卖25%)
+                </p>
+              </div>
+              <div>
+                <Label className="text-sm font-medium">第二目标（正常）</Label>
+                <Input
+                  type="number"
+                  step="0.01"
+                  value={plan.stopProfit.target2.price}
+                  onChange={(e) =>
+                    handlePriceChange("stopProfit.target2.price", parseFloat(e.target.value) || 0)
+                  }
+                  className="mt-1.5"
+                />
+                <p className="text-xs text-green-600 mt-1">
+                  +{plan.stopProfit.target2.percent.toFixed(2)}% (卖50%)
+                </p>
+              </div>
+              <div>
+                <Label className="text-sm font-medium">第三目标（乐观）</Label>
+                <Input
+                  type="number"
+                  step="0.01"
+                  value={plan.stopProfit.target3.price}
+                  onChange={(e) =>
+                    handlePriceChange("stopProfit.target3.price", parseFloat(e.target.value) || 0)
+                  }
+                  className="mt-1.5"
+                />
+                <p className="text-xs text-green-600 mt-1">
+                  +{plan.stopProfit.target3.percent.toFixed(2)}% (卖25%)
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* 时间规划 */}
+        <Card className="border-2 border-orange-200 dark:border-orange-800">
+          <CardHeader className="pb-4">
+            <CardTitle className="flex items-center gap-2 text-lg">
+              <Clock className="w-5 h-5 text-orange-600" />
+              时间规划（10分）
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div>
+              <Label className="text-sm font-medium">预期持有天数 *</Label>
+              <Input
+                type="number"
+                step="1"
+                value={plan.expectedHoldDays}
+                onChange={(e) =>
+                  setPlan({ ...plan, expectedHoldDays: parseInt(e.target.value) || 0 })
+                }
+                className="mt-1.5"
+              />
+              <p className="text-xs text-gray-500 mt-2">
+                💡 建议：{TRADE_TYPE_CONFIG[plan.tradeType].expectedDays}
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* 右侧：评分和风险展示（固定） */}
+      <div className="w-80 flex-shrink-0 border-l bg-gray-50 dark:bg-gray-900/50 overflow-y-auto">
+        <div className="p-4 space-y-4">
+        {/* 总评分 */}
+        <Card className={`border-2 ${score.canTrade ? "border-green-500" : "border-red-500"}`}>
+          <CardHeader>
+            <div className="text-center">
+              <div className={`text-6xl font-bold mb-2 ${getScoreColor(score.total)}`}>
+                {score.total}
+              </div>
+              <p className="text-sm text-gray-500">总分</p>
+              <Badge className={`${getScoreBadgeColor(score.total)} mt-3 text-sm px-3 py-1`}>
+                {score.canTrade ? "✅ 可以交易" : "❌ 禁止交易"}
+              </Badge>
+            </div>
+          </CardHeader>
+        </Card>
+
+        {/* 评分详情 */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg">评分详情</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <div className="flex items-center justify-between">
+              <span className="text-sm">买入理由</span>
+              <div className="flex items-center gap-2">
+                <span className={`text-lg font-bold ${getScoreColor(score.breakdown.buyReason)}`}>
+                  {score.breakdown.buyReason}
+                </span>
+                <span className="text-xs text-gray-500">/30</span>
+              </div>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-sm">止损设置</span>
+              <div className="flex items-center gap-2">
+                <span className={`text-lg font-bold ${getScoreColor(score.breakdown.stopLoss)}`}>
+                  {score.breakdown.stopLoss}
+                </span>
+                <span className="text-xs text-gray-500">/25</span>
+              </div>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-sm">止盈设置</span>
+              <div className="flex items-center gap-2">
+                <span className={`text-lg font-bold ${getScoreColor(score.breakdown.stopProfit)}`}>
+                  {score.breakdown.stopProfit}
+                </span>
+                <span className="text-xs text-gray-500">/20</span>
+              </div>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-sm">仓位管理</span>
+              <div className="flex items-center gap-2">
+                <span className={`text-lg font-bold ${getScoreColor(score.breakdown.positionSize)}`}>
+                  {score.breakdown.positionSize}
+                </span>
+                <span className="text-xs text-gray-500">/15</span>
+              </div>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-sm">时间规划</span>
+              <div className="flex items-center gap-2">
+                <span className={`text-lg font-bold ${getScoreColor(score.breakdown.timeFrame)}`}>
+                  {score.breakdown.timeFrame}
+                </span>
+                <span className="text-xs text-gray-500">/10</span>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* 风险收益比 */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg">风险收益比</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-center">
+              <div className={`text-4xl font-bold ${plan.riskRewardRatio >= 2 ? "text-green-600" : plan.riskRewardRatio >= 1 ? "text-yellow-600" : "text-red-600"}`}>
+                1 : {plan.riskRewardRatio.toFixed(2)}
+              </div>
+              <p className="text-xs text-gray-500 mt-2">
+                {plan.riskRewardRatio >= 2
+                  ? "✅ 优秀"
+                  : plan.riskRewardRatio >= 1
+                  ? "⚠️ 一般"
+                  : "❌ 较差"}
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* 改进建议 */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg">改进建议</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-2">
             {score.suggestions.map((suggestion, index) => (
               <Alert key={index} variant={index === 0 && !score.canTrade ? "destructive" : "default"}>
-                <AlertDescription className="flex items-center gap-2">
+                <AlertDescription className="flex items-start gap-2 text-xs">
                   {index === 0 && score.canTrade ? (
-                    <CheckCircle className="w-4 h-4 text-green-600" />
+                    <CheckCircle className="w-4 h-4 text-green-600 flex-shrink-0 mt-0.5" />
                   ) : (
-                    <AlertCircle className="w-4 h-4" />
+                    <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />
                   )}
-                  {suggestion}
+                  <span>{suggestion}</span>
                 </AlertDescription>
               </Alert>
             ))}
-          </div>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
 
-      {/* 基本信息 */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Info className="w-5 h-5" />
-            基本信息
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <Label>股票代码</Label>
-              <Input value={plan.symbol} disabled />
-            </div>
-            <div>
-              <Label>股票名称</Label>
-              <Input value={plan.name} disabled />
-            </div>
-          </div>
-
-          <div>
-            <Label>交易类型 *</Label>
-            <Select value={plan.tradeType} onValueChange={(value: TradeType) => handleTradeTypeChange(value)}>
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {Object.entries(TRADE_TYPE_CONFIG).map(([key, config]) => (
-                  <SelectItem key={key} value={key}>
-                    <div>
-                      <div className="font-medium">{config.label}</div>
-                      <div className="text-xs text-gray-500">{config.description}</div>
-                    </div>
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <p className="text-xs text-gray-500 mt-1">
-              建议持有：{TRADE_TYPE_CONFIG[plan.tradeType].expectedDays} | 
-              最大仓位：{TRADE_TYPE_CONFIG[plan.tradeType].positionSizeMax}% |
-              最大止损：{TRADE_TYPE_CONFIG[plan.tradeType].stopLossMax}%
-            </p>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* 买入理由 */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <TrendingUp className="w-5 h-5" />
-            买入理由 * (必须详细填写)
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div>
-            <Label>技术面分析（至少20字）</Label>
-            <Textarea
-              placeholder="例如：突破20日均线，MACD金叉，成交量放大，RSI处于50-70区间..."
-              value={plan.buyReason.technical}
-              onChange={(e) =>
-                setPlan({
-                  ...plan,
-                  buyReason: { ...plan.buyReason, technical: e.target.value },
-                })
-              }
-              rows={3}
-            />
-            <p className="text-xs text-gray-500 mt-1">
-              {plan.buyReason.technical.length}/20 字
-            </p>
-          </div>
-
-          <div>
-            <Label>基本面分析（至少20字）</Label>
-            <Textarea
-              placeholder="例如：公司业绩持续增长，ROE>15%，行业地位前三，财务健康..."
-              value={plan.buyReason.fundamental}
-              onChange={(e) =>
-                setPlan({
-                  ...plan,
-                  buyReason: { ...plan.buyReason, fundamental: e.target.value },
-                })
-              }
-              rows={3}
-            />
-            <p className="text-xs text-gray-500 mt-1">
-              {plan.buyReason.fundamental.length}/20 字
-            </p>
-          </div>
-
-          <div>
-            <Label>消息面/催化剂（至少10字）</Label>
-            <Textarea
-              placeholder="例如：新产品发布，行业政策利好，订单增长超预期..."
-              value={plan.buyReason.catalyst}
-              onChange={(e) =>
-                setPlan({
-                  ...plan,
-                  buyReason: { ...plan.buyReason, catalyst: e.target.value },
-                })
-              }
-              rows={2}
-            />
-            <p className="text-xs text-gray-500 mt-1">
-              {plan.buyReason.catalyst.length}/10 字
-            </p>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* 价格和仓位 */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Target className="w-5 h-5" />
-            价格和仓位设置 *
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <Label>目标买入价 *</Label>
-              <Input
-                type="number"
-                step="0.01"
-                value={plan.targetBuyPrice}
-                onChange={(e) =>
-                  setPlan({ ...plan, targetBuyPrice: parseFloat(e.target.value) || 0 })
-                }
-              />
-            </div>
-            <div>
-              <Label>最高买入价 *</Label>
-              <Input
-                type="number"
-                step="0.01"
-                value={plan.maxBuyPrice}
-                onChange={(e) =>
-                  setPlan({ ...plan, maxBuyPrice: parseFloat(e.target.value) || 0 })
-                }
-              />
-            </div>
-          </div>
-
-          <div>
-            <Label>仓位比例（占总资金%）*</Label>
-            <Input
-              type="number"
-              step="1"
-              max={TRADE_TYPE_CONFIG[plan.tradeType].positionSizeMax}
-              value={plan.positionSize}
-              onChange={(e) =>
-                setPlan({ ...plan, positionSize: parseFloat(e.target.value) || 0 })
-              }
-            />
-            <p className="text-xs text-gray-500 mt-1">
-              建议≤{TRADE_TYPE_CONFIG[plan.tradeType].positionSizeMax}%
-            </p>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* 止损设置 */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Shield className="w-5 h-5" />
-            止损设置 * (必须设置)
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div>
-            <Label>止损价格 *</Label>
-            <Input
-              type="number"
-              step="0.01"
-              value={plan.stopLoss.price}
-              onChange={(e) => handlePriceChange("stopLoss.price", parseFloat(e.target.value) || 0)}
-            />
-            <p className="text-xs text-gray-500 mt-1">
-              止损幅度：{plan.stopLoss.percent.toFixed(2)}%
-              （建议≤{TRADE_TYPE_CONFIG[plan.tradeType].stopLossMax}%）
-            </p>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* 止盈设置 */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <TrendingUp className="w-5 h-5" />
-            止盈设置 * (分批止盈策略)
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid grid-cols-3 gap-4">
-            <div>
-              <Label>第一目标（保守）25%</Label>
-              <Input
-                type="number"
-                step="0.01"
-                value={plan.stopProfit.target1.price}
-                onChange={(e) =>
-                  handlePriceChange("stopProfit.target1.price", parseFloat(e.target.value) || 0)
-                }
-              />
-              <p className="text-xs text-gray-500 mt-1">
-                +{plan.stopProfit.target1.percent.toFixed(2)}%
-              </p>
-            </div>
-            <div>
-              <Label>第二目标（正常）50%</Label>
-              <Input
-                type="number"
-                step="0.01"
-                value={plan.stopProfit.target2.price}
-                onChange={(e) =>
-                  handlePriceChange("stopProfit.target2.price", parseFloat(e.target.value) || 0)
-                }
-              />
-              <p className="text-xs text-gray-500 mt-1">
-                +{plan.stopProfit.target2.percent.toFixed(2)}%
-              </p>
-            </div>
-            <div>
-              <Label>第三目标（乐观）25%</Label>
-              <Input
-                type="number"
-                step="0.01"
-                value={plan.stopProfit.target3.price}
-                onChange={(e) =>
-                  handlePriceChange("stopProfit.target3.price", parseFloat(e.target.value) || 0)
-                }
-              />
-              <p className="text-xs text-gray-500 mt-1">
-                +{plan.stopProfit.target3.percent.toFixed(2)}%
-              </p>
-            </div>
-          </div>
-
-          <Alert>
-            <Info className="w-4 h-4" />
-            <AlertDescription>
-              建议分批止盈：达到第一目标卖出25%，第二目标卖出50%，第三目标卖出剩余25%
-            </AlertDescription>
-          </Alert>
-        </CardContent>
-      </Card>
-
-      {/* 时间规划 */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Clock className="w-5 h-5" />
-            时间规划 *
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div>
-            <Label>预期持有天数 *</Label>
-            <Input
-              type="number"
-              step="1"
-              value={plan.expectedHoldDays}
-              onChange={(e) =>
-                setPlan({ ...plan, expectedHoldDays: parseInt(e.target.value) || 0 })
-              }
-            />
-            <p className="text-xs text-gray-500 mt-1">
-              建议：{TRADE_TYPE_CONFIG[plan.tradeType].expectedDays}
-            </p>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* 风险收益比 */}
-      <Card>
-        <CardHeader>
-          <CardTitle>风险收益比</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="text-center">
-            <div className={`text-4xl font-bold ${plan.riskRewardRatio >= 2 ? "text-green-600" : plan.riskRewardRatio >= 1 ? "text-yellow-600" : "text-red-600"}`}>
-              1 : {plan.riskRewardRatio.toFixed(2)}
-            </div>
-            <p className="text-xs text-gray-500 mt-2">
-              {plan.riskRewardRatio >= 2
-                ? "✅ 风险收益比良好"
-                : plan.riskRewardRatio >= 1
-                ? "⚠️ 风险收益比一般，建议优化"
-                : "❌ 风险收益比较差，不建议交易"}
-            </p>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* 操作按钮 */}
-      <div className="flex gap-4 sticky bottom-0 bg-white dark:bg-gray-900 py-4 border-t">
-        <Button variant="outline" onClick={onCancel} className="flex-1">
-          取消
-        </Button>
-        <Button
-          onClick={handleSubmit}
-          disabled={!score.canTrade}
-          className="flex-1"
-        >
-          {score.canTrade ? `提交交易计划（${score.total}分）` : `计划不完整（${score.total}分/60分）`}
-        </Button>
+        {/* 操作按钮 */}
+        <div className="sticky bottom-0 bg-gray-50 dark:bg-gray-900/50 pt-4 pb-4 space-y-3">
+          <Button
+            onClick={handleSubmit}
+            disabled={!score.canTrade}
+            className="w-full h-12 text-lg"
+            size="lg"
+          >
+            {score.canTrade ? `✅ 提交交易计划（${score.total}分）` : `❌ 计划不完整（${score.total}/60分）`}
+          </Button>
+          <Button variant="outline" onClick={onCancel} className="w-full" size="lg">
+            取消
+          </Button>
+        </div>
+        </div>
       </div>
     </div>
   );
 }
-
-

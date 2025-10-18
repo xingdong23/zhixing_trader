@@ -9,7 +9,6 @@ import { useRouter } from "next/navigation";
 import ForcedTradePlanForm from "@/components/tradePlan/ForcedTradePlanForm";
 import { TradePlan } from "@/lib/tradePlan";
 
-// Mock股票数据
 const mockStocks = [
   { symbol: "AAPL", name: "苹果公司", price: 182.30 },
   { symbol: "TSLA", name: "特斯拉", price: 258.50 },
@@ -29,14 +28,16 @@ export default function TradePlanDemoPage() {
   };
 
   const handleSubmitPlan = (plan: TradePlan) => {
-    setPlans([...plans, plan]);
+    const id = `${plan.symbol}-${Date.now()}`;
+    const saved = { ...plan, id };
+    setPlans([...plans, saved]);
     setShowPlanForm(false);
-    alert(`✅ 交易计划创建成功！\n\n评分：${plan.score}分\n股票：${plan.symbol} - ${plan.name}\n类型：${plan.tradeType}\n\n计划已保存，可以开始执行交易。`);
+    // 跳转到计划详情页，支持添加笔记、设置提醒等完整操作
+    router.push(`/plan/${id}`);
   };
 
   return (
     <div className="container mx-auto p-6 space-y-6">
-      {/* 头部 */}
       <div className="flex items-center gap-4">
         <Button
           variant="ghost"
@@ -53,21 +54,19 @@ export default function TradePlanDemoPage() {
         </div>
       </div>
 
-      {/* 功能说明 */}
       <Card className="p-6 bg-blue-50 dark:bg-blue-900/20 border-blue-200">
         <h2 className="text-xl font-bold mb-4 text-blue-900 dark:text-blue-100">
           🎯 核心功能演示
         </h2>
         <div className="space-y-2 text-blue-800 dark:text-blue-200">
           <p>✅ <strong>强制计划制定</strong>：买入前必须填写完整的交易计划</p>
-          <p>✅ <strong>实时评分系统</strong>：100分制评分，<60分无法交易</p>
+          <p>✅ <strong>实时评分系统</strong>：100分制评分，少于60分无法交易</p>
           <p>✅ <strong>分类型管理</strong>：短期投机/波段交易/价值投资三种类型</p>
           <p>✅ <strong>智能建议</strong>：实时反馈改进建议</p>
           <p>✅ <strong>风险控制</strong>：自动校验仓位、止损、止盈合理性</p>
         </div>
       </Card>
 
-      {/* 评分标准说明 */}
       <Card className="p-6">
         <h2 className="text-xl font-bold mb-4">📋 评分标准</h2>
         <div className="grid grid-cols-5 gap-4">
@@ -100,14 +99,13 @@ export default function TradePlanDemoPage() {
         <div className="mt-4 p-4 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg border border-yellow-200">
           <p className="text-sm text-yellow-800 dark:text-yellow-200">
             <strong>⚠️ 强制执行规则：</strong>
-            评分 <60分：❌ 禁止交易 | 
+            评分少于60分：❌ 禁止交易 | 
             60-80分：⚠️ 可交易但需改进 | 
-            >80分：✅ 计划良好
+            大于80分：✅ 计划良好
           </p>
         </div>
       </Card>
 
-      {/* 选择股票创建计划 */}
       <Card className="p-6">
         <h2 className="text-xl font-bold mb-4">📈 选择股票并创建交易计划</h2>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -128,7 +126,6 @@ export default function TradePlanDemoPage() {
         </div>
       </Card>
 
-      {/* 已创建的计划 */}
       {plans.length > 0 && (
         <Card className="p-6">
           <h2 className="text-xl font-bold mb-4">
@@ -136,7 +133,11 @@ export default function TradePlanDemoPage() {
           </h2>
           <div className="space-y-4">
             {plans.map((plan, index) => (
-              <Card key={index} className="p-4 bg-green-50 dark:bg-green-900/20">
+              <Card
+                key={index}
+                className="p-4 bg-green-50 dark:bg-green-900/20 hover:shadow-md cursor-pointer"
+                onClick={() => router.push(`/plan/${plan.id || `${plan.symbol}`}`)}
+              >
                 <div className="flex items-center justify-between">
                   <div>
                     <div className="font-bold text-lg">
@@ -160,13 +161,16 @@ export default function TradePlanDemoPage() {
                     <div className="text-xs text-gray-500">计划评分</div>
                   </div>
                 </div>
+                <div className="mt-3 flex gap-2 justify-end">
+                  <Button size="sm" variant="outline" onClick={(e) => { e.stopPropagation(); router.push(`/plan/${plan.id || `${plan.symbol}`}`) }}>查看详情/添加笔记</Button>
+                  <Button size="sm" onClick={(e) => { e.stopPropagation(); router.push('/trades') }}>前往交易页</Button>
+                </div>
               </Card>
             ))}
           </div>
         </Card>
       )}
 
-      {/* 使用说明 */}
       <Card className="p-6 bg-gray-50 dark:bg-gray-900">
         <h2 className="text-xl font-bold mb-4">📖 使用说明</h2>
         <ol className="space-y-2 text-sm">
@@ -178,25 +182,29 @@ export default function TradePlanDemoPage() {
         </ol>
       </Card>
 
-      {/* 交易计划表单对话框 */}
       <Dialog open={showPlanForm} onOpenChange={setShowPlanForm}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden">
-          <DialogHeader>
-            <DialogTitle>
-              创建强制交易计划 - {selectedStock.symbol} ({selectedStock.name})
-            </DialogTitle>
-          </DialogHeader>
-          <ForcedTradePlanForm
-            symbol={selectedStock.symbol}
-            name={selectedStock.name}
-            currentPrice={selectedStock.price}
-            onSubmit={handleSubmitPlan}
-            onCancel={() => setShowPlanForm(false)}
-          />
+        <DialogContent className="max-w-[96vw] min-w-[1100px] w-[1400px] h-[90vh] flex flex-col p-0 gap-0">
+          <div className="flex-shrink-0 bg-white dark:bg-gray-900 border-b px-6 py-4">
+            <DialogHeader>
+              <DialogTitle className="text-2xl">
+                💪 创建强制交易计划 - {selectedStock.symbol} ({selectedStock.name})
+              </DialogTitle>
+            </DialogHeader>
+          </div>
+          <div className="flex-1 overflow-hidden min-h-0">
+            <ForcedTradePlanForm
+              symbol={selectedStock.symbol}
+              name={selectedStock.name}
+              currentPrice={selectedStock.price}
+              onSubmit={handleSubmitPlan}
+              onCancel={() => setShowPlanForm(false)}
+            />
+          </div>
         </DialogContent>
       </Dialog>
     </div>
   );
 }
+
 
 
