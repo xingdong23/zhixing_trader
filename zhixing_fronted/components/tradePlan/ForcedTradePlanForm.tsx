@@ -64,6 +64,63 @@ export default function ForcedTradePlanForm({
   const technicalTextareaRef = useRef<HTMLTextAreaElement>(null);
   const [suggestedShares, setSuggestedShares] = useState<number>(0);
 
+  // 默认的技术模式
+  const defaultPatterns = [
+    "成交额前10-20 + 日线多头",
+    "板块热门(算力/能源)",
+    "龙头股票",
+    "均线多头 + MACD红柱放大",
+    "双低形态 + 量能配合",
+    "跳空高开 + 量能收缩",
+    "杯柄形态",
+    "三阳开泰 + 量能递增",
+  ];
+
+  // 从localStorage加载自定义模式
+  const [technicalPatterns, setTechnicalPatterns] = useState<string[]>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('technical_patterns');
+      return saved ? JSON.parse(saved) : defaultPatterns;
+    }
+    return defaultPatterns;
+  });
+
+  // 保存技术模式到localStorage
+  const saveTechnicalPatterns = (patterns: string[]) => {
+    setTechnicalPatterns(patterns);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('technical_patterns', JSON.stringify(patterns));
+    }
+  };
+
+  // 添加技术模式到输入框
+  const addTechnicalPattern = (pattern: string) => {
+    const currentText = plan.buyReason.technical;
+    const newText = currentText ? `${currentText}\n${pattern}` : pattern;
+    setPlan({
+      ...plan,
+      buyReason: { ...plan.buyReason, technical: newText },
+    });
+  };
+
+  // 添加新的技术模式
+  const [newPatternInput, setNewPatternInput] = useState("");
+  const [showAddPattern, setShowAddPattern] = useState(false);
+
+  const addNewPattern = () => {
+    if (newPatternInput.trim() && !technicalPatterns.includes(newPatternInput.trim())) {
+      const updated = [...technicalPatterns, newPatternInput.trim()];
+      saveTechnicalPatterns(updated);
+      setNewPatternInput("");
+      setShowAddPattern(false);
+    }
+  };
+
+  const removePattern = (pattern: string) => {
+    const updated = technicalPatterns.filter(p => p !== pattern);
+    saveTechnicalPatterns(updated);
+  };
+
   // 实时更新评分和风险收益比
   useEffect(() => {
     const newScore = evaluateTradePlan(plan);
@@ -252,9 +309,78 @@ export default function ForcedTradePlanForm({
                   {plan.buyReason.technical.length}/20
                 </span>
               </Label>
+              
+              {/* 快速选择技术模式 */}
+              <div className="mt-2 mb-3 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                <div className="flex items-center justify-between mb-2">
+                  <p className="text-xs text-blue-700 dark:text-blue-300 font-medium">⚡ 快速选择熟悉模式:</p>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setShowAddPattern(!showAddPattern)}
+                    className="text-xs h-6 text-blue-600 hover:text-blue-700"
+                  >
+                    {showAddPattern ? "取消" : "+ 添加新模式"}
+                  </Button>
+                </div>
+
+                {showAddPattern && (
+                  <div className="mb-3 flex gap-2">
+                    <Input
+                      type="text"
+                      placeholder="输入新的技术模式..."
+                      value={newPatternInput}
+                      onChange={(e) => setNewPatternInput(e.target.value)}
+                      onKeyPress={(e) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault();
+                          addNewPattern();
+                        }
+                      }}
+                      className="text-xs h-7"
+                    />
+                    <Button
+                      type="button"
+                      size="sm"
+                      onClick={addNewPattern}
+                      className="h-7 text-xs"
+                    >
+                      保存
+                    </Button>
+                  </div>
+                )}
+
+                <div className="flex flex-wrap gap-2">
+                  {technicalPatterns.map((pattern, index) => (
+                    <div key={index} className="group relative inline-flex">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => addTechnicalPattern(pattern)}
+                        className="text-xs h-7 bg-white dark:bg-gray-800 hover:bg-blue-100 dark:hover:bg-blue-900 pr-8"
+                      >
+                        + {pattern}
+                      </Button>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          removePattern(pattern);
+                        }}
+                        className="absolute right-1 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity"
+                      >
+                        <X className="w-3 h-3 text-red-500 hover:text-red-700" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
               <Textarea
                 ref={technicalTextareaRef}
-                placeholder="例如：突破20日均线，MACD金叉，成交量放大，RSI处于50-70区间...&#10;&#10;💡 提示：可以直接粘贴K线截图！"
+                placeholder="点击上方按钮快速选择,或手动输入技术分析...&#10;&#10;💡 提示：可以直接粘贴K线截图！"
                 value={plan.buyReason.technical}
                 onChange={(e) =>
                   setPlan({
