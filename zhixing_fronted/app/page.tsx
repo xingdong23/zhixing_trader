@@ -70,6 +70,7 @@ import CategorySelector from '@/components/categories/CategorySelector'
 // 导入交易和笔记视图组件
 import TradesView from '@/components/trades/TradesView'
 import NotesView from '@/components/notes/NotesView'
+import BrokersView from '@/components/brokers/BrokersView'
 import ForcedTradePlanForm from "@/components/tradePlan/ForcedTradePlanForm"
 import type { TradePlan } from "@/lib/tradePlan"
 
@@ -309,14 +310,14 @@ export default function TradingSystem() {
 
           <nav className="space-y-2">
             {[ 
-              { id: "dashboard", label: "股票", icon: Heart, isRoute: false },
-              { id: "trades", label: "交易", icon: Activity, isRoute: false },
-              { id: "notes", label: "笔记", icon: PenTool, isRoute: false },
-              { id: "trade-plan-demo", label: "💪 交易计划演示", icon: Target, isRoute: false },
-            ].map(({ id, label, icon: Icon, isRoute }) => (
+              { id: "dashboard", label: "股票", icon: Heart },
+              { id: "trades", label: "交易", icon: Activity },
+              { id: "notes", label: "笔记", icon: PenTool },
+              { id: "brokers", label: "券商设置", icon: Settings },
+            ].map(({ id, label, icon: Icon }) => (
               <button
                 key={id}
-                onClick={() => isRoute ? router.push(`/${id}`) : setCurrentPage(id)}
+                onClick={() => setCurrentPage(id)}
                 className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-left transition-colors ${
                   currentPage === id
                     ? "bg-sidebar-primary text-sidebar-primary-foreground"
@@ -753,6 +754,10 @@ export default function TradingSystem() {
 
             {currentPage === "notes" && (
               <NotesView />
+            )}
+
+            {currentPage === "brokers" && (
+              <BrokersView />
             )}
 
             {currentPage === "trade-plan-demo" && (
