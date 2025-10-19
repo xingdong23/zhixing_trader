@@ -129,10 +129,13 @@ export default function TradeDetailPage() {
         <Button
           variant="ghost"
           size="sm"
-          onClick={() => router.back()}
+          onClick={() => {
+            // 返回到交易列表（主页的交易菜单）
+            router.push("/#trades");
+          }}
         >
           <ArrowLeft className="w-4 h-4 mr-2" />
-          返回
+          返回交易列表
         </Button>
         <div className="flex-1">
           <div className="flex items-center gap-3">

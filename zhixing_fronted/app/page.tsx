@@ -140,6 +140,16 @@ export default function TradingSystem() {
   // 当前页变化时，同步到 hash，保证外部跳转可用
   useEffect(() => {
     if (typeof window === 'undefined') return
+    // 如果当前 URL 已携带了有效 hash（如从 /trade/[id] 返回到 /#trades），
+    // 则优先尊重现有 hash，避免初次渲染时被覆盖回 dashboard
+    const existing = window.location.hash.replace('#', '')
+    const valid = [
+      'dashboard','categories','trades','notes','review','strategies','checklist','psychology','errors','pivot','brokers'
+    ]
+    if (existing && valid.includes(existing) && existing !== currentPage) {
+      // 不覆盖由外部显式指定的 hash
+      return
+    }
     const target = `#${currentPage}`
     if (window.location.hash !== target) {
       window.history.replaceState(null, '', target)
