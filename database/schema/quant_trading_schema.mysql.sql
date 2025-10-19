@@ -24,11 +24,11 @@ CREATE TABLE categories (
 
 ;
 
-CREATE INDEX ix_categories_id ON categories (id);
+CREATE UNIQUE INDEX ix_categories_category_id ON categories (category_id);
 
 CREATE INDEX ix_categories_parent_id ON categories (parent_id);
 
-CREATE UNIQUE INDEX ix_categories_category_id ON categories (category_id);
+CREATE INDEX ix_categories_id ON categories (id);
 
 
 CREATE TABLE category_stock_relations (
@@ -45,13 +45,13 @@ CREATE TABLE category_stock_relations (
 
 ;
 
+CREATE INDEX ix_category_stock_relations_stock_code ON category_stock_relations (stock_code);
+
 CREATE INDEX ix_category_stock_relations_id ON category_stock_relations (id);
 
 CREATE INDEX ix_category_stock_relations_category_id ON category_stock_relations (category_id);
 
 CREATE UNIQUE INDEX idx_category_stock_unique ON category_stock_relations (category_id, stock_code);
-
-CREATE INDEX ix_category_stock_relations_stock_code ON category_stock_relations (stock_code);
 
 
 CREATE TABLE data_sync_tasks (
@@ -82,9 +82,9 @@ CREATE TABLE data_sync_tasks (
 
 ;
 
-CREATE UNIQUE INDEX ix_data_sync_tasks_task_id ON data_sync_tasks (task_id);
-
 CREATE INDEX ix_data_sync_tasks_id ON data_sync_tasks (id);
+
+CREATE UNIQUE INDEX ix_data_sync_tasks_task_id ON data_sync_tasks (task_id);
 
 
 CREATE TABLE emotion_records (
@@ -139,9 +139,9 @@ CREATE TABLE expert_opinions (
 
 ;
 
-CREATE UNIQUE INDEX ix_expert_opinions_opinion_id ON expert_opinions (opinion_id);
-
 CREATE INDEX ix_expert_opinions_id ON expert_opinions (id);
+
+CREATE UNIQUE INDEX ix_expert_opinions_opinion_id ON expert_opinions (opinion_id);
 
 
 CREATE TABLE experts (
@@ -161,9 +161,9 @@ CREATE TABLE experts (
 
 ;
 
-CREATE UNIQUE INDEX ix_experts_expert_id ON experts (expert_id);
-
 CREATE INDEX ix_experts_id ON experts (id);
+
+CREATE UNIQUE INDEX ix_experts_expert_id ON experts (expert_id);
 
 
 CREATE TABLE klines_15min (
@@ -186,15 +186,15 @@ CREATE TABLE klines_15min (
 
 ;
 
-CREATE UNIQUE INDEX idx_15min_code_key ON klines_15min (code, time_key);
-
-CREATE INDEX ix_klines_15min_id ON klines_15min (id);
-
-CREATE INDEX ix_klines_15min_code ON klines_15min (code);
+CREATE INDEX idx_15min_code_time ON klines_15min (code, trade_time);
 
 CREATE INDEX ix_klines_15min_trade_time ON klines_15min (trade_time);
 
-CREATE INDEX idx_15min_code_time ON klines_15min (code, trade_time);
+CREATE INDEX ix_klines_15min_code ON klines_15min (code);
+
+CREATE INDEX ix_klines_15min_id ON klines_15min (id);
+
+CREATE UNIQUE INDEX idx_15min_code_key ON klines_15min (code, time_key);
 
 
 CREATE TABLE klines_1hour (
@@ -219,13 +219,13 @@ CREATE TABLE klines_1hour (
 
 CREATE INDEX idx_1hour_code_time ON klines_1hour (code, trade_time);
 
-CREATE INDEX ix_klines_1hour_id ON klines_1hour (id);
-
-CREATE INDEX ix_klines_1hour_code ON klines_1hour (code);
+CREATE UNIQUE INDEX idx_1hour_code_key ON klines_1hour (code, time_key);
 
 CREATE INDEX ix_klines_1hour_trade_time ON klines_1hour (trade_time);
 
-CREATE UNIQUE INDEX idx_1hour_code_key ON klines_1hour (code, time_key);
+CREATE INDEX ix_klines_1hour_code ON klines_1hour (code);
+
+CREATE INDEX ix_klines_1hour_id ON klines_1hour (id);
 
 
 CREATE TABLE klines_1min (
@@ -248,8 +248,6 @@ CREATE TABLE klines_1min (
 
 ;
 
-CREATE INDEX ix_klines_1min_id ON klines_1min (id);
-
 CREATE INDEX ix_klines_1min_code ON klines_1min (code);
 
 CREATE INDEX idx_1min_code_time ON klines_1min (code, trade_time);
@@ -257,6 +255,8 @@ CREATE INDEX idx_1min_code_time ON klines_1min (code, trade_time);
 CREATE UNIQUE INDEX idx_1min_code_key ON klines_1min (code, time_key);
 
 CREATE INDEX ix_klines_1min_trade_time ON klines_1min (trade_time);
+
+CREATE INDEX ix_klines_1min_id ON klines_1min (id);
 
 
 CREATE TABLE klines_30min (
@@ -281,13 +281,13 @@ CREATE TABLE klines_30min (
 
 CREATE UNIQUE INDEX idx_30min_code_key ON klines_30min (code, time_key);
 
-CREATE INDEX idx_30min_code_time ON klines_30min (code, trade_time);
-
-CREATE INDEX ix_klines_30min_id ON klines_30min (id);
+CREATE INDEX ix_klines_30min_trade_time ON klines_30min (trade_time);
 
 CREATE INDEX ix_klines_30min_code ON klines_30min (code);
 
-CREATE INDEX ix_klines_30min_trade_time ON klines_30min (trade_time);
+CREATE INDEX ix_klines_30min_id ON klines_30min (id);
+
+CREATE INDEX idx_30min_code_time ON klines_30min (code, trade_time);
 
 
 CREATE TABLE klines_3min (
@@ -310,8 +310,6 @@ CREATE TABLE klines_3min (
 
 ;
 
-CREATE INDEX ix_klines_3min_trade_time ON klines_3min (trade_time);
-
 CREATE UNIQUE INDEX idx_3min_code_key ON klines_3min (code, time_key);
 
 CREATE INDEX idx_3min_code_time ON klines_3min (code, trade_time);
@@ -319,6 +317,8 @@ CREATE INDEX idx_3min_code_time ON klines_3min (code, trade_time);
 CREATE INDEX ix_klines_3min_id ON klines_3min (id);
 
 CREATE INDEX ix_klines_3min_code ON klines_3min (code);
+
+CREATE INDEX ix_klines_3min_trade_time ON klines_3min (trade_time);
 
 
 CREATE TABLE klines_4hour (
@@ -341,6 +341,8 @@ CREATE TABLE klines_4hour (
 
 ;
 
+CREATE INDEX ix_klines_4hour_code ON klines_4hour (code);
+
 CREATE INDEX ix_klines_4hour_id ON klines_4hour (id);
 
 CREATE UNIQUE INDEX idx_4hour_code_key ON klines_4hour (code, time_key);
@@ -348,8 +350,6 @@ CREATE UNIQUE INDEX idx_4hour_code_key ON klines_4hour (code, time_key);
 CREATE INDEX ix_klines_4hour_trade_time ON klines_4hour (trade_time);
 
 CREATE INDEX idx_4hour_code_time ON klines_4hour (code, trade_time);
-
-CREATE INDEX ix_klines_4hour_code ON klines_4hour (code);
 
 
 CREATE TABLE klines_5min (
@@ -403,6 +403,8 @@ CREATE TABLE klines_daily (
 
 ;
 
+CREATE INDEX idx_daily_code_time ON klines_daily (code, trade_time);
+
 CREATE UNIQUE INDEX idx_daily_code_key ON klines_daily (code, time_key);
 
 CREATE INDEX ix_klines_daily_trade_time ON klines_daily (trade_time);
@@ -410,8 +412,6 @@ CREATE INDEX ix_klines_daily_trade_time ON klines_daily (trade_time);
 CREATE INDEX ix_klines_daily_code ON klines_daily (code);
 
 CREATE INDEX ix_klines_daily_id ON klines_daily (id);
-
-CREATE INDEX idx_daily_code_time ON klines_daily (code, trade_time);
 
 
 CREATE TABLE klines_monthly (
@@ -467,13 +467,13 @@ CREATE TABLE klines_weekly (
 
 CREATE INDEX idx_weekly_code_time ON klines_weekly (code, trade_time);
 
-CREATE UNIQUE INDEX idx_weekly_code_key ON klines_weekly (code, time_key);
-
 CREATE INDEX ix_klines_weekly_trade_time ON klines_weekly (trade_time);
 
 CREATE INDEX ix_klines_weekly_id ON klines_weekly (id);
 
 CREATE INDEX ix_klines_weekly_code ON klines_weekly (code);
+
+CREATE UNIQUE INDEX idx_weekly_code_key ON klines_weekly (code, time_key);
 
 
 CREATE TABLE positions (
@@ -504,9 +504,9 @@ CREATE TABLE positions (
 
 ;
 
-CREATE INDEX ix_positions_id ON positions (id);
-
 CREATE UNIQUE INDEX ix_positions_position_id ON positions (position_id);
+
+CREATE INDEX ix_positions_id ON positions (id);
 
 
 CREATE TABLE selection_results (
@@ -552,9 +552,9 @@ CREATE TABLE selection_strategies (
 
 ;
 
-CREATE INDEX ix_selection_strategies_id ON selection_strategies (id);
-
 CREATE UNIQUE INDEX ix_selection_strategies_strategy_id ON selection_strategies (strategy_id);
+
+CREATE INDEX ix_selection_strategies_id ON selection_strategies (id);
 
 
 CREATE TABLE stock_sync_status (
@@ -580,11 +580,11 @@ CREATE TABLE stock_sync_status (
 
 ;
 
-CREATE INDEX ix_stock_sync_status_id ON stock_sync_status (id);
+CREATE UNIQUE INDEX idx_stock_timeframe ON stock_sync_status (stock_code, timeframe);
 
 CREATE INDEX ix_stock_sync_status_stock_code ON stock_sync_status (stock_code);
 
-CREATE UNIQUE INDEX idx_stock_timeframe ON stock_sync_status (stock_code, timeframe);
+CREATE INDEX ix_stock_sync_status_id ON stock_sync_status (id);
 
 
 CREATE TABLE stocks (
@@ -664,9 +664,9 @@ CREATE TABLE trade_records (
 
 ;
 
-CREATE INDEX ix_trade_records_id ON trade_records (id);
-
 CREATE UNIQUE INDEX ix_trade_records_trade_id ON trade_records (trade_id);
+
+CREATE INDEX ix_trade_records_id ON trade_records (id);
 
 
 CREATE TABLE trading_discipline (
@@ -733,9 +733,9 @@ CREATE TABLE trading_plans (
 
 ;
 
-CREATE UNIQUE INDEX ix_trading_plans_plan_id ON trading_plans (plan_id);
-
 CREATE INDEX ix_trading_plans_id ON trading_plans (id);
+
+CREATE UNIQUE INDEX ix_trading_plans_plan_id ON trading_plans (plan_id);
 
 
 CREATE TABLE trading_playbooks (
