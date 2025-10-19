@@ -117,6 +117,30 @@ export default function TradingSystem() {
   
   // 分类筛选状态
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null)
+  // 监听 URL hash，实现页内“菜单”跳转（如 #categories）
+  useEffect(() => {
+    const applyHash = () => {
+      if (typeof window === 'undefined') return
+      const hash = window.location.hash.replace('#', '')
+      if (!hash) return
+      const valid = [
+        'dashboard','categories','trades','notes','review','strategies','checklist','psychology','errors','pivot','brokers'
+      ]
+      if (valid.includes(hash)) setCurrentPage(hash)
+    }
+    applyHash()
+    window.addEventListener('hashchange', applyHash)
+    return () => window.removeEventListener('hashchange', applyHash)
+  }, [])
+
+  // 当前页变化时，同步到 hash，保证外部跳转可用
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    const target = `#${currentPage}`
+    if (window.location.hash !== target) {
+      window.history.replaceState(null, '', target)
+    }
+  }, [currentPage])
   
   // 快速操作状态
   const [showAddNoteDialog, setShowAddNoteDialog] = useState(false)
@@ -332,7 +356,15 @@ export default function TradingSystem() {
             ].map(({ id, label, icon: Icon }) => (
               <button
                 key={id}
-                onClick={() => setCurrentPage(id)}
+                onClick={() => {
+                  setCurrentPage(id)
+                  if (typeof window !== 'undefined') {
+                    const target = `#${id}`
+                    if (window.location.hash !== target) {
+                      window.history.replaceState(null, '', target)
+                    }
+                  }
+                }}
                 className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-left transition-colors ${
                   currentPage === id
                     ? "bg-sidebar-primary text-sidebar-primary-foreground"

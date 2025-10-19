@@ -336,7 +336,10 @@ export default function CategorySelector({
           variant="link"
           size="sm"
           className="px-1"
-          onClick={() => router.push('/categories')}
+          onClick={() => {
+            window.location.hash = '#categories'
+            window.dispatchEvent(new HashChangeEvent('hashchange'))
+          }}
         >
           前往创建
         </Button>
@@ -373,7 +376,11 @@ export default function CategorySelector({
             variant="ghost"
             size="sm"
             className="h-6 text-xs"
-            onClick={() => router.push('/categories')}
+            onClick={() => {
+              // 跳转到主页面的“分类”菜单
+              window.location.hash = '#categories'
+              window.dispatchEvent(new HashChangeEvent('hashchange'))
+            }}
           >
             <LayoutGrid className="w-3 h-3 mr-1" />
             管理分类
