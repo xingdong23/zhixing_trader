@@ -36,6 +36,9 @@ interface Category {
   children: Category[];
 }
 
+// ========== Mock模式配置 ==========
+const USE_MOCK_DATA = true; // 启用Mock模式,不调用后端API
+
 export default function CategoriesView() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [expandedNodes, setExpandedNodes] = useState<Set<string>>(new Set());
@@ -72,15 +75,101 @@ export default function CategoriesView() {
   const fetchCategories = async () => {
     try {
       setIsLoading(true);
-      const response = await fetch('http://localhost:8000/api/v1/categories/');
-      const result = await response.json();
       
-      if (result.success) {
-        setCategories(result.data);
-        // 默认展开所有节点
-        const allIds = getAllCategoryIds(result.data);
+      if (USE_MOCK_DATA) {
+        // ========== Mock模式: 直接使用Mock数据 ==========
+        const mockCategories: Category[] = [
+        {
+          id: 1,
+          category_id: 'cat_1',
+          name: '行业板块',
+          parent_id: null,
+          path: '行业板块',
+          level: 0,
+          icon: '📁',
+          color: 'blue',
+          stock_count: 0,
+          total_stock_count: 50,
+          children: [
+            {
+              id: 2,
+              category_id: 'cat_2',
+              name: '科技股',
+              parent_id: 'cat_1',
+              path: '行业板块/科技股',
+              level: 1,
+              icon: '💻',
+              color: 'blue',
+              stock_count: 30,
+              total_stock_count: 30,
+              children: []
+            },
+            {
+              id: 3,
+              category_id: 'cat_3',
+              name: '能源',
+              parent_id: 'cat_1',
+              path: '行业板块/能源',
+              level: 1,
+              icon: '⚡',
+              color: 'green',
+              stock_count: 20,
+              total_stock_count: 20,
+              children: []
+            }
+          ]
+        },
+        {
+          id: 4,
+          category_id: 'cat_4',
+          name: '交易策略',
+          parent_id: null,
+          path: '交易策略',
+          level: 0,
+          icon: '🎯',
+          color: 'purple',
+          stock_count: 0,
+          total_stock_count: 15,
+          children: [
+            {
+              id: 5,
+              category_id: 'cat_5',
+              name: '长线持有',
+              parent_id: 'cat_4',
+              path: '交易策略/长线持有',
+              level: 1,
+              icon: '📈',
+              color: 'green',
+              stock_count: 15,
+              total_stock_count: 15,
+              children: []
+            }
+          ]
+        }
+        ];
+        
+        setCategories(mockCategories);
+        const allIds = getAllCategoryIds(mockCategories);
         setExpandedNodes(new Set(allIds));
+        setIsLoading(false);
+        return;
       }
+      
+      // ========== 真实API调用 ==========
+      try {
+        const response = await fetch('http://localhost:8000/api/v1/categories/');
+        const result = await response.json();
+        
+        if (result.success) {
+          setCategories(result.data);
+          const allIds = getAllCategoryIds(result.data);
+          setExpandedNodes(new Set(allIds));
+        }
+      } catch (apiError) {
+        console.error('后端API连接失败:', apiError);
+        toast.error('无法连接到后端API');
+      }
+      
     } catch (error) {
       console.error('获取分类失败:', error);
       toast.error('获取分类失败');
@@ -135,32 +224,113 @@ export default function CategoriesView() {
     }
 
     try {
-      const url = editingCategory
-        ? `http://localhost:8000/api/v1/categories/${editingCategory.category_id}`
-        : 'http://localhost:8000/api/v1/categories/';
-      
-      const method = editingCategory ? 'PUT' : 'POST';
-      
-      const response = await fetch(url, {
-        method,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: formData.name,
-          parent_id: formData.parent_id || null,
-          icon: formData.icon,
-          color: formData.color
-        })
-      });
-
-      const result = await response.json();
-      
-      if (result.success) {
-        toast.success(editingCategory ? '分类更新成功' : '分类创建成功');
+      if (USE_MOCK_DATA) {
+        // ========== Mock模式: 本地操作 ==========
+        if (editingCategory) {
+        // 编辑模式
+        const updateCategory = (cats: Category[]): Category[] => {
+          return cats.map(cat => {
+            if (cat.category_id === editingCategory.category_id) {
+              return {
+                ...cat,
+                name: formData.name,
+                icon: formData.icon,
+                color: formData.color,
+                parent_id: formData.parent_id || null
+              };
+            }
+            if (cat.children.length > 0) {
+              return {
+                ...cat,
+                children: updateCategory(cat.children)
+              };
+            }
+            return cat;
+          });
+        };
+        
+          setCategories(updateCategory(categories));
+          toast.success('✅ 分类更新成功 (Mock模式)');
+        } else {
+          // 创建模式
+          const newCategory: Category = {
+            id: Date.now(),
+            category_id: `cat_${Date.now()}`,
+            name: formData.name,
+            parent_id: formData.parent_id || null,
+            path: formData.parent_id ? `${formData.parent_id}/${formData.name}` : formData.name,
+            level: formData.parent_id ? 1 : 0,
+            icon: formData.icon || '📁',
+            color: formData.color || 'blue',
+            stock_count: 0,
+            total_stock_count: 0,
+            children: []
+          };
+          
+          if (!formData.parent_id) {
+            // 顶级分类
+            setCategories([...categories, newCategory]);
+          } else {
+            // 子分类
+            const addToParent = (cats: Category[]): Category[] => {
+              return cats.map(cat => {
+                if (cat.category_id === formData.parent_id) {
+                  return {
+                    ...cat,
+                    children: [...cat.children, newCategory]
+                  };
+                }
+                if (cat.children.length > 0) {
+                  return {
+                    ...cat,
+                    children: addToParent(cat.children)
+                  };
+                }
+                return cat;
+              });
+            };
+            
+            setCategories(addToParent(categories));
+          }
+          
+          toast.success('✅ 分类创建成功 (Mock模式)');
+        }
+        
         setShowCreateDialog(false);
-        fetchCategories();
-      } else {
-        toast.error(result.message || '操作失败');
+        return;
       }
+      
+      // ========== 真实API调用 ==========
+      try {
+        const url = editingCategory
+          ? `http://localhost:8000/api/v1/categories/${editingCategory.category_id}`
+          : 'http://localhost:8000/api/v1/categories/';
+        
+        const method = editingCategory ? 'PUT' : 'POST';
+        
+        const response = await fetch(url, {
+          method,
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name: formData.name,
+            parent_id: formData.parent_id || null,
+            icon: formData.icon,
+            color: formData.color
+          })
+        });
+
+        const result = await response.json();
+        
+        if (result.success) {
+          toast.success(editingCategory ? '分类更新成功' : '分类创建成功');
+          setShowCreateDialog(false);
+          fetchCategories();
+        }
+      } catch (apiError) {
+        console.error('后端API连接失败:', apiError);
+        toast.error('无法连接到后端API');
+      }
+      
     } catch (error) {
       console.error('操作失败:', error);
       toast.error('操作失败');
@@ -173,18 +343,42 @@ export default function CategoriesView() {
     }
 
     try {
-      const response = await fetch(`http://localhost:8000/api/v1/categories/${categoryId}`, {
-        method: 'DELETE'
-      });
-
-      const result = await response.json();
-      
-      if (result.success) {
-        toast.success('分类删除成功');
-        fetchCategories();
-      } else {
-        toast.error(result.message || '删除失败');
+      if (USE_MOCK_DATA) {
+        // ========== Mock模式: 本地删除 ==========
+        const removeCategory = (cats: Category[]): Category[] => {
+          return cats.filter(cat => {
+            if (cat.category_id === categoryId) {
+              return false;
+          }
+          if (cat.children.length > 0) {
+            cat.children = removeCategory(cat.children);
+          }
+          return true;
+        });
+        };
+        
+        setCategories(removeCategory(categories));
+        toast.success('✅ 分类删除成功 (Mock模式)');
+        return;
       }
+      
+      // ========== 真实API调用 ==========
+      try {
+        const response = await fetch(`http://localhost:8000/api/v1/categories/${categoryId}`, {
+          method: 'DELETE'
+        });
+
+        const result = await response.json();
+        
+        if (result.success) {
+          toast.success('分类删除成功');
+          fetchCategories();
+        }
+      } catch (apiError) {
+        console.error('后端API连接失败:', apiError);
+        toast.error('无法连接到后端API');
+      }
+      
     } catch (error) {
       console.error('删除失败:', error);
       toast.error('删除失败');
@@ -301,7 +495,10 @@ export default function CategoriesView() {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-3xl font-bold">分类管理</h2>
-          <p className="text-gray-500 mt-1">管理股票分类,支持多级嵌套</p>
+          <p className="text-gray-500 mt-1">
+            管理股票分类,支持多级嵌套
+            {USE_MOCK_DATA && <span className="ml-2 text-xs text-amber-600">🎭 Mock模式 - 不调用后端API</span>}
+          </p>
         </div>
         <Button onClick={handleCreate}>
           <Plus className="w-4 h-4 mr-2" />
@@ -395,14 +592,16 @@ export default function CategoriesView() {
             <div>
               <Label htmlFor="parent">父分类 (可选)</Label>
               <Select
-                value={formData.parent_id}
-                onValueChange={(value) => setFormData({ ...formData, parent_id: value })}
+                value={formData.parent_id ? formData.parent_id : 'none'}
+                onValueChange={(value) =>
+                  setFormData({ ...formData, parent_id: value === 'none' ? '' : value })
+                }
               >
                 <SelectTrigger>
                   <SelectValue placeholder="选择父分类 (留空为顶级分类)" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">无 (顶级分类)</SelectItem>
+                  <SelectItem value="none">无 (顶级分类)</SelectItem>
                   {flatCategories.map((cat) => (
                     <SelectItem key={cat.category_id} value={cat.category_id}>
                       {'  '.repeat(cat.level)}{cat.name}
