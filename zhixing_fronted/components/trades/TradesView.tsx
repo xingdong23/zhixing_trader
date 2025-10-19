@@ -12,7 +12,6 @@ import { Plus, TrendingUp, TrendingDown, DollarSign, Target } from "lucide-react
 import TradeCard from "@/components/trades/TradeCard";
 import TradeFilters from "@/components/trades/TradeFilters";
 import TradePlanForm from "@/components/trades/TradePlanForm";
-import TradeDetail from "@/components/trades/TradeDetail";
 import type { Trade, TradeFilters as TradeFiltersType, TradeStatistics } from "@/app/trades/types";
 import ForcedTradePlanForm from "@/components/tradePlan/ForcedTradePlanForm";
 import type { TradePlan } from "@/lib/tradePlan";
@@ -21,8 +20,6 @@ import PnlChartCard from "@/components/trades/PnlChartCard";
 import RiskWidget from "@/components/trades/RiskWidget";
 import SavedFiltersMenu from "@/components/trades/SavedFiltersMenu";
 import AlertConfigDialog, { AlertConfig } from "@/components/trades/AlertConfigDialog";
-import UnifiedNoteDialog from "@/components/notes/UnifiedNoteDialog";
-import ImageManager from "@/components/trades/ImageManager";
 import ViolationStats from "@/components/trades/ViolationStats";
 import GoalProgressCard from "@/components/trades/GoalProgressCard";
 import { computeEquityCurve, computeMaxDrawdown } from "@/lib/metrics";
@@ -38,14 +35,10 @@ export default function TradesView() {
   const [filters, setFilters] = useState<TradeFiltersType>({});
   const [showPlanForm, setShowPlanForm] = useState(false);
   const [editingTrade, setEditingTrade] = useState<Trade | null>(null);
-  const [selectedTrade, setSelectedTrade] = useState<Trade | null>(null);
   // 强制计划表单（演示）
   const [showForcedPlanForm, setShowForcedPlanForm] = useState(false);
   const demoStock = { symbol: "AAPL", name: "苹果公司", price: 182.3 };
   const [activeTab, setActiveTab] = useState<"active" | "pending" | "history">("active");
-  const [currentTrade, setCurrentTrade] = useState<Trade | null>(null);
-  const [noteDialogOpen, setNoteDialogOpen] = useState(false);
-  const [imageManagerOpen, setImageManagerOpen] = useState(false);
   const fileInputRef = React.useRef<HTMLInputElement>(null as any);
   const [importMessage, setImportMessage] = useState<string>("");
   const [manualOpen, setManualOpen] = useState(false);
@@ -327,24 +320,6 @@ export default function TradesView() {
     setFilters({});
   };
 
-  // 添加笔记
-  const handleAddNote = (trade: Trade) => {
-    setCurrentTrade(trade);
-    setNoteDialogOpen(true);
-  };
-
-  // 管理图片/截图
-  const handleAddImage = (trade: Trade) => {
-    setCurrentTrade(trade);
-    setImageManagerOpen(true);
-  };
-
-  // 设置提醒
-  const handleAddAlert = (trade: Trade) => {
-    setCurrentTrade(trade);
-    setAlertOpen(true);
-  };
-
   return (
     <div className="space-y-6">
       {/* 统计卡片 */}
@@ -509,23 +484,7 @@ export default function TradesView() {
                   : ''
               }`}
             >
-              <TradeCard
-                trade={trade}
-                onViewDetails={setSelectedTrade}
-                onEdit={(t) => {
-                  // 计划状态的交易，点击编辑直接跳转到详情页
-                  if (t.status === "planned" || t.status === "pending") {
-                    router.push(`/plan/${t.symbol}-${t.id}`);
-                  } else {
-                    // 其他状态使用编辑表单
-                    setEditingTrade(t);
-                    setShowPlanForm(true);
-                  }
-                }}
-                onAddNote={handleAddNote}
-                onAddImage={handleAddImage}
-                onAddAlert={handleAddAlert}
-              />
+              <TradeCard trade={trade} />
             </div>
           ))
         )}
@@ -605,25 +564,6 @@ export default function TradesView() {
           </div>
         </DialogContent>
       </Dialog>
-
-      {/* 交易详情 */}
-      {selectedTrade && (
-        <TradeDetail
-          trade={selectedTrade}
-          open={!!selectedTrade}
-          onClose={() => setSelectedTrade(null)}
-        />
-      )}
-
-      {/* 统一笔记弹框（从交易卡片进入）*/}
-      <UnifiedNoteDialog
-        open={noteDialogOpen}
-        onClose={() => setNoteDialogOpen(false)}
-        preset={currentTrade ? { symbol: currentTrade.symbol, symbolName: currentTrade.stockName, relatedType: 'stock' } : undefined}
-        locks={{ symbol: true }}
-        onSave={() => setNoteDialogOpen(false)}
-      />
-
       {/* 手动录入弹窗 */}
       <ManualTradeDialog
         open={manualOpen}
@@ -644,13 +584,6 @@ export default function TradesView() {
           setAlertCfg(cfg);
           try { localStorage.setItem("alertConfig", JSON.stringify(cfg)); } catch {}
         }}
-      />
-
-      {/* 图片/截图管理（从交易卡片进入）*/}
-      <ImageManager
-        open={imageManagerOpen}
-        onClose={() => setImageManagerOpen(false)}
-        tradeId={currentTrade?.id}
       />
     </div>
   );
