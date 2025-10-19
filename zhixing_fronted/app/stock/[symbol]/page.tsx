@@ -11,7 +11,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Plus, ArrowLeft, Bell, Calendar, TrendingUp, Upload } from "lucide-react"
 import { Label } from "@/components/ui/label"
-import KLineChart from "@/components/stocks/KLineChart"
+import TradingViewWidget from "@/components/stocks/TradingViewWidget"
+import LightweightChart from "@/components/stocks/LightweightChart"
 
 interface IntelNote {
   id: string
@@ -44,98 +45,81 @@ export default function StockDetailPage() {
   const symbol = params.symbol as string
 
   const [stock, setStock] = useState<StockData | null>(null)
-  const [newNote, setNewNote] = useState({
+  const [newNote, setNewNote] = useState<{
+    author: string
+    text: string
+    alertExpression: string
+    type: IntelNote["type"]
+    image: string
+  }>({
     author: "",
     text: "",
     alertExpression: "",
-    type: "text" as const,
+    type: "text",
     image: "",
   })
 
-  // 从API获取股票数据
+  // 从API获取股票数据（Mock优先）
   useEffect(() => {
-    const fetchStockData = async () => {
+    const USE_MOCK = true
+
+    const buildMock = (): StockData => ({
+      ticker: symbol.toUpperCase(),
+      name: symbol.toUpperCase() === 'AAPL' ? '苹果公司' : symbol.toUpperCase(),
+      price: 180 + Math.random() * 10,
+      change: (Math.random() - 0.5) * 5,
+      change_percent: (Math.random() - 0.5) * 2,
+      volume: `${(Math.random() * 100 + 10).toFixed(1)}M`,
+      market: 'NASDAQ',
+      concepts: ['科技股', '人工智能'],
+      rsi: 45 + Math.random() * 20,
+      ema55: 140 + Math.random() * 50,
+      intelNotes: [
+        {
+          id: 'demo',
+          author: '演示数据',
+          text: `Mock数据：${symbol.toUpperCase()} 当前演示价格与指标。`,
+          timestamp: new Date().toLocaleString('zh-CN'),
+          triggered: false,
+          type: 'text',
+        },
+      ],
+    })
+
+    const load = async () => {
+      if (USE_MOCK) {
+        setStock(buildMock())
+        return
+      }
+
       try {
         const base = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000'
-        
-        // 获取股票基本信息
         const stockResponse = await fetch(`${base}/api/v1/market-data/info/${symbol}`)
-        if (!stockResponse.ok) {
-          throw new Error(`获取股票信息失败: ${stockResponse.status}`)
-        }
-        
         const stockResult = await stockResponse.json()
-        
         if (stockResult.success && stockResult.data) {
-          const stockInfo = stockResult.data
-          
-          const stockData: StockData = {
+          const s = stockResult.data
+          setStock({
             ticker: symbol.toUpperCase(),
-            name: stockInfo.name || '未知股票',
-            price: parseFloat(stockInfo.price) || 0,
-            change: parseFloat(stockInfo.change) || 0,
-            change_percent: parseFloat(stockInfo.change_percent) || 0,
-            volume: stockInfo.volume || '0',
-            market: stockInfo.market || '未知',
-            concepts: stockInfo.concepts || [],
-            rsi: stockInfo.rsi,
-            ema55: stockInfo.ema55,
-            intelNotes: [
-              // 这里可以从数据库获取用户的情报笔记
-              // 暂时使用示例数据
-              {
-                id: "1",
-                author: "系统分析",
-                text: `${stockInfo.name || symbol}的技术分析显示当前价格为$${stockInfo.price}`,
-                timestamp: new Date().toLocaleString("zh-CN"),
-                alertExpression: `price <= ${(parseFloat(stockInfo.price) * 0.95).toFixed(2)}`,
-                triggered: false,
-                type: "analysis",
-              },
-            ],
-          }
-          
-          setStock(stockData)
+            name: s.name || symbol.toUpperCase(),
+            price: parseFloat(s.price) || 0,
+            change: parseFloat(s.change) || 0,
+            change_percent: parseFloat(s.change_percent) || 0,
+            volume: s.volume || '0',
+            market: s.market || '未知',
+            concepts: s.concepts || [],
+            rsi: s.rsi,
+            ema55: s.ema55,
+            intelNotes: [],
+          })
         } else {
-          throw new Error('股票数据格式错误')
+          setStock(buildMock())
         }
-      } catch (error) {
-        console.error('获取股票数据失败:', error)
-        
-        // 如果API失败，使用基本的fallback数据
-        const fallbackStock: StockData = {
-          ticker: symbol.toUpperCase(),
-          name: symbol.toUpperCase() === 'AAPL' ? '苹果公司' : 
-                symbol.toUpperCase() === 'TSLA' ? '特斯拉' :
-                symbol.toUpperCase() === 'NVDA' ? '英伟达' : 
-                `${symbol.toUpperCase()} 股票`,
-          price: 150 + Math.random() * 100, // 随机价格
-          change: (Math.random() - 0.5) * 10,
-          change_percent: (Math.random() - 0.5) * 5,
-          volume: `${(Math.random() * 100 + 10).toFixed(1)}M`,
-          market: 'NASDAQ',
-          concepts: ['科技股', '人工智能', '新能源'],
-          rsi: 45 + Math.random() * 20,
-          ema55: 140 + Math.random() * 50,
-          intelNotes: [
-            {
-              id: "demo",
-              author: "演示数据",
-              text: `这是 ${symbol.toUpperCase()} 的演示数据。当后端API正常工作时，这里将显示真实的股票数据和K线图。`,
-              timestamp: new Date().toLocaleString("zh-CN"),
-              alertExpression: undefined,
-              triggered: false,
-              type: "text",
-            },
-          ],
-        }
-        setStock(fallbackStock)
+      } catch {
+        setStock(buildMock())
       }
     }
 
-    if (symbol) {
-      fetchStockData()
-    }
+    load()
   }, [symbol])
 
   const addIntelNote = () => {
@@ -209,8 +193,22 @@ export default function StockDetailPage() {
         <div className="grid grid-cols-1 xl:grid-cols-4 gap-6">
           {/* Main Content */}
           <div className="xl:col-span-3 space-y-6">
-            {/* K-Line Chart */}
-            <KLineChart symbol={symbol} />
+            {/* 图表（优先使用本地 LightweightCharts；如需TV可再切换）*/}
+            <div className="rounded-lg border overflow-hidden" style={{height: 560}}>
+              <LightweightChart
+                candles={Array.from({length: 120}).map((_, i) => {
+                  // 生成简单Mock K线数据
+                  const base = 150
+                  const time = Math.floor(Date.now() / 1000) - (120 - i) * 86400
+                  const open = base + Math.sin(i / 10) * 5 + (Math.random() - 0.5) * 2
+                  const close = open + (Math.random() - 0.5) * 4
+                  const high = Math.max(open, close) + Math.random() * 3
+                  const low = Math.min(open, close) - Math.random() * 3
+                  return { time, open, high, low, close }
+                })}
+                height={560}
+              />
+            </div>
 
             {/* Intelligence Notes */}
             <Card>
