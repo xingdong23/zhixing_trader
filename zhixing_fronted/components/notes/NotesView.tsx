@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Plus, Download, Tags } from "lucide-react";
 import NoteCard from "@/components/notes/NoteCard";
 import NoteFilters from "@/components/notes/NoteFilters";
-import NoteEditor from "@/components/notes/NoteEditor";
+import UnifiedNoteDialog from "@/components/notes/UnifiedNoteDialog";
 import TagManager from "@/components/notes/TagManager";
 import type { Note, NoteTag, NoteWithId, NoteType } from "@/app/notes/types";
 
@@ -283,19 +283,23 @@ export default function NotesView() {
         </div>
       )}
 
-      {/* 笔记编辑器 */}
-      <NoteEditor
-        note={editingNote}
-        availableTags={tags}
+      {/* 统一笔记弹框 */}
+      <UnifiedNoteDialog
         open={showEditor}
         onClose={() => {
           setShowEditor(false);
           setEditingNote(null);
         }}
-        onSave={handleSaveNote}
-        onCreateTag={() => {
-          setShowEditor(false);
-          setShowTagManager(true);
+        onSave={(data) => {
+          const mapped = {
+            id: editingNote?.id,
+            type: data.type,
+            title: data.title,
+            content: data.content,
+            isStarred: data.isStarred,
+            tags: data.tags,
+          } as Note;
+          handleSaveNote(mapped);
         }}
       />
 
