@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -18,18 +19,14 @@ import {
   Camera,
   StickyNote,
   AlertTriangle,
-  DollarSign
+  DollarSign,
+  ArrowRight
 } from "lucide-react";
 import type { Trade } from "@/app/trades/types";
 import { getViolationColor, getViolationLabel } from "@/lib/violations";
 
 interface TradeCardProps {
   trade: Trade;
-  onViewDetails: (trade: Trade) => void;
-  onEdit?: (trade: Trade) => void;
-  onAddNote?: (trade: Trade) => void;
-  onAddImage?: (trade: Trade) => void;
-  onAddAlert?: (trade: Trade) => void;
 }
 
 // 状态配置
@@ -47,14 +44,8 @@ const tradeTypeConfig = {
   short: { label: "做空", color: "text-red-600", icon: TrendingDown },
 };
 
-export default function TradeCard({ 
-  trade, 
-  onViewDetails, 
-  onEdit,
-  onAddNote,
-  onAddImage,
-  onAddAlert
-}: TradeCardProps) {
+export default function TradeCard({ trade }: TradeCardProps) {
+  const router = useRouter();
   const status = statusConfig[trade.status];
   const tradeType = tradeTypeConfig[trade.planType];
   const TradeIcon = tradeType.icon;
@@ -87,7 +78,10 @@ export default function TradeCard({
   };
 
   return (
-    <Card className="p-4 hover:shadow-lg transition-shadow">
+    <Card 
+      className="p-4 hover:shadow-lg transition-shadow cursor-pointer"
+      onClick={() => router.push(`/trade/${trade.id}`)}
+    >
       <div className="space-y-3">
         {/* 头部：股票信息和状态 */}
         <div className="flex items-start justify-between">
@@ -102,31 +96,16 @@ export default function TradeCard({
               <p className="text-sm text-gray-500">{trade.stockName}</p>
             </div>
           </div>
-          <div className="flex gap-1">
-            {onEdit && (trade.status === "planned" || trade.status === "pending") ? (
-              // 计划状态：编辑按钮跳转到详情页
-              <Button 
-                variant="outline" 
-                size="sm" 
-                onClick={() => onEdit(trade)}
-                className="text-xs"
-              >
-                <Edit className="w-3 h-3 mr-1" />
-                查看/编辑
-              </Button>
-            ) : (
-              <>
-                <Button variant="ghost" size="sm" onClick={() => onViewDetails(trade)}>
-                  <Eye className="w-4 h-4" />
-                </Button>
-                {onEdit && trade.status !== "closed" && (
-                  <Button variant="ghost" size="sm" onClick={() => onEdit(trade)}>
-                    <Edit className="w-4 h-4" />
-                  </Button>
-                )}
-              </>
-            )}
-          </div>
+          <Button 
+            variant="ghost" 
+            size="sm"
+            onClick={(e) => {
+              e.stopPropagation();
+              router.push(`/trade/${trade.id}`);
+            }}
+          >
+            <ArrowRight className="w-4 h-4" />
+          </Button>
         </div>
 
         {/* 价格信息 */}
@@ -329,52 +308,6 @@ export default function TradeCard({
                   <span>止盈: {formatPrice(trade.takeProfitPrice)}</span>
                 </div>
               </div>
-            )}
-          </div>
-
-          {/* 快速操作按钮 */}
-          <div className="flex items-center gap-2">
-            {onAddNote && (
-              <Button 
-                variant="outline" 
-                size="sm"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onAddNote(trade);
-                }}
-                className="flex-1"
-              >
-                <StickyNote className="w-4 h-4 mr-1" />
-                添加笔记
-              </Button>
-            )}
-            {onAddImage && (
-              <Button 
-                variant="outline" 
-                size="sm"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onAddImage(trade);
-                }}
-                className="flex-1"
-              >
-                <ImageIcon className="w-4 h-4 mr-1" />
-                管理图片
-              </Button>
-            )}
-            {onAddAlert && trade.status === "active" && (
-              <Button 
-                variant="outline" 
-                size="sm"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onAddAlert(trade);
-                }}
-                className="flex-1"
-              >
-                <Bell className="w-4 h-4 mr-1" />
-                设置提醒
-              </Button>
             )}
           </div>
         </div>
