@@ -10,6 +10,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, Dialog
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import {
   LayoutDashboard,
   ClipboardList,
@@ -71,6 +72,9 @@ import CategorySelector from '@/components/categories/CategorySelector'
 // 导入交易和笔记视图组件
 import TradesView from '@/components/trades/TradesView'
 import NotesView from '@/components/notes/NotesView'
+import NoteEditor from '@/components/notes/NoteEditor'
+import type { Note, NoteTag } from '@/app/notes/types'
+import { mockTags as noteMockTags } from '@/app/notes/mockData'
 import BrokersView from '@/components/brokers/BrokersView'
 import CategoriesView from '@/components/categories/CategoriesView'
 import ReviewView from '@/components/review/ReviewView'
@@ -144,6 +148,9 @@ export default function TradingSystem() {
   
   // 快速操作状态
   const [showAddNoteDialog, setShowAddNoteDialog] = useState(false)
+  const [noteEditorOpen, setNoteEditorOpen] = useState(false)
+  const [editingNote, setEditingNote] = useState<Note | null>(null)
+  const [noteTags] = useState<NoteTag[]>(noteMockTags)
   const [showAddAlertDialog, setShowAddAlertDialog] = useState(false)
   const [selectedStock, setSelectedStock] = useState<Stock | null>(null)
   // 交易计划演示（内嵌）
@@ -724,7 +731,15 @@ export default function TradingSystem() {
                                     variant="outline" 
                                     onClick={() => {
                                       setSelectedStock(s)
-                                      setShowAddNoteDialog(true)
+                                      setEditingNote({
+                                        type: 'stock',
+                                        title: '',
+                                        content: '',
+                                        isStarred: false,
+                                        tags: [],
+                                        relatedId: s.symbol,
+                                      })
+                                      setNoteEditorOpen(true)
                                     }}
                                     title="添加笔记"
                                   >
@@ -882,85 +897,54 @@ export default function TradingSystem() {
         </div>
       </div>
       
-      {/* 添加笔记对话框 */}
-      <Dialog open={showAddNoteDialog} onOpenChange={setShowAddNoteDialog}>
-        <DialogContent className="max-w-2xl">
-          <DialogHeader>
-            <DialogTitle>为 {selectedStock?.name} ({selectedStock?.symbol}) 添加笔记</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <div>
-              <Label htmlFor="note-title">标题</Label>
-              <Input id="note-title" placeholder="笔记标题" />
-            </div>
-            <div>
-              <Label htmlFor="note-content">内容</Label>
-              <Textarea 
-                id="note-content" 
-                placeholder="记录你的分析和想法..." 
-                rows={10}
-              />
-            </div>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setShowAddNoteDialog(false)}>
-              取消
-            </Button>
-            <Button onClick={() => {
-              // TODO: 保存笔记逻辑
-              console.log('保存笔记:', selectedStock);
-              setShowAddNoteDialog(false);
-              alert(`笔记已保存到 ${selectedStock?.name}`);
-            }}>
-              保存笔记
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      {/* 复用笔记编辑器（与“笔记”菜单一致） */}
+      <NoteEditor
+        note={editingNote || undefined}
+        availableTags={noteTags}
+        open={noteEditorOpen}
+        onClose={() => setNoteEditorOpen(false)}
+        onSave={() => {
+          // Mock: 仅关闭弹窗。真实环境可将结果写入本地或后端
+          setNoteEditorOpen(false)
+        }}
+      />
       
-      {/* 设定提醒对话框 */}
+      {/* 设定提醒对话框（样式与 NoteEditor 对齐）*/}
       <Dialog open={showAddAlertDialog} onOpenChange={setShowAddAlertDialog}>
-        <DialogContent>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>为 {selectedStock?.name} ({selectedStock?.symbol}) 设定提醒</DialogTitle>
           </DialogHeader>
-          <div className="space-y-4">
-            <div>
-              <Label htmlFor="alert-type">提醒类型</Label>
-              <select 
-                id="alert-type" 
-                className="w-full p-2 border rounded"
-                defaultValue="price"
-              >
-                <option value="price">价格提醒</option>
-                <option value="change">涨跌幅提醒</option>
-                <option value="volume">成交量提醒</option>
-              </select>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label>提醒类型</Label>
+              <Select defaultValue="price">
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="price">价格提醒</SelectItem>
+                  <SelectItem value="change">涨跌幅提醒</SelectItem>
+                  <SelectItem value="volume">成交量提醒</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
-            <div>
-              <Label htmlFor="alert-condition">触发条件</Label>
-              <select 
-                id="alert-condition" 
-                className="w-full p-2 border rounded mb-2"
-                defaultValue="above"
-              >
-                <option value="above">价格高于</option>
-                <option value="below">价格低于</option>
-              </select>
-              <Input 
-                id="alert-value" 
-                type="number" 
-                placeholder="输入目标价格"
-                step="0.01"
-              />
+            <div className="space-y-2">
+              <Label>触发条件</Label>
+              <Select defaultValue="above">
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="above">价格高于</SelectItem>
+                  <SelectItem value="below">价格低于</SelectItem>
+                </SelectContent>
+              </Select>
+              <Input id="alert-value" type="number" placeholder="输入目标价格" step="0.01" />
             </div>
-            <div>
-              <Label htmlFor="alert-note">备注（可选）</Label>
-              <Textarea 
-                id="alert-note" 
-                placeholder="提醒原因或说明..." 
-                rows={3}
-              />
+            <div className="space-y-2">
+              <Label>备注（可选）</Label>
+              <Textarea id="alert-note" placeholder="提醒原因或说明..." rows={6} />
             </div>
           </div>
           <DialogFooter>
@@ -968,11 +952,7 @@ export default function TradingSystem() {
               取消
             </Button>
             <Button onClick={() => {
-              // TODO: 保存提醒逻辑
-              const value = (document.getElementById('alert-value') as HTMLInputElement)?.value;
-              console.log('设定提醒:', selectedStock, value);
-              setShowAddAlertDialog(false);
-              alert(`已为 ${selectedStock?.name} 设定提醒`);
+              setShowAddAlertDialog(false)
             }}>
               <Bell className="w-4 h-4 mr-2" />
               设定提醒
