@@ -72,7 +72,7 @@ import CategorySelector from '@/components/categories/CategorySelector'
 // 导入交易和笔记视图组件
 import TradesView from '@/components/trades/TradesView'
 import NotesView from '@/components/notes/NotesView'
-import NoteEditor from '@/components/notes/NoteEditor'
+import UnifiedNoteDialog from '@/components/notes/UnifiedNoteDialog'
 import type { Note, NoteTag } from '@/app/notes/types'
 import { mockTags as noteMockTags } from '@/app/notes/mockData'
 import BrokersView from '@/components/brokers/BrokersView'
@@ -149,8 +149,6 @@ export default function TradingSystem() {
   // 快速操作状态
   const [showAddNoteDialog, setShowAddNoteDialog] = useState(false)
   const [noteEditorOpen, setNoteEditorOpen] = useState(false)
-  const [editingNote, setEditingNote] = useState<Note | null>(null)
-  const [noteTags] = useState<NoteTag[]>(noteMockTags)
   const [showAddAlertDialog, setShowAddAlertDialog] = useState(false)
   const [selectedStock, setSelectedStock] = useState<Stock | null>(null)
   // 交易计划演示（内嵌）
@@ -729,18 +727,7 @@ export default function TradingSystem() {
                                   <Button 
                                     size="sm" 
                                     variant="outline" 
-                                    onClick={() => {
-                                      setSelectedStock(s)
-                                      setEditingNote({
-                                        type: 'stock',
-                                        title: '',
-                                        content: '',
-                                        isStarred: false,
-                                        tags: [],
-                                        relatedId: s.symbol,
-                                      })
-                                      setNoteEditorOpen(true)
-                                    }}
+                                  onClick={() => { setSelectedStock(s); setNoteEditorOpen(true) }}
                                     title="添加笔记"
                                   >
                                     <PenTool className="w-4 h-4" />
@@ -897,16 +884,13 @@ export default function TradingSystem() {
         </div>
       </div>
       
-      {/* 复用笔记编辑器（与“笔记”菜单一致） */}
-      <NoteEditor
-        note={editingNote || undefined}
-        availableTags={noteTags}
+      {/* 统一笔记弹框 */}
+      <UnifiedNoteDialog
         open={noteEditorOpen}
         onClose={() => setNoteEditorOpen(false)}
-        onSave={() => {
-          // Mock: 仅关闭弹窗。真实环境可将结果写入本地或后端
-          setNoteEditorOpen(false)
-        }}
+        preset={selectedStock ? { symbol: selectedStock.symbol, symbolName: selectedStock.name, relatedType: 'stock' } : undefined}
+        locks={{ symbol: true }}
+        onSave={() => { setNoteEditorOpen(false) }}
       />
       
       {/* 设定提醒对话框（样式与 NoteEditor 对齐）*/}
