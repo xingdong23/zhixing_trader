@@ -11,6 +11,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Plus, ArrowLeft, Bell, Calendar, TrendingUp, Upload } from "lucide-react"
 import { Label } from "@/components/ui/label"
+import UnifiedNoteDialog from "@/components/notes/UnifiedNoteDialog"
 import TradingViewWidget from "@/components/stocks/TradingViewWidget"
 import LightweightChart from "@/components/stocks/LightweightChart"
 
@@ -58,6 +59,7 @@ export default function StockDetailPage() {
     type: "text",
     image: "",
   })
+  const [noteDialogOpen, setNoteDialogOpen] = useState(false)
 
   // 从API获取股票数据（Mock优先）
   useEffect(() => {
@@ -214,101 +216,10 @@ export default function StockDetailPage() {
             <Card>
               <CardHeader className="flex flex-row items-center justify-between">
                 <CardTitle>大佬观点与情报</CardTitle>
-                <Dialog>
-                  <DialogTrigger asChild>
-                    <Button>
-                      <Plus className="w-4 h-4 mr-2" />
-                      添加笔记
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent className="max-w-2xl">
-                    <DialogHeader>
-                      <DialogTitle>添加笔记</DialogTitle>
-                    </DialogHeader>
-                    <div className="space-y-4">
-                      <div className="grid grid-cols-2 gap-4">
-                        <div>
-                          <Label htmlFor="author">作者/来源</Label>
-                          <Input
-                            id="author"
-                            value={newNote.author}
-                            onChange={(e) => setNewNote({ ...newNote, author: e.target.value })}
-                            placeholder="如：巴菲特、雪球大V等"
-                          />
-                        </div>
-                        <div>
-                          <Label htmlFor="type">类型</Label>
-                          <Select
-                            value={newNote.type}
-                            onValueChange={(value: any) => setNewNote({ ...newNote, type: value })}
-                          >
-                            <SelectTrigger>
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="text">文字观点</SelectItem>
-                              <SelectItem value="image">截图分析</SelectItem>
-                              <SelectItem value="chart">K线分析</SelectItem>
-                              <SelectItem value="analysis">技术分析</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </div>
-                      </div>
-
-                      <div>
-                        <Label htmlFor="content">观点内容</Label>
-                        <Textarea
-                          id="content"
-                          value={newNote.text}
-                          onChange={(e) => setNewNote({ ...newNote, text: e.target.value })}
-                          placeholder="输入大佬的观点、分析或建议..."
-                          rows={4}
-                        />
-                      </div>
-
-                      {(newNote.type === "image" || newNote.type === "chart") && (
-                        <div>
-                          <Label htmlFor="image">上传图片</Label>
-                          <div className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-6 text-center">
-                            <Upload className="w-8 h-8 mx-auto mb-2 text-muted-foreground" />
-                            <p className="text-sm text-muted-foreground">点击上传或拖拽图片到此处</p>
-                            <Input
-                              type="file"
-                              accept="image/*"
-                              className="hidden"
-                              onChange={(e) => {
-                                // Handle file upload
-                                const file = e.target.files?.[0]
-                                if (file) {
-                                  // In real app, upload to server and get URL
-                                  setNewNote({ ...newNote, image: "/tsla-technical-analysis.png" })
-                                }
-                              }}
-                            />
-                          </div>
-                        </div>
-                      )}
-
-                      <div>
-                        <Label htmlFor="alert">提醒条件 (可选)</Label>
-                        <Input
-                          id="alert"
-                          value={newNote.alertExpression}
-                          onChange={(e) => setNewNote({ ...newNote, alertExpression: e.target.value })}
-                          placeholder="如: price <= 240 AND RSI(14) < 30"
-                        />
-                        <p className="text-xs text-muted-foreground mt-1">支持复杂表达式：价格、技术指标、成交量等</p>
-                      </div>
-
-                      <div className="flex justify-end gap-2">
-                        <DialogTrigger asChild>
-                          <Button variant="outline">取消</Button>
-                        </DialogTrigger>
-                        <Button onClick={addIntelNote}>保存笔记</Button>
-                      </div>
-                    </div>
-                  </DialogContent>
-                </Dialog>
+                <Button onClick={() => setNoteDialogOpen(true)}>
+                  <Plus className="w-4 h-4 mr-2" />
+                  添加笔记
+                </Button>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
@@ -455,8 +366,27 @@ export default function StockDetailPage() {
               </CardContent>
             </Card>
           </div>
+          <UnifiedNoteDialog
+            open={noteDialogOpen}
+            onClose={() => setNoteDialogOpen(false)}
+            preset={{ symbol: stock.ticker, symbolName: stock.name, relatedType: 'stock' }}
+            locks={{ symbol: true }}
+            onSave={(data) => {
+              // 保存到页面的情报列表（Mock）
+              const newItem: IntelNote = {
+                id: Date.now().toString(),
+                author: '我',
+                text: data.content,
+                timestamp: new Date().toLocaleString('zh-CN'),
+                triggered: false,
+                type: 'text'
+              }
+              setStock((prev) => prev ? { ...prev, intelNotes: [newItem, ...prev.intelNotes] } : prev)
+            }}
+          />
         </div>
       </div>
     </div>
   )
 }
+
