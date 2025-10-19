@@ -6,6 +6,9 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useRouter } from 'next/navigation';
 
+// ========== Mock模式配置 ==========
+const USE_MOCK_DATA = true; // 启用Mock模式,不调用后端API
+
 interface CategoryNode {
   id: number;
   category_id: string;
@@ -48,17 +51,96 @@ export default function CategorySelector({
   const fetchCategories = async () => {
     try {
       setIsLoading(true);
+
+      if (USE_MOCK_DATA) {
+        // Mock数据
+        const mockCategories: CategoryNode[] = [
+          {
+            id: 1,
+            category_id: 'cat_1',
+            name: '行业板块',
+            parent_id: null,
+            path: '行业板块',
+            level: 0,
+            icon: '📁',
+            color: 'blue',
+            stock_count: 0,
+            total_stock_count: 50,
+            children: [
+              {
+                id: 2,
+                category_id: 'cat_2',
+                name: '科技股',
+                parent_id: 'cat_1',
+                path: '行业板块/科技股',
+                level: 1,
+                icon: '💻',
+                color: 'blue',
+                stock_count: 30,
+                total_stock_count: 30,
+                children: []
+              },
+              {
+                id: 3,
+                category_id: 'cat_3',
+                name: '能源',
+                parent_id: 'cat_1',
+                path: '行业板块/能源',
+                level: 1,
+                icon: '⚡',
+                color: 'green',
+                stock_count: 20,
+                total_stock_count: 20,
+                children: []
+              }
+            ]
+          },
+          {
+            id: 4,
+            category_id: 'cat_4',
+            name: '交易策略',
+            parent_id: null,
+            path: '交易策略',
+            level: 0,
+            icon: '🎯',
+            color: 'purple',
+            stock_count: 0,
+            total_stock_count: 15,
+            children: [
+              {
+                id: 5,
+                category_id: 'cat_5',
+                name: '长线持有',
+                parent_id: 'cat_4',
+                path: '交易策略/长线持有',
+                level: 1,
+                icon: '📈',
+                color: 'green',
+                stock_count: 15,
+                total_stock_count: 15,
+                children: []
+              }
+            ]
+          }
+        ];
+
+        setCategories(mockCategories);
+        const rootIds = mockCategories.map((cat: CategoryNode) => cat.category_id);
+        setExpandedNodes(new Set(rootIds));
+        setIsLoading(false);
+        return;
+      }
+
+      // 真实API调用(保留以便切换)
       const response = await fetch('http://localhost:8000/api/v1/categories/');
       const result = await response.json();
-      
       if (result.success) {
         setCategories(result.data);
-        // 默认展开第一层
         const rootIds = result.data.map((cat: CategoryNode) => cat.category_id);
         setExpandedNodes(new Set(rootIds));
       }
     } catch (error) {
-      console.error('获取分类失败:', error);
+      // 静默处理
     } finally {
       setIsLoading(false);
     }
@@ -66,9 +148,24 @@ export default function CategorySelector({
 
   const fetchHeatmapData = async () => {
     try {
+      if (USE_MOCK_DATA) {
+        // 生成Mock热力图数据
+        const withHeat = (nodes: CategoryNode[]): CategoryNode[] => {
+          return nodes.map((node) => ({
+            ...node,
+            avg_change_percent: node.level === 0 ? 0 : (Math.random() * 4 - 2), // -2% ~ +2%
+            rising_count: Math.floor(node.total_stock_count * 0.6),
+            falling_count: Math.floor(node.total_stock_count * 0.4),
+            children: withHeat(node.children)
+          }));
+        };
+        setCategories((prev) => withHeat(prev));
+        return;
+      }
+
+      // 真实API调用(保留以便切换)
       const response = await fetch('http://localhost:8000/api/v1/categories/heatmap/data');
       const result = await response.json();
-      
       if (result.success) {
         const heatmapMap: { [key: string]: any } = {};
         result.data.forEach((item: any) => {
@@ -78,8 +175,6 @@ export default function CategorySelector({
             falling_count: item.falling_count,
           };
         });
-        
-        // 更新categories，合并热力图数据
         setCategories((prevCategories) => {
           const updateNode = (node: CategoryNode): CategoryNode => {
             const heatData = heatmapMap[node.category_id];
@@ -95,7 +190,7 @@ export default function CategorySelector({
         });
       }
     } catch (error) {
-      console.error('获取热力图数据失败:', error);
+      // 静默处理
     }
   };
 
