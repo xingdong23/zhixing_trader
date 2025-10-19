@@ -21,6 +21,7 @@ import PnlChartCard from "@/components/trades/PnlChartCard";
 import RiskWidget from "@/components/trades/RiskWidget";
 import SavedFiltersMenu from "@/components/trades/SavedFiltersMenu";
 import AlertConfigDialog, { AlertConfig } from "@/components/trades/AlertConfigDialog";
+import UnifiedNoteDialog from "@/components/notes/UnifiedNoteDialog";
 import ViolationStats from "@/components/trades/ViolationStats";
 import GoalProgressCard from "@/components/trades/GoalProgressCard";
 import { computeEquityCurve, computeMaxDrawdown } from "@/lib/metrics";
@@ -613,6 +614,15 @@ export default function TradesView() {
           onClose={() => setSelectedTrade(null)}
         />
       )}
+
+      {/* 统一笔记弹框（从交易卡片进入）*/}
+      <UnifiedNoteDialog
+        open={noteDialogOpen}
+        onClose={() => setNoteDialogOpen(false)}
+        preset={currentTrade ? { symbol: currentTrade.symbol, symbolName: currentTrade.stockName, relatedType: 'stock' } : undefined}
+        locks={{ symbol: true }}
+        onSave={() => setNoteDialogOpen(false)}
+      />
 
       {/* 手动录入弹窗 */}
       <ManualTradeDialog
