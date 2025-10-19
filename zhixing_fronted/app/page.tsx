@@ -57,6 +57,7 @@ import {
   XCircle,
   ChevronUp,
   ChevronDown,
+  Folder,
 } from "lucide-react"
 
 // 导入策略管理组件
@@ -71,6 +72,7 @@ import CategorySelector from '@/components/categories/CategorySelector'
 import TradesView from '@/components/trades/TradesView'
 import NotesView from '@/components/notes/NotesView'
 import BrokersView from '@/components/brokers/BrokersView'
+import CategoriesView from '@/components/categories/CategoriesView'
 import ReviewView from '@/components/review/ReviewView'
 import StrategiesView from '@/components/strategies/StrategiesView'
 import ChecklistView from '@/components/checklist/ChecklistView'
@@ -317,6 +319,7 @@ export default function TradingSystem() {
           <nav className="space-y-2">
             {[ 
               { id: "dashboard", label: "股票", icon: Heart },
+              { id: "categories", label: "分类", icon: Folder },
               { id: "trades", label: "交易", icon: Activity },
               { id: "notes", label: "笔记", icon: PenTool },
               { id: "review", label: "复盘", icon: BookOpen },
@@ -766,6 +769,10 @@ export default function TradingSystem() {
 
             {currentPage === "notes" && (
               <NotesView />
+            )}
+
+            {currentPage === "categories" && (
+              <CategoriesView />
             )}
 
             {currentPage === "review" && (
