@@ -218,12 +218,12 @@ export default function StockDetailPage() {
                   <DialogTrigger asChild>
                     <Button>
                       <Plus className="w-4 h-4 mr-2" />
-                      添加观点
+                      添加笔记
                     </Button>
                   </DialogTrigger>
                   <DialogContent className="max-w-2xl">
                     <DialogHeader>
-                      <DialogTitle>添加大佬观点</DialogTitle>
+                      <DialogTitle>添加笔记</DialogTitle>
                     </DialogHeader>
                     <div className="space-y-4">
                       <div className="grid grid-cols-2 gap-4">
@@ -304,7 +304,7 @@ export default function StockDetailPage() {
                         <DialogTrigger asChild>
                           <Button variant="outline">取消</Button>
                         </DialogTrigger>
-                        <Button onClick={addIntelNote}>添加观点</Button>
+                        <Button onClick={addIntelNote}>保存笔记</Button>
                       </div>
                     </div>
                   </DialogContent>
