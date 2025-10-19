@@ -28,7 +28,7 @@ interface TradeCardProps {
   onViewDetails: (trade: Trade) => void;
   onEdit?: (trade: Trade) => void;
   onAddNote?: (trade: Trade) => void;
-  onAddScreenshot?: (trade: Trade) => void;
+  onAddImage?: (trade: Trade) => void;
   onAddAlert?: (trade: Trade) => void;
 }
 
@@ -52,7 +52,7 @@ export default function TradeCard({
   onViewDetails, 
   onEdit,
   onAddNote,
-  onAddScreenshot,
+  onAddImage,
   onAddAlert
 }: TradeCardProps) {
   const status = statusConfig[trade.status];
@@ -348,18 +348,18 @@ export default function TradeCard({
                 添加笔记
               </Button>
             )}
-            {onAddScreenshot && (
+            {onAddImage && (
               <Button 
                 variant="outline" 
                 size="sm"
                 onClick={(e) => {
                   e.stopPropagation();
-                  onAddScreenshot(trade);
+                  onAddImage(trade);
                 }}
                 className="flex-1"
               >
-                <Camera className="w-4 h-4 mr-1" />
-                上传截图
+                <ImageIcon className="w-4 h-4 mr-1" />
+                管理图片
               </Button>
             )}
             {onAddAlert && trade.status === "active" && (
