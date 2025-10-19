@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -20,24 +20,25 @@ import {
   Plus
 } from "lucide-react";
 import type { Trade } from "@/app/trades/types";
+import UnifiedNoteDialog from "@/components/notes/UnifiedNoteDialog";
+import AlertConfigDialog, { AlertConfig } from "@/components/trades/AlertConfigDialog";
+import ImageManager from "@/components/trades/ImageManager";
 
 interface TradeDetailProps {
   trade: Trade | null;
   open: boolean;
   onClose: () => void;
-  onAddNote?: () => void;
-  onAddScreenshot?: () => void;
-  onAddAlert?: () => void;
 }
 
 export default function TradeDetail({ 
   trade, 
   open, 
-  onClose,
-  onAddNote,
-  onAddScreenshot,
-  onAddAlert
+  onClose
 }: TradeDetailProps) {
+  const [noteDialogOpen, setNoteDialogOpen] = useState(false);
+  const [alertDialogOpen, setAlertDialogOpen] = useState(false);
+  const [imageManagerOpen, setImageManagerOpen] = useState(false);
+
   if (!trade) return null;
 
   const tradeType = trade.planType === "long" ? "做多" : "做空";
@@ -306,39 +307,33 @@ export default function TradeDetail({
           {/* 笔记标签页 */}
           <TabsContent value="notes" className="space-y-4">
             <div className="flex justify-between items-center">
-              <p className="text-sm text-gray-500">暂无笔记</p>
-              {onAddNote && (
-                <Button onClick={onAddNote}>
-                  <Plus className="w-4 h-4 mr-2" />
-                  添加笔记
-                </Button>
-              )}
+              <p className="text-sm text-gray-500">暂无笔记，点击右侧添加</p>
+              <Button onClick={() => setNoteDialogOpen(true)}>
+                <Plus className="w-4 h-4 mr-2" />
+                添加笔记
+              </Button>
             </div>
           </TabsContent>
 
           {/* 截图标签页 */}
           <TabsContent value="screenshots" className="space-y-4">
             <div className="flex justify-between items-center">
-              <p className="text-sm text-gray-500">暂无截图</p>
-              {onAddScreenshot && (
-                <Button onClick={onAddScreenshot}>
-                  <Plus className="w-4 h-4 mr-2" />
-                  上传截图
-                </Button>
-              )}
+              <p className="text-sm text-gray-500">暂无截图，点击右侧上传</p>
+              <Button onClick={() => setImageManagerOpen(true)}>
+                <Plus className="w-4 h-4 mr-2" />
+                管理图片
+              </Button>
             </div>
           </TabsContent>
 
           {/* 提醒标签页 */}
           <TabsContent value="alerts" className="space-y-4">
             <div className="flex justify-between items-center">
-              <p className="text-sm text-gray-500">暂无提醒</p>
-              {onAddAlert && (
-                <Button onClick={onAddAlert}>
-                  <Plus className="w-4 h-4 mr-2" />
-                  创建提醒
-                </Button>
-              )}
+              <p className="text-sm text-gray-500">暂无提醒，点击右侧创建</p>
+              <Button onClick={() => setAlertDialogOpen(true)}>
+                <Plus className="w-4 h-4 mr-2" />
+                创建提醒
+              </Button>
             </div>
           </TabsContent>
 
@@ -395,6 +390,35 @@ export default function TradeDetail({
             </div>
           </TabsContent>
         </Tabs>
+
+        {/* 统一笔记弹框 */}
+        <UnifiedNoteDialog
+          open={noteDialogOpen}
+          onClose={() => setNoteDialogOpen(false)}
+          preset={{
+            symbol: trade.symbol,
+            relatedObject: `交易 #${trade.id}`,
+          }}
+          locks={{ symbol: true }}
+        />
+
+        {/* 提醒配置弹框 */}
+        <AlertConfigDialog
+          open={alertDialogOpen}
+          onClose={() => setAlertDialogOpen(false)}
+          initial={{}}
+          onSave={(cfg) => {
+            console.log("保存提醒配置:", cfg);
+            setAlertDialogOpen(false);
+          }}
+        />
+
+        {/* 图片管理弹框 */}
+        <ImageManager
+          open={imageManagerOpen}
+          onClose={() => setImageManagerOpen(false)}
+          tradeId={trade.id}
+        />
       </DialogContent>
     </Dialog>
   );

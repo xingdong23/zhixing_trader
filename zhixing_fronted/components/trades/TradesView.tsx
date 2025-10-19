@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { Plus, TrendingUp, TrendingDown, DollarSign, Target, Upload } from "lucide-react";
+import { Plus, TrendingUp, TrendingDown, DollarSign, Target } from "lucide-react";
 import TradeCard from "@/components/trades/TradeCard";
 import TradeFilters from "@/components/trades/TradeFilters";
 import TradePlanForm from "@/components/trades/TradePlanForm";
@@ -22,6 +22,7 @@ import RiskWidget from "@/components/trades/RiskWidget";
 import SavedFiltersMenu from "@/components/trades/SavedFiltersMenu";
 import AlertConfigDialog, { AlertConfig } from "@/components/trades/AlertConfigDialog";
 import UnifiedNoteDialog from "@/components/notes/UnifiedNoteDialog";
+import ImageManager from "@/components/trades/ImageManager";
 import ViolationStats from "@/components/trades/ViolationStats";
 import GoalProgressCard from "@/components/trades/GoalProgressCard";
 import { computeEquityCurve, computeMaxDrawdown } from "@/lib/metrics";
@@ -42,9 +43,9 @@ export default function TradesView() {
   const [showForcedPlanForm, setShowForcedPlanForm] = useState(false);
   const demoStock = { symbol: "AAPL", name: "苹果公司", price: 182.3 };
   const [activeTab, setActiveTab] = useState<"active" | "pending" | "history">("active");
-  const [noteDialogOpen, setNoteDialogOpen] = useState(false);
-  const [screenshotDialogOpen, setScreenshotDialogOpen] = useState(false);
   const [currentTrade, setCurrentTrade] = useState<Trade | null>(null);
+  const [noteDialogOpen, setNoteDialogOpen] = useState(false);
+  const [imageManagerOpen, setImageManagerOpen] = useState(false);
   const fileInputRef = React.useRef<HTMLInputElement>(null as any);
   const [importMessage, setImportMessage] = useState<string>("");
   const [manualOpen, setManualOpen] = useState(false);
@@ -332,16 +333,16 @@ export default function TradesView() {
     setNoteDialogOpen(true);
   };
 
-  // 上传截图
-  const handleAddScreenshot = (trade: Trade) => {
+  // 管理图片/截图
+  const handleAddImage = (trade: Trade) => {
     setCurrentTrade(trade);
-    setScreenshotDialogOpen(true);
+    setImageManagerOpen(true);
   };
 
   // 设置提醒
   const handleAddAlert = (trade: Trade) => {
     setCurrentTrade(trade);
-    setAlertOpen(true); // 使用统一的提醒配置弹框
+    setAlertOpen(true);
   };
 
   return (
@@ -522,7 +523,7 @@ export default function TradesView() {
                   }
                 }}
                 onAddNote={handleAddNote}
-                onAddScreenshot={handleAddScreenshot}
+                onAddImage={handleAddImage}
                 onAddAlert={handleAddAlert}
               />
             </div>
@@ -645,27 +646,12 @@ export default function TradesView() {
         }}
       />
 
-      {/* 上传截图对话框 */}
-      <Dialog open={screenshotDialogOpen} onOpenChange={setScreenshotDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>上传K线截图</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
-              <Upload className="w-12 h-12 mx-auto text-gray-400 mb-2" />
-              <p className="text-sm text-gray-500">点击或拖拽图片到这里</p>
-              <Input type="file" accept="image/*" className="hidden" />
-            </div>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setScreenshotDialogOpen(false)}>取消</Button>
-            <Button onClick={() => setScreenshotDialogOpen(false)}>上传</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      {/* 旧的设置提醒对话框已移除，统一使用 AlertConfigDialog */}
+      {/* 图片/截图管理（从交易卡片进入）*/}
+      <ImageManager
+        open={imageManagerOpen}
+        onClose={() => setImageManagerOpen(false)}
+        tradeId={currentTrade?.id}
+      />
     </div>
   );
 }
