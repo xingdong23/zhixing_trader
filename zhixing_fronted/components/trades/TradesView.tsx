@@ -44,7 +44,6 @@ export default function TradesView() {
   const [activeTab, setActiveTab] = useState<"active" | "pending" | "history">("active");
   const [noteDialogOpen, setNoteDialogOpen] = useState(false);
   const [screenshotDialogOpen, setScreenshotDialogOpen] = useState(false);
-  const [alertDialogOpen, setAlertDialogOpen] = useState(false);
   const [currentTrade, setCurrentTrade] = useState<Trade | null>(null);
   const fileInputRef = React.useRef<HTMLInputElement>(null as any);
   const [importMessage, setImportMessage] = useState<string>("");
@@ -342,7 +341,7 @@ export default function TradesView() {
   // 设置提醒
   const handleAddAlert = (trade: Trade) => {
     setCurrentTrade(trade);
-    setAlertDialogOpen(true);
+    setAlertOpen(true); // 使用统一的提醒配置弹框
   };
 
   return (
@@ -646,25 +645,6 @@ export default function TradesView() {
         }}
       />
 
-      {/* 添加笔记对话框 */}
-      <Dialog open={noteDialogOpen} onOpenChange={setNoteDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>添加交易笔记</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <div>
-              <Label>笔记内容</Label>
-              <Textarea placeholder="记录你的交易想法..." rows={6} />
-            </div>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setNoteDialogOpen(false)}>取消</Button>
-            <Button onClick={() => setNoteDialogOpen(false)}>保存</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
       {/* 上传截图对话框 */}
       <Dialog open={screenshotDialogOpen} onOpenChange={setScreenshotDialogOpen}>
         <DialogContent>
@@ -685,28 +665,7 @@ export default function TradesView() {
         </DialogContent>
       </Dialog>
 
-      {/* 设置提醒对话框 */}
-      <Dialog open={alertDialogOpen} onOpenChange={setAlertDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>设置提醒</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <div>
-              <Label>提醒类型</Label>
-              <Input placeholder="如：价格到达目标、止损提醒等" />
-            </div>
-            <div>
-              <Label>提醒条件</Label>
-              <Input placeholder="如：价格 >= $100" />
-            </div>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setAlertDialogOpen(false)}>取消</Button>
-            <Button onClick={() => setAlertDialogOpen(false)}>设置</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      {/* 旧的设置提醒对话框已移除，统一使用 AlertConfigDialog */}
     </div>
   );
 }
