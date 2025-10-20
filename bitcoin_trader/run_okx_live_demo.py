@@ -117,23 +117,24 @@ async def main():
         print("  ✓ 交易次数限制")
         
         print("\n提示:")
-        print("  - 机器人将运行 30 分钟用于测试")
+        print("  - 机器人将持续运行，直到手动停止")
         print("  - 使用 Ctrl+C 可以随时停止")
         print("  - 订单将在 OKX 模拟盘真实执行")
-        print("  - 每隔 5 分钟会显示一次进度报告")
+        print("  - 每隔 10 分钟会显示一次进度报告")
         print("\n" + "=" * 80 + "\n")
         
         # 3. 启动机器人
         bot_task = asyncio.create_task(bot.start())
         
-        # 运行 30 分钟，每 5 分钟显示一次进度
+        # 持续运行，每 10 分钟显示一次进度
         start_time = datetime.now()
-        run_duration = 30 * 60  # 30 分钟
-        report_interval = 5 * 60  # 5 分钟
+        report_interval = 10 * 60  # 10 分钟
+        report_count = 0
         
         try:
-            for i in range(6):  # 6 个 5 分钟周期
+            while True:  # 持续运行
                 await asyncio.sleep(report_interval)
+                report_count += 1
                 
                 # 显示进度报告
                 elapsed = (datetime.now() - start_time).total_seconds() / 60
