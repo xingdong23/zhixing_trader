@@ -154,9 +154,20 @@ class TradingBot:
             # 获取K线数据
             klines = self.kline_monitor.get_klines(self.symbol, self.timeframe, limit=500)
             
+            current_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+            
             if not klines or len(klines) < 200:
+                print(f"\n[{current_time}] ⚠️  K线数据不足: {len(klines) if klines else 0}/200，跳过信号生成")
                 logger.warning("K线数据不足，跳过信号生成")
                 return
+            
+            # 获取最新价格
+            latest_price = klines[-1]['close']
+            print(f"\n[{current_time}] 📊 正在分析市场...")
+            print(f"  交易对: {self.symbol}")
+            print(f"  当前价格: ${latest_price:,.2f}")
+            print(f"  K线数量: {len(klines)}")
+            print(f"  时间周期: {self.timeframe}")
             
             # 生成信号
             signal = self.strategy.analyze(klines)
@@ -166,13 +177,25 @@ class TradingBot:
                 'signal': signal
             })
             
+            # 详细输出信号信息
+            signal_type = signal['signal']
+            print(f"  策略信号: {signal_type.upper()}")
+            print(f"  信号原因: {signal.get('reason', '无')}")
+            
+            if signal.get('confidence'):
+                print(f"  信号强度: {signal['confidence']:.2%}")
+            
             logger.info(f"策略信号: {signal['signal']} - {signal.get('reason', '')}")
             
             # 执行信号
             if signal['signal'] in ['buy', 'sell']:
+                print(f"  🎯 发现{signal_type.upper()}信号，准备执行...")
                 await self._execute_signal(signal, klines)
+            else:
+                print(f"  ⏸️  无交易信号，继续观望")
             
         except Exception as e:
+            print(f"\n[{current_time}] ❌ 信号生成错误: {e}")
             logger.error(f"信号生成执行错误: {e}", exc_info=True)
     
     async def _execute_signal(self, signal: Dict, klines: List[Dict]):
