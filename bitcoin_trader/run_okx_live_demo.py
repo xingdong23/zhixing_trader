@@ -68,59 +68,60 @@ async def main():
         print("=" * 80)
         
         strategy = SteadyProfitStrategy(parameters={
-            "base_position_ratio": 0.005,      # 0.5% 基础仓位（更保守）
-            "震荡市_系数": 0.2,
-            "单边市_系数": 0.5,
-            "max_daily_loss": 0.01,            # 1% 日亏损限制
-            "atr_multiplier": 2.0,             # 更宽的止损
+            "base_position_ratio": 0.02,       # 2% 基础仓位（增加仓位）
+            "震荡市_系数": 0.5,                 # 增加震荡市交易
+            "单边市_系数": 0.8,                 # 增加单边市交易
+            "max_daily_loss": 0.05,            # 5% 日亏损限制（放宽）
+            "atr_multiplier": 1.5,             # 更紧的止损，更多交易机会
         })
         
-        # 严格的风险限制
+        # 放宽的风险限制
         risk_limits = RiskLimits(
-            max_position_size=0.01,            # 最大 0.01 BTC
-            max_position_value=500.0,          # 最大 500 USDT
-            max_total_position=0.2,            # 总仓位 20%
-            max_daily_loss=0.01,               # 日亏损 1%
-            max_trades_per_day=5,              # 每日最多 5 笔
-            max_consecutive_losses=2,          # 最多连续亏损 2 次
+            max_position_size=0.05,            # 最大 0.05 BTC（增加5倍）
+            max_position_value=2000.0,         # 最大 2000 USDT（增加4倍）
+            max_total_position=0.5,            # 总仓位 50%（增加）
+            max_daily_loss=0.05,               # 日亏损 5%（放宽）
+            max_trades_per_day=999,            # 不限制交易次数
+            max_consecutive_losses=5,          # 最多连续亏损 5 次（放宽）
         )
         
         bot = TradingBot(
             exchange=exchange,
             strategy=strategy,
             symbol='BTC/USDT',
-            timeframe='15m',
+            timeframe='5m',                # 改为5分钟K线，更频繁的信号
             initial_capital=1000.0,            # 使用较小的资金测试
             risk_limits=risk_limits,
             config={
                 'mode': 'live',                # 实盘模式
-                'check_interval': 60
+                'check_interval': 30           # 30秒检查一次（更频繁）
             }
         )
         
         print("\n配置信息:")
         print(f"  交易所: OKX (模拟盘)")
         print(f"  交易对: BTC/USDT")
-        print(f"  策略: 稳健盈利策略（保守配置）")
-        print(f"  周期: 15分钟")
+        print(f"  策略: 稳健盈利策略（积极配置）")
+        print(f"  周期: 5分钟")
         print(f"  模式: Live Trading (执行真实订单)")
         print(f"  初始资金: 1,000 USDT")
-        print(f"  最大仓位: 0.01 BTC (~{initial_price * 0.01:,.0f} USDT)")
-        print(f"  单笔最大: 500 USDT")
-        print(f"  日亏损限制: 1%")
-        print(f"  每日最多交易: 5 笔")
+        print(f"  最大仓位: 0.05 BTC (~{initial_price * 0.05:,.0f} USDT)")
+        print(f"  单笔最大: 2,000 USDT")
+        print(f"  日亏损限制: 5%")
+        print(f"  交易次数: 不限制")
         
         print("\n风险控制:")
-        print("  ✓ 小仓位测试")
-        print("  ✓ 严格止损")
-        print("  ✓ 日亏损限制")
-        print("  ✓ 交易次数限制")
+        print("  ✓ 中等仓位")
+        print("  ✓ 动态止损")
+        print("  ✓ 日亏损限制 5%")
+        print("  ✓ 无交易次数限制")
         
         print("\n提示:")
         print("  - 机器人将持续运行，直到手动停止")
         print("  - 使用 Ctrl+C 可以随时停止")
         print("  - 订单将在 OKX 模拟盘真实执行")
         print("  - 每隔 10 分钟会显示一次进度报告")
+        print("  - 5分钟K线 + 30秒检查 = 更多交易机会")
         print("\n" + "=" * 80 + "\n")
         
         # 3. 启动机器人
