@@ -57,6 +57,28 @@ async def main():
                 initial_balance[currency] = amount
                 print(f"  {currency}: {amount:.4f}")
         
+        # 获取当前持仓
+        print("\n当前持仓:")
+        try:
+            positions = await exchange.fetch_positions(['BTC/USDT'])
+            has_position = False
+            for pos in positions:
+                if pos.get('contracts', 0) > 0:
+                    has_position = True
+                    side = pos.get('side', 'unknown')
+                    size = pos.get('contracts', 0)
+                    entry_price = pos.get('entryPrice', 0)
+                    unrealized_pnl = pos.get('unrealizedPnl', 0)
+                    print(f"  方向: {side}")
+                    print(f"  数量: {size} BTC")
+                    print(f"  入场价: {entry_price:.2f} USDT")
+                    print(f"  未实现盈亏: {unrealized_pnl:.2f} USDT")
+            if not has_position:
+                print("  无持仓")
+        except Exception as e:
+            print(f"  获取持仓失败: {e}")
+            print("  将从空仓开始交易")
+        
         ticker = await exchange.fetch_ticker('BTC/USDT')
         initial_price = ticker['last']
         print(f"\nBTC/USDT 当前价格: {initial_price:,.2f} USDT")
@@ -68,7 +90,7 @@ async def main():
         print("=" * 80)
         
         strategy = EMATrendStrategy(parameters={
-            "position_ratio": 0.3,             # 30% 仓位
+            "position_ratio": 0.1,             # 10% 仓位（改为10%）
             "max_loss_ratio": 0.04,            # 最大亏损4%
             "atr_multiplier": 2.0,             # ATR倍数
             "first_profit_target": 0.05,       # 第一目标5%
@@ -76,26 +98,29 @@ async def main():
             "third_profit_target": 0.15,       # 第三目标15%
         })
         
-        # 放宽的风险限制
+        # 风险限制（每次只交易一笔）
         risk_limits = RiskLimits(
-            max_position_size=0.05,            # 最大 0.05 BTC（增加5倍）
-            max_position_value=2000.0,         # 最大 2000 USDT（增加4倍）
-            max_total_position=0.5,            # 总仓位 50%（增加）
-            max_daily_loss=0.05,               # 日亏损 5%（放宽）
-            max_trades_per_day=999,            # 不限制交易次数
-            max_consecutive_losses=5,          # 最多连续亏损 5 次（放宽）
+            max_position_size=0.01,            # 最大 0.01 BTC（约10%资金）
+            max_position_value=1000.0,         # 最大 1000 USDT
+            max_total_position=0.1,            # 总仓位 10%（只允许一笔）
+            max_daily_loss=0.05,               # 日亏损 5%
+            max_trades_per_day=1,              # 每天最多1笔交易
+            max_consecutive_losses=3,          # 最多连续亏损 3 次
         )
+        
+        # 计算实际可用资金（基于USDT余额）
+        usdt_balance = initial_balance.get('USDT', 1000.0)
         
         bot = TradingBot(
             exchange=exchange,
             strategy=strategy,
             symbol='BTC/USDT',
-            timeframe='5m',                # 改为5分钟K线，更频繁的信号
-            initial_capital=1000.0,            # 使用较小的资金测试
+            timeframe='5m',                # 5分钟K线
+            initial_capital=usdt_balance,      # 使用实际USDT余额
             risk_limits=risk_limits,
             config={
                 'mode': 'live',                # 实盘模式
-                'check_interval': 30           # 30秒检查一次（更频繁）
+                'check_interval': 30           # 30秒检查一次
             }
         )
         
@@ -105,24 +130,26 @@ async def main():
         print("  策略: EMA趋势跟随策略")
         print("  周期: 5分钟")
         print("  模式: Live Trading (执行真实订单)")
-        print("  初始资金: 1,000 USDT")
-        print(f"  最大仓位: 0.05 BTC (~{initial_price * 0.05:,.0f} USDT)")
-        print("  单笔最大: 2,000 USDT")
+        print(f"  可用资金: {usdt_balance:,.2f} USDT")
+        print(f"  单笔仓位: 10% (~{usdt_balance * 0.1:,.2f} USDT)")
+        print(f"  最大持仓: 0.01 BTC (~{initial_price * 0.01:,.0f} USDT)")
         print("  日亏损限制: 5%")
-        print("  交易次数: 不限制")
+        print("  每日交易: 最多1笔")
         
         print("\n风险控制:")
-        print("  ✓ 中等仓位")
-        print("  ✓ 动态止损")
+        print("  ✓ 小仓位交易（10%）")
+        print("  ✓ 每次只交易一笔")
+        print("  ✓ 动态止损（ATR × 2）")
         print("  ✓ 日亏损限制 5%")
-        print("  ✓ 无交易次数限制")
+        print("  ✓ 每日最多1笔交易")
         
         print("\n提示:")
         print("  - 机器人将持续运行，直到手动停止")
         print("  - 使用 Ctrl+C 可以随时停止")
         print("  - 订单将在 OKX 模拟盘真实执行")
         print("  - 每隔 10 分钟会显示一次进度报告")
-        print("  - 5分钟K线 + 30秒检查 = 更多交易机会")
+        print("  - 启动时已获取现有持仓信息")
+        print("  - 每次只开一笔新仓，使用10%资金")
         print("\n" + "=" * 80 + "\n")
         
         # 3. 启动机器人
