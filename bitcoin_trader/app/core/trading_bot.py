@@ -254,21 +254,27 @@ class TradingBot:
         position_value = self.risk_manager.current_capital * position_ratio  # 使用资金的10%
         position_size = position_value / current_price  # 转换为BTC数量
         
+        print(f"  [执行] 仓位计算: 资金={self.risk_manager.current_capital:.2f}, 比例={position_ratio:.1%}, 价值={position_value:.2f}, 数量={position_size:.4f}")
         logger.info(f"仓位计算: 资金={self.risk_manager.current_capital:.2f}, 比例={position_ratio:.1%}, 价值={position_value:.2f}, 数量={position_size:.4f}")
         
         if position_size == 0:
+            print(f"  [执行] 计算仓位为0，跳过交易")
             logger.warning("计算仓位为0，跳过交易")
             return
         
         # 风险检查
         side_str = 'buy' if signal_type == 'buy' else 'sell'
+        print(f"  [执行] 开始风险检查...")
         allowed, reason = self.risk_manager.check_trade_allowed(
             self.symbol, side_str, position_size, current_price
         )
         
         if not allowed:
+            print(f"  [执行] ❌ 风险检查未通过: {reason}")
             logger.warning(f"风险检查未通过: {reason}")
             return
+        
+        print(f"  [执行] ✅ 风险检查通过")
         
         # 执行交易
         if self.mode == 'live':
