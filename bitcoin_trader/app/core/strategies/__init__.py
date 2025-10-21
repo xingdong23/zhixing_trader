@@ -56,10 +56,12 @@ class BaseStrategy(ABC):
 # 导入具体策略
 from .sma_crossover import SMACrossoverStrategy
 from .steady_profit_strategy import SteadyProfitStrategy
+from .ema_trend_strategy import EMATrendStrategy
 
 __all__ = [
     'BaseStrategy',
     'SMACrossoverStrategy',
     'SteadyProfitStrategy',
+    'EMATrendStrategy',
 ]
 
