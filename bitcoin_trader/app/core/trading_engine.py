@@ -55,6 +55,10 @@ class Position:
         
     def update_pnl(self, current_price: float):
         """更新未实现盈亏"""
+        if self.entry_price is None:
+            self.unrealized_pnl = 0.0
+            return
+            
         if self.side == 'long':
             self.unrealized_pnl = (current_price - self.entry_price) * self.size
         else:
