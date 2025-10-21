@@ -13,7 +13,7 @@ sys.path.insert(0, str(project_root))
 
 import ccxt.async_support as ccxt_async
 from app.core.trading_bot import TradingBot
-from app.core.strategies import SteadyProfitStrategy
+from app.core.strategies import EMATrendStrategy
 from app.core.risk_manager import RiskLimits
 from app.config import settings
 
@@ -67,12 +67,13 @@ async def main():
         print("🚀 启动实盘交易机器人")
         print("=" * 80)
         
-        strategy = SteadyProfitStrategy(parameters={
-            "base_position_ratio": 0.02,       # 2% 基础仓位（增加仓位）
-            "震荡市_系数": 0.5,                 # 增加震荡市交易
-            "单边市_系数": 0.8,                 # 增加单边市交易
-            "max_daily_loss": 0.05,            # 5% 日亏损限制（放宽）
-            "atr_multiplier": 1.5,             # 更紧的止损，更多交易机会
+        strategy = EMATrendStrategy(parameters={
+            "position_ratio": 0.3,             # 30% 仓位
+            "max_loss_ratio": 0.04,            # 最大亏损4%
+            "atr_multiplier": 2.0,             # ATR倍数
+            "first_profit_target": 0.05,       # 第一目标5%
+            "second_profit_target": 0.10,      # 第二目标10%
+            "third_profit_target": 0.15,       # 第三目标15%
         })
         
         # 放宽的风险限制
@@ -99,16 +100,16 @@ async def main():
         )
         
         print("\n配置信息:")
-        print(f"  交易所: OKX (模拟盘)")
-        print(f"  交易对: BTC/USDT")
-        print(f"  策略: 稳健盈利策略（积极配置）")
-        print(f"  周期: 5分钟")
-        print(f"  模式: Live Trading (执行真实订单)")
-        print(f"  初始资金: 1,000 USDT")
+        print("  交易所: OKX (模拟盘)")
+        print("  交易对: BTC/USDT")
+        print("  策略: EMA趋势跟随策略")
+        print("  周期: 5分钟")
+        print("  模式: Live Trading (执行真实订单)")
+        print("  初始资金: 1,000 USDT")
         print(f"  最大仓位: 0.05 BTC (~{initial_price * 0.05:,.0f} USDT)")
-        print(f"  单笔最大: 2,000 USDT")
-        print(f"  日亏损限制: 5%")
-        print(f"  交易次数: 不限制")
+        print("  单笔最大: 2,000 USDT")
+        print("  日亏损限制: 5%")
+        print("  交易次数: 不限制")
         
         print("\n风险控制:")
         print("  ✓ 中等仓位")
