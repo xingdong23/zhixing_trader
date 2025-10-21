@@ -9,13 +9,17 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Plus, ArrowLeft, Bell, Calendar, TrendingUp, Upload } from "lucide-react"
+import { Plus, ArrowLeft, Bell, Calendar, TrendingUp, Upload, Users } from "lucide-react"
 import { Label } from "@/components/ui/label"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import UnifiedNoteDialog from "@/components/notes/UnifiedNoteDialog"
 import TradingViewWidget from "@/components/stocks/TradingViewWidget"
 import LightweightChart from "@/components/stocks/LightweightChart"
 import TimelineNotes, { TimelineNote } from "@/components/stocks/TimelineNotes"
 import AddTimelineNoteDialog from "@/components/stocks/AddTimelineNoteDialog"
+import ExpertOpinionCard, { ExpertOpinion } from "@/components/stocks/ExpertOpinion"
+import PriceAlertChart from "@/components/stocks/PriceAlertChart"
+import ConsensusHeatmap from "@/components/stocks/ConsensusHeatmap"
 
 interface IntelNote {
   id: string
@@ -64,6 +68,11 @@ export default function StockDetailPage() {
   const [noteDialogOpen, setNoteDialogOpen] = useState(false)
   
   // 时间线笔记状态
+  // 专家观点状态
+  const [expertOpinions, setExpertOpinions] = useState<ExpertOpinion[]>([])
+  const [highlightedOpinionIds, setHighlightedOpinionIds] = useState<string[]>([])
+  const [showExpertView, setShowExpertView] = useState(false)
+  
   const [timelineNotes, setTimelineNotes] = useState<TimelineNote[]>([
     {
       id: "1",
@@ -186,6 +195,53 @@ export default function StockDetailPage() {
 
     load()
   }, [symbol])
+
+  // 初始化专家观点Mock数据
+  useEffect(() => {
+    const mockOpinions: ExpertOpinion[] = [
+      {
+        id: '1',
+        expertName: '华尔街老王',
+        source: 'Twitter',
+        sourceUrl: 'https://twitter.com/example',
+        timestamp: '2小时前',
+        content: `${symbol.toUpperCase()} 目前处于关键支撑位附近。如果能守住这个位置，预计会反弹。但如果跌破，需要止损离场。建议分批建仓。`,
+        sentiment: 'bullish',
+        priceLevels: [
+          { price: stock?.price ? stock.price * 0.97 : 178, type: 'stop_loss', reason: '跌破关键支撑，趋势转弱' },
+          { price: stock?.price ? stock.price * 0.99 : 181, type: 'entry', reason: '第一入场位' },
+          { price: stock?.price ? stock.price * 1.06 : 195, type: 'take_profit', reason: '前期高点阻力位' },
+        ],
+        credibility: 85,
+        followers: 125000,
+      },
+      {
+        id: '2',
+        expertName: '量化分析师小李',
+        source: 'Telegram',
+        timestamp: '5小时前',
+        content: `根据技术指标，${symbol.toUpperCase()} 的 RSI 已经超卖，MACD 即将金叉。建议布局，目标看到上方阻力位。`,
+        sentiment: 'bullish',
+        priceLevels: [
+          { price: stock?.price ? stock.price * 0.95 : 175, type: 'stop_loss', reason: 'RSI 超卖失效' },
+          { price: stock?.price ? stock.price * 0.98 : 179, type: 'entry', reason: '超卖反弹入场' },
+          { price: stock?.price ? stock.price * 1.04 : 190, type: 'take_profit', reason: '第一目标位' },
+        ],
+        credibility: 78,
+        followers: 68000,
+      },
+    ]
+    setExpertOpinions(mockOpinions)
+    setHighlightedOpinionIds([mockOpinions[0].id])
+  }, [symbol, stock?.price])
+
+  const toggleHighlight = (opinionId: string) => {
+    setHighlightedOpinionIds(prev => 
+      prev.includes(opinionId)
+        ? prev.filter(id => id !== opinionId)
+        : [...prev, opinionId]
+    )
+  }
 
   const addIntelNote = () => {
     if (!stock || !newNote.text.trim()) return
@@ -369,22 +425,76 @@ export default function StockDetailPage() {
         <div className="grid grid-cols-1 xl:grid-cols-4 gap-6">
           {/* Main Content */}
           <div className="xl:col-span-3 space-y-6">
-            {/* 图表（优先使用本地 LightweightCharts；如需TV可再切换）*/}
-            <div className="rounded-lg border overflow-hidden" style={{height: 560}}>
-              <LightweightChart
-                candles={Array.from({length: 120}).map((_, i) => {
-                  // 生成简单Mock K线数据
-                  const base = 150
-                  const time = Math.floor(Date.now() / 1000) - (120 - i) * 86400
-                  const open = base + Math.sin(i / 10) * 5 + (Math.random() - 0.5) * 2
-                  const close = open + (Math.random() - 0.5) * 4
-                  const high = Math.max(open, close) + Math.random() * 3
-                  const low = Math.min(open, close) - Math.random() * 3
-                  return { time, open, high, low, close }
-                })}
-                height={560}
+            {/* 图表区域 - 添加标签页切换 */}
+            <Card>
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <Tabs value={showExpertView ? "expert" : "basic"} onValueChange={(v) => setShowExpertView(v === "expert")} className="w-full">
+                    <TabsList>
+                      <TabsTrigger value="basic">基础图表</TabsTrigger>
+                      <TabsTrigger value="expert" className="gap-2">
+                        <Users className="w-4 h-4" />
+                        专家观点可视化
+                        {expertOpinions.length > 0 && (
+                          <Badge variant="secondary" className="ml-1">{expertOpinions.length}</Badge>
+                        )}
+                      </TabsTrigger>
+                    </TabsList>
+                  </Tabs>
+                </div>
+              </CardHeader>
+              <CardContent>
+                {!showExpertView ? (
+                  /* 基础K线图 */
+                  <div className="rounded-lg border overflow-hidden" style={{height: 500}}>
+                    <LightweightChart
+                      candles={Array.from({length: 120}).map((_, i) => {
+                        // 生成简单Mock K线数据
+                        const base = 150
+                        const time = Math.floor(Date.now() / 1000) - (120 - i) * 86400
+                        const open = base + Math.sin(i / 10) * 5 + (Math.random() - 0.5) * 2
+                        const close = open + (Math.random() - 0.5) * 4
+                        const high = Math.max(open, close) + Math.random() * 3
+                        const low = Math.min(open, close) - Math.random() * 3
+                        return { time, open, high, low, close }
+                      })}
+                      height={500}
+                    />
+                  </div>
+                ) : (
+                  /* 专家观点可视化图表 */
+                  <div className="space-y-4">
+                    <div className="text-sm text-muted-foreground flex items-center justify-between">
+                      <span>已选中 {highlightedOpinionIds.length} 位专家的观点</span>
+                      <span className="text-xs">点击右侧专家卡片的"在图表显示"按钮可切换显示</span>
+                    </div>
+                    <PriceAlertChart
+                      candles={Array.from({length: 120}).map((_, i) => {
+                        const base = stock?.price || 150
+                        const time = Math.floor(Date.now() / 1000) - (120 - i) * 86400
+                        const open = base + Math.sin(i / 10) * 5 + (Math.random() - 0.5) * 2
+                        const close = open + (Math.random() - 0.5) * 4
+                        const high = Math.max(open, close) + Math.random() * 3
+                        const low = Math.min(open, close) - Math.random() * 3
+                        return { time, open, high, low, close }
+                      })}
+                      expertOpinions={expertOpinions}
+                      highlightedOpinionIds={highlightedOpinionIds}
+                      currentPrice={stock?.price}
+                      height={500}
+                    />
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* 共识热力图 - 只在专家视图显示 */}
+            {showExpertView && expertOpinions.length > 0 && (
+              <ConsensusHeatmap
+                expertOpinions={expertOpinions}
+                currentPrice={stock?.price || 0}
               />
-            </div>
+            )}
 
             {/* Timeline Notes - 投资笔记时间线 */}
             <Card>
@@ -466,6 +576,32 @@ export default function StockDetailPage() {
                   </div>
                 </CardContent>
               </Card>
+            )}
+
+            {/* 专家观点列表 - 只在专家视图显示 */}
+            {showExpertView && expertOpinions.length > 0 && (
+              <div className="space-y-4">
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Users className="w-5 h-5" />
+                      专家观点
+                    </CardTitle>
+                    <p className="text-sm text-muted-foreground">
+                      点击"在图表显示"可在图表上高亮该专家的关键价位
+                    </p>
+                  </CardHeader>
+                </Card>
+                {expertOpinions.map(opinion => (
+                  <ExpertOpinionCard
+                    key={opinion.id}
+                    opinion={opinion}
+                    currentPrice={stock.price}
+                    onToggleHighlight={toggleHighlight}
+                    isHighlighted={highlightedOpinionIds.includes(opinion.id)}
+                  />
+                ))}
+              </div>
             )}
 
             {/* Quick Actions */}
