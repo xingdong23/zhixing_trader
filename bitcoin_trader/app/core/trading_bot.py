@@ -190,7 +190,12 @@ class TradingBot:
             # 执行信号
             if signal['signal'] in ['buy', 'sell']:
                 print(f"  🎯 发现{signal_type.upper()}信号，准备执行...")
-                await self._execute_signal(signal, klines)
+                try:
+                    await self._execute_signal(signal, klines)
+                    print(f"  ✅ 信号执行完成")
+                except Exception as e:
+                    print(f"  ❌ 信号执行失败: {e}")
+                    logger.error(f"信号执行失败: {e}", exc_info=True)
             else:
                 print(f"  ⏸️  无交易信号，继续观望")
             
@@ -207,9 +212,11 @@ class TradingBot:
             klines: K线数据
         """
         signal_type = signal['signal']
+        print(f"  [执行] 开始执行{signal_type.upper()}信号...")
         
         # 检查是否已有持仓
         if self.symbol in self.trading_engine.positions:
+            print(f"  [执行] 已有持仓，跳过新信号")
             logger.info("已有持仓，跳过新信号")
             return
         
