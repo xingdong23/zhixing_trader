@@ -57,34 +57,47 @@ async def main():
                 initial_balance[currency] = amount
                 print(f"  {currency}: {amount:.4f}")
         
-        # 获取当前持仓
+        # 获取当前持仓（尝试多种方式）
         print("\n当前持仓:")
         existing_positions = []
         try:
+            # 方式1: fetch_positions
             positions = await exchange.fetch_positions(['BTC/USDT'])
+            print(f"  [调试] fetch_positions返回: {len(positions)}条")
+            
             has_position = False
             for pos in positions:
-                if pos.get('contracts', 0) > 0:
+                contracts = pos.get('contracts', 0)
+                info = pos.get('info', {})
+                print(f"  [调试] 持仓数据: contracts={contracts}, info keys={list(info.keys())[:5]}")
+                
+                if contracts > 0 or abs(float(info.get('pos', 0))) > 0:
                     has_position = True
-                    side = pos.get('side', 'unknown')
-                    size = pos.get('contracts', 0)
-                    entry_price = pos.get('entryPrice', 0)
-                    unrealized_pnl = pos.get('unrealizedPnl', 0)
+                    side = pos.get('side', info.get('posSide', 'unknown'))
+                    size = contracts if contracts > 0 else abs(float(info.get('pos', 0)))
+                    entry_price = pos.get('entryPrice', float(info.get('avgPx', 0)))
+                    unrealized_pnl = pos.get('unrealizedPnl', float(info.get('upl', 0)))
+                    
                     print(f"  方向: {side}")
                     print(f"  数量: {size} BTC")
                     print(f"  入场价: {entry_price:.2f} USDT")
                     print(f"  未实现盈亏: {unrealized_pnl:.2f} USDT")
-                    # 保存持仓信息，稍后同步到风险管理器
+                    
+                    # 保存持仓信息
                     existing_positions.append({
                         'symbol': 'BTC/USDT',
-                        'side': side,
+                        'side': 'long' if side in ['long', 'buy'] else 'short',
                         'size': size,
                         'entry_price': entry_price
                     })
+            
             if not has_position:
                 print("  无持仓")
         except Exception as e:
             print(f"  获取持仓失败: {e}")
+            print(f"  [调试] 错误详情: {type(e).__name__}")
+            import traceback
+            traceback.print_exc()
             print("  将从空仓开始交易")
         
         ticker = await exchange.fetch_ticker('BTC/USDT')
