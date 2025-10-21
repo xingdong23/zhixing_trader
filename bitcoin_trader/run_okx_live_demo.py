@@ -98,18 +98,18 @@ async def main():
             "third_profit_target": 0.15,       # 第三目标15%
         })
         
-        # 风险限制（每次只交易一笔）
-        risk_limits = RiskLimits(
-            max_position_size=0.01,            # 最大 0.01 BTC（约10%资金）
-            max_position_value=1000.0,         # 最大 1000 USDT
-            max_total_position=0.1,            # 总仓位 10%（只允许一笔）
-            max_daily_loss=0.05,               # 日亏损 5%
-            max_trades_per_day=1,              # 每天最多1笔交易
-            max_consecutive_losses=3,          # 最多连续亏损 3 次
-        )
-        
         # 计算实际可用资金（基于USDT余额）
         usdt_balance = initial_balance.get('USDT', 1000.0)
+        
+        # 风险限制（同时只能有一笔持仓）
+        risk_limits = RiskLimits(
+            max_position_size=999.0,           # 不限制单笔BTC数量
+            max_position_value=999999.0,       # 不限制单笔金额
+            max_total_position=0.15,           # 总仓位 15%（同时只允许一笔）
+            max_daily_loss=0.05,               # 日亏损 5%
+            max_trades_per_day=999,            # 不限制交易次数
+            max_consecutive_losses=5,          # 最多连续亏损 5 次
+        )
         
         bot = TradingBot(
             exchange=exchange,
@@ -132,16 +132,16 @@ async def main():
         print("  模式: Live Trading (执行真实订单)")
         print(f"  可用资金: {usdt_balance:,.2f} USDT")
         print(f"  单笔仓位: 10% (~{usdt_balance * 0.1:,.2f} USDT)")
-        print(f"  最大持仓: 0.01 BTC (~{initial_price * 0.01:,.0f} USDT)")
+        print("  单笔金额: 不限制")
         print("  日亏损限制: 5%")
-        print("  每日交易: 最多1笔")
+        print("  交易次数: 不限制")
         
         print("\n风险控制:")
         print("  ✓ 小仓位交易（10%）")
-        print("  ✓ 每次只交易一笔")
+        print("  ✓ 同时只持有一笔")
         print("  ✓ 动态止损（ATR × 2）")
         print("  ✓ 日亏损限制 5%")
-        print("  ✓ 每日最多1笔交易")
+        print("  ✓ 平仓后才开新仓")
         
         print("\n提示:")
         print("  - 机器人将持续运行，直到手动停止")
