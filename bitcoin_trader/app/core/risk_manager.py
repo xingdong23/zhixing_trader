@@ -135,12 +135,9 @@ class RiskManager:
         if position_value > self.limits.max_position_value:
             return False, f"超过单笔最大价值 ({self.limits.max_position_value} USDT)"
         
-        # 5. 检查总仓位占比
-        total_position_value = self._calculate_total_position_value()
-        if side == 'buy':
-            new_total = total_position_value + position_value
-            if new_total > self.current_capital * self.limits.max_total_position:
-                return False, f"超过最大总仓位占比 ({self.limits.max_total_position:.0%})"
+        # 5. 检查是否已有持仓（同时只允许一笔）
+        if len(self.current_positions) > 0:
+            return False, f"已有持仓，同时只允许一笔交易"
         
         # 6. 检查亏损限制
         if self.daily_pnl < -self.current_capital * self.limits.max_daily_loss:
@@ -152,6 +149,7 @@ class RiskManager:
         # 7. 检查资金充足性
         if side == 'buy':
             required_capital = position_value
+            total_position_value = self._calculate_total_position_value()
             available = self.current_capital - total_position_value
             if required_capital > available:
                 return False, f"资金不足，需要 {required_capital:.2f}，可用 {available:.2f}"

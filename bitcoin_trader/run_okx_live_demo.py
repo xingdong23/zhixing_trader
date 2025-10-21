@@ -59,6 +59,7 @@ async def main():
         
         # 获取当前持仓
         print("\n当前持仓:")
+        existing_positions = []
         try:
             positions = await exchange.fetch_positions(['BTC/USDT'])
             has_position = False
@@ -73,6 +74,13 @@ async def main():
                     print(f"  数量: {size} BTC")
                     print(f"  入场价: {entry_price:.2f} USDT")
                     print(f"  未实现盈亏: {unrealized_pnl:.2f} USDT")
+                    # 保存持仓信息，稍后同步到风险管理器
+                    existing_positions.append({
+                        'symbol': 'BTC/USDT',
+                        'side': side,
+                        'size': size,
+                        'entry_price': entry_price
+                    })
             if not has_position:
                 print("  无持仓")
         except Exception as e:
@@ -123,6 +131,13 @@ async def main():
                 'check_interval': 30           # 30秒检查一次
             }
         )
+        
+        # 同步现有持仓到风险管理器
+        if existing_positions:
+            print("\n同步现有持仓到风险管理器...")
+            for pos in existing_positions:
+                bot.risk_manager.update_position(pos['symbol'], pos)
+                print(f"  ✓ 已同步 {pos['side']} {pos['size']} BTC @ {pos['entry_price']:.2f}")
         
         print("\n配置信息:")
         print("  交易所: OKX (模拟盘)")
