@@ -214,11 +214,25 @@ class TradingBot:
         signal_type = signal['signal']
         print(f"  [执行] 开始执行{signal_type.upper()}信号...")
         
-        # 检查是否已有持仓
-        if self.symbol in self.trading_engine.positions:
-            print(f"  [执行] 已有持仓，跳过新信号")
-            logger.info("已有持仓，跳过新信号")
+        # 检查是否已有持仓（检查risk_manager的持仓）
+        if len(self.risk_manager.current_positions) > 0:
+            print(f"  [执行] 已有持仓（{len(self.risk_manager.current_positions)}笔），跳过新信号")
+            for sym, pos in self.risk_manager.current_positions.items():
+                print(f"    - {sym}: {pos}")
+            logger.info(f"已有持仓，跳过新信号: {list(self.risk_manager.current_positions.keys())}")
             return
+        
+        # 同时检查trading_engine的持仓
+        if self.symbol in self.trading_engine.positions:
+            pos = self.trading_engine.positions[self.symbol]
+            if pos.size > 0:  # 确保持仓数量大于0
+                print(f"  [执行] trading_engine中有持仓（size={pos.size}），跳过新信号")
+                logger.info(f"trading_engine中有持仓，跳过新信号")
+                return
+            else:
+                # 清理无效持仓
+                print(f"  [执行] 清理无效持仓（size=0）")
+                del self.trading_engine.positions[self.symbol]
         
         # 获取当前价格
         current_price = signal.get('price', klines[-1]['close'])
