@@ -14,7 +14,7 @@ redis==5.0.1
 alembic==1.12.1
 
 # 加密货币交易所API
-ccxt==4.1.63
+ccxt>=4.4.0
 python-binance==1.0.19
 websockets==12.0
 
