@@ -1,0 +1,138 @@
+{
+  "mappings": {
+    "properties": {
+      "id": {
+        "type": "long"
+      },
+      "trip_id": {
+        "type": "keyword"
+      },
+      "account_id": {
+        "type": "keyword"
+      },
+      "vid": {
+        "type": "keyword"
+      },
+      "start_latitude": {
+        "type": "double"
+      },
+      "start_longitude": {
+        "type": "double"
+      },
+      "start_location": {
+        "type": "geo_point"
+      },
+      "destination_adCode": {
+        "type": "keyword"
+      },
+      "destination_address": {
+        "type": "text",
+        "fields": {
+          "keyword": {
+            "type": "keyword",
+            "ignore_above": 256
+          }
+        },
+        "analyzer": "ik_max_word",
+        "search_analyzer": "ik_smart"
+      },
+      "destination_latitude": {
+        "type": "double"
+      },
+      "destination_longitude": {
+        "type": "double"
+      },
+      "destination_location": {
+        "type": "geo_point"
+      },
+      "destination_name": {
+        "type": "text",
+        "fields": {
+          "keyword": {
+            "type": "keyword",
+            "ignore_above": 256
+          }
+        },
+        "analyzer": "ik_max_word",
+        "search_analyzer": "ik_smart"
+      },
+      "destination_poiId": {
+        "type": "keyword"
+      },
+      "destination_typeCode": {
+        "type": "keyword"
+      },
+      "destination_embedding": {
+        "type": "dense_vector",
+        "dims": 768,
+        "index": true,
+        "similarity": "cosine"
+      },
+      "waypoints": {
+        "type": "text",
+        "fields": {
+          "keyword": {
+            "type": "keyword",
+            "ignore_above": 2048
+          }
+        }
+      },
+      "start_navi_time": {
+        "type": "long"
+      },
+      "start_navi_time_date": {
+        "type": "date",
+        "format": "epoch_millis"
+      },
+      "end_navi_time": {
+        "type": "long"
+      },
+      "end_navi_time_date": {
+        "type": "date",
+        "format": "epoch_millis"
+      },
+      "source": {
+        "type": "keyword"
+      },
+      "keyword": {
+        "type": "text",
+        "fields": {
+          "keyword": {
+            "type": "keyword",
+            "ignore_above": 256
+          }
+        },
+        "analyzer": "ik_max_word",
+        "search_analyzer": "ik_smart"
+      },
+      "keyword_embedding": {
+        "type": "dense_vector",
+        "dims": 768,
+        "index": true,
+        "similarity": "cosine"
+      },
+      "trip_embedding": {
+        "type": "dense_vector",
+        "dims": 768,
+        "index": true,
+        "similarity": "cosine"
+      }
+    }
+  },
+  "settings": {
+    "number_of_shards": 3,
+    "number_of_replicas": 1,
+    "analysis": {
+      "analyzer": {
+        "ik_max_word": {
+          "type": "custom",
+          "tokenizer": "ik_max_word"
+        },
+        "ik_smart": {
+          "type": "custom",
+          "tokenizer": "ik_smart"
+        }
+      }
+    }
+  }
+}
