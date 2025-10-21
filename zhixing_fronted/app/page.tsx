@@ -59,6 +59,7 @@ import {
   ChevronUp,
   ChevronDown,
   Folder,
+  Flame,
 } from "lucide-react"
 
 // 导入策略管理组件
@@ -359,6 +360,7 @@ export default function TradingSystem() {
             {[ 
               { id: "dashboard", label: "股票", icon: Heart },
               { id: "categories", label: "分类", icon: Folder },
+              { id: "hotspots", label: "市场热点", icon: Flame, isExternal: true, href: "/market-hotspots" },
               { id: "trades", label: "交易", icon: Activity },
               { id: "notes", label: "笔记", icon: PenTool },
               { id: "review", label: "复盘", icon: BookOpen },
@@ -368,27 +370,38 @@ export default function TradingSystem() {
               { id: "errors", label: "错误", icon: AlertTriangle },
               { id: "pivot", label: "透视", icon: BarChart3 },
               { id: "brokers", label: "券商", icon: Settings },
-            ].map(({ id, label, icon: Icon }) => (
-              <button
-                key={id}
-                onClick={() => {
-                  setCurrentPage(id)
-                  if (typeof window !== 'undefined') {
-                    const target = `#${id}`
-                    if (window.location.hash !== target) {
-                      window.history.replaceState(null, '', target)
+            ].map(({ id, label, icon: Icon, isExternal, href }) => (
+              isExternal ? (
+                <button
+                  key={id}
+                  onClick={() => router.push(href!)}
+                  className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-left transition-colors text-sidebar-foreground hover:bg-sidebar-accent"
+                >
+                  <Icon className="w-5 h-5" />
+                  {label}
+                </button>
+              ) : (
+                <button
+                  key={id}
+                  onClick={() => {
+                    setCurrentPage(id)
+                    if (typeof window !== 'undefined') {
+                      const target = `#${id}`
+                      if (window.location.hash !== target) {
+                        window.history.replaceState(null, '', target)
+                      }
                     }
-                  }
-                }}
-                className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-left transition-colors ${
-                  currentPage === id
-                    ? "bg-sidebar-primary text-sidebar-primary-foreground"
-                    : "text-sidebar-foreground hover:bg-sidebar-accent"
-                }`}
-              >
-                <Icon className="w-5 h-5" />
-                {label}
-              </button>
+                  }}
+                  className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-left transition-colors ${
+                    currentPage === id
+                      ? "bg-sidebar-primary text-sidebar-primary-foreground"
+                      : "text-sidebar-foreground hover:bg-sidebar-accent"
+                  }`}
+                >
+                  <Icon className="w-5 h-5" />
+                  {label}
+                </button>
+              )
             ))}
           </nav>
         </div>

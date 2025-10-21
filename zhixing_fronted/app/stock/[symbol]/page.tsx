@@ -14,6 +14,8 @@ import { Label } from "@/components/ui/label"
 import UnifiedNoteDialog from "@/components/notes/UnifiedNoteDialog"
 import TradingViewWidget from "@/components/stocks/TradingViewWidget"
 import LightweightChart from "@/components/stocks/LightweightChart"
+import TimelineNotes, { TimelineNote } from "@/components/stocks/TimelineNotes"
+import AddTimelineNoteDialog from "@/components/stocks/AddTimelineNoteDialog"
 
 interface IntelNote {
   id: string
@@ -60,6 +62,67 @@ export default function StockDetailPage() {
     image: "",
   })
   const [noteDialogOpen, setNoteDialogOpen] = useState(false)
+  
+  // 时间线笔记状态
+  const [timelineNotes, setTimelineNotes] = useState<TimelineNote[]>([
+    {
+      id: "1",
+      author: "张三",
+      content: "AAPL 目前处于上升通道，RSI 指标显示未超买，建议逢低买入。从技术面看，股价已突破 55 日均线，成交量放大，显示多头力量增强。",
+      timestamp: "2025-01-15 14:30",
+      judgmentType: "bullish",
+      priceTarget: 195.00,
+      currentPrice: 183.25,
+      likes: 12,
+      comments: [
+        {
+          id: "c1",
+          author: "李四",
+          content: "我不太同意，目前市场整体偏弱，科技股面临调整压力。",
+          timestamp: "2025-01-15 15:20",
+          likes: 5,
+          replies: [
+            {
+              id: "c1-1",
+              author: "张三",
+              content: "确实有调整风险，但长期看好。可以分批建仓降低风险。",
+              timestamp: "2025-01-15 16:10",
+              likes: 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      id: "2",
+      author: "王五",
+      content: "注意！AAPL 即将发布财报，历史上财报前后波动较大，建议控制仓位。",
+      timestamp: "2025-01-18 10:15",
+      judgmentType: "risk",
+      likes: 8,
+      comments: []
+    },
+    {
+      id: "3",
+      author: "赵六",
+      content: "180 美元是重要支撑位，如果跌破需要重新评估。目前看多头趋势完好。",
+      timestamp: "2025-01-20 09:00",
+      judgmentType: "entry",
+      priceTarget: 180.00,
+      currentPrice: 183.25,
+      likes: 15,
+      comments: [
+        {
+          id: "c2",
+          author: "钱七",
+          content: "同意，180 是关键位置。我已经在 181 附近建仓了。",
+          timestamp: "2025-01-20 10:30",
+          likes: 2
+        }
+      ]
+    }
+  ])
+  const [showAddNoteDialog, setShowAddNoteDialog] = useState(false)
 
   // 从API获取股票数据（Mock优先）
   useEffect(() => {
@@ -160,6 +223,117 @@ export default function StockDetailPage() {
     )
   }
 
+  // 添加时间线笔记
+  const handleAddTimelineNote = (note: {
+    author: string
+    content: string
+    judgmentType: TimelineNote["judgmentType"]
+    priceTarget?: number
+    currentPrice?: number
+  }) => {
+    const newNote: TimelineNote = {
+      id: Date.now().toString(),
+      author: note.author,
+      content: note.content,
+      timestamp: new Date().toLocaleString("zh-CN", {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit"
+      }),
+      judgmentType: note.judgmentType,
+      priceTarget: note.priceTarget,
+      currentPrice: note.currentPrice || stock?.price,
+      likes: 0,
+      comments: []
+    }
+    setTimelineNotes([newNote, ...timelineNotes])
+  }
+
+  // 添加评论
+  const handleAddComment = (noteId: string, content: string, parentCommentId?: string) => {
+    setTimelineNotes(notes => notes.map(note => {
+      if (note.id !== noteId) return note
+
+      const newComment = {
+        id: Date.now().toString(),
+        author: "我",
+        content,
+        timestamp: new Date().toLocaleString("zh-CN", {
+          month: "2-digit",
+          day: "2-digit",
+          hour: "2-digit",
+          minute: "2-digit"
+        }),
+        likes: 0
+      }
+
+      if (!parentCommentId) {
+        // 顶级评论
+        return {
+          ...note,
+          comments: [...note.comments, newComment]
+        }
+      } else {
+        // 回复评论
+        const addReply = (comments: typeof note.comments): typeof note.comments => {
+          return comments.map(comment => {
+            if (comment.id === parentCommentId) {
+              return {
+                ...comment,
+                replies: [...(comment.replies || []), newComment]
+              }
+            }
+            if (comment.replies) {
+              return {
+                ...comment,
+                replies: addReply(comment.replies)
+              }
+            }
+            return comment
+          })
+        }
+        return {
+          ...note,
+          comments: addReply(note.comments)
+        }
+      }
+    }))
+  }
+
+  // 点赞
+  const handleLike = (noteId: string, commentId?: string) => {
+    setTimelineNotes(notes => notes.map(note => {
+      if (note.id !== noteId) return note
+
+      if (!commentId) {
+        // 点赞笔记
+        return { ...note, likes: note.likes + 1 }
+      } else {
+        // 点赞评论
+        const updateLikes = (comments: typeof note.comments): typeof note.comments => {
+          return comments.map(comment => {
+            if (comment.id === commentId) {
+              return { ...comment, likes: comment.likes + 1 }
+            }
+            if (comment.replies) {
+              return {
+                ...comment,
+                replies: updateLikes(comment.replies)
+              }
+            }
+            return comment
+          })
+        }
+        return {
+          ...note,
+          comments: updateLikes(note.comments)
+        }
+      }
+    }))
+  }
+
   if (!stock) {
     return <div className="p-8">加载中...</div>
   }
@@ -212,77 +386,26 @@ export default function StockDetailPage() {
               />
             </div>
 
-            {/* Intelligence Notes */}
+            {/* Timeline Notes - 投资笔记时间线 */}
             <Card>
               <CardHeader className="flex flex-row items-center justify-between">
-                <CardTitle>大佬观点与情报</CardTitle>
-                <Button onClick={() => setNoteDialogOpen(true)}>
+                <div>
+                  <CardTitle>投资笔记时间线</CardTitle>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    记录你的投资判断和分析，与其他投资者讨论
+                  </p>
+                </div>
+                <Button onClick={() => setShowAddNoteDialog(true)}>
                   <Plus className="w-4 h-4 mr-2" />
                   添加笔记
                 </Button>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4">
-                  {stock.intelNotes.map((note) => (
-                    <Card key={note.id} className="border-l-4 border-l-blue-500">
-                      <CardContent className="pt-4">
-                        <div className="flex justify-between items-start mb-3">
-                          <div className="flex items-center gap-2">
-                            <Badge variant="outline">{note.author}</Badge>
-                            <Badge variant={note.type === "text" ? "secondary" : "default"}>
-                              {note.type === "text"
-                                ? "文字"
-                                : note.type === "image"
-                                  ? "截图"
-                                  : note.type === "chart"
-                                    ? "K线"
-                                    : "分析"}
-                            </Badge>
-                            {note.triggered && <Badge variant="destructive">已触发</Badge>}
-                          </div>
-                          <span className="text-sm text-muted-foreground">{note.timestamp}</span>
-                        </div>
-
-                        <p className="mb-3">{note.text}</p>
-
-                        {note.image && (
-                          <div className="mb-3">
-                            <img
-                              src={note.image || "/placeholder.svg"}
-                              alt="分析图片"
-                              className="rounded-lg max-w-full h-auto border"
-                            />
-                          </div>
-                        )}
-
-                        {note.alertExpression && (
-                          <div className="bg-muted p-3 rounded mb-3">
-                            <div className="flex items-center gap-2 mb-1">
-                              <Bell className="w-4 h-4" />
-                              <span className="font-medium text-sm">提醒条件</span>
-                            </div>
-                            <code className="text-sm">{note.alertExpression}</code>
-                          </div>
-                        )}
-
-                        <div className="flex gap-2">
-                          <Button size="sm" variant="outline" onClick={() => createTradingPlan(note)}>
-                            <Calendar className="w-4 h-4 mr-1" />
-                            创建交易计划
-                          </Button>
-                          <Button size="sm" variant="outline">
-                            <Bell className="w-4 h-4 mr-1" />
-                            设置提醒
-                          </Button>
-                          <Button size="sm" variant="outline">
-                            <TrendingUp className="w-4 h-4 mr-1" />
-                            技术分析
-                          </Button>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
+                <TimelineNotes
+                  notes={timelineNotes}
+                  onAddComment={handleAddComment}
+                  onLike={handleLike}
+                />
               </CardContent>
             </Card>
           </div>
@@ -383,6 +506,14 @@ export default function StockDetailPage() {
               }
               setStock((prev) => prev ? { ...prev, intelNotes: [newItem, ...prev.intelNotes] } : prev)
             }}
+          />
+
+          {/* 添加时间线笔记对话框 */}
+          <AddTimelineNoteDialog
+            open={showAddNoteDialog}
+            onClose={() => setShowAddNoteDialog(false)}
+            onSave={handleAddTimelineNote}
+            currentPrice={stock.price}
           />
         </div>
       </div>
