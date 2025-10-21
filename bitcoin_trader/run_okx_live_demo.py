@@ -101,11 +101,11 @@ async def main():
         # 计算实际可用资金（基于USDT余额）
         usdt_balance = initial_balance.get('USDT', 1000.0)
         
-        # 风险限制（同时只能有一笔持仓）
+        # 风险限制（移除所有仓位限制）
         risk_limits = RiskLimits(
             max_position_size=999.0,           # 不限制单笔BTC数量
             max_position_value=999999.0,       # 不限制单笔金额
-            max_total_position=0.15,           # 总仓位 15%（同时只允许一笔）
+            max_total_position=1.0,            # 不限制总仓位（100%）
             max_daily_loss=0.05,               # 日亏损 5%
             max_trades_per_day=999,            # 不限制交易次数
             max_consecutive_losses=5,          # 最多连续亏损 5 次
