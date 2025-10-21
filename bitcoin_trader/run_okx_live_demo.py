@@ -111,7 +111,7 @@ async def main():
         print("=" * 80)
         
         strategy = EMATrendStrategy(parameters={
-            "position_ratio": 0.1,             # 10% 仓位（改为10%）
+            "position_ratio": 1.0,             # 100% 满仓
             "max_loss_ratio": 0.04,            # 最大亏损4%
             "atr_multiplier": 2.0,             # ATR倍数
             "first_profit_target": 0.05,       # 第一目标5%
@@ -159,17 +159,16 @@ async def main():
         print("  周期: 5分钟")
         print("  模式: Live Trading (执行真实订单)")
         print(f"  可用资金: {usdt_balance:,.2f} USDT")
-        print(f"  单笔仓位: 10% (~{usdt_balance * 0.1:,.2f} USDT)")
-        print("  单笔金额: 不限制")
+        print(f"  单笔仓位: 100% 满仓 ({usdt_balance:,.2f} USDT)")
         print("  日亏损限制: 5%")
         print("  交易次数: 不限制")
         
         print("\n风险控制:")
-        print("  ✓ 小仓位交易（10%）")
+        print("  ✓ 满仓交易（100%）")
         print("  ✓ 同时只持有一笔")
+        print("  ✓ 平仓后才开新仓")
         print("  ✓ 动态止损（ATR × 2）")
         print("  ✓ 日亏损限制 5%")
-        print("  ✓ 平仓后才开新仓")
         
         print("\n提示:")
         print("  - 机器人将持续运行，直到手动停止")
@@ -177,7 +176,7 @@ async def main():
         print("  - 订单将在 OKX 模拟盘真实执行")
         print("  - 每隔 10 分钟会显示一次进度报告")
         print("  - 启动时已获取现有持仓信息")
-        print("  - 每次只开一笔新仓，使用10%资金")
+        print("  - 满仓交易，平仓后才开新仓")
         print("\n" + "=" * 80 + "\n")
         
         # 3. 启动机器人
