@@ -228,13 +228,12 @@ class TradingBot:
                 current_price, side, atr
             )
         
-        # 计算仓位大小
-        position_size = self.risk_manager.calculate_position_size(
-            self.symbol,
-            current_price,
-            stop_loss,
-            risk_percent=0.01
-        )
+        # 计算仓位大小（使用策略的position_ratio）
+        position_ratio = signal.get('position_ratio', 0.1)  # 默认10%
+        position_value = self.risk_manager.current_capital * position_ratio  # 使用资金的10%
+        position_size = position_value / current_price  # 转换为BTC数量
+        
+        logger.info(f"仓位计算: 资金={self.risk_manager.current_capital:.2f}, 比例={position_ratio:.1%}, 价值={position_value:.2f}, 数量={position_size:.4f}")
         
         if position_size == 0:
             logger.warning("计算仓位为0，跳过交易")
