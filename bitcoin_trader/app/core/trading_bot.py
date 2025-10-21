@@ -289,8 +289,16 @@ class TradingBot:
                                   take_profit_levels: List[Dict]):
         """执行实盘交易"""
         try:
+            print(f"\n  [实盘交易] ==================")
+            print(f"  [实盘交易] 🔥 执行实盘交易")
+            print(f"  [实盘交易] 方向: {signal_type.upper()}")
+            print(f"  [实盘交易] 价格: {price:.2f}")
+            print(f"  [实盘交易] 数量: {amount:.4f}")
+            print(f"  [实盘交易] 止损: {stop_loss:.2f}")
+            print(f"  [实盘交易] ==================\n")
+            
             logger.info("=" * 60)
-            logger.info(f"🔥 执行实盘交易")
+            logger.info("🔥 执行实盘交易")
             logger.info(f"方向: {signal_type.upper()}")
             logger.info(f"价格: {price:.2f}")
             logger.info(f"数量: {amount:.4f}")
@@ -298,11 +306,13 @@ class TradingBot:
             logger.info("=" * 60)
             
             # 1. 执行开仓
+            print(f"  [实盘交易] 正在下单...")
             side = OrderSide.BUY if signal_type == 'buy' else OrderSide.SELL
             order = await self.trading_engine.execute_market_order(
                 self.symbol, side, amount
             )
             
+            print(f"  [实盘交易] ✅ 开仓成功: {order['id']}")
             logger.info(f"✅ 开仓成功: {order['id']}")
             
             # 2. 设置止损
