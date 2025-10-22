@@ -60,6 +60,7 @@ import {
   ChevronDown,
   Folder,
   Flame,
+  Lightbulb,
 } from "lucide-react"
 
 // 导入策略管理组件
@@ -87,6 +88,8 @@ import PivotView from '@/components/pivot/PivotView'
 import MarketOpportunityView from '@/components/market/MarketOpportunityView'
 import ForcedTradePlanForm from "@/components/tradePlan/ForcedTradePlanForm"
 import type { TradePlan } from "@/lib/tradePlan"
+import TradingDisciplineReminder from "@/components/trading/TradingDisciplineReminder"
+import WisdomLibrary from "@/components/wisdom/WisdomLibrary"
 
 // 导入Mock数据
 import { getMockStocks } from './mockStockData'
@@ -130,7 +133,7 @@ export default function TradingSystem() {
       const hash = window.location.hash.replace('#', '')
       if (!hash) return
       const valid = [
-        'dashboard','categories','trades','notes','review','strategies','checklist','psychology','errors','pivot','brokers'
+        'dashboard','categories','trades','notes','review','strategies','checklist','psychology','wisdom','errors','pivot','brokers'
       ]
       if (valid.includes(hash)) setCurrentPage(hash)
     }
@@ -146,7 +149,7 @@ export default function TradingSystem() {
     // 则优先尊重现有 hash，避免初次渲染时被覆盖回 dashboard
     const existing = window.location.hash.replace('#', '')
     const valid = [
-      'dashboard','categories','trades','notes','review','strategies','checklist','psychology','errors','pivot','brokers'
+      'dashboard','categories','trades','notes','review','strategies','checklist','psychology','wisdom','errors','pivot','brokers'
     ]
     if (existing && valid.includes(existing) && existing !== currentPage) {
       // 不覆盖由外部显式指定的 hash
@@ -368,10 +371,11 @@ export default function TradingSystem() {
               { id: "strategies", label: "策略", icon: Target },
               { id: "checklist", label: "清单", icon: CheckCircle },
               { id: "psychology", label: "心理", icon: Brain },
+              { id: "wisdom", label: "智慧库", icon: Lightbulb, special: true },
               { id: "errors", label: "错误", icon: AlertTriangle },
               { id: "pivot", label: "透视", icon: BarChart3 },
               { id: "brokers", label: "券商", icon: Settings },
-            ].map(({ id, label, icon: Icon }) => (
+            ].map(({ id, label, icon: Icon, special }) => (
               <button
                 key={id}
                 onClick={() => {
@@ -457,6 +461,16 @@ export default function TradingSystem() {
 
           {/* Page Content */}
           <main className="px-6 py-4">
+            {/* 交易纪律提醒横幅 - 在所有页面顶部显示 */}
+            <div className="mb-6">
+              <TradingDisciplineReminder 
+                variant="banner" 
+                dismissible={false}
+                autoRotate={true}
+                rotateInterval={15}
+              />
+            </div>
+
             {currentPage === "dashboard" && (
               <div className="space-y-6">
                 {/* 价格数据同步 */}
@@ -840,6 +854,10 @@ export default function TradingSystem() {
 
             {currentPage === "psychology" && (
               <PsychologyView />
+            )}
+
+            {currentPage === "wisdom" && (
+              <WisdomLibrary />
             )}
 
             {currentPage === "errors" && (

@@ -20,6 +20,7 @@ import AddTimelineNoteDialog from "@/components/stocks/AddTimelineNoteDialog"
 import ExpertOpinionCard, { ExpertOpinion } from "@/components/stocks/ExpertOpinion"
 import PriceAlertChart from "@/components/stocks/PriceAlertChart"
 import ConsensusHeatmap from "@/components/stocks/ConsensusHeatmap"
+import TradingDisciplineReminder from "@/components/trading/TradingDisciplineReminder"
 
 interface IntelNote {
   id: string
@@ -422,6 +423,16 @@ export default function StockDetailPage() {
       </header>
 
       <div className="p-6">
+        {/* 交易纪律提醒 - 卡片形式 */}
+        <div className="mb-6">
+          <TradingDisciplineReminder 
+            variant="card" 
+            dismissible={true}
+            autoRotate={true}
+            rotateInterval={20}
+          />
+        </div>
+
         <div className="grid grid-cols-1 xl:grid-cols-4 gap-6">
           {/* Main Content */}
           <div className="xl:col-span-3 space-y-6">
