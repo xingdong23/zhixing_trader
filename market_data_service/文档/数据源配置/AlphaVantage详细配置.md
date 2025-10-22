@@ -32,7 +32,7 @@ ALPHAVANTAGE_RATE_LIMIT=12.0
 
 ```bash
 # 数据库配置
-DATABASE_URL=mysql+pymysql://root:Cz159csa@127.0.0.1:3306/zhixing_trader
+DATABASE_URL=mysql+pymysql://root:shuzhongren@101.42.14.209:3306/zhixing_trader
 
 # Alpha Vantage API 配置
 ALPHA_VANTAGE_API_KEY=AU1SKLJOOD36YINC

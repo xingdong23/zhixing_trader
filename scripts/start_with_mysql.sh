@@ -6,7 +6,7 @@
 echo "🚀 启动智行交易系统..."
 
 # 强制设置MySQL环境变量
-export DATABASE_URL="mysql+pymysql://root:Cz159csa@127.0.0.1:3306/zhixing_trader"
+export DATABASE_URL="mysql+pymysql://root:shuzhongren@101.42.14.209:3306/zhixing_trader"
 
 echo "📊 数据库配置: $DATABASE_URL"
 

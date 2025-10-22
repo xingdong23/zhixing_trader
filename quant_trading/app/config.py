@@ -15,7 +15,7 @@ class Settings(BaseSettings):
     debug: bool = False
     
     # 数据库配置
-    database_url: str = "mysql+pymysql://root:Cz159csa@127.0.0.1:3306/zhixing_trader"
+    database_url: str = "mysql+pymysql://root:shuzhongren@101.42.14.209:3306/zhixing_trader"
     
     # API配置
     api_prefix: str = "/api/v1"
