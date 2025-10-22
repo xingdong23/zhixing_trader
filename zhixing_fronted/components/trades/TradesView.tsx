@@ -25,6 +25,7 @@ import GoalProgressCard from "@/components/trades/GoalProgressCard";
 import { computeEquityCurve, computeMaxDrawdown } from "@/lib/metrics";
 import { detectViolations, calculateViolationCost } from "@/lib/violations";
 import { toast } from "sonner";
+import TradingDisciplineReminder from "@/components/trading/TradingDisciplineReminder";
 
 // Mock 数据
 import { mockTrades, mockStatistics } from "@/app/trades/mockData";
@@ -321,7 +322,15 @@ export default function TradesView() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
+      {/* 交易纪律提醒 - 在交易页面顶部突出显示 */}
+      <TradingDisciplineReminder 
+        variant="card" 
+        dismissible={false}
+        autoRotate={true}
+        rotateInterval={12}
+      />
+
       {/* 统计卡片 */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card className="p-4">
