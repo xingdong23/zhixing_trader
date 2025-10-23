@@ -1,0 +1,139 @@
+{
+  "strategy_name": "高频短线交易策略",
+  "version": "1.0.0",
+  "description": "基于多技术指标的高频短线交易策略，适合5分钟级别的快速进出",
+  
+  "capital_management": {
+    "total_capital": 300.0,
+    "num_portions": 6,
+    "portion_size": 50.0,
+    "max_portions_per_trade": 2,
+    "leverage": 3.0,
+    "comment": "总资金300U，分6份，每份50U，单次最多开2份，使用3倍杠杆"
+  },
+  
+  "technical_indicators": {
+    "ema": {
+      "fast": 8,
+      "slow": 21,
+      "comment": "快速EMA8和慢速EMA21用于判断趋势"
+    },
+    "rsi": {
+      "period": 14,
+      "long_threshold_low": 45,
+      "short_threshold_high": 55,
+      "comment": "RSI14，做多从45以下向上，做空从55以上向下"
+    },
+    "volume": {
+      "lookback": 5,
+      "multiplier": 1.5,
+      "comment": "成交量需突破前5根均值的1.5倍"
+    },
+    "bollinger_bands": {
+      "period": 20,
+      "std_dev": 2,
+      "comment": "布林带用于支撑阻力判断"
+    },
+    "macd": {
+      "fast": 12,
+      "slow": 26,
+      "signal": 9,
+      "comment": "MACD用于确认趋势转折"
+    }
+  },
+  
+  "stop_loss_take_profit": {
+    "stop_loss_min": 0.008,
+    "stop_loss_max": 0.012,
+    "take_profit_min": 0.015,
+    "take_profit_max": 0.025,
+    "profit_risk_ratio_min": 1.5,
+    "profit_risk_ratio_max": 2.0,
+    "comment": "止损0.8%-1.2%，止盈1.5%-2.5%，盈亏比1.5-2.0"
+  },
+  
+  "dynamic_profit_taking": {
+    "profit_level_1": 0.005,
+    "profit_level_2": 0.010,
+    "profit_level_3": 0.015,
+    "partial_close_ratio": 0.5,
+    "comment": "盈利0.5%移动止损至成本，1%移动至0.5%盈利，1.5%分批平仓50%"
+  },
+  
+  "risk_controls": {
+    "max_daily_profit": 0.05,
+    "max_daily_loss": 0.08,
+    "max_consecutive_losses": 2,
+    "single_trade_max_loss": 0.02,
+    "comment": "单日最大盈利5%，最大亏损8%，连续亏损2次停止，单笔最大亏损2%"
+  },
+  
+  "trading_frequency": {
+    "max_trades_per_day": 8,
+    "min_trades_per_day": 3,
+    "ideal_holding_time_min": 15,
+    "ideal_holding_time_max": 45,
+    "max_holding_time": 120,
+    "comment": "每日3-8次交易，理想持仓15-45分钟，最大持仓120分钟"
+  },
+  
+  "entry_conditions": {
+    "breakout_lookback": 15,
+    "breakout_confirmation": 0.001,
+    "comment": "价格需突破前15分钟高低点，确认幅度0.1%"
+  },
+  
+  "special_conditions": {
+    "avoid_news_minutes": 30,
+    "max_1min_volatility": 0.005,
+    "min_volume_threshold": 0.5,
+    "comment": "重大数据前后30分钟避免交易，1分钟波动超0.5%避免，成交量低于均值50%避免"
+  },
+  
+  "trading_sessions": {
+    "morning_breakout": {
+      "start": "08:00",
+      "end": "10:00",
+      "max_holding_minutes": 30,
+      "description": "早盘突破策略，捕捉隔夜仓位了结波动"
+    },
+    "noon_oscillation": {
+      "start": "14:00",
+      "end": "16:00",
+      "target_profit": 0.01,
+      "description": "午间震荡策略，布林带上下轨反向操作"
+    },
+    "us_session": {
+      "start": "20:00",
+      "end": "22:00",
+      "max_holding_minutes": 60,
+      "description": "美盘联动策略，跟随美股开盘方向"
+    }
+  },
+  
+  "performance_targets": {
+    "daily_return_target": 0.03,
+    "win_rate_target": 0.60,
+    "max_drawdown": 0.08,
+    "sharpe_ratio_target": 2.0,
+    "comment": "目标日收益3%，胜率60%，最大回撤8%，夏普比率2.0"
+  },
+  
+  "backtest_settings": {
+    "start_date": "2024-01-01",
+    "end_date": "2024-10-23",
+    "initial_capital": 300.0,
+    "commission": 0.0005,
+    "slippage": 0.0002,
+    "comment": "回测设置：手续费0.05%，滑点0.02%"
+  },
+  
+  "notes": [
+    "本策略适合有一定交易经验的用户",
+    "建议先在模拟盘测试至少1周",
+    "严格遵守风险控制规则",
+    "不要在重大新闻发布时交易",
+    "保持交易纪律，不要情绪化操作",
+    "定期复盘和优化参数"
+  ]
+}
