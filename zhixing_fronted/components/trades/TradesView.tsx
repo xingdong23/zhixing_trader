@@ -26,6 +26,7 @@ import { computeEquityCurve, computeMaxDrawdown } from "@/lib/metrics";
 import { detectViolations, calculateViolationCost } from "@/lib/violations";
 import { toast } from "sonner";
 import TradingDisciplineReminder from "@/components/trading/TradingDisciplineReminder";
+import PreTradeChecklist from "@/components/trading/PreTradeChecklist";
 
 // Mock 数据
 import { mockTrades, mockStatistics } from "@/app/trades/mockData";
@@ -53,6 +54,10 @@ export default function TradesView() {
   const [goalTriggered, setGoalTriggered] = useState(false);
   const [ddTriggered, setDdTriggered] = useState(false);
   const [highlightTradeId, setHighlightTradeId] = useState<number | null>(null);
+  
+  // 交易前检查清单状态
+  const [showPreTradeChecklist, setShowPreTradeChecklist] = useState(false);
+  const [pendingTradeAction, setPendingTradeAction] = useState<'create_plan' | 'manual_entry' | null>(null);
 
   // 筛选交易
   const filteredTrades = useMemo(() => {
@@ -393,10 +398,16 @@ export default function TradesView() {
           <Button variant="outline" onClick={exportCsv}>导出CSV（当前筛选）</Button>
           <SavedFiltersMenu current={filters} onApply={setFilters} />
           <Button variant="outline" onClick={() => setAlertOpen(true)}>配置提醒</Button>
-          <Button variant="outline" onClick={() => setManualOpen(true)}>手动录入</Button>
+          <Button variant="outline" onClick={() => {
+            setPendingTradeAction('manual_entry');
+            setShowPreTradeChecklist(true);
+          }}>手动录入</Button>
           {importMessage && <span className="text-xs text-muted-foreground ml-2">{importMessage}</span>}
         </div>
-        <Button onClick={() => setShowForcedPlanForm(true)}>
+        <Button onClick={() => {
+          setPendingTradeAction('create_plan');
+          setShowPreTradeChecklist(true);
+        }}>
           <Plus className="w-4 h-4 mr-2" />
           创建强制交易计划（AAPL演示）
         </Button>
@@ -593,6 +604,29 @@ export default function TradesView() {
           setAlertCfg(cfg);
           try { localStorage.setItem("alertConfig", JSON.stringify(cfg)); } catch {}
         }}
+      />
+      
+      {/* 交易前强制检查清单 */}
+      <PreTradeChecklist
+        open={showPreTradeChecklist}
+        onClose={() => {
+          setShowPreTradeChecklist(false);
+          setPendingTradeAction(null);
+        }}
+        onApprove={() => {
+          setShowPreTradeChecklist(false);
+          // 根据待处理的操作执行相应动作
+          if (pendingTradeAction === 'create_plan') {
+            setShowForcedPlanForm(true);
+          } else if (pendingTradeAction === 'manual_entry') {
+            setManualOpen(true);
+          }
+          setPendingTradeAction(null);
+          toast.success('交易前检查通过！');
+        }}
+        stockSymbol={demoStock.symbol}
+        stockName={demoStock.name}
+        action="buy"
       />
     </div>
   );

@@ -86,9 +86,15 @@ import PsychologyView from '@/components/psychology/PsychologyView'
 import ErrorsView from '@/components/errors/ErrorsView'
 import PivotView from '@/components/pivot/PivotView'
 import MarketOpportunityView from '@/components/market/MarketOpportunityView'
+import MarketSentimentMonitor from '@/components/market/MarketSentimentMonitor'
+import FearGreedMonitor from '@/components/market/FearGreedMonitor'
 import ForcedTradePlanForm from "@/components/tradePlan/ForcedTradePlanForm"
 import type { TradePlan } from "@/lib/tradePlan"
 import TradingDisciplineReminder from "@/components/trading/TradingDisciplineReminder"
+import TradingPatternTracker from "@/components/trading/TradingPatternTracker"
+import ReverseAlertSystem from "@/components/trading/ReverseAlertSystem"
+import TradingHealthCenter from "@/components/trading/TradingHealthCenter"
+import TechnicalPatternScanner from "@/components/market/TechnicalPatternScanner"
 import WisdomLibrary from "@/components/wisdom/WisdomLibrary"
 
 // 导入Mock数据
@@ -189,6 +195,12 @@ export default function TradingSystem() {
   const [changePercentRange, setChangePercentRange] = useState<{min?: number, max?: number}>({})
   const [showPriceFilter, setShowPriceFilter] = useState(false)
   const [showChangePercentFilter, setShowChangePercentFilter] = useState(false)
+  
+  // 恐慌指数面板状态
+  const [showFearIndexPanel, setShowFearIndexPanel] = useState(false)
+  
+  // 熔断状态
+  const [isCircuitBreakerActive, setIsCircuitBreakerActive] = useState(false)
   
 
   // 处理排序点击
@@ -364,16 +376,13 @@ export default function TradingSystem() {
             {[ 
               { id: "dashboard", label: "股票", icon: Heart },
               { id: "categories", label: "分类", icon: Folder },
-              { id: "market", label: "市场机会", icon: Eye },
-              { id: "trades", label: "交易", icon: Activity },
+              { id: "trades", label: "交易", icon: DollarSign },
               { id: "notes", label: "笔记", icon: PenTool },
               { id: "review", label: "复盘", icon: BookOpen },
               { id: "strategies", label: "策略", icon: Target },
-              { id: "checklist", label: "清单", icon: CheckCircle },
               { id: "psychology", label: "心理", icon: Brain },
-              { id: "wisdom", label: "智慧库", icon: Lightbulb, special: true },
-              { id: "errors", label: "错误", icon: AlertTriangle },
-              { id: "pivot", label: "透视", icon: BarChart3 },
+              { id: "health", label: "体检中心", icon: Shield, special: true },
+              { id: "wisdom", label: "智慧库", icon: Lightbulb },
               { id: "brokers", label: "券商", icon: Settings },
             ].map(({ id, label, icon: Icon, special }) => (
               <button
@@ -450,6 +459,15 @@ export default function TradingSystem() {
                   />
                 </div>
                 <div className="flex items-center gap-2">
+                  <Button 
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setCurrentPage('health')}
+                    title="查看交易健康状况"
+                  >
+                    <Shield className="w-4 h-4 mr-2" />
+                    体检中心
+                  </Button>
                   <NotificationCenter />
                   <Button variant="ghost" size="icon">
                     <Settings className="w-5 h-5" />
@@ -461,15 +479,12 @@ export default function TradingSystem() {
 
           {/* Page Content */}
           <main className="px-6 py-4">
-            {/* 交易纪律提醒横幅 - 在所有页面顶部显示 */}
-            <div className="mb-6">
-              <TradingDisciplineReminder 
-                variant="banner" 
-                dismissible={false}
-                autoRotate={true}
-                rotateInterval={15}
-              />
-            </div>
+            {/* 智能提醒系统 - 只在有重要提醒时显示 */}
+            <ReverseAlertSystem 
+              variant="banner"
+              autoCheck={true}
+              checkInterval={60}
+            />
 
             {currentPage === "dashboard" && (
               <div className="space-y-6">
@@ -840,6 +855,10 @@ export default function TradingSystem() {
               <MarketOpportunityView />
             )}
 
+            {currentPage === "sentiment" && (
+              <MarketSentimentMonitor />
+            )}
+
             {currentPage === "review" && (
               <ReviewView />
             )}
@@ -870,6 +889,14 @@ export default function TradingSystem() {
 
             {currentPage === "brokers" && (
               <BrokersView />
+            )}
+
+            {currentPage === "health" && (
+              <TradingHealthCenter />
+            )}
+
+            {currentPage === "patterns" && (
+              <TechnicalPatternScanner variant="full" autoRefresh={true} refreshInterval={300} />
             )}
 
             {currentPage === "trade-plan-demo" && (
