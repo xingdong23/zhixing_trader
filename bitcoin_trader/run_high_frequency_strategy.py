@@ -107,8 +107,12 @@ class HighFrequencyTrader:
         })
         
         if self.mode == "paper":
-            # 设置模拟盘环境
+            # 设置模拟盘环境 - 使用AWS沙盒地址
             exchange.set_sandbox_mode(True)
+            # 手动设置沙盒URL（修复hostname问题）
+            exchange.urls['api'] = {
+                'rest': 'https://www.okx.com'
+            }
             logger.info("✓ 使用OKX模拟盘（沙盒环境）")
         else:
             logger.warning("⚠️  使用OKX实盘 - 请谨慎操作！")
