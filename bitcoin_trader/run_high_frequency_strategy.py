@@ -24,6 +24,7 @@ sys.path.append('.')
 
 from dotenv import load_dotenv
 import ccxt
+import requests
 
 from app.core.strategies.high_frequency_scalping_strategy import HighFrequencyScalpingStrategy
 from app.core.risk_manager import RiskManager, RiskLimits
@@ -125,27 +126,47 @@ class HighFrequencyTrader:
         return exchange
     
     async def fetch_klines(self, timeframe: str = '5m', limit: int = 200) -> List[Dict]:
-        """获取K线数据"""
+        """获取K线数据（直接调用OKX HTTP接口，避免ccxt加载市场出错）"""
         try:
-            ohlcv = self.exchange.fetch_ohlcv(
-                symbol=self.symbol,
-                timeframe=timeframe,
-                limit=limit
-            )
-            
-            klines = []
-            for candle in ohlcv:
+            # OKX 接口: https://www.okx.com/api/v5/market/candles
+            # 参数: instId=BTC-USDT, bar=5m, limit=200
+            inst_id = self.symbol.replace('/', '-')
+            url = 'https://www.okx.com/api/v5/market/candles'
+            params = {
+                'instId': inst_id,
+                'bar': timeframe,
+                'limit': str(limit),
+            }
+            headers = {}
+            if self.mode == 'paper':
+                headers['x-simulated-trading'] = '1'
+            resp = requests.get(url, params=params, headers=headers, timeout=15)
+            data = resp.json()
+            if data.get('code') != '0':
+                logger.error(f"获取K线数据失败: okx {data}")
+                return []
+
+            candles = data.get('data', [])
+            # OKX 返回按时间倒序，需反转
+            candles = list(reversed(candles))
+            klines: List[Dict] = []
+            for c in candles:
+                # c: [ts, o, h, l, c, vol, volCcy, volCcyQuote, confirm, ...]
+                ts = int(float(c[0]))
+                o = float(c[1])
+                h = float(c[2])
+                l = float(c[3])
+                cl = float(c[4])
+                vol = float(c[5]) if len(c) > 5 and c[5] is not None else 0.0
                 klines.append({
-                    "timestamp": datetime.fromtimestamp(candle[0] / 1000),
-                    "open": candle[1],
-                    "high": candle[2],
-                    "low": candle[3],
-                    "close": candle[4],
-                    "volume": candle[5]
+                    'timestamp': datetime.fromtimestamp(ts / 1000),
+                    'open': o,
+                    'high': h,
+                    'low': l,
+                    'close': cl,
+                    'volume': vol,
                 })
-            
             return klines
-            
         except Exception as e:
             logger.error(f"获取K线数据失败: {e}")
             return []
