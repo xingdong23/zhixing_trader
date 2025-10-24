@@ -103,14 +103,14 @@ class HighFrequencyTrader:
             'secret': api_secret,
             'password': passphrase,
             'enableRateLimit': True,
+            'hostname': 'www.okx.com',  # 设置hostname
         }
         
         # 设置为模拟盘或实盘
         if self.mode == "paper":
             config['options'] = {
-                'defaultType': 'swap',  # 合约交易
+                'defaultType': 'spot',  # 现货交易
             }
-            config['hostname'] = 'www.okx.com'  # 使用模拟盘域名
             exchange = ccxt.okx(config)
             exchange.set_sandbox_mode(True)
             logger.info("✓ 使用OKX模拟盘")
