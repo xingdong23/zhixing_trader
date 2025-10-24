@@ -98,18 +98,24 @@ class HighFrequencyTrader:
             raise ValueError("请在.env文件中配置OKX API密钥")
         
         # 创建OKX交易所实例
-        exchange = ccxt.okx({
+        config = {
             'apiKey': api_key,
             'secret': api_secret,
             'password': passphrase,
             'enableRateLimit': True,
-        })
+        }
         
         # 设置为模拟盘或实盘
         if self.mode == "paper":
+            config['options'] = {
+                'defaultType': 'swap',  # 合约交易
+            }
+            config['hostname'] = 'www.okx.com'  # 使用模拟盘域名
+            exchange = ccxt.okx(config)
             exchange.set_sandbox_mode(True)
             logger.info("✓ 使用OKX模拟盘")
         else:
+            exchange = ccxt.okx(config)
             logger.warning("⚠️  使用OKX实盘 - 请谨慎操作！")
         
         return exchange
