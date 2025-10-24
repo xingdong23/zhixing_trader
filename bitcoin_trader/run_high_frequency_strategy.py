@@ -113,6 +113,11 @@ class HighFrequencyTrader:
             exchange.urls['api'] = {
                 'rest': 'https://www.okx.com'
             }
+            # 仅加载现货市场，避免解析其他类型导致的异常
+            exchange.options['defaultType'] = 'spot'
+            exchange.options['fetchMarkets'] = ['SPOT']
+            # 显式开启模拟盘请求头
+            exchange.headers = {**(exchange.headers or {}), 'x-simulated-trading': '1'}
             logger.info("✓ 使用OKX模拟盘（沙盒环境）")
         else:
             logger.warning("⚠️  使用OKX实盘 - 请谨慎操作！")
