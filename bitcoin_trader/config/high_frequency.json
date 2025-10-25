@@ -9,24 +9,78 @@
     "leverage": 3.0
   },
   
-  "parameters": {
+  "capital_management": {
+    "num_portions": 6,
+    "portion_size": 50.0,
+    "max_portions_per_trade": 2
+  },
+  
+  "indicators": {
     "ema_fast": 8,
     "ema_slow": 21,
     "rsi_period": 14,
     "rsi_long_threshold_low": 45,
     "rsi_short_threshold_high": 55,
-    "volume_multiplier": 1.5,
     "bb_period": 20,
-    "bb_std": 2
+    "bb_std": 2,
+    "macd_fast": 12,
+    "macd_slow": 26,
+    "macd_signal": 9
+  },
+  
+  "entry_conditions": {
+    "volume_lookback": 5,
+    "volume_multiplier": 1.8,
+    "breakout_lookback": 15,
+    "breakout_confirmation": 0.0015
+  },
+  
+  "exit_conditions": {
+    "stop_loss_min": 0.008,
+    "stop_loss_max": 0.010,
+    "take_profit_min": 0.015,
+    "take_profit_max": 0.025,
+    "profit_risk_ratio_min": 1.5,
+    "profit_risk_ratio_max": 2.0,
+    "profit_level_1": 0.005,
+    "profit_level_2": 0.010,
+    "profit_level_3": 0.015,
+    "partial_close_ratio": 0.5,
+    "max_holding_time": 120,
+    "ideal_holding_time_min": 15,
+    "ideal_holding_time_max": 45
   },
   
   "risk_control": {
-    "stop_loss_min": 0.008,
-    "stop_loss_max": 0.012,
-    "take_profit_min": 0.015,
-    "take_profit_max": 0.025,
-    "max_daily_loss": 0.08,
+    "max_daily_profit": 0.05,
+    "max_daily_loss": 0.05,
     "max_consecutive_losses": 2,
-    "max_trades_per_day": 8
+    "max_trades_per_day": 5,
+    "min_trades_per_day": 3,
+    "single_trade_max_loss": 0.02
+  },
+  
+  "special_conditions": {
+    "avoid_news_minutes": 30,
+    "max_1min_volatility": 0.005,
+    "min_volume_threshold": 0.5
+  },
+  
+  "session_filter": {
+    "enabled": true,
+    "allowed_sessions": ["MORNING_BREAKOUT", "US_SESSION"]
+  },
+  
+  "trend_following": {
+    "enabled": true,
+    "min_profit_to_activate": 0.01,
+    "trailing_atr_multiplier": 1.2,
+    "use_ema_trailing": true,
+    "extend_holding_time": true,
+    "max_holding_time_on_trend": 240
+  },
+  
+  "conservative_mode": {
+    "enabled": true
   }
 }

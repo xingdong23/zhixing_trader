@@ -59,14 +59,43 @@ class HighFrequencyTrader:
         # 初始化交易所
         self.exchange = self._init_exchange()
         
-        # 初始化策略
-        self.strategy = HighFrequencyScalpingStrategy({
+        # 初始化策略（合并所有配置到策略参数）
+        strat_params = {
             "total_capital": self.config['trading']['capital'],
             "leverage": self.config['trading']['leverage'],
-        })
+        }
         
-        # 初始化风险管理器
-        risk_config = self.config['risk_control']
+        # 合并所有配置组
+        for section in ['capital_management', 'indicators', 'entry_conditions', 
+                       'exit_conditions', 'risk_control', 'special_conditions']:
+            strat_params.update(self.config.get(section, {}))
+        
+        # 处理时段过滤
+        if 'session_filter' in self.config:
+            strat_params['session_filter_enabled'] = self.config['session_filter'].get('enabled', False)
+            strat_params['allowed_sessions'] = self.config['session_filter'].get('allowed_sessions', [])
+        
+        # 处理顺势持有
+        if 'trend_following' in self.config:
+            strat_params['trend_follow_enabled'] = self.config['trend_following'].get('enabled', True)
+            strat_params['trend_follow_min_profit'] = self.config['trend_following'].get('min_profit_to_activate', 0.01)
+            strat_params['trailing_atr_multiplier'] = self.config['trend_following'].get('trailing_atr_multiplier', 1.2)
+            strat_params['use_ema_trailing'] = self.config['trend_following'].get('use_ema_trailing', True)
+            strat_params['extend_holding_time_on_trend'] = self.config['trend_following'].get('extend_holding_time', True)
+            strat_params['max_holding_time_trend'] = self.config['trend_following'].get('max_holding_time_on_trend', 240)
+        
+        # 处理保守模式
+        if 'conservative_mode' in self.config:
+            strat_params['conservative_mode'] = self.config['conservative_mode'].get('enabled', False)
+        
+        self.strategy = HighFrequencyScalpingStrategy(strat_params)
+        
+        # 初始化风险管理器（若开启保守模式则收紧限制）
+        risk_config = dict(self.config['risk_control'])
+        if strat_params.get('conservative_mode'):
+            risk_config['max_daily_loss'] = min(risk_config.get('max_daily_loss', 0.08), 0.05)
+            risk_config['max_trades_per_day'] = min(risk_config.get('max_trades_per_day', 8), 5)
+        
         self.risk_manager = RiskManager(
             initial_capital=self.config['trading']['capital'],
             limits=RiskLimits(
