@@ -6,13 +6,13 @@
     "symbol": "ETH/USDT",
     "timeframe": "5m",
     "capital": 300.0,
-    "leverage": 3.0
+    "leverage": 5.0
   },
   
   "capital_management": {
     "num_portions": 6,
     "portion_size": 50.0,
-    "max_portions_per_trade": 2
+    "max_portions_per_trade": 6
   },
   
   "indicators": {
@@ -30,33 +30,33 @@
   
   "entry_conditions": {
     "volume_lookback": 5,
-    "volume_multiplier": 1.5,
+    "volume_multiplier": 1.2,
     "breakout_lookback": 15,
-    "breakout_confirmation": 0.001
+    "breakout_confirmation": 0.0005
   },
   
   "exit_conditions": {
-    "stop_loss_min": 0.008,
-    "stop_loss_max": 0.010,
+    "stop_loss_min": 0.006,
+    "stop_loss_max": 0.008,
     "take_profit_min": 0.015,
-    "take_profit_max": 0.025,
-    "profit_risk_ratio_min": 1.5,
-    "profit_risk_ratio_max": 2.0,
-    "profit_level_1": 0.005,
-    "profit_level_2": 0.010,
-    "profit_level_3": 0.015,
-    "partial_close_ratio": 0.5,
-    "max_holding_time": 120,
-    "ideal_holding_time_min": 15,
-    "ideal_holding_time_max": 45
+    "take_profit_max": 0.030,
+    "profit_risk_ratio_min": 2.0,
+    "profit_risk_ratio_max": 3.5,
+    "profit_level_1": 0.004,
+    "profit_level_2": 0.008,
+    "profit_level_3": 0.012,
+    "partial_close_ratio": 0.3,
+    "max_holding_time": 150,
+    "ideal_holding_time_min": 20,
+    "ideal_holding_time_max": 60
   },
   
   "risk_control": {
-    "max_daily_profit": 0.05,
-    "max_daily_loss": 0.05,
-    "max_consecutive_losses": 2,
-    "max_trades_per_day": 5,
-    "min_trades_per_day": 3,
+    "max_daily_profit": 0.10,
+    "max_daily_loss": 0.08,
+    "max_consecutive_losses": 3,
+    "max_trades_per_day": 10,
+    "min_trades_per_day": 1,
     "single_trade_max_loss": 0.02
   },
   
@@ -73,11 +73,11 @@
   
   "trend_following": {
     "enabled": true,
-    "min_profit_to_activate": 0.01,
-    "trailing_atr_multiplier": 1.2,
+    "min_profit_to_activate": 0.006,
+    "trailing_atr_multiplier": 1.8,
     "use_ema_trailing": true,
     "extend_holding_time": true,
-    "max_holding_time_on_trend": 240
+    "max_holding_time_on_trend": 360
   },
   
   "conservative_mode": {
