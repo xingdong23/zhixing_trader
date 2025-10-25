@@ -10,7 +10,7 @@
   
   "strategy": {
     "name": "high_frequency",
-    "config_file": "../config/high_frequency.json"
+    "config_file": "../app/config/high_frequency.json"
   },
   
   "backtest_settings": {

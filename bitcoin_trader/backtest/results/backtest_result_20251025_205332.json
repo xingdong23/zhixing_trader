@@ -1,0 +1,461 @@
+{
+  "summary": {
+    "initial_capital": 300.0,
+    "final_capital": 300.0,
+    "total_pnl": 0,
+    "total_return": 0,
+    "total_trades": 0,
+    "winning_trades": 0,
+    "losing_trades": 0,
+    "win_rate": 0,
+    "avg_win": 0,
+    "avg_loss": 0,
+    "profit_factor": 0,
+    "max_drawdown": 0,
+    "avg_holding_time": 0,
+    "message": "没有产生任何交易"
+  },
+  "trades": [],
+  "equity_curve": [
+    {
+      "timestamp": "2025-10-23T08:40:00",
+      "equity": 300.0,
+      "price": 3889.12
+    },
+    {
+      "timestamp": "2025-10-23T08:45:00",
+      "equity": 300.0,
+      "price": 3895.52
+    },
+    {
+      "timestamp": "2025-10-23T08:50:00",
+      "equity": 300.0,
+      "price": 3887.35
+    },
+    {
+      "timestamp": "2025-10-23T08:55:00",
+      "equity": 300.0,
+      "price": 3884.99
+    },
+    {
+      "timestamp": "2025-10-23T09:00:00",
+      "equity": 300.0,
+      "price": 3877.41
+    },
+    {
+      "timestamp": "2025-10-23T09:05:00",
+      "equity": 300.0,
+      "price": 3882.84
+    },
+    {
+      "timestamp": "2025-10-23T09:10:00",
+      "equity": 300.0,
+      "price": 3873.7
+    },
+    {
+      "timestamp": "2025-10-23T09:15:00",
+      "equity": 300.0,
+      "price": 3879.46
+    },
+    {
+      "timestamp": "2025-10-23T09:20:00",
+      "equity": 300.0,
+      "price": 3881.7
+    },
+    {
+      "timestamp": "2025-10-23T09:25:00",
+      "equity": 300.0,
+      "price": 3885.62
+    },
+    {
+      "timestamp": "2025-10-23T09:30:00",
+      "equity": 300.0,
+      "price": 3886.75
+    },
+    {
+      "timestamp": "2025-10-23T09:35:00",
+      "equity": 300.0,
+      "price": 3882.01
+    },
+    {
+      "timestamp": "2025-10-23T09:40:00",
+      "equity": 300.0,
+      "price": 3882.66
+    },
+    {
+      "timestamp": "2025-10-23T09:45:00",
+      "equity": 300.0,
+      "price": 3880.24
+    },
+    {
+      "timestamp": "2025-10-23T09:50:00",
+      "equity": 300.0,
+      "price": 3884.0
+    },
+    {
+      "timestamp": "2025-10-23T09:55:00",
+      "equity": 300.0,
+      "price": 3888.8
+    },
+    {
+      "timestamp": "2025-10-23T10:00:00",
+      "equity": 300.0,
+      "price": 3892.6
+    },
+    {
+      "timestamp": "2025-10-23T10:05:00",
+      "equity": 300.0,
+      "price": 3895.02
+    },
+    {
+      "timestamp": "2025-10-23T10:10:00",
+      "equity": 300.0,
+      "price": 3897.28
+    },
+    {
+      "timestamp": "2025-10-23T10:15:00",
+      "equity": 300.0,
+      "price": 3902.04
+    },
+    {
+      "timestamp": "2025-10-23T10:20:00",
+      "equity": 300.0,
+      "price": 3894.16
+    },
+    {
+      "timestamp": "2025-10-23T10:25:00",
+      "equity": 300.0,
+      "price": 3893.14
+    },
+    {
+      "timestamp": "2025-10-23T10:30:00",
+      "equity": 300.0,
+      "price": 3890.05
+    },
+    {
+      "timestamp": "2025-10-23T10:35:00",
+      "equity": 300.0,
+      "price": 3884.37
+    },
+    {
+      "timestamp": "2025-10-23T10:40:00",
+      "equity": 300.0,
+      "price": 3880.24
+    },
+    {
+      "timestamp": "2025-10-23T10:45:00",
+      "equity": 300.0,
+      "price": 3880.84
+    },
+    {
+      "timestamp": "2025-10-23T10:50:00",
+      "equity": 300.0,
+      "price": 3877.99
+    },
+    {
+      "timestamp": "2025-10-23T10:55:00",
+      "equity": 300.0,
+      "price": 3875.63
+    },
+    {
+      "timestamp": "2025-10-23T11:00:00",
+      "equity": 300.0,
+      "price": 3876.46
+    },
+    {
+      "timestamp": "2025-10-23T11:05:00",
+      "equity": 300.0,
+      "price": 3875.86
+    },
+    {
+      "timestamp": "2025-10-23T11:10:00",
+      "equity": 300.0,
+      "price": 3874.0
+    },
+    {
+      "timestamp": "2025-10-23T11:15:00",
+      "equity": 300.0,
+      "price": 3876.86
+    },
+    {
+      "timestamp": "2025-10-23T11:20:00",
+      "equity": 300.0,
+      "price": 3883.55
+    },
+    {
+      "timestamp": "2025-10-23T11:25:00",
+      "equity": 300.0,
+      "price": 3880.65
+    },
+    {
+      "timestamp": "2025-10-23T11:30:00",
+      "equity": 300.0,
+      "price": 3867.17
+    },
+    {
+      "timestamp": "2025-10-23T11:35:00",
+      "equity": 300.0,
+      "price": 3868.2
+    },
+    {
+      "timestamp": "2025-10-23T11:40:00",
+      "equity": 300.0,
+      "price": 3864.84
+    },
+    {
+      "timestamp": "2025-10-23T11:45:00",
+      "equity": 300.0,
+      "price": 3867.27
+    },
+    {
+      "timestamp": "2025-10-23T11:50:00",
+      "equity": 300.0,
+      "price": 3864.35
+    },
+    {
+      "timestamp": "2025-10-23T11:55:00",
+      "equity": 300.0,
+      "price": 3861.83
+    },
+    {
+      "timestamp": "2025-10-23T12:00:00",
+      "equity": 300.0,
+      "price": 3837.4
+    },
+    {
+      "timestamp": "2025-10-23T12:05:00",
+      "equity": 300.0,
+      "price": 3845.6
+    },
+    {
+      "timestamp": "2025-10-23T12:10:00",
+      "equity": 300.0,
+      "price": 3844.01
+    },
+    {
+      "timestamp": "2025-10-23T12:15:00",
+      "equity": 300.0,
+      "price": 3849.28
+    },
+    {
+      "timestamp": "2025-10-23T12:20:00",
+      "equity": 300.0,
+      "price": 3853.85
+    },
+    {
+      "timestamp": "2025-10-23T12:25:00",
+      "equity": 300.0,
+      "price": 3855.56
+    },
+    {
+      "timestamp": "2025-10-23T12:30:00",
+      "equity": 300.0,
+      "price": 3846.43
+    },
+    {
+      "timestamp": "2025-10-23T12:35:00",
+      "equity": 300.0,
+      "price": 3847.48
+    },
+    {
+      "timestamp": "2025-10-23T12:40:00",
+      "equity": 300.0,
+      "price": 3850.0
+    },
+    {
+      "timestamp": "2025-10-23T12:45:00",
+      "equity": 300.0,
+      "price": 3850.44
+    },
+    {
+      "timestamp": "2025-10-23T12:50:00",
+      "equity": 300.0,
+      "price": 3847.34
+    },
+    {
+      "timestamp": "2025-10-23T12:55:00",
+      "equity": 300.0,
+      "price": 3851.75
+    },
+    {
+      "timestamp": "2025-10-23T13:00:00",
+      "equity": 300.0,
+      "price": 3843.0
+    },
+    {
+      "timestamp": "2025-10-23T13:05:00",
+      "equity": 300.0,
+      "price": 3834.98
+    },
+    {
+      "timestamp": "2025-10-23T13:10:00",
+      "equity": 300.0,
+      "price": 3844.78
+    },
+    {
+      "timestamp": "2025-10-23T13:15:00",
+      "equity": 300.0,
+      "price": 3841.8
+    },
+    {
+      "timestamp": "2025-10-23T13:20:00",
+      "equity": 300.0,
+      "price": 3843.73
+    },
+    {
+      "timestamp": "2025-10-23T13:25:00",
+      "equity": 300.0,
+      "price": 3844.99
+    },
+    {
+      "timestamp": "2025-10-23T13:30:00",
+      "equity": 300.0,
+      "price": 3858.66
+    },
+    {
+      "timestamp": "2025-10-23T13:35:00",
+      "equity": 300.0,
+      "price": 3858.07
+    },
+    {
+      "timestamp": "2025-10-23T13:40:00",
+      "equity": 300.0,
+      "price": 3844.76
+    },
+    {
+      "timestamp": "2025-10-23T13:45:00",
+      "equity": 300.0,
+      "price": 3851.39
+    },
+    {
+      "timestamp": "2025-10-23T13:50:00",
+      "equity": 300.0,
+      "price": 3855.02
+    },
+    {
+      "timestamp": "2025-10-23T13:55:00",
+      "equity": 300.0,
+      "price": 3850.0
+    },
+    {
+      "timestamp": "2025-10-23T14:00:00",
+      "equity": 300.0,
+      "price": 3845.94
+    },
+    {
+      "timestamp": "2025-10-23T14:05:00",
+      "equity": 300.0,
+      "price": 3827.41
+    },
+    {
+      "timestamp": "2025-10-23T14:10:00",
+      "equity": 300.0,
+      "price": 3813.61
+    },
+    {
+      "timestamp": "2025-10-23T14:15:00",
+      "equity": 300.0,
+      "price": 3809.85
+    },
+    {
+      "timestamp": "2025-10-23T14:20:00",
+      "equity": 300.0,
+      "price": 3832.21
+    },
+    {
+      "timestamp": "2025-10-23T14:25:00",
+      "equity": 300.0,
+      "price": 3826.21
+    },
+    {
+      "timestamp": "2025-10-23T14:30:00",
+      "equity": 300.0,
+      "price": 3840.98
+    },
+    {
+      "timestamp": "2025-10-23T14:35:00",
+      "equity": 300.0,
+      "price": 3840.75
+    },
+    {
+      "timestamp": "2025-10-23T14:40:00",
+      "equity": 300.0,
+      "price": 3836.61
+    },
+    {
+      "timestamp": "2025-10-23T14:45:00",
+      "equity": 300.0,
+      "price": 3844.45
+    },
+    {
+      "timestamp": "2025-10-23T14:50:00",
+      "equity": 300.0,
+      "price": 3836.96
+    },
+    {
+      "timestamp": "2025-10-23T14:55:00",
+      "equity": 300.0,
+      "price": 3845.99
+    },
+    {
+      "timestamp": "2025-10-23T15:00:00",
+      "equity": 300.0,
+      "price": 3843.84
+    },
+    {
+      "timestamp": "2025-10-23T15:05:00",
+      "equity": 300.0,
+      "price": 3868.43
+    },
+    {
+      "timestamp": "2025-10-23T15:10:00",
+      "equity": 300.0,
+      "price": 3863.58
+    },
+    {
+      "timestamp": "2025-10-23T15:15:00",
+      "equity": 300.0,
+      "price": 3851.01
+    },
+    {
+      "timestamp": "2025-10-23T15:20:00",
+      "equity": 300.0,
+      "price": 3852.05
+    },
+    {
+      "timestamp": "2025-10-23T15:25:00",
+      "equity": 300.0,
+      "price": 3861.0
+    },
+    {
+      "timestamp": "2025-10-23T15:30:00",
+      "equity": 300.0,
+      "price": 3875.22
+    },
+    {
+      "timestamp": "2025-10-23T15:35:00",
+      "equity": 300.0,
+      "price": 3868.2
+    },
+    {
+      "timestamp": "2025-10-23T15:40:00",
+      "equity": 300.0,
+      "price": 3858.71
+    },
+    {
+      "timestamp": "2025-10-23T15:45:00",
+      "equity": 300.0,
+      "price": 3877.56
+    },
+    {
+      "timestamp": "2025-10-23T15:50:00",
+      "equity": 300.0,
+      "price": 3879.17
+    },
+    {
+      "timestamp": "2025-10-23T15:55:00",
+      "equity": 300.0,
+      "price": 3874.89
+    }
+  ]
+}
