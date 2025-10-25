@@ -15,14 +15,21 @@ logger = logging.getLogger(__name__)
 class PositionStorage:
     """持仓存储管理器"""
     
-    def __init__(self, storage_file: str = "position_state.json"):
+    def __init__(self, storage_file: str = None):
         """
         初始化持仓存储
         
         Args:
-            storage_file: 存储文件路径
+            storage_file: 存储文件路径，默认为 app/position_state.json
         """
+        if storage_file is None:
+            # 获取当前文件所在目录的父目录的父目录（app目录）
+            current_dir = os.path.dirname(os.path.abspath(__file__))
+            app_dir = os.path.dirname(os.path.dirname(current_dir))
+            storage_file = os.path.join(app_dir, "position_state.json")
+        
         self.storage_file = storage_file
+        logger.info(f"持仓存储文件: {self.storage_file}")
         self._ensure_file_exists()
     
     def _ensure_file_exists(self):
