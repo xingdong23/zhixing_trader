@@ -12,7 +12,7 @@
   "capital_management": {
     "num_portions": 6,
     "portion_size": 50.0,
-    "max_portions_per_trade": 6
+    "max_portions_per_trade": 2
   },
   
   "indicators": {
@@ -30,9 +30,9 @@
   
   "entry_conditions": {
     "volume_lookback": 5,
-    "volume_multiplier": 1.2,
+    "volume_multiplier": 1.1,
     "breakout_lookback": 15,
-    "breakout_confirmation": 0.0005
+    "breakout_confirmation": 0.0003
   },
   
   "exit_conditions": {
