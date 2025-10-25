@@ -49,79 +49,26 @@ class HighFrequencyScalpingStrategy:
     """高频短线交易策略"""
     
     def __init__(self, parameters: Dict[str, Any] = None):
-        default_params = {
-            # 资金管理参数
-            "total_capital": 300.0,  # 总资金（USDT）
-            "num_portions": 6,  # 分仓数量
-            "portion_size": 50.0,  # 每份资金
-            "max_portions_per_trade": 2,  # 单次最大开仓份数
-            "leverage": 3.0,  # 杠杆倍数（3-5倍）
-            
-            # EMA参数
-            "ema_fast": 8,  # 快速EMA
-            "ema_slow": 21,  # 慢速EMA
-            
-            # RSI参数
-            "rsi_period": 14,  # RSI周期
-            "rsi_long_threshold_low": 45,  # 做多RSI下限
-            "rsi_short_threshold_high": 55,  # 做空RSI上限
-            
-            # 成交量参数
-            "volume_lookback": 5,  # 成交量回看周期
-            "volume_multiplier": 1.5,  # 成交量突增倍数
-            
-            # 布林带参数
-            "bb_period": 20,  # 布林带周期
-            "bb_std": 2,  # 布林带标准差
-            
-            # MACD参数
-            "macd_fast": 12,
-            "macd_slow": 26,
-            "macd_signal": 9,
-            
-            # 止损止盈参数
-            "stop_loss_min": 0.008,  # 最小止损0.8%
-            "stop_loss_max": 0.012,  # 最大止损1.2%
-            "take_profit_min": 0.015,  # 最小止盈1.5%
-            "take_profit_max": 0.025,  # 最大止盈2.5%
-            "profit_risk_ratio_min": 1.5,  # 最小盈亏比
-            "profit_risk_ratio_max": 2.0,  # 最大盈亏比
-            
-            # 动态止盈参数
-            "profit_level_1": 0.005,  # 盈利0.5%后移动止损至成本价
-            "profit_level_2": 0.010,  # 盈利1%后移动止损至盈利0.5%
-            "profit_level_3": 0.015,  # 盈利1.5%后分批平仓
-            "partial_close_ratio": 0.5,  # 分批平仓比例
-            
-            # 风险控制参数
-            "max_daily_profit": 0.05,  # 单日最大盈利5%
-            "max_daily_loss": 0.08,  # 单日最大亏损8%
-            "max_consecutive_losses": 2,  # 最大连续亏损次数
-            "single_trade_max_loss": 0.02,  # 单笔最大亏损2%
-            
-            # 交易频率控制
-            "max_trades_per_day": 8,  # 每日最大交易次数
-            "min_trades_per_day": 3,  # 每日最小交易次数
-            "ideal_holding_time_min": 15,  # 理想持仓时间（分钟）
-            "ideal_holding_time_max": 45,  # 理想持仓时间（分钟）
-            "max_holding_time": 120,  # 最大持仓时间（分钟）
-            
-            # 价格突破参数
-            "breakout_lookback": 15,  # 突破回看周期（分钟）
-            "breakout_confirmation": 0.001,  # 突破确认幅度0.1%
-            
-            # 特殊情况参数
-            "avoid_news_minutes": 30,  # 重大数据发布前后避免交易时间
-            "max_1min_volatility": 0.005,  # 1分钟最大波动0.5%
-            "min_volume_threshold": 0.5,  # 最小成交量阈值（相对均值）
-        }
+        """
+        初始化策略
         
-        if parameters:
-            default_params.update(parameters)
+        Args:
+            parameters: 策略参数字典，必须从配置文件传入
+        """
+        if not parameters:
+            raise ValueError("策略参数不能为空，必须从配置文件传入所有参数")
+        
+        # 应用保守模式调整
+        if parameters.get("conservative_mode"):
+            parameters["max_daily_loss"] = min(parameters.get("max_daily_loss", 0.08), 0.05)
+            parameters["max_trades_per_day"] = min(parameters.get("max_trades_per_day", 8), 5)
+            parameters["stop_loss_max"] = min(parameters.get("stop_loss_max", 0.012), 0.010)
+            parameters["breakout_confirmation"] = max(parameters.get("breakout_confirmation", 0.001), 0.0015)
+            parameters["volume_multiplier"] = max(parameters.get("volume_multiplier", 1.5), 1.8)
         
         # 策略基本信息
         self.name = "高频短线交易策略"
-        self.parameters = default_params
+        self.parameters = parameters
         
         # 持仓持久化存储
         self.position_storage = PositionStorage()
@@ -292,6 +239,10 @@ class HighFrequencyScalpingStrategy:
         # 识别交易时段
         session = self._identify_trading_session()
         
+        if self.parameters.get("session_filter_enabled"):
+            if session.name not in self.parameters.get("allowed_sessions", []):
+                return {"signal": "hold", "reason": f"时段过滤: {session.value}"}
+        
         # 做多信号检查
         long_conditions = {
             "ema_cross": prev_ema8 <= prev_ema21 and current_ema8 > current_ema21,  # EMA8上穿EMA21
@@ -399,6 +350,17 @@ class HighFrequencyScalpingStrategy:
         # 计算持仓时间
         holding_time = (datetime.now() - entry_time).total_seconds() / 60  # 分钟
         
+        closes = np.array([k["close"] for k in klines])
+        ema8 = self._calculate_ema(closes, self.parameters["ema_fast"])
+        ema21 = self._calculate_ema(closes, self.parameters["ema_slow"])
+        macd_line, signal_line, histogram = self._calculate_macd(
+            closes,
+            self.parameters["macd_fast"],
+            self.parameters["macd_slow"],
+            self.parameters["macd_signal"]
+        )
+        atr = self._calculate_atr(klines, 14)
+        effective_max_holding = self.parameters["max_holding_time"]
         # 计算当前盈亏
         if side == "long":
             pnl_ratio = (current_price - entry_price) / entry_price
@@ -455,9 +417,11 @@ class HighFrequencyScalpingStrategy:
             # 盈利0.5%后，移动止损到成本价
             if side == "long" and stop_loss < entry_price:
                 position["stop_loss"] = entry_price
+                self.position_storage.save_position(self.current_position)
                 logger.info(f"盈利 {pnl_ratio:.2%}，移动止损到成本价 {entry_price:.2f}")
             elif side == "short" and stop_loss > entry_price:
                 position["stop_loss"] = entry_price
+                self.position_storage.save_position(self.current_position)
                 logger.info(f"盈利 {pnl_ratio:.2%}，移动止损到成本价 {entry_price:.2f}")
         
         if pnl_ratio >= self.parameters["profit_level_2"]:
@@ -465,9 +429,11 @@ class HighFrequencyScalpingStrategy:
             profit_05_price = entry_price * (1 + self.parameters["profit_level_1"]) if side == "long" else entry_price * (1 - self.parameters["profit_level_1"])
             if side == "long" and stop_loss < profit_05_price:
                 position["stop_loss"] = profit_05_price
+                self.position_storage.save_position(self.current_position)
                 logger.info(f"盈利 {pnl_ratio:.2%}，移动止损到盈利0.5%位置 {profit_05_price:.2f}")
             elif side == "short" and stop_loss > profit_05_price:
                 position["stop_loss"] = profit_05_price
+                self.position_storage.save_position(self.current_position)
                 logger.info(f"盈利 {pnl_ratio:.2%}，移动止损到盈利0.5%位置 {profit_05_price:.2f}")
         
         if pnl_ratio >= self.parameters["profit_level_3"] and not partial_closed:
@@ -485,8 +451,35 @@ class HighFrequencyScalpingStrategy:
                 "pnl": pnl_ratio
             }
         
+        if self.parameters.get("trend_follow_enabled") and pnl_ratio > 0:
+            if side == "long":
+                trend_ok = ema8[-1] > ema21[-1] and histogram[-1] > 0
+            else:
+                trend_ok = ema8[-1] < ema21[-1] and histogram[-1] < 0
+            if trend_ok:
+                if atr > 0 and pnl_ratio >= self.parameters.get("trend_follow_min_profit", 0.01):
+                    trailing_dist = atr * self.parameters.get("trailing_atr_multiplier", 1.2)
+                    if side == "long":
+                        new_stop = max(position["stop_loss"], current_price - trailing_dist)
+                        if self.parameters.get("use_ema_trailing", True):
+                            new_stop = max(new_stop, ema21[-1])
+                        if new_stop > position["stop_loss"]:
+                            position["stop_loss"] = new_stop
+                            self.position_storage.save_position(self.current_position)
+                            logger.info(f"顺势持有，更新追踪止损到 {new_stop:.2f}")
+                    else:
+                        new_stop = min(position["stop_loss"], current_price + trailing_dist)
+                        if self.parameters.get("use_ema_trailing", True):
+                            new_stop = min(new_stop, ema21[-1])
+                        if new_stop < position["stop_loss"]:
+                            position["stop_loss"] = new_stop
+                            self.position_storage.save_position(self.current_position)
+                            logger.info(f"顺势持有，更新追踪止损到 {new_stop:.2f}")
+                if self.parameters.get("extend_holding_time_on_trend", True):
+                    effective_max_holding = self.parameters.get("max_holding_time_trend", effective_max_holding)
+        
         # 检查最大持仓时间
-        if holding_time >= self.parameters["max_holding_time"]:
+        if holding_time >= effective_max_holding:
             return {
                 "signal": "sell" if side == "long" else "buy",
                 "price": current_price,
