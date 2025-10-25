@@ -187,19 +187,32 @@ class HighFrequencyTrader:
                 return
             
             # 执行订单
-            if signal["signal"] == "buy":
-                order = self.exchange.create_market_buy_order(
-                    symbol=self.symbol,
-                    amount=signal["amount"]
-                )
-                logger.info(f"✓ 买入订单执行成功: {order}")
-                
-            elif signal["signal"] == "sell":
-                order = self.exchange.create_market_sell_order(
-                    symbol=self.symbol,
-                    amount=signal["amount"]
-                )
-                logger.info(f"✓ 卖出订单执行成功: {order}")
+            if self.mode == 'paper':
+                # 模拟盘：不调用交易所下单，直接模拟成交
+                fake_order = {
+                    'id': f"paper-{datetime.now().strftime('%Y%m%d%H%M%S')}",
+                    'symbol': self.symbol,
+                    'side': signal["signal"],
+                    'amount': signal.get("amount", 0),
+                    'price': signal.get("price", 0),
+                    'status': 'filled',
+                    'info': {'mode': 'paper'}
+                }
+                logger.info(f"✓ 模拟下单成功: {fake_order}")
+            else:
+                if signal["signal"] == "buy":
+                    order = self.exchange.create_market_buy_order(
+                        symbol=self.symbol,
+                        amount=signal["amount"]
+                    )
+                    logger.info(f"✓ 买入订单执行成功: {order}")
+                    
+                elif signal["signal"] == "sell":
+                    order = self.exchange.create_market_sell_order(
+                        symbol=self.symbol,
+                        amount=signal["amount"]
+                    )
+                    logger.info(f"✓ 卖出订单执行成功: {order}")
             
             # 更新策略持仓
             self.strategy.update_position(signal)
