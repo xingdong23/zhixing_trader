@@ -71,7 +71,17 @@ class DataLoader:
         dfs = []
         for file_path in file_list:
             logger.info(f"  加载: {Path(file_path).name}")
+            # 尝试自动检测是否有列名
             df = pd.read_csv(file_path)
+            # 如果第一列是 'open_time' 字符串，说明有列名，已经正确读取
+            # 如果第一列是数字，说明没有列名，需要手动添加
+            if df.columns[0] != 'open_time':
+                # 没有列名，使用默认列名
+                df.columns = [
+                    'open_time', 'open', 'high', 'low', 'close', 'vol',
+                    'close_time', 'quote_vol', 'count', 'taker_buy_vol',
+                    'taker_buy_quote_vol', 'ignore'
+                ]
             dfs.append(df)
         
         # 合并所有DataFrame
@@ -93,6 +103,21 @@ class DataLoader:
                 after_count = len(self.df)
                 if before_count != after_count:
                     logger.info(f"✓ 去除 {before_count - after_count} 条重复数据")
+        
+        # 确保数值列是正确的类型
+        numeric_columns = ['open_time', 'open', 'high', 'low', 'close', 'vol', 
+                          'close_time', 'quote_vol', 'count', 'taker_buy_vol', 
+                          'taker_buy_quote_vol']
+        for col in numeric_columns:
+            if col in self.df.columns:
+                self.df[col] = pd.to_numeric(self.df[col], errors='coerce')
+        
+        # 删除包含NaN的行（通常是列名行）
+        before_count = len(self.df)
+        self.df = self.df.dropna()
+        after_count = len(self.df)
+        if before_count != after_count:
+            logger.info(f"✓ 去除 {before_count - after_count} 条无效数据")
         
         logger.info(f"✓ 加载完成: {len(self.df)} 条数据")
         
