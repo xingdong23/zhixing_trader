@@ -118,9 +118,9 @@ class HighFrequencyTrader:
         })
         
         if self.mode == "paper":
-            logger.info("✓ 使用OKX模拟盘API Key")
+            logger.info("✓ 使用OKX模拟盘API Key（虚拟资金，真实API调用）")
         else:
-            logger.warning("⚠️  使用OKX实盘API Key - 请谨慎操作！")
+            logger.warning("⚠️  使用OKX实盘API Key（真实资金，真实API调用）- 请谨慎操作！")
         
         return exchange
     

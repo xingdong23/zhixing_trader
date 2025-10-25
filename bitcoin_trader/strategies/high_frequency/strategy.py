@@ -118,7 +118,9 @@ class HighFrequencyScalpingStrategy:
         if parameters:
             default_params.update(parameters)
         
-        super().__init__("高频短线交易策略", default_params)
+        # 策略基本信息
+        self.name = "高频短线交易策略"
+        self.parameters = default_params
         
         # 持仓信息
         self.current_position = None
