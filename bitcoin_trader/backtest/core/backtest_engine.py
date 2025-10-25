@@ -53,10 +53,18 @@ class BacktestEngine:
         logger.info("="*60)
         
         # 滑动窗口遍历K线
+        last_date = None
         for i in range(window_size, len(klines)):
             current_klines = klines[i-window_size:i+1]
             current_time = current_klines[-1]['timestamp']
             current_price = current_klines[-1]['close']
+            
+            # 检查是否是新的一天，如果是则重置每日统计
+            current_date = current_time.date()
+            if last_date is not None and current_date != last_date:
+                if hasattr(self.strategy, 'reset_daily_stats'):
+                    self.strategy.reset_daily_stats()
+            last_date = current_date
             
             # 运行策略分析
             signal = self.strategy.analyze(current_klines)

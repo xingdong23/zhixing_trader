@@ -45,20 +45,24 @@ class PositionStorage:
             position: 持仓信息字典，None表示无持仓
         """
         try:
+            # 深拷贝position，避免修改原始对象
+            import copy
+            position_copy = copy.deepcopy(position) if position else None
+            
+            # 转换datetime对象为字符串
+            if position_copy and "entry_time" in position_copy:
+                position_copy["entry_time"] = position_copy["entry_time"].isoformat()
+            
             data = {
-                "position": position,
+                "position": position_copy,
                 "last_update": datetime.now().isoformat(),
                 "version": "1.0"
             }
             
-            # 转换datetime对象为字符串
-            if position and "entry_time" in position:
-                position["entry_time"] = position["entry_time"].isoformat()
-            
             with open(self.storage_file, 'w', encoding='utf-8') as f:
                 json.dump(data, f, indent=2, ensure_ascii=False)
             
-            logger.debug(f"持仓信息已保存: {position}")
+            logger.debug(f"持仓信息已保存")
             
         except Exception as e:
             logger.error(f"保存持仓信息失败: {e}")
