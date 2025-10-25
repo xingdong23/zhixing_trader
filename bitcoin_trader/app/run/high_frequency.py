@@ -22,7 +22,7 @@ from dotenv import load_dotenv
 import ccxt
 import requests
 
-from strategies.high_frequency import HighFrequencyScalpingStrategy, RiskManager, RiskLimits
+from app.strategies.high_frequency import HighFrequencyScalpingStrategy, RiskManager, RiskLimits
 
 # 加载环境变量
 load_dotenv()

@@ -25,7 +25,7 @@ ENV/
 env/
 
 # Environment variables
-.env
+app/.env
 .env.local
 
 # IDE
@@ -63,4 +63,4 @@ data/
 # Backups
 *.bak
 
-position_state.json
+app/position_state.json

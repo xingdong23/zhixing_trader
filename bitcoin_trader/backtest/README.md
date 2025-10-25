@@ -282,7 +282,7 @@ class MyStrategy:
 在 `run_backtest.py` 中导入新策略：
 
 ```python
-from strategies.my_strategy import MyStrategy
+from app.strategies import MyStrategy
 ```
 
 ---

@@ -18,7 +18,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from backtest.core import DataLoader, BacktestEngine, PerformanceAnalyzer
-from strategies.high_frequency import HighFrequencyScalpingStrategy
+from app.strategies import HighFrequencyScalpingStrategy
 
 # 配置日志
 logging.basicConfig(
