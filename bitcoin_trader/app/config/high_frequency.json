@@ -30,9 +30,9 @@
   
   "entry_conditions": {
     "volume_lookback": 5,
-    "volume_multiplier": 1.8,
+    "volume_multiplier": 1.5,
     "breakout_lookback": 15,
-    "breakout_confirmation": 0.0015
+    "breakout_confirmation": 0.001
   },
   
   "exit_conditions": {
@@ -67,7 +67,7 @@
   },
   
   "session_filter": {
-    "enabled": true,
+    "enabled": false,
     "allowed_sessions": ["MORNING_BREAKOUT", "US_SESSION"]
   },
   
@@ -81,6 +81,6 @@
   },
   
   "conservative_mode": {
-    "enabled": true
+    "enabled": false
   }
 }
