@@ -261,8 +261,14 @@ class HighFrequencyScalpingStrategy:
             "macd_confirm": current_macd < prev_macd,  # MACD柱状线转势
         }
         
-        # 检查做多条件
-        if all(long_conditions.values()):
+        # 检查做多条件（至少满足3个核心条件）
+        long_score = sum([
+            long_conditions["ema_cross"],
+            long_conditions["volume_surge"],
+            long_conditions["price_breakout"]
+        ])
+        
+        if long_score >= 2:  # 至少满足2个核心条件
             # 计算止损止盈
             stop_loss, take_profit = self._calculate_stop_take_profit(current_price, "long", klines)
             
@@ -288,8 +294,14 @@ class HighFrequencyScalpingStrategy:
                 }
             }
         
-        # 检查做空条件
-        if all(short_conditions.values()):
+        # 检查做空条件（至少满足2个核心条件）
+        short_score = sum([
+            short_conditions["ema_cross"],
+            short_conditions["volume_surge"],
+            short_conditions["price_breakout"]
+        ])
+        
+        if short_score >= 2:  # 至少满足2个核心条件
             # 计算止损止盈
             stop_loss, take_profit = self._calculate_stop_take_profit(current_price, "short", klines)
             
