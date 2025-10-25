@@ -99,7 +99,7 @@ class HighFrequencyTrader:
             raise ValueError("请在.env文件中配置OKX API密钥")
         
         # 创建OKX交易所实例
-        # OKX模拟盘需要使用专用的API地址
+        # 注意：OKX模拟盘(Mock Trading)使用正式API地址，通过API Key区分模拟/实盘
         exchange = ccxt.okx({
             'apiKey': api_key,
             'secret': api_secret,
@@ -108,20 +108,9 @@ class HighFrequencyTrader:
         })
         
         if self.mode == "paper":
-            # 设置模拟盘环境 - 使用AWS沙盒地址
-            exchange.set_sandbox_mode(True)
-            # 手动设置沙盒URL（修复hostname问题）
-            exchange.urls['api'] = {
-                'rest': 'https://www.okx.com'
-            }
-            # 仅加载现货市场，避免解析其他类型导致的异常
-            exchange.options['defaultType'] = 'spot'
-            exchange.options['fetchMarkets'] = ['SPOT']
-            # 显式开启模拟盘请求头
-            exchange.headers = {**(exchange.headers or {}), 'x-simulated-trading': '1'}
-            logger.info("✓ 使用OKX模拟盘（沙盒环境）")
+            logger.info("✓ 使用OKX模拟盘API Key（Mock Trading）")
         else:
-            logger.warning("⚠️  使用OKX实盘 - 请谨慎操作！")
+            logger.warning("⚠️  使用OKX实盘API Key - 请谨慎操作！")
         
         return exchange
     
@@ -130,6 +119,7 @@ class HighFrequencyTrader:
         try:
             # OKX 接口: https://www.okx.com/api/v5/market/candles
             # 参数: instId=BTC-USDT, bar=5m, limit=200
+            # 注意：K线数据是公开接口，不需要API认证，模拟盘和实盘数据相同
             inst_id = self.symbol.replace('/', '-')
             url = 'https://www.okx.com/api/v5/market/candles'
             params = {
@@ -137,10 +127,7 @@ class HighFrequencyTrader:
                 'bar': timeframe,
                 'limit': str(limit),
             }
-            headers = {}
-            if self.mode == 'paper':
-                headers['x-simulated-trading'] = '1'
-            resp = requests.get(url, params=params, headers=headers, timeout=15)
+            resp = requests.get(url, params=params, timeout=15)
             data = resp.json()
             if data.get('code') != '0':
                 logger.error(f"获取K线数据失败: okx {data}")
