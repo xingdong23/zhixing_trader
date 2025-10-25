@@ -1,41 +1,5 @@
-# Web框架
-fastapi==0.104.1
-uvicorn[standard]==0.24.0
-pydantic==2.5.0
-pydantic-settings==2.1.0
-
-# 数据库
-sqlalchemy==2.0.23
-pymysql==1.1.0
-redis==5.0.1
-alembic==1.12.1
-
-# 加密货币交易所API
-ccxt==4.1.63
-python-binance==1.0.19
-websockets==12.0
-
-# 数据分析
-pandas==2.1.3
-numpy==1.26.2
-ta-lib==0.4.28  # 技术分析指标库
-
-# 回测
-backtrader==1.9.78.123
-
-# 工具类
-python-dotenv==1.0.0
-requests==2.31.0
-aiohttp==3.9.1
-httpx==0.25.2
-
-# 日志
-loguru==0.7.2
-
-# 测试
-pytest==7.4.3
-pytest-asyncio==0.21.1
-
-# 异步任务
-celery==5.3.4
-
+# 核心依赖
+ccxt>=4.0.0
+numpy>=1.24.0
+requests>=2.31.0
+python-dotenv>=1.0.0

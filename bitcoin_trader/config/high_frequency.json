@@ -1,0 +1,32 @@
+{
+  "strategy_name": "高频短线策略",
+  "description": "基于EMA、RSI、成交量的高频短线交易策略",
+  
+  "trading": {
+    "symbol": "BTC/USDT",
+    "timeframe": "5m",
+    "capital": 300.0,
+    "leverage": 3.0
+  },
+  
+  "parameters": {
+    "ema_fast": 8,
+    "ema_slow": 21,
+    "rsi_period": 14,
+    "rsi_long_threshold_low": 45,
+    "rsi_short_threshold_high": 55,
+    "volume_multiplier": 1.5,
+    "bb_period": 20,
+    "bb_std": 2
+  },
+  
+  "risk_control": {
+    "stop_loss_min": 0.008,
+    "stop_loss_max": 0.012,
+    "take_profit_min": 0.015,
+    "take_profit_max": 0.025,
+    "max_daily_loss": 0.08,
+    "max_consecutive_losses": 2,
+    "max_trades_per_day": 8
+  }
+}

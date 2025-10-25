@@ -1,14 +1,9 @@
 """
-高频短线策略实盘运行脚本
+高频短线策略运行脚本
 
 使用说明：
-1. 确保已配置OKX API密钥（.env文件）
-2. 建议先在模拟盘测试
-3. 严格遵守风险控制规则
-
-运行方式：
-python run_high_frequency_strategy.py --mode paper  # 模拟盘
-python run_high_frequency_strategy.py --mode live   # 实盘（谨慎使用）
+python run/high_frequency.py --mode paper  # 模拟盘
+python run/high_frequency.py --mode live   # 实盘
 """
 
 import os
@@ -16,18 +11,18 @@ import sys
 import asyncio
 import argparse
 import logging
-from datetime import datetime, timedelta
+import json
+from datetime import datetime
 from typing import Dict, List
 
 # 添加项目路径
-sys.path.append('.')
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from dotenv import load_dotenv
 import ccxt
 import requests
 
-from app.core.strategies.high_frequency_scalping_strategy import HighFrequencyScalpingStrategy
-from app.core.risk_manager import RiskManager, RiskLimits
+from strategies.high_frequency import HighFrequencyScalpingStrategy, RiskManager, RiskLimits
 
 # 加载环境变量
 load_dotenv()
@@ -37,7 +32,7 @@ logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     handlers=[
-        logging.FileHandler(f'logs/high_frequency_strategy_{datetime.now().strftime("%Y%m%d")}.log'),
+        logging.FileHandler(f'logs/high_frequency_{datetime.now().strftime("%Y%m%d")}.log'),
         logging.StreamHandler()
     ]
 )
@@ -48,46 +43,63 @@ logger = logging.getLogger(__name__)
 class HighFrequencyTrader:
     """高频交易机器人"""
     
-    def __init__(self, mode: str = "paper", capital: float = 300.0):
+    def __init__(self, mode: str = "paper", config_file: str = None):
         """
         初始化交易机器人
         
         Args:
             mode: 运行模式 'paper' 或 'live'
-            capital: 初始资金
+            config_file: 配置文件路径
         """
         self.mode = mode
-        self.capital = capital
+        
+        # 加载配置
+        self.config = self._load_config(config_file)
         
         # 初始化交易所
         self.exchange = self._init_exchange()
         
         # 初始化策略
         self.strategy = HighFrequencyScalpingStrategy({
-            "total_capital": capital,
-            "leverage": 3.0,  # 3倍杠杆
+            "total_capital": self.config['trading']['capital'],
+            "leverage": self.config['trading']['leverage'],
         })
         
         # 初始化风险管理器
+        risk_config = self.config['risk_control']
         self.risk_manager = RiskManager(
-            initial_capital=capital,
+            initial_capital=self.config['trading']['capital'],
             limits=RiskLimits(
-                max_daily_loss=0.08,  # 8%
-                max_single_loss=0.02,  # 2%
-                max_consecutive_losses=2,
-                max_trades_per_day=8,
+                max_daily_loss=risk_config['max_daily_loss'],
+                max_single_loss=0.02,
+                max_consecutive_losses=risk_config['max_consecutive_losses'],
+                max_trades_per_day=risk_config['max_trades_per_day'],
                 max_leverage=5.0
             )
         )
         
         # 交易对
-        self.symbol = "BTC/USDT"
+        self.symbol = self.config['trading']['symbol']
+        self.timeframe = self.config['trading']['timeframe']
         
         # 运行状态
         self.running = False
         self.last_kline_time = None
         
-        logger.info(f"高频交易机器人初始化完成 - 模式: {mode}, 资金: {capital} USDT")
+        logger.info(f"高频交易机器人初始化完成 - 模式: {mode}, 资金: {self.config['trading']['capital']} USDT")
+    
+    def _load_config(self, config_file: str = None) -> Dict:
+        """加载配置文件"""
+        if config_file is None:
+            config_file = 'config/high_frequency.json'
+        
+        config_path = os.path.join(
+            os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+            config_file
+        )
+        
+        with open(config_path, 'r', encoding='utf-8') as f:
+            return json.load(f)
     
     def _init_exchange(self) -> ccxt.Exchange:
         """初始化交易所"""
@@ -98,8 +110,6 @@ class HighFrequencyTrader:
         if not all([api_key, api_secret, passphrase]):
             raise ValueError("请在.env文件中配置OKX API密钥")
         
-        # 创建OKX交易所实例
-        # 注意：OKX模拟盘(Mock Trading)使用正式API地址，通过API Key区分模拟/实盘
         exchange = ccxt.okx({
             'apiKey': api_key,
             'secret': api_secret,
@@ -108,50 +118,42 @@ class HighFrequencyTrader:
         })
         
         if self.mode == "paper":
-            logger.info("✓ 使用OKX模拟盘API Key（Mock Trading）")
+            logger.info("✓ 使用OKX模拟盘API Key")
         else:
             logger.warning("⚠️  使用OKX实盘API Key - 请谨慎操作！")
         
         return exchange
     
-    async def fetch_klines(self, timeframe: str = '5m', limit: int = 200) -> List[Dict]:
-        """获取K线数据（直接调用OKX HTTP接口，避免ccxt加载市场出错）"""
+    async def fetch_klines(self, limit: int = 200) -> List[Dict]:
+        """获取K线数据"""
         try:
-            # OKX 接口: https://www.okx.com/api/v5/market/candles
-            # 参数: instId=BTC-USDT, bar=5m, limit=200
-            # 注意：K线数据是公开接口，不需要API认证，模拟盘和实盘数据相同
             inst_id = self.symbol.replace('/', '-')
             url = 'https://www.okx.com/api/v5/market/candles'
             params = {
                 'instId': inst_id,
-                'bar': timeframe,
+                'bar': self.timeframe,
                 'limit': str(limit),
             }
             resp = requests.get(url, params=params, timeout=15)
             data = resp.json()
+            
             if data.get('code') != '0':
-                logger.error(f"获取K线数据失败: okx {data}")
+                logger.error(f"获取K线数据失败: {data}")
                 return []
 
             candles = data.get('data', [])
-            # OKX 返回按时间倒序，需反转
             candles = list(reversed(candles))
+            
             klines: List[Dict] = []
             for c in candles:
-                # c: [ts, o, h, l, c, vol, volCcy, volCcyQuote, confirm, ...]
                 ts = int(float(c[0]))
-                o = float(c[1])
-                h = float(c[2])
-                l = float(c[3])
-                cl = float(c[4])
-                vol = float(c[5]) if len(c) > 5 and c[5] is not None else 0.0
                 klines.append({
                     'timestamp': datetime.fromtimestamp(ts / 1000),
-                    'open': o,
-                    'high': h,
-                    'low': l,
-                    'close': cl,
-                    'volume': vol,
+                    'open': float(c[1]),
+                    'high': float(c[2]),
+                    'low': float(c[3]),
+                    'close': float(c[4]),
+                    'volume': float(c[5]) if len(c) > 5 and c[5] is not None else 0.0,
                 })
             return klines
         except Exception as e:
@@ -173,33 +175,22 @@ class HighFrequencyTrader:
                 logger.warning(f"交易被风控拒绝: {reason}")
                 return
             
-            # 执行订单
-            if self.mode == 'paper':
-                # 模拟盘：不调用交易所下单，直接模拟成交
-                fake_order = {
-                    'id': f"paper-{datetime.now().strftime('%Y%m%d%H%M%S')}",
-                    'symbol': self.symbol,
-                    'side': signal["signal"],
-                    'amount': signal.get("amount", 0),
-                    'price': signal.get("price", 0),
-                    'status': 'filled',
-                    'info': {'mode': 'paper'}
-                }
-                logger.info(f"✓ 模拟下单成功: {fake_order}")
-            else:
-                if signal["signal"] == "buy":
-                    order = self.exchange.create_market_buy_order(
-                        symbol=self.symbol,
-                        amount=signal["amount"]
-                    )
-                    logger.info(f"✓ 买入订单执行成功: {order}")
-                    
-                elif signal["signal"] == "sell":
-                    order = self.exchange.create_market_sell_order(
-                        symbol=self.symbol,
-                        amount=signal["amount"]
-                    )
-                    logger.info(f"✓ 卖出订单执行成功: {order}")
+            # 执行订单（模拟盘和实盘都真实调用OKX API）
+            if signal["signal"] == "buy":
+                order = self.exchange.create_market_buy_order(
+                    symbol=self.symbol,
+                    amount=signal["amount"]
+                )
+                mode_text = "模拟盘" if self.mode == 'paper' else "实盘"
+                logger.info(f"✓ [{mode_text}] 买入订单执行成功: {order}")
+                
+            elif signal["signal"] == "sell":
+                order = self.exchange.create_market_sell_order(
+                    symbol=self.symbol,
+                    amount=signal["amount"]
+                )
+                mode_text = "模拟盘" if self.mode == 'paper' else "实盘"
+                logger.info(f"✓ [{mode_text}] 卖出订单执行成功: {order}")
             
             # 更新策略持仓
             self.strategy.update_position(signal)
@@ -220,8 +211,8 @@ class HighFrequencyTrader:
     async def run_strategy_cycle(self):
         """运行一次策略循环"""
         try:
-            # 获取5分钟K线数据
-            klines = await self.fetch_klines(timeframe='5m', limit=200)
+            # 获取K线数据
+            klines = await self.fetch_klines(limit=200)
             
             if not klines:
                 logger.warning("未获取到K线数据")
@@ -230,7 +221,6 @@ class HighFrequencyTrader:
             # 检查是否有新K线
             current_kline_time = klines[-1]["timestamp"]
             if self.last_kline_time and current_kline_time == self.last_kline_time:
-                # 没有新K线，跳过
                 return
             
             self.last_kline_time = current_kline_time
@@ -269,12 +259,11 @@ class HighFrequencyTrader:
         logger.info("🚀 高频短线交易机器人启动")
         logger.info("="*60)
         logger.info(f"交易对: {self.symbol}")
-        logger.info(f"初始资金: {self.capital} USDT")
+        logger.info(f"初始资金: {self.config['trading']['capital']} USDT")
         logger.info(f"运行模式: {self.mode}")
-        logger.info(f"杠杆倍数: {self.strategy.parameters['leverage']}x")
+        logger.info(f"杠杆倍数: {self.config['trading']['leverage']}x")
         logger.info("="*60)
         
-        # 每日重置时间
         last_reset_date = datetime.now().date()
         
         while self.running:
@@ -290,7 +279,7 @@ class HighFrequencyTrader:
                 # 运行策略
                 await self.run_strategy_cycle()
                 
-                # 等待30秒再次检查（高频策略）
+                # 等待30秒
                 await asyncio.sleep(30)
                 
             except KeyboardInterrupt:
@@ -309,7 +298,6 @@ class HighFrequencyTrader:
         logger.info("🛑 高频短线交易机器人停止")
         logger.info("="*60)
         
-        # 打印最终统计
         stats = self.strategy.get_statistics()
         logger.info(f"最终统计:")
         logger.info(f"  总交易次数: {stats['daily_trades']}")
@@ -326,8 +314,8 @@ def main():
     parser.add_argument('--mode', type=str, default='paper', 
                        choices=['paper', 'live'],
                        help='运行模式: paper(模拟盘) 或 live(实盘)')
-    parser.add_argument('--capital', type=float, default=300.0,
-                       help='初始资金(USDT)')
+    parser.add_argument('--config', type=str, default=None,
+                       help='配置文件路径')
     
     args = parser.parse_args()
     
@@ -351,7 +339,7 @@ def main():
             return
     
     # 创建并启动交易机器人
-    trader = HighFrequencyTrader(mode=args.mode, capital=args.capital)
+    trader = HighFrequencyTrader(mode=args.mode, config_file=args.config)
     
     try:
         asyncio.run(trader.start())

@@ -31,7 +31,6 @@ from typing import List, Dict, Any, Optional, Tuple
 from datetime import datetime, time
 from enum import Enum
 import numpy as np
-from . import BaseStrategy
 import logging
 
 logger = logging.getLogger(__name__)
@@ -45,7 +44,7 @@ class TradingSession(Enum):
     OTHER = "其他时段"
 
 
-class HighFrequencyScalpingStrategy(BaseStrategy):
+class HighFrequencyScalpingStrategy:
     """高频短线交易策略"""
     
     def __init__(self, parameters: Dict[str, Any] = None):
