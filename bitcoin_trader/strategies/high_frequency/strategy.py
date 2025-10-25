@@ -32,6 +32,7 @@ from datetime import datetime, time
 from enum import Enum
 import numpy as np
 import logging
+from .position_storage import PositionStorage
 
 logger = logging.getLogger(__name__)
 
@@ -122,8 +123,13 @@ class HighFrequencyScalpingStrategy:
         self.name = "高频短线交易策略"
         self.parameters = default_params
         
-        # 持仓信息
-        self.current_position = None
+        # 持仓持久化存储
+        self.position_storage = PositionStorage()
+        
+        # 持仓信息（从文件加载）
+        self.current_position = self.position_storage.load_position()
+        if self.current_position:
+            logger.warning(f"⚠️  检测到未平仓持仓，已恢复: {self.current_position}")
         
         # 交易统计
         self.daily_trades = []
@@ -772,16 +778,24 @@ class HighFrequencyScalpingStrategy:
                 "partial_closed": False
             }
             logger.info(f"开仓: {self.current_position}")
+            # 保存持仓到文件
+            self.position_storage.save_position(self.current_position)
+            logger.info("✓ 持仓信息已保存到文件")
         
         elif signal.get("type") in ["stop_loss", "take_profit", "timeout", "accelerated_exit"]:
             # 完全平仓
             if self.current_position:
                 logger.info(f"平仓: {signal['type']}, PNL: {signal.get('pnl', 0):.2%}")
                 self.current_position = None
+                # 清空持仓文件
+                self.position_storage.clear_position()
+                logger.info("✓ 持仓信息已清空")
         
         elif signal.get("type") == "partial_close":
             # 部分平仓
             logger.info(f"部分平仓: {signal['amount']}, 剩余: {self.current_position['amount']}")
+            # 更新持仓文件
+            self.position_storage.save_position(self.current_position)
     
     def record_trade(self, signal: Dict[str, Any]):
         """记录交易"""

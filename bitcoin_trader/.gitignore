@@ -63,3 +63,4 @@ data/
 # Backups
 *.bak
 
+position_state.json

@@ -117,10 +117,17 @@ class HighFrequencyTrader:
             'enableRateLimit': True,
         })
         
+        # 设置为合约交易模式
+        exchange.options['defaultType'] = 'swap'  # swap = 永续合约
+        
         if self.mode == "paper":
             logger.info("✓ 使用OKX模拟盘API Key（虚拟资金，真实API调用）")
+            logger.info(f"✓ 交易类型: 永续合约 (SWAP)")
+            logger.info(f"✓ 杠杆倍数: {self.config['trading']['leverage']}x")
         else:
             logger.warning("⚠️  使用OKX实盘API Key（真实资金，真实API调用）- 请谨慎操作！")
+            logger.warning(f"⚠️  交易类型: 永续合约 (SWAP)")
+            logger.warning(f"⚠️  杠杆倍数: {self.config['trading']['leverage']}x")
         
         return exchange
     
@@ -176,21 +183,30 @@ class HighFrequencyTrader:
                 return
             
             # 执行订单（模拟盘和实盘都真实调用OKX API）
+            # 合约交易参数
+            params = {
+                'leverage': self.config['trading']['leverage'],  # 杠杆倍数
+            }
+            
             if signal["signal"] == "buy":
+                # 做多：买入开仓
                 order = self.exchange.create_market_buy_order(
                     symbol=self.symbol,
-                    amount=signal["amount"]
+                    amount=signal["amount"],
+                    params=params
                 )
                 mode_text = "模拟盘" if self.mode == 'paper' else "实盘"
-                logger.info(f"✓ [{mode_text}] 买入订单执行成功: {order}")
+                logger.info(f"✓ [{mode_text}] 做多开仓成功: {order}")
                 
             elif signal["signal"] == "sell":
+                # 做空：卖出开仓
                 order = self.exchange.create_market_sell_order(
                     symbol=self.symbol,
-                    amount=signal["amount"]
+                    amount=signal["amount"],
+                    params=params
                 )
                 mode_text = "模拟盘" if self.mode == 'paper' else "实盘"
-                logger.info(f"✓ [{mode_text}] 卖出订单执行成功: {order}")
+                logger.info(f"✓ [{mode_text}] 做空开仓成功: {order}")
             
             # 更新策略持仓
             self.strategy.update_position(signal)
