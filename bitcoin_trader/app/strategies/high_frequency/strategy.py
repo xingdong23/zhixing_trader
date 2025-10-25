@@ -631,8 +631,13 @@ class HighFrequencyScalpingStrategy:
         # 最大开仓份数
         max_portions = self.parameters["max_portions_per_trade"]
         
-        # 总开仓资金
-        position_value = portion_size * max_portions
+        # 理想开仓资金
+        ideal_position_value = portion_size * max_portions
+        
+        # 实际可用资金（从总资金获取）
+        # 注意：这里应该从回测引擎或实盘账户获取实际可用资金
+        # 暂时使用理想值，后续需要传入actual_capital参数
+        position_value = ideal_position_value
         
         # 应用杠杆
         leveraged_value = position_value * self.parameters["leverage"]
