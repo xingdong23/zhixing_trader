@@ -3,7 +3,7 @@
   "description": "基于EMA、RSI、成交量的高频短线交易策略",
   
   "trading": {
-    "symbol": "BTC/USDT",
+    "symbol": "ETH/USDT",
     "timeframe": "5m",
     "capital": 300.0,
     "leverage": 3.0
