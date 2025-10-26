@@ -18,9 +18,10 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from backtest.core import DataLoader, BacktestEngine, PerformanceAnalyzer
-from app.strategies import HighFrequencyScalpingStrategy, IntradayScalpingStrategy, GridBNBStrategy
+from app.strategies import HighFrequencyScalpingStrategy, IntradayScalpingStrategy
 from app.strategies.grid_trading import GridTradingStrategy
 from app.strategies.trend_following import TrendFollowingStrategy
+from app.strategies.trend_breakout import TrendBreakoutStrategy
 
 # 配置日志
 logging.basicConfig(
@@ -66,6 +67,10 @@ class BacktestRunner:
             "total_capital": strategy_config['trading']['capital'],
             "leverage": strategy_config['trading']['leverage'],
         }
+        
+        # 如果有 parameters 字段，直接使用（新策略格式）
+        if 'parameters' in strategy_config:
+            params.update(strategy_config['parameters'])
         
         # 合并所有配置组（支持不同策略的不同配置节）
         for section in ['capital_management', 'indicators', 'entry_conditions', 
@@ -160,7 +165,7 @@ class BacktestRunner:
                 'grid_trading': GridTradingStrategy,
                 'trend_following': TrendFollowingStrategy,
                 'intraday_scalping': IntradayScalpingStrategy,
-                'gridbnb_usdt': GridBNBStrategy
+                'trend_breakout': TrendBreakoutStrategy
             }
             
             if strategy_name not in strategy_map:
