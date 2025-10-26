@@ -133,18 +133,21 @@ class HighFrequencyScalpingStrategy:
     
     def _check_risk_controls(self) -> Dict[str, Any]:
         """检查风险控制条件"""
+        # 使用当前资金作为风控基准（支持动态复利）
+        current_capital = getattr(self, 'current_capital', self.parameters.get('total_capital', 300.0))
+        
         # 检查单日盈利是否达到目标
-        if self.daily_pnl >= self.parameters["total_capital"] * self.parameters["max_daily_profit"]:
+        if self.daily_pnl >= current_capital * self.parameters["max_daily_profit"]:
             return {
                 "allowed": False,
                 "reason": f"已达到单日盈利目标 {self.parameters['max_daily_profit']:.1%}，停止交易"
             }
         
         # 检查单日亏损是否超限
-        if self.daily_pnl <= -self.parameters["total_capital"] * self.parameters["max_daily_loss"]:
+        if self.daily_pnl <= -current_capital * self.parameters["max_daily_loss"]:
             return {
                 "allowed": False,
-                "reason": f"已达到单日最大亏损 {self.parameters['max_daily_loss']:.1%}，停止交易"
+                "reason": f"已达到单日最大亏损 {self.parameters['max_daily_loss']:.1%}（{-current_capital * self.parameters['max_daily_loss']:.2f} USDT），停止交易"
             }
         
         # 检查连续亏损
