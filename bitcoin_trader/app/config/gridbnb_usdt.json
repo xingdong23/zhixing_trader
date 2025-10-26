@@ -1,0 +1,37 @@
+{
+  "strategy_name": "gridbnb_usdt",
+  "description": "GridBNB-USDT动态网格策略 - 基于EWMA波动率的智能网格交易",
+  
+  "trading": {
+    "capital": 1000.0,
+    "leverage": 1.0,
+    "position_mode": "one_way"
+  },
+  
+  "parameters": {
+    "total_capital": 1000.0,
+    "leverage": 1.0,
+    "min_trade_amount": 20.0,
+    
+    "initial_base_price": 0.0,
+    "initial_grid": 2.0,
+    "min_grid_size": 1.0,
+    "max_grid_size": 4.0,
+    
+    "volatility_window": 42,
+    "ewma_alpha": 0.3,
+    "ewma_weight": 0.7,
+    "volatility_smoothing_window": 3,
+    
+    "max_position_ratio": 0.9,
+    "min_position_ratio": 0.1,
+    "max_daily_loss": 0.05
+  },
+  
+  "description_details": {
+    "grid_mechanism": "动态网格大小根据市场波动率自动调整 (1.0% - 4.0%)",
+    "volatility_calculation": "EWMA混合算法: 70% EWMA + 30% 传统标准差",
+    "smoothing": "3周期移动平均平滑，减少噪音干扰",
+    "risk_management": "多层风险控制: 仓位限制、日亏损限制"
+  }
+}

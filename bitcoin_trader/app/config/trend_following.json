@@ -17,20 +17,28 @@
   },
   
   "trend_indicators": {
-    "ema_fast": 20,
-    "ema_slow": 50,
-    "ema_filter": 200,
+    "ema8": 8,
+    "ema21": 21,
+    "ema55": 55,
+    "ema144": 144,
     "atr_period": 14,
     "atr_multiplier": 2.0,
     "adx_period": 14,
-    "adx_threshold": 25
+    "adx_threshold": 25,
+    "rsi_period": 14,
+    "rsi_oversold": 45,
+    "rsi_overbought": 55,
+    "touch_atr_k": 0.25,
+    "use_adx_filter": false,
+    "adx_min": 25
   },
   
   "entry_conditions": {
     "require_strong_trend": true,
     "min_trend_strength": 0.02,
-    "volume_confirmation": true,
-    "volume_multiplier": 1.2
+    "volume_confirmation": false,
+    "volume_multiplier": 1.2,
+    "enter_on_next_open": true
   },
   
   "exit_conditions": {
@@ -38,7 +46,10 @@
     "stop_loss_atr": 2.0,
     "trailing_stop_atr": 3.0,
     "use_ema_exit": true,
-    "max_holding_days": 30
+    "max_holding_days": 30,
+    "use_chandelier_exit": true,
+    "chandelier_period": 22,
+    "chandelier_atr_mult": 3.0
   },
   
   "risk_control": {

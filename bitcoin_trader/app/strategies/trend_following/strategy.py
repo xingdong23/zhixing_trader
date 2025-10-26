@@ -35,6 +35,7 @@ class TrendFollowingStrategy:
         
         # 持仓信息
         self.current_position: Optional[Dict] = None
+        self.pending_entry: Optional[Dict[str, Any]] = None
         
         # 统计信息
         self.daily_trades = []
@@ -66,82 +67,163 @@ class TrendFollowingStrategy:
                 return exit_signal
             return {"signal": "hold", "reason": "持仓中，等待出场信号"}
         
+        # 处理待执行的下一根开盘入场
+        if self.pending_entry:
+            side = self.pending_entry["side"]
+            entry_ema = self.pending_entry.get("entry_ema", "ema21")
+            price = klines[-1]["open"]
+            atr_val = self._calculate_atr(klines, int(self.parameters.get("atr_period", 14)))
+            signal = self._create_long_signal(price, atr_val, entry_ema) if side == "long" else self._create_short_signal(price, atr_val, entry_ema)
+            signal["reason"] = (signal.get("reason", "") + " | 下一根开盘成交").strip()
+            self.pending_entry = None  # 清空待执行
+            return signal
+        
         # 无持仓，寻找入场机会
         return self._generate_entry_signal(klines)
     
     def _generate_entry_signal(self, klines: List[Dict]) -> Dict[str, Any]:
         """
-        生成入场信号
+        生成入场信号 - 多均线回踩策略
         
         核心逻辑：
-        1. 快速EMA上穿慢速EMA（趋势确认）
-        2. 价格在长期EMA之上/之下（趋势过滤）
-        3. ADX > 25（趋势强度确认）
-        4. 成交量放大（动能确认）
+        1. 使用EMA8, EMA21, EMA55, EMA144多均线系统
+        2. 多头趋势：EMA8 > EMA21 > EMA55 > EMA144
+        3. 入场时机：价格回踩EMA21或EMA55，出现反转K线
+        4. 反转K线：前一根阴线，当前阳线，且收盘价高于前一根K线最高价
         """
         closes = np.array([k["close"] for k in klines])
-        volumes = np.array([k["volume"] for k in klines])
+        highs = np.array([k["high"] for k in klines])
+        lows = np.array([k["low"] for k in klines])
+        opens = np.array([k["open"] for k in klines])
         
-        # 计算技术指标
-        ema_fast = self._calculate_ema(closes, self.parameters.get("ema_fast", 20))
-        ema_slow = self._calculate_ema(closes, self.parameters.get("ema_slow", 50))
-        ema_filter = self._calculate_ema(closes, self.parameters.get("ema_filter", 200))
-        adx = self._calculate_adx(klines, self.parameters.get("adx_period", 14))
-        atr = self._calculate_atr(klines, self.parameters.get("atr_period", 14))
+        # 计算多条EMA
+        ema8 = self._calculate_ema(closes, 8)
+        ema21 = self._calculate_ema(closes, 21)
+        ema55 = self._calculate_ema(closes, 55)
+        ema144 = self._calculate_ema(closes, 144)
+        atr_val = self._calculate_atr(klines, int(self.parameters.get("atr_period", 14)))
+        
+        # 可选ADX过滤
+        use_adx_filter = bool(self.parameters.get("use_adx_filter", False))
+        if use_adx_filter:
+            adx_arr = self._calculate_adx(klines, int(self.parameters.get("adx_period", 14)))
+            adx_min = float(self.parameters.get("adx_min", 25))
+            if len(adx_arr) > 0 and adx_arr[-1] < adx_min:
+                return {"signal": "hold", "reason": f"趋势强度不足 ADX={adx_arr[-1]:.1f} < {adx_min}"}
         
         current_price = closes[-1]
+        current_open = opens[-1]
+        current_high = highs[-1]
+        current_low = lows[-1]
+        prev_close = closes[-2]
+        prev_open = opens[-2]
+        prev_high = highs[-2]
         
-        # 检查趋势强度
-        adx_threshold = self.parameters.get("adx_threshold", 25)
-        if adx[-1] < adx_threshold:
-            return {"signal": "hold", "reason": f"趋势不够强 ADX={adx[-1]:.1f} < {adx_threshold}"}
+        # 判断当前K线是否为反转阳线
+        is_bullish_reversal = (
+            prev_close < prev_open and  # 前一根是阴线
+            current_price > current_open and  # 当前是阳线
+            current_price > prev_high  # 当前收盘突破前高
+        )
         
-        # 检查成交量
-        if self.parameters.get("volume_confirmation", True):
-            avg_volume = np.mean(volumes[-20:])
-            volume_multiplier = self.parameters.get("volume_multiplier", 1.2)
-            if volumes[-1] < avg_volume * volume_multiplier:
-                return {"signal": "hold", "reason": "成交量不足"}
+        # 判断当前K线是否为反转阴线
+        is_bearish_reversal = (
+            prev_close > prev_open and  # 前一根是阳线
+            current_price < current_open and  # 当前是阴线
+            current_price < lows[-2]  # 当前收盘跌破前低
+        )
         
-        # 做多信号
-        long_conditions = {
-            "ema_cross": ema_fast[-2] <= ema_slow[-2] and ema_fast[-1] > ema_slow[-1],
-            "above_filter": current_price > ema_filter[-1],
-            "strong_trend": adx[-1] > adx_threshold,
-            "uptrend": ema_fast[-1] > ema_slow[-1]
-        }
+        # 多头趋势判断：完美均线排列
+        is_uptrend = (
+            ema8[-1] > ema21[-1] and
+            ema21[-1] > ema55[-1] and
+            ema55[-1] > ema144[-1]
+        )
         
-        if all(long_conditions.values()):
-            return self._create_long_signal(current_price, atr)
+        # 空头趋势判断：完美均线排列
+        is_downtrend = (
+            ema8[-1] < ema21[-1] and
+            ema21[-1] < ema55[-1] and
+            ema55[-1] < ema144[-1]
+        )
         
-        # 做空信号
-        short_conditions = {
-            "ema_cross": ema_fast[-2] >= ema_slow[-2] and ema_fast[-1] < ema_slow[-1],
-            "below_filter": current_price < ema_filter[-1],
-            "strong_trend": adx[-1] > adx_threshold,
-            "downtrend": ema_fast[-1] < ema_slow[-1]
-        }
+        # 做多信号：多头趋势 + 回踩EMA21或EMA55 + 反转阳线
+        if is_uptrend and is_bullish_reversal:
+            # ATR自适应触线判定
+            touch_k = float(self.parameters.get("touch_atr_k", 0.25))
+            thr = touch_k * atr_val
+            
+            # 检查回踩EMA21
+            if abs(current_low - ema21[-1]) <= thr or current_low < ema21[-1] < prev_high:
+                logger.info(f"✓ 回踩EMA21反转: 价格={current_price:.2f}, EMA21={ema21[-1]:.2f}")
+                if bool(self.parameters.get("enter_on_next_open", True)):
+                    self.pending_entry = {"side": "long", "entry_ema": "ema21"}
+                    return {"signal": "hold", "reason": "回踩EMA21确认，已排队下一根开盘入场"}
+                return self._create_long_signal(current_price, atr_val, "ema21")
+            
+            # 检查是否回踩EMA55
+            if abs(current_low - ema55[-1]) <= thr or current_low < ema55[-1] < prev_high:
+                logger.info(f"✓ 回踩EMA55反转: 价格={current_price:.2f}, EMA55={ema55[-1]:.2f}")
+                if bool(self.parameters.get("enter_on_next_open", True)):
+                    self.pending_entry = {"side": "long", "entry_ema": "ema55"}
+                    return {"signal": "hold", "reason": "回踩EMA55确认，已排队下一根开盘入场"}
+                return self._create_long_signal(current_price, atr_val, "ema55")
         
-        if all(short_conditions.values()):
-            return self._create_short_signal(current_price, atr)
+        # 做空信号：空头趋势 + 反弹至EMA21或EMA55 + 反转阴线
+        if is_downtrend and is_bearish_reversal:
+            # ATR自适应触线判定
+            touch_k = float(self.parameters.get("touch_atr_k", 0.25))
+            thr = touch_k * atr_val
+            
+            # 检查反弹至EMA21
+            if abs(current_high - ema21[-1]) <= thr or current_high > ema21[-1] > lows[-2]:
+                logger.info(f"✓ 反弹EMA21反转: 价格={current_price:.2f}, EMA21={ema21[-1]:.2f}")
+                if bool(self.parameters.get("enter_on_next_open", True)):
+                    self.pending_entry = {"side": "short", "entry_ema": "ema21"}
+                    return {"signal": "hold", "reason": "反弹EMA21确认，已排队下一根开盘做空"}
+                return self._create_short_signal(current_price, atr_val, "ema21")
+            
+            # 检查是否反弹至EMA55
+            if abs(current_high - ema55[-1]) <= thr or current_high > ema55[-1] > lows[-2]:
+                logger.info(f"✓ 反弹EMA55反转: 价格={current_price:.2f}, EMA55={ema55[-1]:.2f}")
+                if bool(self.parameters.get("enter_on_next_open", True)):
+                    self.pending_entry = {"side": "short", "entry_ema": "ema55"}
+                    return {"signal": "hold", "reason": "反弹EMA55确认，已排队下一根开盘做空"}
+                return self._create_short_signal(current_price, atr_val, "ema55")
         
-        return {"signal": "hold", "reason": "未满足趋势跟踪入场条件"}
+        # 记录等待原因
+        if is_uptrend:
+            return {"signal": "hold", "reason": f"多头趋势，等待回踩EMA21({ema21[-1]:.2f})或EMA55({ema55[-1]:.2f})"}
+        elif is_downtrend:
+            return {"signal": "hold", "reason": f"空头趋势，等待反弹至EMA21({ema21[-1]:.2f})或EMA55({ema55[-1]:.2f})"}
+        
+        return {"signal": "hold", "reason": "趋势不明确，等待均线排列"}
     
-    def _create_long_signal(self, price: float, atr: float) -> Dict[str, Any]:
-        """创建做多信号"""
-        # 计算仓位大小
-        capital = self.parameters.get("total_capital", 300.0)
-        position_percent = self.parameters.get("position_size_percent", 0.30)
-        position_value = capital * position_percent
-        leverage = self.parameters.get("leverage", 2.0)
-        amount = (position_value * leverage) / price
+    def _create_long_signal(self, price: float, atr: float, entry_ema: str = "ema21") -> Dict[str, Any]:
+        """创建做多信号 - 风险等额仓位"""
+        capital = float(self.parameters.get("total_capital", 300.0))
+        leverage = float(self.parameters.get("leverage", 2.0))
+        risk_per_trade = float(self.parameters.get("risk_per_trade", 0.02))
         
-        # 计算止损止盈（基于ATR）
-        stop_loss_atr = self.parameters.get("stop_loss_atr", 2.0)
-        profit_target_atr = self.parameters.get("profit_target_atr", 4.0)
+        # 根据入场均线设置止损倍数
+        if entry_ema == "ema8":
+            stop_mult = 1.5  # EMA8入场，止损最紧
+        elif entry_ema == "ema21":
+            stop_mult = 2.0
+        elif entry_ema == "ema55":
+            stop_mult = 3.0
+        else:  # ema144
+            stop_mult = 4.0  # EMA144入场，止损最宽
         
-        stop_loss = price - (atr * stop_loss_atr)
-        take_profit = price + (atr * profit_target_atr)
+        stop_distance = max(atr * stop_mult, price * 0.001)
+        risk_amount = capital * risk_per_trade
+        amount = risk_amount / stop_distance
+        
+        # 初始止损
+        stop_loss = price - (atr * stop_mult)
+        
+        # 不设固定止盈，使用移动止盈
+        take_profit = price + (atr * 6.0)  # 初始目标
         
         return {
             "signal": "buy",
@@ -151,22 +233,35 @@ class TrendFollowingStrategy:
             "take_profit": take_profit,
             "leverage": leverage,
             "atr": atr,
-            "reason": f"趋势做多 止损={stop_loss:.2f} 止盈={take_profit:.2f}"
+            "entry_ema": entry_ema,  # 记录从哪个均线入场
+            "reason": f"回踩{entry_ema.upper()}做多 止损={stop_loss:.2f}"
         }
     
-    def _create_short_signal(self, price: float, atr: float) -> Dict[str, Any]:
-        """创建做空信号"""
-        capital = self.parameters.get("total_capital", 300.0)
-        position_percent = self.parameters.get("position_size_percent", 0.30)
-        position_value = capital * position_percent
-        leverage = self.parameters.get("leverage", 2.0)
-        amount = (position_value * leverage) / price
+    def _create_short_signal(self, price: float, atr: float, entry_ema: str = "ema21") -> Dict[str, Any]:
+        """创建做空信号 - 风险等额仓位"""
+        capital = float(self.parameters.get("total_capital", 300.0))
+        leverage = float(self.parameters.get("leverage", 2.0))
+        risk_per_trade = float(self.parameters.get("risk_per_trade", 0.02))
         
-        stop_loss_atr = self.parameters.get("stop_loss_atr", 2.0)
-        profit_target_atr = self.parameters.get("profit_target_atr", 4.0)
+        # 根据入场均线设置止损倍数
+        if entry_ema == "ema8":
+            stop_mult = 1.5
+        elif entry_ema == "ema21":
+            stop_mult = 2.0
+        elif entry_ema == "ema55":
+            stop_mult = 3.0
+        else:  # ema144
+            stop_mult = 4.0
         
-        stop_loss = price + (atr * stop_loss_atr)
-        take_profit = price - (atr * profit_target_atr)
+        stop_distance = max(atr * stop_mult, price * 0.001)
+        risk_amount = capital * risk_per_trade
+        amount = risk_amount / stop_distance
+        
+        # 初始止损
+        stop_loss = price + (atr * stop_mult)
+        
+        # 不设固定止盈，使用移动止盈
+        take_profit = price - (atr * 6.0)
         
         return {
             "signal": "sell",
@@ -176,18 +271,19 @@ class TrendFollowingStrategy:
             "take_profit": take_profit,
             "leverage": leverage,
             "atr": atr,
-            "reason": f"趋势做空 止损={stop_loss:.2f} 止盈={take_profit:.2f}"
+            "entry_ema": entry_ema,
+            "reason": f"反弹{entry_ema.upper()}做空 止损={stop_loss:.2f}"
         }
     
     def _check_exit_conditions(self, klines: List[Dict]) -> Optional[Dict[str, Any]]:
         """
-        检查出场条件
+        检查出场条件 - 趋势不破不止损
         
         出场逻辑：
-        1. 触及止损/止盈
-        2. EMA反向交叉（趋势反转）
-        3. 追踪止损（保护利润）
-        4. 超过最大持仓时间
+        1. EMA21入场：跌破EMA8下方2ATR止损
+        2. EMA55入场：跌破EMA21止损
+        3. 移动止盈：盈利后跟随最高点设置止损
+        4. 趋势反转：均线排列反转
         """
         if not self.current_position:
             return None
@@ -196,63 +292,85 @@ class TrendFollowingStrategy:
         current_price = klines[-1]["close"]
         side = position["side"]
         entry_price = position["entry_price"]
-        stop_loss = position["stop_loss"]
-        take_profit = position["take_profit"]
+        entry_ema = position.get("entry_ema", "ema21")
         
-        # 计算当前盈亏
+        # 计算EMA
+        closes = np.array([k["close"] for k in klines])
+        ema8 = self._calculate_ema(closes, 8)
+        ema21 = self._calculate_ema(closes, 21)
+        atr_period = int(self.parameters.get("atr_period", 14))
+        atr_last = self._calculate_atr(klines, atr_period)
+        
+        # 计算盈亏比例
         if side == "long":
             pnl_ratio = (current_price - entry_price) / entry_price
             
-            # 检查止损
-            if current_price <= stop_loss:
-                return self._create_exit_signal("stop_loss", current_price, pnl_ratio)
+            # 根据入场均线设置止损
+            if entry_ema == "ema21":
+                # EMA21入场：跌破EMA8下方2ATR止损
+                stop_loss_line = ema8[-1] - (atr_last * 2.0)
+                if current_price < stop_loss_line:
+                    logger.info(f"跌破EMA8-2ATR止损: 价格={current_price:.2f}, 止损线={stop_loss_line:.2f}")
+                    return self._create_exit_signal("stop_loss", current_price, pnl_ratio)
+            else:  # ema55
+                # EMA55入场：跌破EMA21止损
+                if current_price < ema21[-1]:
+                    logger.info(f"跌破EMA21止损: 价格={current_price:.2f}, EMA21={ema21[-1]:.2f}")
+                    return self._create_exit_signal("stop_loss", current_price, pnl_ratio)
             
-            # 检查止盈
-            if current_price >= take_profit:
-                return self._create_exit_signal("take_profit", current_price, pnl_ratio)
+            # 移动止盈：盈利超过2%后，设置追踪止损
+            if pnl_ratio > 0.02:
+                if bool(self.parameters.get("use_chandelier_exit", True)):
+                    ch_period = int(self.parameters.get("chandelier_period", 22))
+                    ch_mult = float(self.parameters.get("chandelier_atr_mult", 3.0))
+                    highs = np.array([k["high"] for k in klines])
+                    hh = np.max(highs[-ch_period:]) if len(highs) >= ch_period else np.max(highs)
+                    trailing_stop = hh - ch_mult * atr_last
+                else:
+                    trailing_stop = ema8[-1]
+                if current_price < trailing_stop:
+                    logger.info(f"移动止盈触发: 价格={current_price:.2f}, 止盈线={trailing_stop:.2f}, 盈利={pnl_ratio:.2%}")
+                    return self._create_exit_signal("trailing_stop", current_price, pnl_ratio)
+            
+            # 趋势反转：均线排列反转
+            if ema8[-1] < ema21[-1]:
+                logger.info("趋势反转: EMA8跌破EMA21")
+                return self._create_exit_signal("trend_reversal", current_price, pnl_ratio)
         
         else:  # short
             pnl_ratio = (entry_price - current_price) / entry_price
             
-            if current_price >= stop_loss:
-                return self._create_exit_signal("stop_loss", current_price, pnl_ratio)
+            # 根据入场均线设置止损
+            if entry_ema == "ema21":
+                # EMA21入场：突破EMA8上方2ATR止损
+                stop_loss_line = ema8[-1] + (atr_last * 2.0)
+                if current_price > stop_loss_line:
+                    logger.info(f"突破EMA8+2ATR止损: 价格={current_price:.2f}, 止损线={stop_loss_line:.2f}")
+                    return self._create_exit_signal("stop_loss", current_price, pnl_ratio)
+            else:  # ema55
+                # EMA55入场：突破EMA21止损
+                if current_price > ema21[-1]:
+                    logger.info(f"突破EMA21止损: 价格={current_price:.2f}, EMA21={ema21[-1]:.2f}")
+                    return self._create_exit_signal("stop_loss", current_price, pnl_ratio)
             
-            if current_price <= take_profit:
-                return self._create_exit_signal("take_profit", current_price, pnl_ratio)
-        
-        # 检查EMA反转
-        if self.parameters.get("use_ema_exit", True):
-            closes = np.array([k["close"] for k in klines])
-            ema_fast = self._calculate_ema(closes, self.parameters.get("ema_fast", 20))
-            ema_slow = self._calculate_ema(closes, self.parameters.get("ema_slow", 50))
+            # 移动止盈：盈利超过2%后，设置追踪止损
+            if pnl_ratio > 0.02:
+                if bool(self.parameters.get("use_chandelier_exit", True)):
+                    ch_period = int(self.parameters.get("chandelier_period", 22))
+                    ch_mult = float(self.parameters.get("chandelier_atr_mult", 3.0))
+                    lows = np.array([k["low"] for k in klines])
+                    ll = np.min(lows[-ch_period:]) if len(lows) >= ch_period else np.min(lows)
+                    trailing_stop = ll + ch_mult * atr_last
+                else:
+                    trailing_stop = ema8[-1]
+                if current_price > trailing_stop:
+                    logger.info(f"移动止盈触发: 价格={current_price:.2f}, 止盈线={trailing_stop:.2f}, 盈利={pnl_ratio:.2%}")
+                    return self._create_exit_signal("trailing_stop", current_price, pnl_ratio)
             
-            if side == "long" and ema_fast[-1] < ema_slow[-1]:
+            # 趋势反转：均线排列反转
+            if ema8[-1] > ema21[-1]:
+                logger.info("趋势反转: EMA8突破EMA21")
                 return self._create_exit_signal("trend_reversal", current_price, pnl_ratio)
-            
-            if side == "short" and ema_fast[-1] > ema_slow[-1]:
-                return self._create_exit_signal("trend_reversal", current_price, pnl_ratio)
-        
-        # 检查追踪止损（盈利时）
-        if pnl_ratio > 0.01:  # 盈利超过1%
-            atr = self._calculate_atr(klines[-50:], self.parameters.get("atr_period", 14))
-            trailing_atr = self.parameters.get("trailing_stop_atr", 3.0)
-            
-            if side == "long":
-                trailing_stop = current_price - (atr * trailing_atr)
-                if trailing_stop > position["stop_loss"]:
-                    position["stop_loss"] = trailing_stop
-                    logger.info(f"追踪止损更新: {trailing_stop:.2f}")
-            else:
-                trailing_stop = current_price + (atr * trailing_atr)
-                if trailing_stop < position["stop_loss"]:
-                    position["stop_loss"] = trailing_stop
-                    logger.info(f"追踪止损更新: {trailing_stop:.2f}")
-        
-        # 检查最大持仓时间
-        holding_time = (datetime.now() - position["entry_time"]).days
-        max_days = self.parameters.get("max_holding_days", 30)
-        if holding_time >= max_days:
-            return self._create_exit_signal("timeout", current_price, pnl_ratio)
         
         return None
     
@@ -286,71 +404,103 @@ class TrendFollowingStrategy:
         return True
     
     def _calculate_ema(self, data: np.ndarray, period: int) -> np.ndarray:
-        """计算指数移动平均线"""
-        return np.array([np.mean(data[max(0, i-period+1):i+1]) for i in range(len(data))])
+        """计算真实EMA（指数加权移动平均）"""
+        if len(data) == 0:
+            return np.array([])
+        alpha = 2.0 / (period + 1.0)
+        ema = np.zeros(len(data), dtype=float)
+        ema[0] = float(data[0])
+        for i in range(1, len(data)):
+            ema[i] = alpha * float(data[i]) + (1.0 - alpha) * ema[i - 1]
+        return ema
+    
+    def _calculate_rsi(self, closes: np.ndarray, period: int = 14) -> np.ndarray:
+        """计算RSI（Wilder 平滑）"""
+        n = len(closes)
+        if n == 0:
+            return np.array([])
+        if n < period + 1:
+            return np.full(n, 50.0)
+        deltas = np.diff(closes)
+        gains = np.where(deltas > 0, deltas, 0.0)
+        losses = np.where(deltas < 0, -deltas, 0.0)
+        rsi = np.full(n, 50.0)
+        # 初值
+        avg_gain = np.sum(gains[:period]) / period
+        avg_loss = np.sum(losses[:period]) / period
+        rs = (avg_gain / avg_loss) if avg_loss != 0 else np.inf
+        rsi[period] = 100.0 - (100.0 / (1.0 + rs)) if np.isfinite(rs) else 100.0
+        # 递推
+        for i in range(period + 1, n):
+            gain = gains[i - 1]
+            loss = losses[i - 1]
+            avg_gain = (avg_gain * (period - 1) + gain) / period
+            avg_loss = (avg_loss * (period - 1) + loss) / period
+            rs = (avg_gain / avg_loss) if avg_loss != 0 else np.inf
+            rsi[i] = 100.0 - (100.0 / (1.0 + rs)) if np.isfinite(rs) else 100.0
+        return rsi
     
     def _calculate_atr(self, klines: List[Dict], period: int = 14) -> float:
-        """计算ATR"""
+        """计算ATR（Wilder 平滑），返回最新值"""
         if len(klines) < period + 1:
             return 0.0
-        
-        true_ranges = []
-        for i in range(1, len(klines)):
-            high = klines[i]["high"]
-            low = klines[i]["low"]
-            prev_close = klines[i-1]["close"]
-            
-            tr = max(high - low, abs(high - prev_close), abs(low - prev_close))
-            true_ranges.append(tr)
-        
-        return np.mean(true_ranges[-period:]) if true_ranges else 0.0
+        highs = np.array([k["high"] for k in klines], dtype=float)
+        lows = np.array([k["low"] for k in klines], dtype=float)
+        closes = np.array([k["close"] for k in klines], dtype=float)
+        tr = np.maximum(highs[1:] - lows[1:], np.maximum(np.abs(highs[1:] - closes[:-1]), np.abs(lows[1:] - closes[:-1])))
+        if len(tr) < period:
+            return float(np.mean(tr)) if len(tr) > 0 else 0.0
+        atr_prev = float(np.sum(tr[:period]) / period)
+        for i in range(period, len(tr)):
+            atr_prev = (atr_prev * (period - 1) + tr[i]) / period
+        return float(atr_prev)
     
     def _calculate_adx(self, klines: List[Dict], period: int = 14) -> np.ndarray:
-        """
-        计算ADX（平均趋向指数）
-        
-        ADX用于衡量趋势强度，不区分方向
-        ADX > 25: 强趋势
-        ADX < 20: 弱趋势或震荡
-        """
-        if len(klines) < period * 2:
-            return np.zeros(len(klines))
-        
-        highs = np.array([k["high"] for k in klines])
-        lows = np.array([k["low"] for k in klines])
-        closes = np.array([k["close"] for k in klines])
-        
-        # 计算+DM和-DM
-        plus_dm = np.maximum(highs[1:] - highs[:-1], 0)
-        minus_dm = np.maximum(lows[:-1] - lows[1:], 0)
-        
-        # 计算TR
-        tr = np.maximum(
-            highs[1:] - lows[1:],
-            np.maximum(
-                np.abs(highs[1:] - closes[:-1]),
-                np.abs(lows[1:] - closes[:-1])
-            )
-        )
-        
-        # 平滑处理
-        atr = np.zeros(len(tr))
-        plus_di = np.zeros(len(tr))
-        minus_di = np.zeros(len(tr))
-        
-        for i in range(period - 1, len(tr)):
-            atr[i] = np.mean(tr[max(0, i-period+1):i+1])
-            plus_di[i] = 100 * np.mean(plus_dm[max(0, i-period+1):i+1]) / atr[i] if atr[i] > 0 else 0
-            minus_di[i] = 100 * np.mean(minus_dm[max(0, i-period+1):i+1]) / atr[i] if atr[i] > 0 else 0
-        
-        # 计算DX和ADX
-        dx = 100 * np.abs(plus_di - minus_di) / (plus_di + minus_di + 1e-10)
-        adx = np.zeros(len(dx) + 1)
-        
-        for i in range(period - 1, len(dx)):
-            adx[i+1] = np.mean(dx[max(0, i-period+1):i+1])
-        
-        return adx
+        """计算ADX（DMI + Wilder 平滑），返回与klines等长的数组（前段为0）"""
+        n = len(klines)
+        if n < period + 2:
+            return np.zeros(n)
+        highs = np.array([k["high"] for k in klines], dtype=float)
+        lows = np.array([k["low"] for k in klines], dtype=float)
+        closes = np.array([k["close"] for k in klines], dtype=float)
+        up_move = highs[1:] - highs[:-1]
+        down_move = lows[:-1] - lows[1:]
+        plus_dm = np.where((up_move > down_move) & (up_move > 0), up_move, 0.0)
+        minus_dm = np.where((down_move > up_move) & (down_move > 0), down_move, 0.0)
+        tr = np.maximum(highs[1:] - lows[1:], np.maximum(np.abs(highs[1:] - closes[:-1]), np.abs(lows[1:] - closes[:-1])))
+        m = len(tr)
+        if m < period:
+            return np.zeros(n)
+        # Wilder 平滑初值
+        atr = np.zeros(m)
+        pDMs = np.zeros(m)
+        mDMs = np.zeros(m)
+        atr[period - 1] = np.sum(tr[:period]) / period
+        pDMs[period - 1] = np.sum(plus_dm[:period]) / period
+        mDMs[period - 1] = np.sum(minus_dm[:period]) / period
+        # 递推
+        for i in range(period, m):
+            atr[i] = (atr[i - 1] * (period - 1) + tr[i]) / period
+            pDMs[i] = (pDMs[i - 1] * (period - 1) + plus_dm[i]) / period
+            mDMs[i] = (mDMs[i - 1] * (period - 1) + minus_dm[i]) / period
+        plus_di = np.zeros(m)
+        minus_di = np.zeros(m)
+        mask = atr > 0
+        plus_di[mask] = 100.0 * (pDMs[mask] / atr[mask])
+        minus_di[mask] = 100.0 * (mDMs[mask] / atr[mask])
+        dx = np.zeros(m)
+        denom = plus_di + minus_di
+        valid = denom > 0
+        dx[valid] = 100.0 * np.abs(plus_di[valid] - minus_di[valid]) / denom[valid]
+        adx = np.zeros(m)
+        if m >= 2 * period - 1:
+            adx[2 * period - 2] = np.mean(dx[period - 1: 2 * period - 1])
+            for i in range(2 * period - 1, m):
+                adx[i] = (adx[i - 1] * (period - 1) + dx[i]) / period
+        # 对齐长度
+        out = np.zeros(n)
+        out[-m:] = adx
+        return out
     
     def update_position(self, signal: Dict[str, Any]):
         """更新持仓状态"""
@@ -362,9 +512,11 @@ class TrendFollowingStrategy:
                 "amount": signal["amount"],
                 "stop_loss": signal["stop_loss"],
                 "take_profit": signal["take_profit"],
-                "entry_time": datetime.now()
+                "entry_time": datetime.now(),
+                "entry_ema": signal.get("entry_ema", "ema21")
             }
             logger.info(f"✓ 趋势{self.current_position['side']}开仓: {signal['price']:.2f}")
+            self.pending_entry = None
         
         elif signal.get("type") in ["stop_loss", "take_profit", "trend_reversal", "timeout"]:
             # 平仓

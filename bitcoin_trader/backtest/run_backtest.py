@@ -18,7 +18,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from backtest.core import DataLoader, BacktestEngine, PerformanceAnalyzer
-from app.strategies import HighFrequencyScalpingStrategy
+from app.strategies import HighFrequencyScalpingStrategy, IntradayScalpingStrategy, GridBNBStrategy
 from app.strategies.grid_trading import GridTradingStrategy
 from app.strategies.trend_following import TrendFollowingStrategy
 
@@ -158,7 +158,9 @@ class BacktestRunner:
             strategy_map = {
                 'high_frequency': HighFrequencyScalpingStrategy,
                 'grid_trading': GridTradingStrategy,
-                'trend_following': TrendFollowingStrategy
+                'trend_following': TrendFollowingStrategy,
+                'intraday_scalping': IntradayScalpingStrategy,
+                'gridbnb_usdt': GridBNBStrategy
             }
             
             if strategy_name not in strategy_map:
