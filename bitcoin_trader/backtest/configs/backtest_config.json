@@ -3,9 +3,9 @@
   "description": "ETH/USDT 高频短线策略历史数据回测",
   
   "data": {
-    "source": "data/ETHUSDT-30m.csv",
-    "timeframe": "30m",
-    "resample_from": "30m"
+    "source": "data/ETHUSDT-4h.csv",
+    "timeframe": "4h",
+    "resample_from": "4h"
   },
   
   "strategy": {
