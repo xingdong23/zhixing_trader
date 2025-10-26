@@ -70,6 +70,9 @@ class HighFrequencyScalpingStrategy:
         self.name = "高频短线交易策略"
         self.parameters = parameters
         
+        # 资金管理（支持复利）
+        self.current_capital = parameters.get("total_capital", 300.0)
+        
         # 持仓持久化存储
         self.position_storage = PositionStorage()
         
@@ -627,20 +630,27 @@ class HighFrequencyScalpingStrategy:
         return stop_loss, take_profit
     
     def _calculate_position_size(self, entry_price: float, stop_loss: float) -> float:
-        """计算仓位大小"""
-        # 单份资金
-        portion_size = self.parameters["portion_size"]
+        """
+        计算仓位大小
         
-        # 最大开仓份数
-        max_portions = self.parameters["max_portions_per_trade"]
+        支持两种模式：
+        1. 固定保证金模式：每次使用固定的portion_size
+        2. 复利模式：根据当前总资金按比例计算保证金
+        """
+        # 检查是否启用复利
+        enable_compounding = self.parameters.get("enable_compounding", False)
         
-        # 理想开仓资金
-        ideal_position_value = portion_size * max_portions
-        
-        # 实际可用资金（从总资金获取）
-        # 注意：这里应该从回测引擎或实盘账户获取实际可用资金
-        # 暂时使用理想值，后续需要传入actual_capital参数
-        position_value = ideal_position_value
+        if enable_compounding:
+            # 复利模式：按当前资金的比例计算
+            compounding_ratio = self.parameters.get("compounding_ratio", 0.333)
+            position_value = self.current_capital * compounding_ratio
+            logger.debug(f"💰 复利模式：当前资金 {self.current_capital:.2f}，使用比例 {compounding_ratio:.1%}，保证金 {position_value:.2f}")
+        else:
+            # 固定模式：使用配置的固定金额
+            portion_size = self.parameters["portion_size"]
+            max_portions = self.parameters["max_portions_per_trade"]
+            position_value = portion_size * max_portions
+            logger.debug(f"💵 固定模式：保证金 {position_value:.2f}")
         
         # 应用杠杆
         leveraged_value = position_value * self.parameters["leverage"]
@@ -845,6 +855,24 @@ class HighFrequencyScalpingStrategy:
         self.daily_trades.clear()
         self.daily_pnl = 0.0
         self.consecutive_losses = 0
+    
+    def update_capital(self, new_capital: float):
+        """
+        更新当前资金（用于复利计算）
+        
+        Args:
+            new_capital: 回测引擎或实盘账户传入的最新资金总额
+        """
+        if not self.parameters.get("enable_compounding", False):
+            return  # 未启用复利，无需更新
+        
+        old_capital = self.current_capital
+        self.current_capital = new_capital
+        
+        # 记录资金变化（仅在显著变化时输出，避免日志过多）
+        change_ratio = abs(new_capital - old_capital) / old_capital if old_capital > 0 else 0
+        if change_ratio > 0.01:  # 变化超过1%才记录
+            logger.info(f"💰 资金更新: {old_capital:.2f} → {new_capital:.2f} (变化: {new_capital - old_capital:+.2f}, {change_ratio:+.1%})")
     
     def get_statistics(self) -> Dict[str, Any]:
         """获取策略统计信息"""
