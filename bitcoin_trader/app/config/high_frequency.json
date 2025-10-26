@@ -12,7 +12,9 @@
   "capital_management": {
     "num_portions": 6,
     "portion_size": 50.0,
-    "max_portions_per_trade": 2
+    "max_portions_per_trade": 2,
+    "enable_compounding": true,
+    "compounding_ratio": 0.333
   },
   
   "indicators": {
@@ -52,12 +54,11 @@
   },
   
   "risk_control": {
-    "max_daily_profit": 0.10,
-    "max_daily_loss": 0.08,
+    "max_daily_profit": 1.0,
+    "max_daily_loss": 0.05,
     "max_consecutive_losses": 3,
-    "max_trades_per_day": 10,
-    "min_trades_per_day": 1,
-    "single_trade_max_loss": 0.02
+    "max_trades_per_day": 30,
+    "min_trades_per_day": 1
   },
   
   "special_conditions": {
