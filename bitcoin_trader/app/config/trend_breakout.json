@@ -1,0 +1,45 @@
+{
+  "strategy_name": "trend_breakout",
+  "description": "趋势突破策略 - 激进型高收益策略",
+  
+  "trading": {
+    "capital": 300.0,
+    "leverage": 1.0,
+    "position_mode": "one_way"
+  },
+  
+  "parameters": {
+    "total_capital": 300.0,
+    "leverage": 1.0,
+    "position_size": 0.5,
+    
+    "ema_fast": 9,
+    "ema_medium": 21,
+    "ema_slow": 50,
+    
+    "breakout_period": 25,
+    "volume_multiplier": 1.8,
+    
+    "stop_loss": 0.03,
+    "take_profit_1": 0.05,
+    "take_profit_2": 0.10,
+    
+    "max_daily_loss": 0.05,
+    "max_position_ratio": 0.9,
+    
+    "cooldown_bars": 60
+  },
+  
+  "description_details": {
+    "strategy_type": "趋势突破",
+    "risk_level": "激进",
+    "expected_monthly_return": "5-8%",
+    "expected_annual_return": "60-96%",
+    "max_drawdown": "15-20%",
+    "win_rate": "40-45%",
+    "profit_factor": "3-4",
+    "trading_frequency": "10-20笔/月",
+    "适合市场": "上涨趋势、牛市",
+    "核心逻辑": "多头排列 + 突破新高 + 成交量放大 = 做多"
+  }
+}

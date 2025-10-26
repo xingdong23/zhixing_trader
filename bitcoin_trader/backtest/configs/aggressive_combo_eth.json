@@ -1,6 +1,6 @@
 {
-  "backtest_name": "GridBNB优化版回测 (ETH/USDT - 6个月)",
-  "description": "ETH/USDT 优化参数 + 欧易手续费 + 300U本金 (6个月数据)",
+  "backtest_name": "趋势突破策略回测 (ETH/USDT - 优化版)",
+  "description": "趋势突破策略 300U - 6个月回测 (50%仓位，优化止损)",
   
   "data": {
     "source": "backtest/data/ETHUSDT-5m-6months.csv",
@@ -9,8 +9,8 @@
   },
   
   "strategy": {
-    "name": "gridbnb_usdt",
-    "config_file": "../app/config/gridbnb_okx_optimized.json"
+    "name": "trend_breakout",
+    "config_file": "../app/config/trend_breakout.json"
   },
   
   "backtest_settings": {
@@ -22,8 +22,8 @@
   },
   
   "output": {
-    "result_file": "results/gridbnb_optimized_eth_{timestamp}.json",
-    "report_file": "results/gridbnb_optimized_eth_{timestamp}.txt",
+    "result_file": "results/aggressive_trend_eth_{timestamp}.json",
+    "report_file": "results/aggressive_trend_eth_{timestamp}.txt",
     "save_trades": true,
     "save_equity_curve": true
   }
