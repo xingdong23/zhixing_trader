@@ -1,0 +1,30 @@
+{
+  "backtest_name": "日内剥头皮策略回测",
+  "description": "ETH/USDT 日内交易策略 - 目标每日5-10U收益",
+  
+  "data": {
+    "source": "data/ETHUSDT-15m-2months.csv",
+    "timeframe": "15m",
+    "resample_from": "15m"
+  },
+  
+  "strategy": {
+    "name": "intraday_scalping",
+    "config_file": "../app/config/intraday_scalping.json"
+  },
+  
+  "backtest_settings": {
+    "initial_capital": 300.0,
+    "window_size": 200,
+    "taker_fee_rate": 0.0005,
+    "maker_fee_rate": 0.0002,
+    "slippage_rate": 0.0001
+  },
+  
+  "output": {
+    "result_file": "results/intraday_backtest_result_{timestamp}.json",
+    "report_file": "results/intraday_backtest_report_{timestamp}.txt",
+    "save_trades": true,
+    "save_equity_curve": true
+  }
+}
