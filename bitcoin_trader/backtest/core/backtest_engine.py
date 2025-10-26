@@ -159,6 +159,10 @@ class BacktestEngine:
         # 更新资金
         self.current_capital += pnl_amount
         
+        # 通知策略更新资金（用于复利计算）
+        if hasattr(self.strategy, 'update_capital'):
+            self.strategy.update_capital(self.current_capital)
+        
         # 记录交易
         trade = {
             'entry_time': position['entry_time'],
