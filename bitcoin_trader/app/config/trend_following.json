@@ -1,0 +1,49 @@
+{
+  "strategy_name": "趋势跟踪策略",
+  "description": "跟随市场趋势，持仓时间长，盈亏比高，适合单边行情",
+  
+  "trading": {
+    "symbol": "ETH/USDT",
+    "timeframe": "1h",
+    "capital": 300.0,
+    "leverage": 2.0
+  },
+  
+  "capital_management": {
+    "position_size_percent": 0.30,
+    "max_positions": 1,
+    "enable_pyramiding": false,
+    "pyramiding_levels": 3
+  },
+  
+  "trend_indicators": {
+    "ema_fast": 20,
+    "ema_slow": 50,
+    "ema_filter": 200,
+    "atr_period": 14,
+    "atr_multiplier": 2.0,
+    "adx_period": 14,
+    "adx_threshold": 25
+  },
+  
+  "entry_conditions": {
+    "require_strong_trend": true,
+    "min_trend_strength": 0.02,
+    "volume_confirmation": true,
+    "volume_multiplier": 1.2
+  },
+  
+  "exit_conditions": {
+    "profit_target_atr": 4.0,
+    "stop_loss_atr": 2.0,
+    "trailing_stop_atr": 3.0,
+    "use_ema_exit": true,
+    "max_holding_days": 30
+  },
+  
+  "risk_control": {
+    "max_daily_loss": 0.05,
+    "max_consecutive_losses": 2,
+    "risk_per_trade": 0.02
+  }
+}

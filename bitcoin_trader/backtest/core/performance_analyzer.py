@@ -32,6 +32,7 @@ class PerformanceAnalyzer:
         print(f"  总盈亏:       {summary['total_pnl']:>+12.2f} USDT")
         print(f"  总收益率:     {summary['total_return']:>+12.2f}%")
         print(f"  最大回撤:     {summary['max_drawdown']:>12.2f}%")
+        print(f"  累计手续费:   {summary.get('total_fees', 0):>12.2f} USDT ({summary.get('fee_ratio', 0):.2f}%)")
         
         # 交易统计
         print("\n【交易统计】")
