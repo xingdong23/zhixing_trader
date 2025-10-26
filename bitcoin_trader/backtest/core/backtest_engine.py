@@ -12,17 +12,25 @@ logger = logging.getLogger(__name__)
 class BacktestEngine:
     """回测引擎"""
     
-    def __init__(self, strategy, initial_capital: float = 300.0):
+    def __init__(self, strategy, initial_capital: float = 300.0, 
+                 taker_fee_rate: float = 0.0005, maker_fee_rate: float = 0.0002):
         """
         初始化回测引擎
         
         Args:
             strategy: 交易策略实例
             initial_capital: 初始资金
+            taker_fee_rate: Taker手续费率（吃单，默认0.05%）
+            maker_fee_rate: Maker手续费率（挂单，默认0.02%）
         """
         self.strategy = strategy
         self.initial_capital = initial_capital
         self.current_capital = initial_capital
+        
+        # 手续费设置（欧易Lv1费率）
+        self.taker_fee_rate = taker_fee_rate
+        self.maker_fee_rate = maker_fee_rate
+        self.total_fees = 0.0  # 累计手续费
         
         # 交易记录
         self.trades: List[Dict] = []
@@ -122,16 +130,21 @@ class BacktestEngine:
             logger.warning(f"资金不足，无法开仓。需要: {margin_required:.2f}, 可用: {self.current_capital:.2f}")
             return
         
-        # 记录持仓
+        # 计算开仓手续费（按Taker费率，市价单立即成交）
+        # 手续费 = 合约价值 × 费率
+        open_fee = position_value * self.taker_fee_rate
+        self.current_capital -= open_fee
+        self.total_fees += open_fee
+        
+        # 创建持仓记录
         position = {
-            'entry_time': timestamp,
             'side': side,
             'entry_price': entry_price,
             'amount': amount,
-            'leverage': leverage,
+            'entry_time': timestamp,
             'margin': margin_required,
-            'stop_loss': signal.get('stop_loss'),
-            'take_profit': signal.get('take_profit'),
+            'leverage': leverage,
+            'open_fee': open_fee  # 记录开仓手续费
         }
         
         self.positions.append(position)
@@ -156,8 +169,16 @@ class BacktestEngine:
         
         pnl_amount = pnl_ratio * position['entry_price'] * position['amount']
         
-        # 更新资金
-        self.current_capital += pnl_amount
+        # 计算平仓手续费（按Taker费率）
+        close_value = exit_price * position['amount']
+        close_fee = close_value * self.taker_fee_rate
+        
+        # 更新资金：盈亏 - 平仓手续费
+        self.current_capital += pnl_amount - close_fee
+        self.total_fees += close_fee
+        
+        # 实际净盈亏（扣除开仓和平仓手续费）
+        net_pnl = pnl_amount - position.get('open_fee', 0) - close_fee
         
         # 通知策略更新资金（用于复利计算）
         if hasattr(self.strategy, 'update_capital'):
@@ -173,6 +194,9 @@ class BacktestEngine:
             'amount': position['amount'],
             'pnl_ratio': pnl_ratio,
             'pnl_amount': pnl_amount,
+            'open_fee': position.get('open_fee', 0),
+            'close_fee': close_fee,
+            'net_pnl': net_pnl,
             'exit_type': exit_type,
             'holding_time': (timestamp - position['entry_time']).total_seconds() / 60,
         }
@@ -259,6 +283,8 @@ class BacktestEngine:
                 'final_capital': self.current_capital,
                 'total_pnl': total_pnl,
                 'total_return': total_return,
+                'total_fees': self.total_fees,
+                'fee_ratio': (self.total_fees / self.initial_capital * 100) if self.initial_capital > 0 else 0,
                 'total_trades': self.total_trades,
                 'winning_trades': self.winning_trades,
                 'losing_trades': self.losing_trades,

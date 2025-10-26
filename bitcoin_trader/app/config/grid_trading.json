@@ -1,0 +1,32 @@
+{
+  "strategy_name": "网格交易策略",
+  "description": "在价格区间内设置网格，低买高卖，适合震荡市",
+  
+  "trading": {
+    "symbol": "ETH/USDT",
+    "timeframe": "15m",
+    "capital": 300.0,
+    "leverage": 1.0
+  },
+  
+  "grid_settings": {
+    "grid_mode": "auto",
+    "price_range_percent": 0.15,
+    "num_grids": 10,
+    "grid_profit_percent": 0.015,
+    "min_grid_spacing": 0.008,
+    "max_position_percent": 0.8
+  },
+  
+  "risk_control": {
+    "max_daily_loss": 0.05,
+    "max_total_positions": 8,
+    "stop_loss_percent": 0.10,
+    "enable_trailing_stop": true
+  },
+  
+  "indicators": {
+    "atr_period": 14,
+    "volatility_threshold": 0.02
+  }
+}

@@ -19,6 +19,8 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from backtest.core import DataLoader, BacktestEngine, PerformanceAnalyzer
 from app.strategies import HighFrequencyScalpingStrategy
+from app.strategies.grid_trading import GridTradingStrategy
+from app.strategies.trend_following import TrendFollowingStrategy
 
 # 配置日志
 logging.basicConfig(
@@ -65,10 +67,12 @@ class BacktestRunner:
             "leverage": strategy_config['trading']['leverage'],
         }
         
-        # 合并所有配置组
+        # 合并所有配置组（支持不同策略的不同配置节）
         for section in ['capital_management', 'indicators', 'entry_conditions', 
-                       'exit_conditions', 'risk_control', 'special_conditions']:
-            params.update(strategy_config.get(section, {}))
+                       'exit_conditions', 'risk_control', 'special_conditions',
+                       'grid_settings', 'trend_indicators']:
+            if section in strategy_config:
+                params.update(strategy_config[section])
         
         # 处理时段过滤
         if 'session_filter' in strategy_config:
@@ -122,7 +126,8 @@ class BacktestRunner:
             
             # 2. 加载历史数据
             logger.info("\n📊 步骤 2/4: 加载历史数据")
-            data_path = self.backtest_dir / self.config['data']['source']
+            # 数据路径相对于项目根目录
+            data_path = self.backtest_dir.parent / self.config['data']['source']
             
             if not data_path.exists():
                 raise FileNotFoundError(f"数据文件不存在: {data_path}")
@@ -147,14 +152,30 @@ class BacktestRunner:
             
             # 3. 初始化策略
             logger.info("\n⚙️  步骤 3/4: 初始化策略")
-            strategy = HighFrequencyScalpingStrategy(strategy_params)
+            
+            # 根据策略名称选择对应的策略类
+            strategy_name = self.config['strategy']['name']
+            strategy_map = {
+                'high_frequency': HighFrequencyScalpingStrategy,
+                'grid_trading': GridTradingStrategy,
+                'trend_following': TrendFollowingStrategy
+            }
+            
+            if strategy_name not in strategy_map:
+                raise ValueError(f"未知的策略名称: {strategy_name}")
+            
+            StrategyClass = strategy_map[strategy_name]
+            strategy = StrategyClass(strategy_params)
             logger.info(f"✓ 策略初始化完成: {strategy.name}")
             
             # 4. 运行回测
             logger.info("\n🔄 步骤 4/4: 运行回测")
+            backtest_settings = self.config['backtest_settings']
             engine = BacktestEngine(
                 strategy, 
-                initial_capital=self.config['backtest_settings']['initial_capital']
+                initial_capital=backtest_settings['initial_capital'],
+                taker_fee_rate=backtest_settings.get('taker_fee_rate', 0.0005),
+                maker_fee_rate=backtest_settings.get('maker_fee_rate', 0.0002)
             )
             
             result = engine.run(

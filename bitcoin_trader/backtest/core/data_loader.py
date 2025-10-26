@@ -152,6 +152,35 @@ class DataLoader:
         
         return resampled
     
+    def resample_to_1h(self) -> pd.DataFrame:
+        """
+        将5分钟数据重采样为1小时数据
+        
+        Returns:
+            1小时K线DataFrame
+        """
+        if self.df is None:
+            self.load()
+        
+        logger.info("重采样为1小时K线...")
+        
+        # 转换时间戳
+        self.df['timestamp'] = pd.to_datetime(self.df['open_time'], unit='ms')
+        self.df.set_index('timestamp', inplace=True)
+        
+        # 重采样规则
+        resampled = self.df.resample('1H').agg({
+            'open': 'first',
+            'high': 'max',
+            'low': 'min',
+            'close': 'last',
+            'vol': 'sum',
+        }).dropna()
+        
+        logger.info(f"✓ 重采样完成: {len(resampled)} 根1小时K线")
+        
+        return resampled
+    
     def to_klines(self, df: pd.DataFrame = None) -> List[Dict]:
         """
         转换为策略所需的K线格式

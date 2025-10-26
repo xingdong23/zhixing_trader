@@ -3,20 +3,21 @@
   "description": "ETH/USDT 高频短线策略历史数据回测",
   
   "data": {
-    "source": "data/ETHUSDT-5m-merged.csv",
-    "timeframe": "5m",
-    "resample_from": "5m"
+    "source": "data/ETHUSDT-30m.csv",
+    "timeframe": "30m",
+    "resample_from": "30m"
   },
   
   "strategy": {
-    "name": "high_frequency",
-    "config_file": "../app/config/high_frequency.json"
+    "name": "trend_following",
+    "config_file": "../app/config/trend_following.json"
   },
   
   "backtest_settings": {
     "initial_capital": 300.0,
     "window_size": 200,
-    "commission_rate": 0.0004,
+    "taker_fee_rate": 0.0005,
+    "maker_fee_rate": 0.0002,
     "slippage_rate": 0.0001
   },
   
