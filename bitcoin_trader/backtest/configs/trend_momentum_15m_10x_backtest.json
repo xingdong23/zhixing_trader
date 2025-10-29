@@ -1,0 +1,30 @@
+{
+  "backtest_name": "趋势动量策略回测 - 15分钟 10倍杠杆",
+  "description": "ETH/USDT 趋势动量策略 15分钟周期 10倍杠杆回测 - 激进型",
+  
+  "data": {
+    "source": "data/ETHUSDT-15m-2years.csv",
+    "timeframe": "15m",
+    "resample_from": "15m"
+  },
+  
+  "strategy": {
+    "name": "trend_momentum",
+    "config_file": "../app/config/trend_momentum.json"
+  },
+  
+  "backtest_settings": {
+    "initial_capital": 300.0,
+    "window_size": 100,
+    "taker_fee_rate": 0.0005,
+    "maker_fee_rate": 0.0002,
+    "slippage_rate": 0.0001
+  },
+  
+  "output": {
+    "result_file": "results/trend_momentum_15m_10x_result_{timestamp}.json",
+    "report_file": "results/trend_momentum_15m_10x_report_{timestamp}.txt",
+    "save_trades": true,
+    "save_equity_curve": true
+  }
+}
