@@ -18,7 +18,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from backtest.core import DataLoader, BacktestEngine, PerformanceAnalyzer
-from app.strategies import HighFrequencyScalpingStrategy, IntradayScalpingStrategy
+from app.strategies import HighFrequencyScalpingStrategy, IntradayScalpingStrategy, TrendMomentumStrategy
 from app.strategies.grid_trading import GridTradingStrategy
 from app.strategies.trend_following import TrendFollowingStrategy
 from app.strategies.trend_breakout import TrendBreakoutStrategy
@@ -141,8 +141,13 @@ class BacktestRunner:
             df_raw = data_loader.load()
             
             # 根据配置重采样
-            if self.config['data']['resample_from'] == '1m' and self.config['data']['timeframe'] == '5m':
+            resample_from = self.config['data']['resample_from']
+            timeframe = self.config['data']['timeframe']
+            
+            if resample_from == '1m' and timeframe == '5m':
                 df_resampled = data_loader.resample_to_5m()
+            elif resample_from == '1h' and timeframe == '1d':
+                df_resampled = data_loader.resample_to_1d()
             else:
                 df_resampled = df_raw
             
@@ -165,7 +170,8 @@ class BacktestRunner:
                 'grid_trading': GridTradingStrategy,
                 'trend_following': TrendFollowingStrategy,
                 'intraday_scalping': IntradayScalpingStrategy,
-                'trend_breakout': TrendBreakoutStrategy
+                'trend_breakout': TrendBreakoutStrategy,
+                'trend_momentum': TrendMomentumStrategy
             }
             
             if strategy_name not in strategy_map:
