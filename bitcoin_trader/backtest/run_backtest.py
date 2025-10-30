@@ -23,6 +23,7 @@ from app.strategies.grid_trading import GridTradingStrategy
 from app.strategies.trend_following import TrendFollowingStrategy
 from app.strategies.trend_breakout import TrendBreakoutStrategy
 from app.strategies.ema_crossover import EMACrossoverStrategy
+from app.strategies.bollinger_bands import BollingerBandsStrategy
 
 # 配置日志
 logging.basicConfig(
@@ -183,7 +184,8 @@ class BacktestRunner:
                 'intraday_scalping': IntradayScalpingStrategy,
                 'trend_breakout': TrendBreakoutStrategy,
                 'trend_momentum': TrendMomentumStrategy,
-                'ema_crossover': EMACrossoverStrategy
+                'ema_crossover': EMACrossoverStrategy,
+                'bollinger_bands': BollingerBandsStrategy
             }
             
             if strategy_name not in strategy_map:

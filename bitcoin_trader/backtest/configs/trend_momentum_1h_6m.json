@@ -1,0 +1,31 @@
+{
+  "backtest_name": "趋势动量策略 - 1小时 - 6个月完整测试",
+  "description": "ETH/USDT 趋势动量策略 - 对比测试",
+  
+  "data": {
+    "source": "data/ETHUSDT-5m-6months.csv",
+    "timeframe": "1h",
+    "resample_from": "5m"
+  },
+  
+  "strategy": {
+    "name": "trend_momentum",
+    "config_file": "../app/config/trend_momentum.json"
+  },
+  
+  "backtest_settings": {
+    "initial_capital": 300.0,
+    "window_size": 100,
+    "taker_fee_rate": 0.0005,
+    "maker_fee_rate": 0.0002,
+    "slippage_rate": 0.0001
+  },
+  
+  "output": {
+    "result_file": "results/trend_momentum_1h_6m_result_{timestamp}.json",
+    "report_file": "results/trend_momentum_1h_6m_report_{timestamp}.txt",
+    "save_trades": true,
+    "save_equity_curve": true
+  }
+}
+

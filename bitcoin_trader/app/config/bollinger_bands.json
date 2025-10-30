@@ -1,0 +1,49 @@
+{
+  "strategy_name": "布林线双向自适应策略",
+  "description": "基于布林线的震荡/趋势双模式策略，牛熊通吃",
+  
+  "trading": {
+    "symbol": "ETH/USDT",
+    "timeframe": "1h",
+    "capital": 300.0,
+    "leverage": 5.0
+  },
+  
+  "capital_management": {
+    "max_positions": 1,
+    "use_leverage_sizing": false,
+    "position_ratio": 0.5,
+    "risk_per_trade": 0.02
+  },
+  
+  "indicators": {
+    "bb_period": 20,
+    "bb_std": 2.0,
+    "ema_trend_period": 200,
+    "rsi_period": 14,
+    "atr_period": 14,
+    "ema_fast": 8,
+    "ema_slow": 21
+  },
+  
+  "entry_conditions": {
+    "squeeze_threshold": 0.6,
+    "expansion_threshold": 1.1,
+    "allow_short": true,
+    "rsi_oversold": 35,
+    "rsi_overbought": 65,
+    "use_trend_filter": true
+  },
+  
+  "exit_conditions": {
+    "use_middle_target": true,
+    "risk_reward_ratio": 3.0,
+    "atr_stop_multiplier": 2.0
+  },
+  
+  "risk_control": {
+    "max_daily_loss": 0.15,
+    "max_consecutive_losses": 5
+  }
+}
+

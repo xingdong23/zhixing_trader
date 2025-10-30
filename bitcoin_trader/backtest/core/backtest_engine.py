@@ -111,7 +111,8 @@ class BacktestEngine:
             # 开仓
             self._open_position(signal, timestamp)
             
-        elif signal_type in ['stop_loss', 'take_profit', 'timeout', 'accelerated_exit', 'partial_close']:
+        elif signal_type in ['stop_loss', 'take_profit', 'timeout', 'accelerated_exit', 'partial_close', 
+                             'max_loss_stop', 'ema13_break', 'ema48_break', 'trailing_stop']:
             # 平仓
             self._close_position(signal, timestamp, current_price)
     

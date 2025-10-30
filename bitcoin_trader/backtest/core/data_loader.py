@@ -168,14 +168,20 @@ class DataLoader:
         self.df['timestamp'] = pd.to_datetime(self.df['open_time'], unit='ms')
         self.df.set_index('timestamp', inplace=True)
         
+        # 确定volume列名
+        vol_col = 'volume' if 'volume' in self.df.columns else 'vol'
+        
         # 重采样规则
-        resampled = self.df.resample('1H').agg({
+        agg_dict = {
             'open': 'first',
             'high': 'max',
             'low': 'min',
             'close': 'last',
-            'vol': 'sum',
-        }).dropna()
+        }
+        if vol_col in self.df.columns:
+            agg_dict[vol_col] = 'sum'
+        
+        resampled = self.df.resample('1h').agg(agg_dict).dropna()
         
         logger.info(f"✓ 重采样完成: {len(resampled)} 根1小时K线")
         
@@ -197,14 +203,20 @@ class DataLoader:
         self.df['timestamp'] = pd.to_datetime(self.df['open_time'], unit='ms')
         self.df.set_index('timestamp', inplace=True)
         
+        # 确定volume列名
+        vol_col = 'volume' if 'volume' in self.df.columns else 'vol'
+        
         # 重采样规则
-        resampled = self.df.resample('15T').agg({
+        agg_dict = {
             'open': 'first',
             'high': 'max',
             'low': 'min',
             'close': 'last',
-            'vol': 'sum',
-        }).dropna()
+        }
+        if vol_col in self.df.columns:
+            agg_dict[vol_col] = 'sum'
+        
+        resampled = self.df.resample('15min').agg(agg_dict).dropna()
         
         logger.info(f"✓ 重采样完成: {len(resampled)} 根15分钟K线")
         
@@ -226,14 +238,20 @@ class DataLoader:
         self.df['timestamp'] = pd.to_datetime(self.df['open_time'], unit='ms')
         self.df.set_index('timestamp', inplace=True)
         
+        # 确定volume列名
+        vol_col = 'volume' if 'volume' in self.df.columns else 'vol'
+        
         # 重采样规则
-        resampled = self.df.resample('4H').agg({
+        agg_dict = {
             'open': 'first',
             'high': 'max',
             'low': 'min',
             'close': 'last',
-            'vol': 'sum',
-        }).dropna()
+        }
+        if vol_col in self.df.columns:
+            agg_dict[vol_col] = 'sum'
+        
+        resampled = self.df.resample('4h').agg(agg_dict).dropna()
         
         logger.info(f"✓ 重采样完成: {len(resampled)} 根4小时K线")
         
