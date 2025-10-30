@@ -1,0 +1,47 @@
+{
+  "strategy_name": "多重EMA交叉策略",
+  "description": "基于8/13/48/200 EMA的趋势跟踪系统",
+  
+  "trading": {
+    "symbol": "ETH/USDT",
+    "timeframe": "1h",
+    "capital": 300.0,
+    "leverage": 5.0
+  },
+  
+  "capital_management": {
+    "position_size_percent": 0.30,
+    "max_positions": 1,
+    "use_leverage_sizing": false,
+    "position_ratio": 0.5
+  },
+  
+  "indicators": {
+    "ema_fast": 8,
+    "ema_medium": 13,
+    "ema_slow": 48,
+    "ema_trend": 200,
+    "atr_period": 14
+  },
+  
+  "entry_conditions": {
+    "require_golden_cross": true,
+    "require_above_200ema": true,
+    "min_ema_spacing": 0.001
+  },
+  
+  "exit_conditions": {
+    "stop_lookback": 20,
+    "risk_reward_ratio": 3.0,
+    "trailing_profit_threshold": 0.03,
+    "use_ema13_exit": true,
+    "use_ema48_exit": true
+  },
+  
+  "risk_control": {
+    "max_daily_loss": 0.05,
+    "max_consecutive_losses": 3,
+    "risk_per_trade": 0.02
+  }
+}
+

@@ -1,0 +1,31 @@
+{
+  "backtest_name": "EMA交叉策略 - 15分钟级别",
+  "description": "ETH/USDT EMA 8/13/48/200交叉策略 15分钟周期测试",
+  
+  "data": {
+    "source": "data/ETHUSDT-5m-1month.csv",
+    "timeframe": "15m",
+    "resample_from": "5m"
+  },
+  
+  "strategy": {
+    "name": "ema_crossover",
+    "config_file": "../app/config/ema_crossover.json"
+  },
+  
+  "backtest_settings": {
+    "initial_capital": 300.0,
+    "window_size": 250,
+    "taker_fee_rate": 0.0005,
+    "maker_fee_rate": 0.0002,
+    "slippage_rate": 0.0001
+  },
+  
+  "output": {
+    "result_file": "results/ema_crossover_15m_result_{timestamp}.json",
+    "report_file": "results/ema_crossover_15m_report_{timestamp}.txt",
+    "save_trades": true,
+    "save_equity_curve": true
+  }
+}
+

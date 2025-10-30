@@ -181,6 +181,64 @@ class DataLoader:
         
         return resampled
     
+    def resample_to_15m(self) -> pd.DataFrame:
+        """
+        将5分钟数据重采样为15分钟数据
+        
+        Returns:
+            15分钟K线DataFrame
+        """
+        if self.df is None:
+            self.load()
+        
+        logger.info("重采样为15分钟K线...")
+        
+        # 转换时间戳
+        self.df['timestamp'] = pd.to_datetime(self.df['open_time'], unit='ms')
+        self.df.set_index('timestamp', inplace=True)
+        
+        # 重采样规则
+        resampled = self.df.resample('15T').agg({
+            'open': 'first',
+            'high': 'max',
+            'low': 'min',
+            'close': 'last',
+            'vol': 'sum',
+        }).dropna()
+        
+        logger.info(f"✓ 重采样完成: {len(resampled)} 根15分钟K线")
+        
+        return resampled
+    
+    def resample_to_4h(self) -> pd.DataFrame:
+        """
+        将5分钟数据重采样为4小时数据
+        
+        Returns:
+            4小时K线DataFrame
+        """
+        if self.df is None:
+            self.load()
+        
+        logger.info("重采样为4小时K线...")
+        
+        # 转换时间戳
+        self.df['timestamp'] = pd.to_datetime(self.df['open_time'], unit='ms')
+        self.df.set_index('timestamp', inplace=True)
+        
+        # 重采样规则
+        resampled = self.df.resample('4H').agg({
+            'open': 'first',
+            'high': 'max',
+            'low': 'min',
+            'close': 'last',
+            'vol': 'sum',
+        }).dropna()
+        
+        logger.info(f"✓ 重采样完成: {len(resampled)} 根4小时K线")
+        
+        return resampled
+    
     def resample_to_1d(self) -> pd.DataFrame:
         """
         将小时数据重采样为1天数据
