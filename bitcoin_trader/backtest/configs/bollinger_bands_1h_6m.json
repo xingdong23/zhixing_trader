@@ -1,0 +1,32 @@
+{
+  "backtest_name": "布林线双向策略 - 1小时 - 6个月",
+  "description": "ETH/USDT 布林线自适应策略 - 震荡趋势双模式",
+  
+  "data": {
+    "source": "data/ETHUSDT-5m-6months.csv",
+    "timeframe": "1h",
+    "resample_from": "5m"
+  },
+  
+  "strategy": {
+    "name": "bollinger_bands",
+    "config_file": "../app/config/bollinger_bands.json"
+  },
+  
+  "backtest_settings": {
+    "initial_capital": 300.0,
+    "window_size": 250,
+    "taker_fee_rate": 0.0005,
+    "maker_fee_rate": 0.0002,
+    "slippage_rate": 0.0001
+  },
+  
+  "output": {
+    "result_file": "results/bollinger_bands_1h_6m_result_{timestamp}.json",
+    "report_file": "results/bollinger_bands_1h_6m_report_{timestamp}.txt",
+    "save_trades": true,
+    "save_equity_curve": true
+  }
+}
+
+
