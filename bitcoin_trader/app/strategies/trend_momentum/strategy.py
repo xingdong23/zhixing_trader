@@ -91,6 +91,9 @@ class TrendMomentumStrategy:
         """
         closes = np.array([k["close"] for k in klines])
         
+        # 1. 判断大级别趋势
+        major_trend = self._get_major_trend(closes)
+        
         # 计算指标
         ema21 = self._calculate_ema(closes, 21)
         ema55 = self._calculate_ema(closes, 55)
@@ -99,18 +102,18 @@ class TrendMomentumStrategy:
         
         current_price = closes[-1]
         
-        # 判断趋势
+        # 判断小级别趋势
         trend = self._determine_trend(ema21[-1], ema55[-1])
         
         # 判断动量
         momentum = self._determine_momentum(rsi14[-1])
         
         # 记录当前状态
-        logger.info(f"趋势={trend}, 动量={momentum}, 价格={current_price:.2f}, EMA21={ema21[-1]:.2f}, EMA55={ema55[-1]:.2f}, RSI={rsi14[-1]:.1f}")
+        logger.info(f"大级别={major_trend}, 趋势={trend}, 动量={momentum}, 价格={current_price:.2f}, EMA21={ema21[-1]:.2f}, EMA55={ema55[-1]:.2f}, RSI={rsi14[-1]:.1f}")
         
-        # 生成交易信号
+        # 生成交易信号（传入大级别趋势）
         signal = self._generate_signal_from_trend_momentum(
-            trend, momentum, current_price, atr_val, ema21[-1], ema55[-1], rsi14[-1]
+            trend, momentum, current_price, atr_val, ema21[-1], ema55[-1], rsi14[-1], major_trend
         )
         
         return signal
@@ -162,27 +165,38 @@ class TrendMomentumStrategy:
         atr: float,
         ema21: float,
         ema55: float,
-        rsi: float
+        rsi: float,
+        major_trend: str = "震荡"
     ) -> Dict[str, Any]:
         """
         根据趋势和动量生成交易信号
         
         交易规则：
-        1. 多头倾向 + 动量上攻 → 做多（强势）
-        2. 多头倾向 + 动量回升 → 做多（中等）
-        3. 空头倾向 + 动量下压 → 做空（强势）
-        4. 空头倾向 + 动量回落 → 做空（中等）
-        5. 强势空头 + 动量回升 → 观望（可能反转）
+        1. 大级别趋势过滤：大级别空头不做多，大级别多头不做空
+        2. 多头倾向 + 动量上攻 → 做多（强势）
+        3. 多头倾向 + 动量回升 → 做多（中等）
+        4. 空头倾向 + 动量下压 → 做空（强势）
+        5. 空头倾向 + 动量回落 → 做空（中等）
         6. 其他情况 → 观望
         """
         
         # 做多信号
         if trend == "多头倾向" and momentum in ["动量上攻", "动量回升"]:
+            # 大级别趋势过滤：大级别空头时不做多
+            if major_trend == "空头":
+                logger.info(f"大级别空头，跳过做多信号 - 价格={price:.2f}")
+                return {"signal": "hold", "reason": f"大级别{major_trend}，不做多"}
+            
             strength = "强势" if momentum == "动量上攻" else "中等"
             return self._create_long_signal(price, atr, strength, trend, momentum)
         
         # 做空信号
         elif trend == "空头倾向" and momentum in ["动量下压", "动量回落"]:
+            # 大级别趋势过滤：大级别多头时不做空
+            if major_trend == "多头":
+                logger.info(f"大级别多头，跳过做空信号 - 价格={price:.2f}")
+                return {"signal": "hold", "reason": f"大级别{major_trend}，不做空"}
+            
             strength = "强势" if momentum == "动量下压" else "中等"
             return self._create_short_signal(price, atr, strength, trend, momentum)
         
@@ -456,6 +470,44 @@ class TrendMomentumStrategy:
             rsi[i] = 100.0 - (100.0 / (1.0 + rs)) if np.isfinite(rs) else 100.0
         
         return rsi
+    
+    def _get_major_trend(self, closes: np.ndarray) -> str:
+        """
+        判断大级别趋势（使用更长周期的EMA）
+        
+        Args:
+            closes: 收盘价数组
+            
+        Returns:
+            趋势类型：多头、空头、震荡
+        """
+        # 使用EMA100和EMA200判断大级别趋势
+        enable_major_filter = self.parameters.get("enable_major_trend_filter", True)
+        
+        if not enable_major_filter:
+            return "震荡"  # 不启用过滤时返回震荡，允许双向交易
+        
+        ema100 = self._calculate_ema(closes, 100)
+        ema200 = self._calculate_ema(closes, 200)
+        
+        if len(ema100) == 0 or len(ema200) == 0:
+            return "震荡"
+        
+        current_ema100 = ema100[-1]
+        current_ema200 = ema200[-1]
+        
+        # 计算EMA之间的差异百分比
+        diff_percent = (current_ema100 - current_ema200) / current_ema200
+        
+        # 大级别趋势判断阈值
+        major_trend_threshold = self.parameters.get("major_trend_threshold", 0.02)  # 默认2%
+        
+        if diff_percent > major_trend_threshold:
+            return "多头"
+        elif diff_percent < -major_trend_threshold:
+            return "空头"
+        else:
+            return "震荡"
     
     def _calculate_atr(self, klines: List[Dict], period: int = 14) -> float:
         """计算ATR（平均真实波幅）"""
