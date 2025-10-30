@@ -14,7 +14,9 @@
     "max_positions": 1,
     "enable_pyramiding": false,
     "use_leverage_sizing": true,
-    "position_ratio": 0.8
+    "position_ratio": 0.8,
+    "enable_major_trend_filter": false,
+    "major_trend_threshold": 0.005
   },
   
   "indicators": {
