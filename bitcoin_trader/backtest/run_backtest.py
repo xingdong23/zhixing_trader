@@ -22,6 +22,7 @@ from app.strategies import HighFrequencyScalpingStrategy, IntradayScalpingStrate
 from app.strategies.grid_trading import GridTradingStrategy
 from app.strategies.trend_following import TrendFollowingStrategy
 from app.strategies.trend_breakout import TrendBreakoutStrategy
+from app.strategies.ema_crossover import EMACrossoverStrategy
 
 # 配置日志
 logging.basicConfig(
@@ -144,11 +145,21 @@ class BacktestRunner:
             resample_from = self.config['data']['resample_from']
             timeframe = self.config['data']['timeframe']
             
-            if resample_from == '1m' and timeframe == '5m':
+            if resample_from == timeframe:
+                # 不需要重采样
+                df_resampled = df_raw
+            elif resample_from == '1m' and timeframe == '5m':
                 df_resampled = data_loader.resample_to_5m()
+            elif resample_from == '5m' and timeframe == '15m':
+                df_resampled = data_loader.resample_to_15m()
+            elif resample_from == '5m' and timeframe == '1h':
+                df_resampled = data_loader.resample_to_1h()
+            elif resample_from == '5m' and timeframe == '4h':
+                df_resampled = data_loader.resample_to_4h()
             elif resample_from == '1h' and timeframe == '1d':
                 df_resampled = data_loader.resample_to_1d()
             else:
+                logger.warning(f"未知的重采样组合: {resample_from} -> {timeframe}，使用原始数据")
                 df_resampled = df_raw
             
             klines = data_loader.to_klines(df_resampled)
@@ -171,7 +182,8 @@ class BacktestRunner:
                 'trend_following': TrendFollowingStrategy,
                 'intraday_scalping': IntradayScalpingStrategy,
                 'trend_breakout': TrendBreakoutStrategy,
-                'trend_momentum': TrendMomentumStrategy
+                'trend_momentum': TrendMomentumStrategy,
+                'ema_crossover': EMACrossoverStrategy
             }
             
             if strategy_name not in strategy_map:
