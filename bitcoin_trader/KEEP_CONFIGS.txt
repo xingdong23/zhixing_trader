@@ -1,6 +1,0 @@
-# 最优策略配置（必须保留）
-app/config/ema_simple_trend_optimized.json
-backtest/configs/ema_simple_trend_optimized_1h_2years.json
-
-# 基础回测配置（可选保留）
-backtest/configs/backtest_config.json
