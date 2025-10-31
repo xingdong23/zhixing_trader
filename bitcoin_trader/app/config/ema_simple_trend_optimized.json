@@ -1,0 +1,35 @@
+{
+  "strategy_name": "EMA简单趋势策略 - 优化版",
+  "description": "2.7倍杠杆 + 85%仓位，精细调参版本",
+  
+  "capital_management": {
+    "total_capital": 300.0,
+    "position_size": 0.85,
+    "leverage": 2.7,
+    "ema_fast": 5,
+    "ema_medium": 13,
+    "ema_slow": 21,
+    "stop_loss_pct": 0.032,
+    "take_profit_pct": 0.16,
+    "partial_take_profit_pct": 0.07,
+    "use_trailing_stop": true,
+    "trailing_stop_activation": 0.045,
+    "trailing_stop_distance": 0.027,
+    "use_trailing_take_profit": true,
+    "trailing_take_profit_activation": 0.055,
+    "trailing_take_profit_distance": 0.022,
+    "volume_confirmation": false,
+    "volume_multiplier": 1.05,
+    "trend_strength_filter": false,
+    "ema_slope_threshold": 0.0001,
+    "use_ema_exit": false,
+    "allow_short": false
+  },
+  
+  "comments": {
+    "strategy": "精细优化版本 - 平衡风险收益",
+    "position_size": "85%仓位",
+    "leverage": "2.7倍杠杆",
+    "optimization": "基于激进版微调所有参数"
+  }
+}
