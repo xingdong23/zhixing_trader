@@ -16,13 +16,13 @@ bitcoin_trader/
 │   └── strategies/
 │       └── ema_simple_trend/          # 🎯 最优策略（唯一使用）
 │           ├── config.json            # ⚙️ 策略配置参数
+│           ├── backtest_config.json   # 📊 回测配置
 │           ├── strategy.py            # 💻 策略代码逻辑
-│           └── README.md              # 📖 策略原理详解
+│           ├── README.md              # 📖 策略原理详解
+│           ├── MONTHLY_ANALYSIS.md    # 📅 月度表现分析
+│           └── run_backtest.sh        # 🚀 快速回测脚本
 │
 ├── backtest/
-│   ├── configs/
-│   │   ├── backtest_config.json                        # 基础回测配置
-│   │   └── ema_simple_trend_optimized_1h_2years.json  # 🎯 最优策略回测配置
 │   │
 │   ├── core/                          # 回测引擎
 │   │   ├── backtest_engine.py
@@ -43,19 +43,27 @@ bitcoin_trader/
 
 ## 🚀 快速开始
 
-### 1️⃣ 查看策略配置
+### 方式1：使用快捷脚本（推荐）
 ```bash
-cat app/strategies/ema_simple_trend/config.json
+cd app/strategies/ema_simple_trend
+bash run_backtest.sh
 ```
 
-### 2️⃣ 阅读策略原理
+### 方式2：直接运行
 ```bash
+python3 backtest/run_backtest.py --config app/strategies/ema_simple_trend/backtest_config.json
+```
+
+### 3️⃣ 查看策略说明
+```bash
+# 策略原理
 cat app/strategies/ema_simple_trend/README.md
-```
 
-### 3️⃣ 运行回测验证
-```bash
-python3 backtest/run_backtest.py --config backtest/configs/ema_simple_trend_optimized_1h_2years.json
+# 月度分析
+cat app/strategies/ema_simple_trend/MONTHLY_ANALYSIS.md
+
+# 策略配置
+cat app/strategies/ema_simple_trend/config.json
 ```
 
 ---
@@ -66,9 +74,11 @@ python3 backtest/run_backtest.py --config backtest/configs/ema_simple_trend_opti
 |------|------|--------|
 | `app/strategies/ema_simple_trend/config.json` | 策略参数配置 | ⭐⭐⭐⭐⭐ |
 | `app/strategies/ema_simple_trend/strategy.py` | 策略核心代码 | ⭐⭐⭐⭐⭐ |
-| `app/strategies/ema_simple_trend/README.md` | 策略原理说明 | ⭐⭐⭐⭐ |
-| `backtest/configs/ema_simple_trend_optimized_1h_2years.json` | 回测配置 | ⭐⭐⭐ |
-| `backtest/run_backtest.py` | 回测运行脚本 | ⭐⭐⭐ |
+| `app/strategies/ema_simple_trend/README.md` | 策略原理详解 | ⭐⭐⭐⭐ |
+| `app/strategies/ema_simple_trend/MONTHLY_ANALYSIS.md` | 月度表现分析 | ⭐⭐⭐⭐ |
+| `app/strategies/ema_simple_trend/backtest_config.json` | 回测配置 | ⭐⭐⭐ |
+| `app/strategies/ema_simple_trend/run_backtest.sh` | 快速回测脚本 | ⭐⭐⭐ |
+| `backtest/run_backtest.py` | 回测引擎 | ⭐⭐⭐ |
 
 ---
 
