@@ -10,7 +10,7 @@
   
   "strategy": {
     "name": "ema_simple_trend",
-    "config_file": "../app/config/ema_simple_trend_optimized.json"
+    "config_file": "../app/strategies/ema_simple_trend/config.json"
   },
   
   "backtest_settings": {
