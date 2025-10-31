@@ -24,6 +24,11 @@ from app.strategies.trend_following import TrendFollowingStrategy
 from app.strategies.trend_breakout import TrendBreakoutStrategy
 from app.strategies.ema_crossover import EMACrossoverStrategy
 from app.strategies.bollinger_bands import BollingerBandsStrategy
+from app.strategies.ema144_trend import EMA144TrendStrategy
+from app.strategies.probability_profit import ProbabilityProfitStrategy
+from app.strategies.ema_rsi_volume import EMARSIVolumeStrategy
+from app.strategies.compression_expansion import CompressionExpansionStrategy
+from app.strategies.ema_simple_trend import EMASimpleTrendStrategy
 
 # 配置日志
 logging.basicConfig(
@@ -65,10 +70,17 @@ class BacktestRunner:
     
     def _prepare_strategy_params(self, strategy_config: dict) -> dict:
         """准备策略参数"""
-        params = {
-            "total_capital": strategy_config['trading']['capital'],
-            "leverage": strategy_config['trading']['leverage'],
-        }
+        params = {}
+        
+        # 新格式：使用 risk_management 字段（如 ema144_trend）
+        if 'risk_management' in strategy_config:
+            params.update(strategy_config['risk_management'])
+        # 旧格式：使用 trading 字段
+        elif 'trading' in strategy_config:
+            params.update({
+                "total_capital": strategy_config['trading']['capital'],
+                "leverage": strategy_config['trading']['leverage'],
+            })
         
         # 如果有 parameters 字段，直接使用（新策略格式）
         if 'parameters' in strategy_config:
@@ -77,7 +89,8 @@ class BacktestRunner:
         # 合并所有配置组（支持不同策略的不同配置节）
         for section in ['capital_management', 'indicators', 'entry_conditions', 
                        'exit_conditions', 'risk_control', 'special_conditions',
-                       'grid_settings', 'trend_indicators']:
+                       'grid_settings', 'trend_indicators', 'stop_loss_take_profit',
+                       'daily_risk_controls']:
             if section in strategy_config:
                 params.update(strategy_config[section])
         
@@ -126,7 +139,11 @@ class BacktestRunner:
             logger.info(f"✓ 策略配置加载完成")
             logger.info(f"  - 策略: {self.config['strategy']['name']}")
             logger.info(f"  - 初始资金: {self.config['backtest_settings']['initial_capital']} USDT")
-            logger.info(f"  - 杠杆倍数: {strategy_config['trading']['leverage']}x")
+            
+            # 获取杠杆倍数（兼容新旧格式）
+            leverage = strategy_params.get('leverage', 
+                       strategy_config.get('trading', {}).get('leverage', 1))
+            logger.info(f"  - 杠杆倍数: {leverage}x")
             logger.info(f"  - 保守模式: {'开启' if strategy_params.get('conservative_mode') else '关闭'}")
             logger.info(f"  - 时段过滤: {'开启' if strategy_params.get('session_filter_enabled') else '关闭'}")
             logger.info(f"  - 顺势持有: {'开启' if strategy_params.get('trend_follow_enabled') else '关闭'}")
@@ -142,6 +159,22 @@ class BacktestRunner:
             data_loader = DataLoader(str(data_path))
             df_raw = data_loader.load()
             
+            # 时间过滤（在重采样之前进行，因为重采样后DataFrame结构会变化）
+            if 'start_timestamp' in self.config['data'] or 'end_timestamp' in self.config['data']:
+                start_ts = self.config['data'].get('start_timestamp')
+                end_ts = self.config['data'].get('end_timestamp')
+                
+                if start_ts or end_ts:
+                    original_count = len(df_raw)
+                    if start_ts:
+                        df_raw = df_raw[df_raw['open_time'] >= start_ts]
+                    if end_ts:
+                        df_raw = df_raw[df_raw['open_time'] <= end_ts]
+                    filtered_count = len(df_raw)
+                    logger.info(f"✓ 时间过滤: {original_count} -> {filtered_count} 根原始K线")
+                    # 更新data_loader的df，以便后续重采样使用过滤后的数据
+                    data_loader.df = df_raw
+            
             # 根据配置重采样
             resample_from = self.config['data']['resample_from']
             timeframe = self.config['data']['timeframe']
@@ -153,6 +186,8 @@ class BacktestRunner:
                 df_resampled = data_loader.resample_to_5m()
             elif resample_from == '5m' and timeframe == '15m':
                 df_resampled = data_loader.resample_to_15m()
+            elif resample_from == '5m' and timeframe == '30m':
+                df_resampled = data_loader.resample_to_30m()
             elif resample_from == '5m' and timeframe == '1h':
                 df_resampled = data_loader.resample_to_1h()
             elif resample_from == '5m' and timeframe == '4h':
@@ -185,7 +220,12 @@ class BacktestRunner:
                 'trend_breakout': TrendBreakoutStrategy,
                 'trend_momentum': TrendMomentumStrategy,
                 'ema_crossover': EMACrossoverStrategy,
-                'bollinger_bands': BollingerBandsStrategy
+                'bollinger_bands': BollingerBandsStrategy,
+                'ema144_trend': EMA144TrendStrategy,
+                'probability_profit': ProbabilityProfitStrategy,
+                'ema_rsi_volume': EMARSIVolumeStrategy,
+                'compression_expansion': CompressionExpansionStrategy,
+                'ema_simple_trend': EMASimpleTrendStrategy
             }
             
             if strategy_name not in strategy_map:

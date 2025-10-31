@@ -85,7 +85,7 @@ class BacktestEngine:
             })
             
             # 处理交易信号
-            if signal['signal'] in ['buy', 'sell']:
+            if signal['signal'] in ['buy', 'sell', 'close']:
                 self._execute_signal(signal, current_time, current_price)
             
             # 每100根K线打印一次进度
@@ -112,7 +112,9 @@ class BacktestEngine:
             self._open_position(signal, timestamp)
             
         elif signal_type in ['stop_loss', 'take_profit', 'timeout', 'accelerated_exit', 'partial_close', 
-                             'max_loss_stop', 'ema13_break', 'ema48_break', 'trailing_stop']:
+                             'max_loss_stop', 'ema13_break', 'ema48_break', 'trailing_stop', 'ema_break',
+                             'triple_resonance', 'ema21_cross', 'ema9_break', 'ema21_break', 'partial_take_profit',
+                             'ema55_cross', '移动止损', '固定止损', '第一次部分止盈', '第二次全部止盈']:  # 添加新的平仓类型
             # 平仓
             self._close_position(signal, timestamp, current_price)
     
@@ -154,13 +156,17 @@ class BacktestEngine:
         logger.info(f"📈 开仓 {side.upper()}: 价格={entry_price:.2f}, 数量={amount:.4f}, 保证金={margin_required:.2f}")
     
     def _close_position(self, signal: Dict, timestamp: datetime, current_price: float):
-        """平仓"""
+        """平仓（支持部分平仓）"""
         if not self.positions:
             return
         
         position = self.positions[-1]
         exit_price = signal.get('price', current_price)
         exit_type = signal.get('type', 'manual')
+        exit_ratio = signal.get('exit_ratio', 1.0)  # 平仓比例，默认100%
+        
+        # 计算实际平仓数量
+        exit_amount = position['amount'] * exit_ratio
         
         # 计算盈亏
         if position['side'] == 'long':
@@ -168,18 +174,21 @@ class BacktestEngine:
         else:
             pnl_ratio = (position['entry_price'] - exit_price) / position['entry_price']
         
-        pnl_amount = pnl_ratio * position['entry_price'] * position['amount']
+        pnl_amount = pnl_ratio * position['entry_price'] * exit_amount
         
         # 计算平仓手续费（按Taker费率）
-        close_value = exit_price * position['amount']
+        close_value = exit_price * exit_amount
         close_fee = close_value * self.taker_fee_rate
         
         # 更新资金：盈亏 - 平仓手续费
         self.current_capital += pnl_amount - close_fee
         self.total_fees += close_fee
         
+        # 计算开仓手续费比例（部分平仓时按比例扣除）
+        open_fee_ratio = position.get('open_fee', 0) * exit_ratio
+        
         # 实际净盈亏（扣除开仓和平仓手续费）
-        net_pnl = pnl_amount - position.get('open_fee', 0) - close_fee
+        net_pnl = pnl_amount - open_fee_ratio - close_fee
         
         # 通知策略更新资金（用于复利计算）
         if hasattr(self.strategy, 'update_capital'):
@@ -192,10 +201,10 @@ class BacktestEngine:
             'side': position['side'],
             'entry_price': position['entry_price'],
             'exit_price': exit_price,
-            'amount': position['amount'],
+            'amount': exit_amount,
             'pnl_ratio': pnl_ratio,
             'pnl_amount': pnl_amount,
-            'open_fee': position.get('open_fee', 0),
+            'open_fee': open_fee_ratio,
             'close_fee': close_fee,
             'net_pnl': net_pnl,
             'exit_type': exit_type,
@@ -214,10 +223,22 @@ class BacktestEngine:
         self.strategy.update_position(signal)
         self.strategy.record_trade(signal)
         
-        logger.info(f"📉 平仓 {position['side'].upper()}: "
-                   f"入场={position['entry_price']:.2f}, 出场={exit_price:.2f}, "
-                   f"盈亏={pnl_amount:+.2f} ({pnl_ratio:+.2%}), "
-                   f"类型={exit_type}")
+        # 如果是部分平仓，更新持仓数量
+        if exit_ratio < 1.0:
+            position['amount'] = position['amount'] * (1 - exit_ratio)
+            position['open_fee'] = position.get('open_fee', 0) * (1 - exit_ratio)
+            logger.info(f"📉 部分平仓 {position['side'].upper()}: "
+                       f"平仓比例={exit_ratio*100:.0f}%, "
+                       f"入场={position['entry_price']:.2f}, 出场={exit_price:.2f}, "
+                       f"盈亏={pnl_amount:+.2f} ({pnl_ratio:+.2%}), "
+                       f"剩余仓位={position['amount']:.4f}, 类型={exit_type}")
+        else:
+            # 全部平仓，删除持仓
+            self.positions.pop()
+            logger.info(f"📉 平仓 {position['side'].upper()}: "
+                       f"入场={position['entry_price']:.2f}, 出场={exit_price:.2f}, "
+                       f"盈亏={pnl_amount:+.2f} ({pnl_ratio:+.2%}), "
+                       f"类型={exit_type}")
     
     def _force_close_position(self, timestamp: datetime, current_price: float):
         """强制平仓"""

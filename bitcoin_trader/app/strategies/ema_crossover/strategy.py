@@ -21,6 +21,7 @@ from typing import List, Dict, Any, Optional
 from datetime import datetime
 import numpy as np
 import logging
+import hashlib
 
 logger = logging.getLogger(__name__)
 
@@ -52,6 +53,13 @@ class EMACrossoverStrategy:
         self.pause_until_timestamp = 0  # 暂停交易直到此时间戳
         self.last_loss_count = 0  # 上次触发暂停时的连续亏损次数
         
+        # EMA计算缓存（优化性能）
+        self.last_klines_hash = None
+        self.cached_ema8 = None
+        self.cached_ema13 = None
+        self.cached_ema48 = None
+        self.cached_ema200 = None
+        
         # 是否允许做空（默认允许）
         self.allow_short = parameters.get("allow_short", True)
         
@@ -65,25 +73,29 @@ class EMACrossoverStrategy:
         Returns:
             交易信号字典
         """
-        if not klines or len(klines) < 250:
-            return {"signal": "hold", "reason": "数据不足，需要至少250根K线"}
-        
-        # 获取当前时间（回测时使用K线时间，实盘使用实际时间）
-        current_time = klines[-1].get("open_time", datetime.now().timestamp() * 1000) / 1000
-        
-        # 检查风控
-        if not self._check_risk_controls(current_time):
-            return {"signal": "hold", "reason": "触发风控限制"}
-        
-        # 如果有持仓，检查出场条件
-        if self.current_position:
-            exit_signal = self._check_exit_conditions(klines)
-            if exit_signal:
-                return exit_signal
-            return {"signal": "hold", "reason": "持仓中，等待出场信号"}
-        
-        # 无持仓，寻找入场机会
-        return self._generate_entry_signal(klines)
+        try:
+            if not klines or len(klines) < 250:
+                return {"signal": "hold", "reason": "数据不足，需要至少250根K线"}
+            
+            # 获取当前时间（回测时使用K线时间，实盘使用实际时间）
+            current_time = klines[-1].get("open_time", datetime.now().timestamp() * 1000) / 1000
+            
+            # 检查风控
+            if not self._check_risk_controls(current_time):
+                return {"signal": "hold", "reason": "触发风控限制"}
+            
+            # 如果有持仓，检查出场条件
+            if self.current_position:
+                exit_signal = self._check_exit_conditions(klines, current_time)
+                if exit_signal:
+                    return exit_signal
+                return {"signal": "hold", "reason": "持仓中，等待出场信号"}
+            
+            # 无持仓，寻找入场机会
+            return self._generate_entry_signal(klines)
+        except Exception as e:
+            logger.error(f"❌ 策略分析异常: {e}", exc_info=True)
+            return {"signal": "hold", "reason": f"分析异常: {str(e)}"}
     
     def _generate_entry_signal(self, klines: List[Dict]) -> Dict[str, Any]:
         """
@@ -342,127 +354,148 @@ class EMACrossoverStrategy:
             "reason": f"{signal_type} 止损={stop_loss:.2f} 止盈={take_profit:.2f}"
         }
     
-    def _check_exit_conditions(self, klines: List[Dict]) -> Optional[Dict[str, Any]]:
+    def _check_exit_conditions(self, klines: List[Dict], current_time: float) -> Optional[Dict[str, Any]]:
         """
         检查出场条件（双向）
+        
+        Args:
+            klines: K线数据列表
+            current_time: 当前时间戳（秒）
         """
-        if not self.current_position:
-            return None
-        
-        position = self.current_position
-        current_price = klines[-1]["close"]
-        entry_price = position["entry_price"]
-        stop_loss = position["stop_loss"]
-        take_profit = position["take_profit"]
-        side = position["side"]
-        
-        # === 新增：单笔最大亏损限制（优先级最高）===
-        max_position_loss = float(self.parameters.get("risk_control", {}).get("max_position_loss", 0.08))
-        
-        if side == "long":
-            current_loss_ratio = (entry_price - current_price) / entry_price
-            if current_loss_ratio > max_position_loss:
-                logger.warning(f"⚠️ 多单触发最大亏损限制: 入场={entry_price:.2f}, 当前={current_price:.2f}, 亏损={current_loss_ratio:.2%}")
+        try:
+            if not self.current_position:
+                return None
+            
+            position = self.current_position
+            current_price = klines[-1]["close"]
+            entry_price = position["entry_price"]
+            stop_loss = position["stop_loss"]
+            take_profit = position["take_profit"]
+            side = position["side"]
+            
+            # === 0. 持仓超时检查（最高优先级）===
+            max_holding_hours = self.parameters.get("max_holding_hours", 48)
+            holding_hours = (current_time - position["entry_time"].timestamp()) / 3600
+            if holding_hours > max_holding_hours:
+                logger.warning(f"⏰ {side.upper()}单持仓超时: {holding_hours:.1f}小时 > {max_holding_hours}小时，强制平仓")
+                pnl_ratio = (current_price - entry_price) / entry_price if side == "long" else (entry_price - current_price) / entry_price
+                return {
+                    "signal": "sell" if side == "long" else "buy",
+                    "price": current_price,
+                    "amount": position["amount"],
+                    "type": "timeout",
+                    "pnl": pnl_ratio,
+                    "reason": f"持仓超时 {holding_hours:.1f}h"
+                }
+            
+            # === 1. 单笔最大亏损限制（第二优先级）===
+            max_position_loss = float(self.parameters.get("max_position_loss", 0.06))
+            
+            if side == "long":
+                current_loss_ratio = (entry_price - current_price) / entry_price
+                if current_loss_ratio > max_position_loss:
+                    logger.warning(f"⚠️ 多单触发最大亏损限制: 入场={entry_price:.2f}, 当前={current_price:.2f}, 亏损={current_loss_ratio:.2%}")
+                    pnl_ratio = (current_price - entry_price) / entry_price
+                    return {
+                        "signal": "sell",
+                        "price": current_price,
+                        "amount": position["amount"],
+                        "type": "max_loss_stop",
+                        "pnl": pnl_ratio,
+                        "reason": f"触发最大亏损限制 {current_loss_ratio:.2%}"
+                    }
+            else:  # short
+                current_loss_ratio = (current_price - entry_price) / entry_price
+                if current_loss_ratio > max_position_loss:
+                    logger.warning(f"⚠️ 空单触发最大亏损限制: 入场={entry_price:.2f}, 当前={current_price:.2f}, 亏损={current_loss_ratio:.2%}")
+                    pnl_ratio = (entry_price - current_price) / entry_price
+                    return {
+                        "signal": "buy",
+                        "price": current_price,
+                        "amount": position["amount"],
+                        "type": "max_loss_stop",
+                        "pnl": pnl_ratio,
+                        "reason": f"触发最大亏损限制 {current_loss_ratio:.2%}"
+                    }
+            
+            # 计算EMA（使用缓存优化）
+            ema8, ema13, ema48, _ = self._get_cached_emas(klines)
+            
+            current_ema8 = ema8[-1]
+            current_ema13 = ema13[-1]
+            current_ema48 = ema48[-1]
+            
+            # 计算盈亏
+            if side == "long":
                 pnl_ratio = (current_price - entry_price) / entry_price
-                return {
-                    "signal": "sell",
-                    "price": current_price,
-                    "amount": position["amount"],
-                    "type": "max_loss_stop",
-                    "pnl": pnl_ratio,
-                    "reason": f"触发最大亏损限制 {current_loss_ratio:.2%}"
-                }
-        else:  # short
-            current_loss_ratio = (current_price - entry_price) / entry_price
-            if current_loss_ratio > max_position_loss:
-                logger.warning(f"⚠️ 空单触发最大亏损限制: 入场={entry_price:.2f}, 当前={current_price:.2f}, 亏损={current_loss_ratio:.2%}")
+                
+                # 1. 固定止损
+                if current_price <= stop_loss:
+                    logger.info(f"多单触发止损: 价格={current_price:.2f}, 止损={stop_loss:.2f}")
+                    return self._create_exit_signal("stop_loss", current_price, pnl_ratio)
+                
+                # 2. 固定止盈
+                if current_price >= take_profit:
+                    logger.info(f"多单触发止盈: 价格={current_price:.2f}, 止盈={take_profit:.2f}")
+                    return self._create_exit_signal("take_profit", current_price, pnl_ratio)
+                
+                # 3. 价格跌破13 EMA（如果已盈利且开启）
+                use_ema13_break = self.parameters.get("use_ema13_break", True)
+                ema13_min_profit = self.parameters.get("ema13_min_profit_threshold", 0.005)
+                if use_ema13_break and current_price < current_ema13 and pnl_ratio > ema13_min_profit:
+                    logger.info(f"多单跌破13 EMA: 价格={current_price:.2f}, 13EMA={current_ema13:.2f}, 盈利={pnl_ratio:.2%}")
+                    return self._create_exit_signal("ema13_break", current_price, pnl_ratio)
+                
+                # 4. 价格跌破48 EMA（如果开启）
+                use_ema48_break = self.parameters.get("exit_conditions", {}).get("use_ema48_break", False)
+                if use_ema48_break and current_price < current_ema48:
+                    logger.info(f"多单跌破48 EMA: 价格={current_price:.2f}, 48EMA={current_ema48:.2f}")
+                    return self._create_exit_signal("ema48_break", current_price, pnl_ratio)
+                
+                # 5. 移动止盈（如果开启）
+                use_trailing_stop = self.parameters.get("exit_conditions", {}).get("use_trailing_stop", False)
+                trailing_profit_threshold = self.parameters.get("exit_conditions", {}).get("trailing_stop_activation", 0.03)
+                if use_trailing_stop and pnl_ratio > trailing_profit_threshold and current_price < current_ema8:
+                    logger.info(f"多单移动止盈: 价格={current_price:.2f}, 8EMA={current_ema8:.2f}")
+                    return self._create_exit_signal("trailing_stop", current_price, pnl_ratio)
+            
+            else:  # short
                 pnl_ratio = (entry_price - current_price) / entry_price
-                return {
-                    "signal": "buy",
-                    "price": current_price,
-                    "amount": position["amount"],
-                    "type": "max_loss_stop",
-                    "pnl": pnl_ratio,
-                    "reason": f"触发最大亏损限制 {current_loss_ratio:.2%}"
-                }
-        
-        # 计算EMA
-        closes = np.array([k["close"] for k in klines])
-        
-        ema8 = self._calculate_ema(closes, 8)
-        ema13 = self._calculate_ema(closes, 13)
-        ema48 = self._calculate_ema(closes, 48)
-        
-        current_ema8 = ema8[-1]
-        current_ema13 = ema13[-1]
-        current_ema48 = ema48[-1]
-        
-        # 计算盈亏
-        if side == "long":
-            pnl_ratio = (current_price - entry_price) / entry_price
+                
+                # 1. 固定止损
+                if current_price >= stop_loss:
+                    logger.info(f"空单触发止损: 价格={current_price:.2f}, 止损={stop_loss:.2f}")
+                    return self._create_exit_signal("stop_loss", current_price, pnl_ratio)
+                
+                # 2. 固定止盈
+                if current_price <= take_profit:
+                    logger.info(f"空单触发止盈: 价格={current_price:.2f}, 止盈={take_profit:.2f}")
+                    return self._create_exit_signal("take_profit", current_price, pnl_ratio)
+                
+                # 3. 价格突破13 EMA（如果已盈利且开启）
+                use_ema13_break = self.parameters.get("use_ema13_break", True)
+                ema13_min_profit = self.parameters.get("ema13_min_profit_threshold", 0.005)
+                if use_ema13_break and current_price > current_ema13 and pnl_ratio > ema13_min_profit:
+                    logger.info(f"空单突破13 EMA: 价格={current_price:.2f}, 13EMA={current_ema13:.2f}, 盈利={pnl_ratio:.2%}")
+                    return self._create_exit_signal("ema13_break", current_price, pnl_ratio)
+                
+                # 4. 价格突破48 EMA（如果开启）
+                use_ema48_break = self.parameters.get("exit_conditions", {}).get("use_ema48_break", False)
+                if use_ema48_break and current_price > current_ema48:
+                    logger.info(f"空单突破48 EMA: 价格={current_price:.2f}, 48EMA={current_ema48:.2f}")
+                    return self._create_exit_signal("ema48_break", current_price, pnl_ratio)
+                
+                # 5. 移动止盈（如果开启）
+                use_trailing_stop = self.parameters.get("exit_conditions", {}).get("use_trailing_stop", False)
+                trailing_profit_threshold = self.parameters.get("exit_conditions", {}).get("trailing_stop_activation", 0.03)
+                if use_trailing_stop and pnl_ratio > trailing_profit_threshold and current_price > current_ema8:
+                    logger.info(f"空单移动止盈: 价格={current_price:.2f}, 8EMA={current_ema8:.2f}")
+                    return self._create_exit_signal("trailing_stop", current_price, pnl_ratio)
             
-            # 1. 固定止损
-            if current_price <= stop_loss:
-                logger.info(f"多单触发止损: 价格={current_price:.2f}, 止损={stop_loss:.2f}")
-                return self._create_exit_signal("stop_loss", current_price, pnl_ratio)
-            
-            # 2. 固定止盈
-            if current_price >= take_profit:
-                logger.info(f"多单触发止盈: 价格={current_price:.2f}, 止盈={take_profit:.2f}")
-                return self._create_exit_signal("take_profit", current_price, pnl_ratio)
-            
-            # 3. 价格跌破13 EMA（如果已盈利且开启）
-            use_ema13_break = self.parameters.get("exit_conditions", {}).get("use_ema13_break", True)
-            if use_ema13_break and current_price < current_ema13 and pnl_ratio > 0.005:
-                logger.info(f"多单跌破13 EMA: 价格={current_price:.2f}, 13EMA={current_ema13:.2f}")
-                return self._create_exit_signal("ema13_break", current_price, pnl_ratio)
-            
-            # 4. 价格跌破48 EMA（如果开启）
-            use_ema48_break = self.parameters.get("exit_conditions", {}).get("use_ema48_break", False)
-            if use_ema48_break and current_price < current_ema48:
-                logger.info(f"多单跌破48 EMA: 价格={current_price:.2f}, 48EMA={current_ema48:.2f}")
-                return self._create_exit_signal("ema48_break", current_price, pnl_ratio)
-            
-            # 5. 移动止盈（如果开启）
-            use_trailing_stop = self.parameters.get("exit_conditions", {}).get("use_trailing_stop", False)
-            trailing_profit_threshold = self.parameters.get("exit_conditions", {}).get("trailing_stop_activation", 0.03)
-            if use_trailing_stop and pnl_ratio > trailing_profit_threshold and current_price < current_ema8:
-                logger.info(f"多单移动止盈: 价格={current_price:.2f}, 8EMA={current_ema8:.2f}")
-                return self._create_exit_signal("trailing_stop", current_price, pnl_ratio)
-        
-        else:  # short
-            pnl_ratio = (entry_price - current_price) / entry_price
-            
-            # 1. 固定止损
-            if current_price >= stop_loss:
-                logger.info(f"空单触发止损: 价格={current_price:.2f}, 止损={stop_loss:.2f}")
-                return self._create_exit_signal("stop_loss", current_price, pnl_ratio)
-            
-            # 2. 固定止盈
-            if current_price <= take_profit:
-                logger.info(f"空单触发止盈: 价格={current_price:.2f}, 止盈={take_profit:.2f}")
-                return self._create_exit_signal("take_profit", current_price, pnl_ratio)
-            
-            # 3. 价格突破13 EMA（如果已盈利且开启）
-            use_ema13_break = self.parameters.get("exit_conditions", {}).get("use_ema13_break", True)
-            if use_ema13_break and current_price > current_ema13 and pnl_ratio > 0.005:
-                logger.info(f"空单突破13 EMA: 价格={current_price:.2f}, 13EMA={current_ema13:.2f}")
-                return self._create_exit_signal("ema13_break", current_price, pnl_ratio)
-            
-            # 4. 价格突破48 EMA（如果开启）
-            use_ema48_break = self.parameters.get("exit_conditions", {}).get("use_ema48_break", False)
-            if use_ema48_break and current_price > current_ema48:
-                logger.info(f"空单突破48 EMA: 价格={current_price:.2f}, 48EMA={current_ema48:.2f}")
-                return self._create_exit_signal("ema48_break", current_price, pnl_ratio)
-            
-            # 5. 移动止盈（如果开启）
-            use_trailing_stop = self.parameters.get("exit_conditions", {}).get("use_trailing_stop", False)
-            trailing_profit_threshold = self.parameters.get("exit_conditions", {}).get("trailing_stop_activation", 0.03)
-            if use_trailing_stop and pnl_ratio > trailing_profit_threshold and current_price > current_ema8:
-                logger.info(f"空单移动止盈: 价格={current_price:.2f}, 8EMA={current_ema8:.2f}")
-                return self._create_exit_signal("trailing_stop", current_price, pnl_ratio)
-        
-        return None
+            return None
+        except Exception as e:
+            logger.error(f"❌ 出场检查异常: {e}", exc_info=True)
+            return None
     
     def _create_exit_signal(self, exit_type: str, price: float, pnl_ratio: float) -> Dict[str, Any]:
         """创建出场信号"""
@@ -566,6 +599,40 @@ class EMACrossoverStrategy:
         for i in range(1, len(data)):
             ema[i] = alpha * float(data[i]) + (1.0 - alpha) * ema[i - 1]
         return ema
+    
+    def _get_cached_emas(self, klines: List[Dict]) -> tuple:
+        """
+        获取缓存的EMA值，避免重复计算
+        
+        Returns:
+            (ema8, ema13, ema48, ema200) 元组
+        """
+        try:
+            # 使用最后50根K线的哈希值作为缓存键
+            klines_str = str([(k['open_time'], k['close']) for k in klines[-50:]])
+            klines_hash = hashlib.md5(klines_str.encode()).hexdigest()
+            
+            # 如果缓存未命中，重新计算
+            if self.last_klines_hash != klines_hash:
+                closes = np.array([k["close"] for k in klines])
+                self.cached_ema8 = self._calculate_ema(closes, 8)
+                self.cached_ema13 = self._calculate_ema(closes, 13)
+                self.cached_ema48 = self._calculate_ema(closes, 48)
+                self.cached_ema200 = self._calculate_ema(closes, 200)
+                self.last_klines_hash = klines_hash
+                logger.debug(f"EMA缓存更新: hash={klines_hash[:8]}")
+            
+            return self.cached_ema8, self.cached_ema13, self.cached_ema48, self.cached_ema200
+        except Exception as e:
+            logger.warning(f"EMA缓存失败，使用直接计算: {e}")
+            # 回退到直接计算
+            closes = np.array([k["close"] for k in klines])
+            return (
+                self._calculate_ema(closes, 8),
+                self._calculate_ema(closes, 13),
+                self._calculate_ema(closes, 48),
+                self._calculate_ema(closes, 200)
+            )
     
     def _calculate_atr(self, klines: List[Dict], period: int = 14) -> float:
         """计算ATR（平均真实波幅）"""
