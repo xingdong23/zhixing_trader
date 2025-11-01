@@ -1,0 +1,28 @@
+{
+  "backtest_name": "多时间框架策略 - 震荡周期 - 2024年4-7月横盘（ETH在3000-3700区间）",
+  "description": "2024年4-7月横盘（ETH在3000-3700区间）",
+  "data": {
+    "source": "data/ETHUSDT-1h-2years.csv",
+    "timeframe": "1h",
+    "resample_from": "1h",
+    "start_timestamp": 1711900800000,
+    "end_timestamp": 1722355200000
+  },
+  "strategy": {
+    "name": "ema_simple_trend_multiframe",
+    "config_file": "../app/strategies/ema_simple_trend/config_multiframe.json"
+  },
+  "backtest_settings": {
+    "initial_capital": 300.0,
+    "window_size": 250,
+    "taker_fee_rate": 0.0005,
+    "maker_fee_rate": 0.0002,
+    "slippage_rate": 0.0001
+  },
+  "output": {
+    "result_file": "results/multiframe_震荡_cycle_result_{timestamp}.json",
+    "report_file": "results/multiframe_震荡_cycle_report_{timestamp}.txt",
+    "save_trades": true,
+    "save_equity_curve": true
+  }
+}

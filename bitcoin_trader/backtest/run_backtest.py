@@ -29,6 +29,7 @@ from app.strategies.probability_profit import ProbabilityProfitStrategy
 from app.strategies.ema_rsi_volume import EMARSIVolumeStrategy
 from app.strategies.compression_expansion import CompressionExpansionStrategy
 from app.strategies.ema_simple_trend import EMASimpleTrendStrategy
+from app.strategies.ema_simple_trend.strategy_multiframe import EMASimpleTrendMultiframeStrategy
 
 # 配置日志
 logging.basicConfig(
@@ -225,7 +226,8 @@ class BacktestRunner:
                 'probability_profit': ProbabilityProfitStrategy,
                 'ema_rsi_volume': EMARSIVolumeStrategy,
                 'compression_expansion': CompressionExpansionStrategy,
-                'ema_simple_trend': EMASimpleTrendStrategy
+                'ema_simple_trend': EMASimpleTrendStrategy,
+                'ema_simple_trend_multiframe': EMASimpleTrendMultiframeStrategy
             }
             
             if strategy_name not in strategy_map:

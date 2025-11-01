@@ -1,0 +1,35 @@
+{
+  "strategy_name": "EMA简单趋势策略 - 双向交易版", 
+  "description": "2.7倍杠杆 + 85%仓位 + 允许做空",
+  
+  "capital_management": {
+    "total_capital": 300.0,
+    "position_size": 0.85,
+    "leverage": 2.7,
+    "ema_fast": 5,
+    "ema_medium": 13,
+    "ema_slow": 21,
+    "stop_loss_pct": 0.032,
+    "take_profit_pct": 0.16,
+    "partial_take_profit_pct": 0.07,
+    "use_trailing_stop": true,
+    "trailing_stop_activation": 0.045,
+    "trailing_stop_distance": 0.027,
+    "use_trailing_take_profit": true,
+    "trailing_take_profit_activation": 0.055,
+    "trailing_take_profit_distance": 0.022,
+    "volume_confirmation": false,
+    "volume_multiplier": 1.05,
+    "trend_strength_filter": false,
+    "ema_slope_threshold": 0.0001,
+    "use_ema_exit": false,
+    "allow_short": true
+  },
+  
+  "comments": {
+    "strategy": "双向交易版本 - 允许做多和做空",
+    "allow_short": "true - 启用做空",
+    "entry_long": "价格站上EMA13 + EMA多头排列",
+    "entry_short": "价格跌破EMA13 + EMA空头排列"
+  }
+}

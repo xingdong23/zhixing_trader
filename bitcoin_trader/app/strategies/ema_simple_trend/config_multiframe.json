@@ -1,0 +1,40 @@
+{
+  "strategy_name": "EMA简单趋势策略 - 多时间框架版",
+  "description": "日线判断趋势方向 + 1小时寻找入场 + 2.7倍杠杆",
+  
+  "capital_management": {
+    "total_capital": 300.0,
+    "position_size": 0.85,
+    "leverage": 2.7,
+    "ema_fast": 5,
+    "ema_medium": 13,
+    "ema_slow": 21,
+    "stop_loss_pct": 0.032,
+    "take_profit_pct": 0.10,
+    "partial_take_profit_pct": 0,
+    "use_trailing_stop": true,
+    "trailing_stop_activation": 0.045,
+    "trailing_stop_distance": 0.027,
+    "use_trailing_take_profit": true,
+    "trailing_take_profit_activation": 0.055,
+    "trailing_take_profit_distance": 0.022,
+    "volume_confirmation": false,
+    "volume_multiplier": 1.05,
+    "trend_strength_filter": false,
+    "ema_slope_threshold": 0.0001,
+    "use_ema_exit": false,
+    "allow_short": false,
+    
+    "use_daily_trend_filter": true,
+    "daily_ema_period": 21,
+    "daily_data_file": "data/ETHUSDT-1d-from1h.csv"
+  },
+  
+  "comments": {
+    "strategy": "多时间框架版本 - 日线过滤做多信号",
+    "daily_trend": "日线在EMA21上方→允许做多，日线在EMA21下方→空仓等待",
+    "position_size": "85%仓位",
+    "leverage": "2.7倍杠杆",
+    "allow_short": "false - 只做多，用日线趋势过滤信号"
+  }
+}
