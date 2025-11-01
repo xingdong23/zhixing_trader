@@ -22,7 +22,8 @@ import {
   TrendingDown,
   Shield,
   Brain,
-  Target
+  Target,
+  Lock
 } from 'lucide-react'
 
 // 检查清单项
