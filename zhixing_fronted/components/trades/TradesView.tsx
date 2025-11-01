@@ -3,7 +3,7 @@
 import React, { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
@@ -39,7 +39,7 @@ export default function TradesView() {
   const [editingTrade, setEditingTrade] = useState<Trade | null>(null);
   // 强制计划表单（演示）
   const [showForcedPlanForm, setShowForcedPlanForm] = useState(false);
-  const demoStock = { symbol: "AAPL", name: "苹果公司", price: 182.3 };
+  const [selectedStockForPlan, setSelectedStockForPlan] = useState<{symbol: string, name: string, price: number} | null>(null);
   const [activeTab, setActiveTab] = useState<"active" | "pending" | "history">("active");
   const fileInputRef = React.useRef<HTMLInputElement>(null as any);
   const [importMessage, setImportMessage] = useState<string>("");
@@ -328,6 +328,32 @@ export default function TradesView() {
 
   return (
     <div className="space-y-4">
+      {/* 6步交易体系说明卡片 */}
+      <Card className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-950 dark:to-purple-950 border-2 border-blue-200 dark:border-blue-800">
+        <CardContent className="p-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="bg-blue-600 text-white rounded-full p-2">
+                <Target className="w-5 h-5" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-lg">6步交易体系 - 系统化交易流程</h3>
+                <p className="text-sm text-muted-foreground">
+                  分辨趋势 → 找关键位 → 入场时机 → 制定计划 → 严格执行 → 复盘总结
+                </p>
+              </div>
+            </div>
+            <Button 
+              onClick={() => router.push('/plan/create')}
+              className="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600"
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              开始6步向导创建
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+
       {/* 交易纪律提醒 - 在交易页面顶部突出显示 */}
       <TradingDisciplineReminder 
         variant="card" 
@@ -404,13 +430,21 @@ export default function TradesView() {
           }}>手动录入</Button>
           {importMessage && <span className="text-xs text-muted-foreground ml-2">{importMessage}</span>}
         </div>
-        <Button onClick={() => {
-          setPendingTradeAction('create_plan');
-          setShowPreTradeChecklist(true);
-        }}>
-          <Plus className="w-4 h-4 mr-2" />
-          创建强制交易计划（AAPL演示）
-        </Button>
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={() => {
+            // 快速录入：先检查清单，后创建
+            setSelectedStockForPlan({ symbol: "AAPL", name: "苹果公司", price: 182.3 });
+            setPendingTradeAction('create_plan');
+            setShowPreTradeChecklist(true);
+          }}>
+            <Plus className="w-4 h-4 mr-2" />
+            快速录入计划
+          </Button>
+          <Button onClick={() => router.push('/plan/create')}>
+            <Plus className="w-4 h-4 mr-2" />
+            创建交易计划（6步向导）
+          </Button>
+        </div>
       </div>
 
       {/* 标签页切换 */}
@@ -521,19 +555,21 @@ export default function TradesView() {
         onSave={handleSavePlan}
       />
 
-      {/* 强制交易计划表单（演示专用） */}
+      {/* 强制交易计划表单 */}
       <Dialog open={showForcedPlanForm} onOpenChange={setShowForcedPlanForm}>
         <DialogContent className="max-w-[96vw] min-w-[1100px] w-[1400px] h-[90vh] flex flex-col p-0">
           <div className="flex-shrink-0 bg-white dark:bg-gray-900 border-b px-6 py-4">
             <DialogHeader>
-              <DialogTitle className="text-2xl">💪 创建强制交易计划 - {demoStock.symbol} ({demoStock.name})</DialogTitle>
+              <DialogTitle className="text-2xl">
+                💪 创建交易计划 - {selectedStockForPlan?.symbol} ({selectedStockForPlan?.name})
+              </DialogTitle>
             </DialogHeader>
           </div>
           <div className="flex-1 overflow-hidden min-h-0">
             <ForcedTradePlanForm
-              symbol={demoStock.symbol}
-              name={demoStock.name}
-              currentPrice={demoStock.price}
+              symbol={selectedStockForPlan?.symbol || ""}
+              name={selectedStockForPlan?.name || ""}
+              currentPrice={selectedStockForPlan?.price || 0}
               onSubmit={(plan: TradePlan) => {
                 // 将计划转换为交易记录并添加到列表
                 const newTrade: Trade = {
@@ -624,8 +660,8 @@ export default function TradesView() {
           setPendingTradeAction(null);
           toast.success('交易前检查通过！');
         }}
-        stockSymbol={demoStock.symbol}
-        stockName={demoStock.name}
+        stockSymbol={selectedStockForPlan?.symbol || ""}
+        stockName={selectedStockForPlan?.name || ""}
         action="buy"
       />
     </div>
