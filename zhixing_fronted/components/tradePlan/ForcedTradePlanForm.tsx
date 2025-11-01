@@ -8,7 +8,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { AlertCircle, CheckCircle, Info, TrendingUp, Shield, Target, Clock, Image as ImageIcon, X } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { AlertCircle, CheckCircle, Info, TrendingUp, Shield, Target, Clock, Image as ImageIcon, X, ListChecks } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import {
   TradePlan,
@@ -16,7 +17,9 @@ import {
   TRADE_TYPE_CONFIG,
   evaluateTradePlan,
   calculateRiskRewardRatio,
+  SixStepTradingSystem,
 } from "@/lib/tradePlan";
+import SixStepSystemForm from "./SixStepSystemForm";
 
 interface ForcedTradePlanFormProps {
   symbol?: string;
@@ -57,6 +60,20 @@ export default function ForcedTradePlanForm({
     expectedHoldDays: 30,
     riskRewardRatio: 0,
     status: "draft",
+    sixStepSystem: {
+      step1_trend: { direction: '', timeframe: '', indicators: '', analysis: '' },
+      step2_keyLevels: { supportLevels: '', resistanceLevels: '', keyPatterns: '', analysis: '' },
+      step3_entryTiming: { entryType: '', entrySignals: [], waitForConfirmation: false, entryConditions: '' },
+      step4_tradePlan: { entryPrice: currentPrice, entryReason: '', stopLoss: currentPrice * 0.92, takeProfit: currentPrice * 1.2, positionSize: 10, direction: 'long' },
+      step5_execution: { disciplineChecklist: { followPlan: false, emotionControl: false, noImpulsive: false, recordKept: false }, executionNotes: '' },
+      step6_review: {
+        technicalAnalysis: { trendCorrect: false, keyLevelsCorrect: false, entryTimingGood: false, analysisEffective: false },
+        positionManagement: { positionSizeReasonable: false, stopLossAppropriate: false, takeProfitReasonable: false, riskControlGood: false },
+        emotionManagement: { followedPlan: false, emotionStable: false, impulsiveTrading: false, disciplineGood: false },
+        lessonsLearned: '',
+        improvements: ''
+      }
+    }
   });
 
   const [score, setScore] = useState(evaluateTradePlan(plan));
@@ -242,6 +259,21 @@ export default function ForcedTradePlanForm({
     <div className="flex h-full w-full">
       {/* 左侧：表单区域 */}
       <div className="flex-1 overflow-y-auto p-6 space-y-6 min-w-0">
+        {/* Tab切换：传统表单 vs 6步体系 */}
+        <Tabs defaultValue="traditional" className="w-full">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="traditional">
+              <Info className="w-4 h-4 mr-2" />
+              传统表单
+            </TabsTrigger>
+            <TabsTrigger value="sixstep">
+              <ListChecks className="w-4 h-4 mr-2" />
+              6步交易体系
+            </TabsTrigger>
+          </TabsList>
+
+          {/* 传统表单内容 */}
+          <TabsContent value="traditional" className="space-y-6 mt-6">
         {/* 基本信息 */}
         <Card className="border-2">
           <CardHeader className="pb-4">
@@ -684,6 +716,17 @@ export default function ForcedTradePlanForm({
             </div>
           </CardContent>
         </Card>
+          </TabsContent>
+
+          {/* 6步交易体系内容 */}
+          <TabsContent value="sixstep" className="mt-6">
+            <SixStepSystemForm
+              value={plan.sixStepSystem!}
+              onChange={(system) => setPlan({ ...plan, sixStepSystem: system })}
+              currentPrice={currentPrice}
+            />
+          </TabsContent>
+        </Tabs>
       </div>
 
       {/* 右侧：评分和风险展示（固定） */}

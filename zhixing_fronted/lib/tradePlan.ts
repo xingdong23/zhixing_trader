@@ -2,6 +2,78 @@
 
 export type TradeType = 'short_term' | 'swing' | 'value'; // 短期投机、波段交易、价值投资
 
+// 6步交易体系
+export interface SixStepTradingSystem {
+  // 第一步：分辨趋势
+  step1_trend: {
+    direction: 'uptrend' | 'downtrend' | 'sideways' | '';  // 趋势方向
+    timeframe: 'short' | 'medium' | 'long' | '';  // 参考周期（短期/中期/长期）
+    indicators: string;  // 使用的指标（K线形态、均线、趋势线等）
+    analysis: string;  // 趋势分析描述
+  };
+  
+  // 第二步：找关键位
+  step2_keyLevels: {
+    supportLevels: string;  // 支撑位（可以是多个，用逗号分隔）
+    resistanceLevels: string;  // 阻力位
+    keyPatterns: string;  // 关键形态（头肩顶、双底、三重顶等）
+    analysis: string;  // 关键位分析
+  };
+  
+  // 第三步：入场时机
+  step3_entryTiming: {
+    entryType: 'breakout' | 'pullback' | 'pattern' | 'volume' | '';  // 入场类型
+    entrySignals: string[];  // 入场信号（可多选）
+    waitForConfirmation: boolean;  // 是否等待确认
+    entryConditions: string;  // 具体入场条件描述
+  };
+  
+  // 第四步：制定交易计划
+  step4_tradePlan: {
+    entryPrice: number;  // 入场价
+    entryReason: string;  // 入场理由
+    stopLoss: number;  // 止损
+    takeProfit: number;  // 止盈
+    positionSize: number;  // 仓位
+    direction: 'long' | 'short';  // 方向（做多/做空）
+  };
+  
+  // 第五步：严格执行
+  step5_execution: {
+    disciplineChecklist: {
+      followPlan: boolean;  // 是否严格按计划执行
+      emotionControl: boolean;  // 情绪控制是否良好
+      noImpulsive: boolean;  // 是否有冲动交易
+      recordKept: boolean;  // 是否记录完整
+    };
+    executionNotes: string;  // 执行备注
+  };
+  
+  // 第六步：复盘总结
+  step6_review: {
+    technicalAnalysis: {
+      trendCorrect: boolean;  // 趋势判断是否准确
+      keyLevelsCorrect: boolean;  // 关键位识别是否正确
+      entryTimingGood: boolean;  // 入场时机是否合适
+      analysisEffective: boolean;  // 形态分析是否有效
+    };
+    positionManagement: {
+      positionSizeReasonable: boolean;  // 仓位大小是否合理
+      stopLossAppropriate: boolean;  // 止损设置是否恰当
+      takeProfitReasonable: boolean;  // 止盈策略是否有效
+      riskControlGood: boolean;  // 风险控制是否合理
+    };
+    emotionManagement: {
+      followedPlan: boolean;  // 是否严格执行计划
+      emotionStable: boolean;  // 情绪控制是否良好
+      impulsiveTrading: boolean;  // 是否有冲动交易
+      disciplineGood: boolean;  // 纪律性是否合格
+    };
+    lessonsLearned: string;  // 经验教训
+    improvements: string;  // 改进建议
+  };
+}
+
 export interface TradePlan {
   id?: string;
   symbol: string;
@@ -47,6 +119,9 @@ export interface TradePlan {
   // 信心与市场条件（新增）
   confidenceRating?: number; // 1-5
   marketCondition?: 'bull' | 'bear' | 'sideways';
+  
+  // 6步交易体系（新增）
+  sixStepSystem?: SixStepTradingSystem;
   
   // 创建时间
   createdAt?: string;
