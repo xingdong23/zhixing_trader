@@ -1,0 +1,29 @@
+{
+  "backtest_name": "BTC多时间框架策略回测 - 2024年",
+  "description": "BTC使用日线EMA21趋势过滤 + 1小时EMA入场",
+  "data": {
+    "source": "data/ETHUSDT-1h-2years.csv",
+    "timeframe": "1h",
+    "resample_from": "1h",
+    "symbol": "BTCUSDT",
+    "data_file": "data/BTCUSDT-1h-2024.csv",
+    "daily_data_file": "data/BTCUSDT-1d-2024.csv"
+  },
+  "strategy": {
+    "name": "ema_simple_trend_multiframe",
+    "config_file": "../app/strategies/ema_simple_trend/config_multiframe.json"
+  },
+  "backtest_settings": {
+    "initial_capital": 300.0,
+    "window_size": 250,
+    "taker_fee_rate": 0.0005,
+    "maker_fee_rate": 0.0002,
+    "slippage_rate": 0.0001
+  },
+  "output": {
+    "result_file": "results/btc_multiframe_result_{timestamp}.json",
+    "report_file": "results/btc_multiframe_report_{timestamp}.txt",
+    "save_trades": true,
+    "save_equity_curve": true
+  }
+}
