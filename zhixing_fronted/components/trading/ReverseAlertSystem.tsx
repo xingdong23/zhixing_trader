@@ -240,32 +240,36 @@ export default function ReverseAlertSystem({
     
     return (
       <Alert className={`${getAlertColorClass(primaryAlert.severity)} mb-4`}>
-        <div className="flex items-start gap-3">
-          {getAlertIcon(primaryAlert.type)}
-          <div className="flex-1">
-            <AlertTitle className="mb-1 flex items-center gap-2">
-              {primaryAlert.title}
-              <Badge variant="outline" className="text-xs">
-                {new Date(primaryAlert.timestamp).toLocaleTimeString('zh-CN')}
-              </Badge>
-            </AlertTitle>
-            <AlertDescription>
-              <div className="text-sm mb-2">{primaryAlert.message}</div>
-              <div className="text-sm font-medium">
-                💡 {primaryAlert.actionSuggestion}
+        <div className="flex items-start justify-between gap-4 w-full">
+          <div className="flex items-start gap-3 flex-1 min-w-0">
+            <div className="flex-shrink-0 mt-0.5">
+              {getAlertIcon(primaryAlert.type)}
+            </div>
+            <div className="flex-1 min-w-0 space-y-2">
+              <div className="flex items-center gap-2 flex-wrap">
+                <AlertTitle className="font-semibold text-base m-0">{primaryAlert.title}</AlertTitle>
+                <Badge variant="outline" className="text-xs">
+                  {new Date(primaryAlert.timestamp).toLocaleTimeString('zh-CN')}
+                </Badge>
               </div>
-              {primaryAlert.data?.historicalData && (
-                <div className="text-xs text-muted-foreground mt-2">
-                  📊 {primaryAlert.data.historicalData}
+              <AlertDescription className="space-y-2 text-sm">
+                <div>{primaryAlert.message}</div>
+                <div className="font-medium bg-white/50 dark:bg-gray-800/50 p-3 rounded">
+                  💡 {primaryAlert.actionSuggestion}
                 </div>
-              )}
-            </AlertDescription>
+                {primaryAlert.data?.historicalData && (
+                  <div className="text-xs text-muted-foreground">
+                    📊 {primaryAlert.data.historicalData}
+                  </div>
+                )}
+              </AlertDescription>
+            </div>
           </div>
           <Button
             variant="ghost"
             size="sm"
             onClick={() => dismissAlert(primaryAlert.id)}
-            className="flex-shrink-0"
+            className="flex-shrink-0 h-8 w-8 p-0"
           >
             <X className="h-4 w-4" />
           </Button>
@@ -277,7 +281,7 @@ export default function ReverseAlertSystem({
             <Button
               variant="link"
               size="sm"
-              className="h-auto p-0 text-xs"
+              className="h-auto p-0 text-xs ml-1"
               onClick={() => {/* TODO: 打开提醒面板 */}}
             >
               查看全部
@@ -330,41 +334,46 @@ export default function ReverseAlertSystem({
   return (
     <div className="space-y-3">
       {alerts.map(alert => (
-        <Alert key={alert.id} className={getAlertColorClass(alert.severity)}>
-          <div className="flex items-start gap-3">
-            {getAlertIcon(alert.type)}
-            <div className="flex-1">
-              <AlertTitle className="mb-1">{alert.title}</AlertTitle>
-              <AlertDescription>
-                <div className="text-sm mb-1">{alert.message}</div>
-                <div className="text-sm font-medium">
-                  💡 {alert.actionSuggestion}
-                </div>
-                {alert.data && (
-                  <div className="mt-2 text-xs space-y-1">
-                    {alert.data.symbol && (
-                      <div>股票: {alert.data.symbol}</div>
-                    )}
-                    {alert.data.changePercent !== undefined && (
-                      <div>涨跌幅: {alert.data.changePercent > 0 ? '+' : ''}{alert.data.changePercent}%</div>
-                    )}
-                    {alert.data.vix !== undefined && (
-                      <div>VIX: {alert.data.vix}</div>
-                    )}
-                    {alert.data.uvxyDeviation !== undefined && (
-                      <div>UVXY偏离: +{alert.data.uvxyDeviation}%</div>
-                    )}
-                    {alert.data.historicalData && (
-                      <div className="text-muted-foreground">📊 {alert.data.historicalData}</div>
-                    )}
+        <Alert key={alert.id} className={`${getAlertColorClass(alert.severity)}`}>
+          <div className="flex items-start justify-between gap-4 w-full">
+            <div className="flex items-start gap-3 flex-1 min-w-0">
+              <div className="flex-shrink-0 mt-0.5">
+                {getAlertIcon(alert.type)}
+              </div>
+              <div className="flex-1 min-w-0 space-y-2">
+                <AlertTitle className="text-base font-semibold m-0">{alert.title}</AlertTitle>
+                <AlertDescription className="space-y-2 text-sm">
+                  <div>{alert.message}</div>
+                  <div className="font-medium bg-white/50 dark:bg-gray-800/50 p-3 rounded">
+                    💡 {alert.actionSuggestion}
                   </div>
-                )}
-              </AlertDescription>
+                  {alert.data && (
+                    <div className="text-xs space-y-1 bg-white/30 dark:bg-gray-800/30 p-2 rounded">
+                      {alert.data.symbol && (
+                        <div className="font-medium">股票: {alert.data.symbol}</div>
+                      )}
+                      {alert.data.changePercent !== undefined && (
+                        <div>涨跌幅: <span className={alert.data.changePercent > 0 ? 'text-green-600' : 'text-red-600'}>{alert.data.changePercent > 0 ? '+' : ''}{alert.data.changePercent}%</span></div>
+                      )}
+                      {alert.data.vix !== undefined && (
+                        <div>VIX: {alert.data.vix}</div>
+                      )}
+                      {alert.data.uvxyDeviation !== undefined && (
+                        <div>UVXY偏离: <span className="text-orange-600">+{alert.data.uvxyDeviation}%</span></div>
+                      )}
+                      {alert.data.historicalData && (
+                        <div className="text-muted-foreground mt-1">📊 {alert.data.historicalData}</div>
+                      )}
+                    </div>
+                  )}
+                </AlertDescription>
+              </div>
             </div>
             <Button
               variant="ghost"
               size="sm"
               onClick={() => dismissAlert(alert.id)}
+              className="flex-shrink-0 h-8 w-8 p-0"
             >
               <X className="h-4 w-4" />
             </Button>
