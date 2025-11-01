@@ -94,20 +94,20 @@ export default function SixStepSystemForm({ value, onChange, currentPrice }: Six
 
       {/* 第一步：分辨趋势 */}
       {currentStep === 1 && (
-        <Card className="border-2 border-green-200 shadow-lg bg-gradient-to-br from-green-50 to-white dark:from-green-950/20 dark:to-gray-900">
-          <CardHeader className="bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-t-lg">
-            <CardTitle className="flex items-center gap-2 text-white">
-              <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
+        <Card className="border-2 border-green-200 shadow-lg overflow-hidden">
+          <div className="bg-gradient-to-r from-green-500 to-emerald-500 text-white p-6">
+            <div className="flex items-center gap-3 mb-3">
+              <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center flex-shrink-0">
                 <TrendingUp className="w-6 h-6" />
               </div>
-              <div>
-                <div className="text-sm opacity-90">STEP 1</div>
-                <div>分辨趋势</div>
+              <div className="flex-1">
+                <div className="text-sm font-normal opacity-90">STEP 1</div>
+                <div className="text-2xl font-bold">分辨趋势</div>
               </div>
-            </CardTitle>
-            <CardDescription className="text-green-50">准确判断市场趋势方向，顺势而为以提高交易成功率</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
+            </div>
+            <p className="text-green-50 text-sm ml-15">准确判断市场趋势方向，顺势而为以提高交易成功率</p>
+          </div>
+          <CardContent className="space-y-4 pt-6">
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <Label>趋势方向 *</Label>
@@ -167,20 +167,20 @@ export default function SixStepSystemForm({ value, onChange, currentPrice }: Six
 
       {/* 第二步：找关键位 */}
       {currentStep === 2 && (
-        <Card className="border-2 border-blue-200 shadow-lg bg-gradient-to-br from-blue-50 to-white dark:from-blue-950/20 dark:to-gray-900">
-          <CardHeader className="bg-gradient-to-r from-blue-500 to-cyan-500 text-white rounded-t-lg">
-            <CardTitle className="flex items-center gap-2 text-white">
-              <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
+        <Card className="border-2 border-blue-200 shadow-lg overflow-hidden">
+          <div className="bg-gradient-to-r from-blue-500 to-cyan-500 text-white p-6">
+            <div className="flex items-center gap-3 mb-3">
+              <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center flex-shrink-0">
                 <Target className="w-6 h-6" />
               </div>
-              <div>
-                <div className="text-sm opacity-90">STEP 2</div>
-                <div>找关键位</div>
+              <div className="flex-1">
+                <div className="text-sm font-normal opacity-90">STEP 2</div>
+                <div className="text-2xl font-bold">找关键位</div>
               </div>
-            </CardTitle>
-            <CardDescription className="text-blue-50">识别支撑、阻力等关键价格区域，为交易提供可靠依据</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
+            </div>
+            <p className="text-blue-50 text-sm ml-15">识别支撑、阻力等关键价格区域，为交易提供可靠依据</p>
+          </div>
+          <CardContent className="space-y-4 pt-6">
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <Label>支撑位 *</Label>
@@ -226,20 +226,20 @@ export default function SixStepSystemForm({ value, onChange, currentPrice }: Six
 
       {/* 第三步：入场时机 */}
       {currentStep === 3 && (
-        <Card className="border-2 border-orange-200 shadow-lg bg-gradient-to-br from-orange-50 to-white dark:from-orange-950/20 dark:to-gray-900">
-          <CardHeader className="bg-gradient-to-r from-orange-500 to-amber-500 text-white rounded-t-lg">
-            <CardTitle className="flex items-center gap-2 text-white">
-              <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
+        <Card className="border-2 border-orange-200 shadow-lg overflow-hidden">
+          <div className="bg-gradient-to-r from-orange-500 to-amber-500 text-white p-6">
+            <div className="flex items-center gap-3 mb-3">
+              <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center flex-shrink-0">
                 <Clock className="w-6 h-6" />
               </div>
-              <div>
-                <div className="text-sm opacity-90">STEP 3</div>
-                <div>入场时机</div>
+              <div className="flex-1">
+                <div className="text-sm font-normal opacity-90">STEP 3</div>
+                <div className="text-2xl font-bold">入场时机</div>
               </div>
-            </CardTitle>
-            <CardDescription className="text-orange-50">等待趋势确认与关键位的有效突破，选择最佳入场点</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
+            </div>
+            <p className="text-orange-50 text-sm ml-15">等待趋势确认与关键位的有效突破，选择最佳入场点</p>
+          </div>
+          <CardContent className="space-y-4 pt-6">
             <div>
               <Label>入场类型 *</Label>
               <Select
@@ -301,20 +301,20 @@ export default function SixStepSystemForm({ value, onChange, currentPrice }: Six
 
       {/* 第四步：制定交易计划 */}
       {currentStep === 4 && (
-        <Card className="border-2 border-purple-200 shadow-lg bg-gradient-to-br from-purple-50 to-white dark:from-purple-950/20 dark:to-gray-900">
-          <CardHeader className="bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-t-lg">
-            <CardTitle className="flex items-center gap-2 text-white">
-              <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
+        <Card className="border-2 border-purple-200 shadow-lg overflow-hidden">
+          <div className="bg-gradient-to-r from-purple-500 to-pink-500 text-white p-6">
+            <div className="flex items-center gap-3 mb-3">
+              <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center flex-shrink-0">
                 <BarChart3 className="w-6 h-6" />
               </div>
-              <div>
-                <div className="text-sm opacity-90">STEP 4</div>
-                <div>制定交易计划</div>
+              <div className="flex-1">
+                <div className="text-sm font-normal opacity-90">STEP 4</div>
+                <div className="text-2xl font-bold">制定交易计划</div>
               </div>
-            </CardTitle>
-            <CardDescription className="text-purple-50">明确入场、止损、止盈及仓位管理，构建清晰交易策略</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
+            </div>
+            <p className="text-purple-50 text-sm ml-15">明确入场、止损、止盈及仓位管理，构建清晰交易策略</p>
+          </div>
+          <CardContent className="space-y-4 pt-6">
             <div className="grid grid-cols-3 gap-4">
               <div>
                 <Label>入场价 *</Label>
@@ -397,20 +397,20 @@ export default function SixStepSystemForm({ value, onChange, currentPrice }: Six
 
       {/* 第五步：严格执行 */}
       {currentStep === 5 && (
-        <Card className="border-2 border-red-200 shadow-lg bg-gradient-to-br from-red-50 to-white dark:from-red-950/20 dark:to-gray-900">
-          <CardHeader className="bg-gradient-to-r from-red-500 to-rose-500 text-white rounded-t-lg">
-            <CardTitle className="flex items-center gap-2 text-white">
-              <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
+        <Card className="border-2 border-red-200 shadow-lg overflow-hidden">
+          <div className="bg-gradient-to-r from-red-500 to-rose-500 text-white p-6">
+            <div className="flex items-center gap-3 mb-3">
+              <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center flex-shrink-0">
                 <CheckCircle className="w-6 h-6" />
               </div>
-              <div>
-                <div className="text-sm opacity-90">STEP 5</div>
-                <div>严格执行</div>
+              <div className="flex-1">
+                <div className="text-sm font-normal opacity-90">STEP 5</div>
+                <div className="text-2xl font-bold">严格执行</div>
               </div>
-            </CardTitle>
-            <CardDescription className="text-red-50">严格遵循交易计划，保持纪律性，避免情绪干扰</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
+            </div>
+            <p className="text-red-50 text-sm ml-15">严格遵循交易计划，保持纪律性，避免情绪干扰</p>
+          </div>
+          <CardContent className="space-y-4 pt-6">
             <div className="space-y-3">
               <Label>纪律检查清单</Label>
               <div className="space-y-2">
@@ -488,20 +488,20 @@ export default function SixStepSystemForm({ value, onChange, currentPrice }: Six
 
       {/* 第六步：复盘总结 */}
       {currentStep === 6 && (
-        <Card className="border-2 border-cyan-200 shadow-lg bg-gradient-to-br from-cyan-50 to-white dark:from-cyan-950/20 dark:to-gray-900">
-          <CardHeader className="bg-gradient-to-r from-cyan-500 to-teal-500 text-white rounded-t-lg">
-            <CardTitle className="flex items-center gap-2 text-white">
-              <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
+        <Card className="border-2 border-cyan-200 shadow-lg overflow-hidden">
+          <div className="bg-gradient-to-r from-cyan-500 to-teal-500 text-white p-6">
+            <div className="flex items-center gap-3 mb-3">
+              <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center flex-shrink-0">
                 <Eye className="w-6 h-6" />
               </div>
-              <div>
-                <div className="text-sm opacity-90">STEP 6</div>
-                <div>复盘总结</div>
+              <div className="flex-1">
+                <div className="text-sm font-normal opacity-90">STEP 6</div>
+                <div className="text-2xl font-bold">复盘总结</div>
               </div>
-            </CardTitle>
-            <CardDescription className="text-cyan-50">分析交易结果，总结经验教训，持续优化交易体系</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
+            </div>
+            <p className="text-cyan-50 text-sm ml-15">分析交易结果，总结经验教训，持续优化交易体系</p>
+          </div>
+          <CardContent className="space-y-4 pt-6">
             <div>
               <Label className="font-semibold">技术分析复盘</Label>
               <div className="mt-2 space-y-2">
