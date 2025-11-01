@@ -88,8 +88,7 @@ import PivotView from '@/components/pivot/PivotView'
 import MarketOpportunityView from '@/components/market/MarketOpportunityView'
 import MarketSentimentMonitor from '@/components/market/MarketSentimentMonitor'
 import FearGreedMonitor from '@/components/market/FearGreedMonitor'
-import ForcedTradePlanForm from "@/components/tradePlan/ForcedTradePlanForm"
-import type { TradePlan } from "@/lib/tradePlan"
+
 import TradingDisciplineReminder from "@/components/trading/TradingDisciplineReminder"
 import TradingPatternTracker from "@/components/trading/TradingPatternTracker"
 import ReverseAlertSystem from "@/components/trading/ReverseAlertSystem"
@@ -172,19 +171,7 @@ export default function TradingSystem() {
   const [noteEditorOpen, setNoteEditorOpen] = useState(false)
   const [showAddAlertDialog, setShowAddAlertDialog] = useState(false)
   const [selectedStock, setSelectedStock] = useState<Stock | null>(null)
-  // 交易计划演示（内嵌）
-  const [showPlanDemo, setShowPlanDemo] = useState(false)
-  const demoStock = { symbol: "AAPL", name: "苹果公司", price: 182.3 }
-  // 交易页内置强制计划模块
-  const demoStocks = [
-    { symbol: "AAPL", name: "苹果公司", price: 182.30 },
-    { symbol: "TSLA", name: "特斯拉", price: 258.50 },
-    { symbol: "NVDA", name: "英伟达", price: 495.20 },
-    { symbol: "MSFT", name: "微软", price: 378.50 },
-  ]
-  const [showForcedPlanInTrades, setShowForcedPlanInTrades] = useState(false)
-  const [selectedDemoStockTrades, setSelectedDemoStockTrades] = useState(demoStocks[0])
-  const [forcedPlansTrades, setForcedPlansTrades] = useState<TradePlan[]>([])
+
   
   // 排序状态
   const [sortField, setSortField] = useState<string>('updated_at')
@@ -381,10 +368,10 @@ export default function TradingSystem() {
               { id: "review", label: "复盘", icon: BookOpen },
               { id: "strategies", label: "策略", icon: Target },
               { id: "psychology", label: "心理", icon: Brain },
-              { id: "health", label: "体检中心", icon: Shield, special: true },
+              { id: "health", label: "体检中心", icon: Shield },
               { id: "wisdom", label: "智慧库", icon: Lightbulb },
               { id: "brokers", label: "券商", icon: Settings },
-            ].map(({ id, label, icon: Icon, special }) => (
+            ].map(({ id, label, icon: Icon }) => (
               <button
                 key={id}
                 onClick={() => {
@@ -412,13 +399,21 @@ export default function TradingSystem() {
         {/* Main Content */}
         <div className="flex-1">
           {/* Header */}
-          <header className="bg-sidebar border-b border-sidebar-border p-4">
-            <div className="flex justify-between items-center">
-              <div className="flex items-center gap-4">
-                <h2 className="text-xl font-semibold text-sidebar-foreground">
+          <header className="bg-sidebar border-b border-sidebar-border px-6 py-4">
+            <div className="flex items-center justify-between gap-4">
+              {/* Left Section - Title and Alerts */}
+              <div className="flex items-center gap-4 flex-shrink-0">
+                <h2 className="text-xl font-semibold text-sidebar-foreground whitespace-nowrap">
                   {currentPage === "dashboard" && "股票"}
                   {currentPage === "trades" && "交易"}
                   {currentPage === "notes" && "笔记"}
+                  {currentPage === "categories" && "分类"}
+                  {currentPage === "review" && "复盘"}
+                  {currentPage === "strategies" && "策略"}
+                  {currentPage === "psychology" && "心理"}
+                  {currentPage === "health" && "体检中心"}
+                  {currentPage === "wisdom" && "智慧库"}
+                  {currentPage === "brokers" && "券商"}
                 </h2>
 
                 {triggeredAlerts.length > 0 && (
@@ -448,7 +443,8 @@ export default function TradingSystem() {
                 )}
               </div>
 
-              <div className="flex items-center gap-4">
+              {/* Right Section - Search and Actions */}
+              <div className="flex items-center gap-3 flex-shrink-0">
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                   <Input
@@ -458,21 +454,19 @@ export default function TradingSystem() {
                     className="pl-10 w-64"
                   />
                 </div>
-                <div className="flex items-center gap-2">
-                  <Button 
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setCurrentPage('health')}
-                    title="查看交易健康状况"
-                  >
-                    <Shield className="w-4 h-4 mr-2" />
-                    体检中心
-                  </Button>
-                  <NotificationCenter />
-                  <Button variant="ghost" size="icon">
-                    <Settings className="w-5 h-5" />
-                  </Button>
-                </div>
+                <Button 
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setCurrentPage('health')}
+                  title="查看交易健康状况"
+                >
+                  <Shield className="w-4 h-4 mr-2" />
+                  体检中心
+                </Button>
+                <NotificationCenter />
+                <Button variant="ghost" size="icon">
+                  <Settings className="w-5 h-5" />
+                </Button>
               </div>
             </div>
           </header>
@@ -897,49 +891,6 @@ export default function TradingSystem() {
 
             {currentPage === "patterns" && (
               <TechnicalPatternScanner variant="full" autoRefresh={true} refreshInterval={300} />
-            )}
-
-            {currentPage === "trade-plan-demo" && (
-              <div className="space-y-6">
-                <Card>
-                  <CardHeader>
-                    <CardTitle>强制交易计划（演示入口）</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-sm text-muted-foreground mb-4">
-                      在不离开主界面的情况下，直接打开交易计划表单进行演示体验。
-                    </p>
-                    <Button onClick={() => setShowPlanDemo(true)}>
-                      打开创建交易计划（AAPL演示）
-                    </Button>
-                  </CardContent>
-                </Card>
-
-                <Dialog open={showPlanDemo} onOpenChange={setShowPlanDemo}>
-                  <DialogContent className="max-w-[96vw] min-w-[1100px] w-[1400px] h-[90vh] flex flex-col p-0 gap-0">
-                    <div className="flex-shrink-0 bg-white dark:bg-gray-900 border-b px-6 py-4">
-                      <DialogHeader>
-                        <DialogTitle className="text-2xl">
-                          💪 创建强制交易计划 - {demoStock.symbol} ({demoStock.name})
-                        </DialogTitle>
-                      </DialogHeader>
-                    </div>
-                    <div className="flex-1 overflow-hidden min-h-0">
-                      <ForcedTradePlanForm
-                        symbol={demoStock.symbol}
-                        name={demoStock.name}
-                        currentPrice={demoStock.price}
-                        onSubmit={(plan: any) => {
-                          const id = `${plan.symbol}-${Date.now()}`
-                          setShowPlanDemo(false)
-                          router.push(`/plan/${id}`)
-                        }}
-                        onCancel={() => setShowPlanDemo(false)}
-                      />
-                    </div>
-                  </DialogContent>
-                </Dialog>
-              </div>
             )}
 
           </main>
