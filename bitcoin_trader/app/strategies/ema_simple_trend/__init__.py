@@ -1,11 +1,13 @@
 """
-EMA简单趋势策略 (EMA Simple Trend Strategy)
-使用 EMA9/21/55，价格站上EMA21做多，跌破做空
+EMA简单趋势策略 - 多时间框架版本
 """
 
-from .strategy import EMASimpleTrendStrategy
+from .strategy_multiframe import EMASimpleTrendMultiframeStrategy
 
-__all__ = ['EMASimpleTrendStrategy']
+# 兼容旧名称
+EMASimpleTrendStrategy = EMASimpleTrendMultiframeStrategy
+
+__all__ = ['EMASimpleTrendMultiframeStrategy', 'EMASimpleTrendStrategy']
 
 
 
