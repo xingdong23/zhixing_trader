@@ -100,10 +100,13 @@ class StrategyRunner:
             
             logger.info(f"✅ 获取日线K线: {len(klines_1d)}条")
             
-            # 3. 转换格式
+            # 3. 更新策略的日线数据
+            self.strategy.update_daily_data(klines_1d)
+            
+            # 4. 转换1小时K线格式
             klines_1h_converted = self._convert_okx_klines_to_strategy_format(klines_1h)
             
-            # 4. 运行策略分析
+            # 5. 运行策略分析
             signal = self.strategy.analyze(klines_1h_converted)
             
             current_price = klines_1h[-1]['close']
@@ -111,7 +114,7 @@ class StrategyRunner:
             logger.info(f"策略分析结果: {signal['signal']} - {signal.get('reason', '')}")
             logger.info(f"当前价格: {current_price:.2f}")
             
-            # 5. 保存信号到数据库
+            # 6. 保存信号到数据库
             if signal['signal'] != 'hold':
                 signal_data = {
                     'timestamp': datetime.now(),
