@@ -10,7 +10,7 @@ dist/
 downloads/
 eggs/
 .eggs/
-lib/
+# lib/  # 注释掉以允许前端 lib 目录
 lib64/
 parts/
 sdist/
