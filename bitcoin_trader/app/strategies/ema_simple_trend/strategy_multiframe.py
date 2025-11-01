@@ -133,6 +133,44 @@ class EMASimpleTrendMultiframeStrategy:
             logger.error(f"✗ 加载日线数据失败: {e}")
             self.use_daily_trend_filter = False
     
+    def update_daily_data(self, daily_klines: List[Dict]):
+        """
+        更新日线数据（用于实盘）
+        
+        Args:
+            daily_klines: 日线K线数据列表
+        """
+        if not daily_klines:
+            return
+        
+        try:
+            df = pd.DataFrame(daily_klines)
+            
+            # 确保有必要的字段
+            if 'close' not in df.columns:
+                logger.error("日线数据缺少close字段")
+                return
+            
+            # 转换时间
+            if 'datetime' in df.columns:
+                df['datetime'] = pd.to_datetime(df['datetime'])
+                df['date'] = df['datetime'].dt.date
+            elif 'timestamp' in df.columns:
+                df['datetime'] = pd.to_datetime(df['timestamp'], unit='ms')
+                df['date'] = df['datetime'].dt.date
+            
+            # 计算日线EMA21
+            df['ema21'] = self._calculate_ema(df['close'].values, self.daily_ema_period)
+            
+            # 判断趋势
+            df['trend'] = np.where(df['close'] > df['ema21'], 'BULLISH', 'BEARISH')
+            
+            self.daily_data = df
+            logger.info(f"✓ 日线数据已更新: {len(df)}条")
+            
+        except Exception as e:
+            logger.error(f"✗ 更新日线数据失败: {e}")
+    
     def _get_daily_trend(self, current_time: datetime) -> Optional[str]:
         """
         获取当前时间对应的日线趋势
