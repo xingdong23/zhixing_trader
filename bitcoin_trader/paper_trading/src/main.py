@@ -3,7 +3,7 @@
 """
 import sys
 import time
-import signal
+import signal as sig_module
 from pathlib import Path
 from datetime import datetime
 
@@ -100,8 +100,8 @@ def main():
     global running
     
     # 设置信号处理器
-    signal.signal(signal.SIGINT, signal_handler)
-    signal.signal(signal.SIGTERM, signal_handler)
+    sig_module.signal(sig_module.SIGINT, signal_handler)
+    sig_module.signal(sig_module.SIGTERM, signal_handler)
     
     try:
         # 打印欢迎信息

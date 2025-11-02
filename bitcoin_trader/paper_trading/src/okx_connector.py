@@ -59,33 +59,51 @@ class OKXConnector:
         """发送请求"""
         url = self.base_url + endpoint
         
-        try:
-            if method == 'GET':
-                if params:
-                    query_string = '&'.join([f"{k}={v}" for k, v in params.items()])
-                    request_path = endpoint + '?' + query_string
-                else:
-                    request_path = endpoint
+        # 增加重试次数
+        max_retries = 3
+        timeout = 30  # 增加超时时间
+        
+        for retry in range(max_retries):
+            try:
+                if method == 'GET':
+                    if params:
+                        query_string = '&'.join([f"{k}={v}" for k, v in params.items()])
+                        request_path = endpoint + '?' + query_string
+                    else:
+                        request_path = endpoint
+                    
+                    headers = self._get_headers('GET', request_path)
+                    response = requests.get(url, headers=headers, params=params, timeout=timeout)
                 
-                headers = self._get_headers('GET', request_path)
-                response = requests.get(url, headers=headers, params=params, timeout=10)
-            
-            else:
-                headers = self._get_headers(method, endpoint)
-                response = requests.request(method, url, headers=headers, json=params, timeout=10)
-            
-            response.raise_for_status()
-            data = response.json()
-            
-            if data.get('code') == '0':
-                return data.get('data', [])
-            else:
-                logger.error(f"❌ API请求失败: {data.get('msg')}")
+                else:
+                    headers = self._get_headers(method, endpoint)
+                    response = requests.request(method, url, headers=headers, json=params, timeout=timeout)
+                
+                response.raise_for_status()
+                data = response.json()
+                
+                if data.get('code') == '0':
+                    return data.get('data', [])
+                else:
+                    logger.error(f"❌ API请求失败: {data.get('msg')}")
+                    return []
+                
+            except requests.exceptions.Timeout:
+                logger.warning(f"⚠️ 请求超时，重试 {retry + 1}/{max_retries}...")
+                if retry < max_retries - 1:
+                    time.sleep(2)  # 等待2秒后重试
+                    continue
+                else:
+                    logger.error(f"❌ 请求超时，已重试{max_retries}次")
+                    return []
+            except Exception as e:
+                logger.error(f"❌ API请求异常: {e}")
+                if retry < max_retries - 1:
+                    time.sleep(2)
+                    continue
                 return []
-            
-        except Exception as e:
-            logger.error(f"❌ API请求异常: {e}")
-            return []
+        
+        return []
     
     def get_klines(self, symbol: str, timeframe: str = '1H', limit: int = 100) -> List[Dict]:
         """

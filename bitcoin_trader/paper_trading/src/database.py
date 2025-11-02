@@ -2,11 +2,16 @@
 数据库管理模块
 """
 import sqlite3
-import mysql.connector
 from datetime import datetime
 from typing import Dict, List, Optional, Any
 from config import Config
 import logging
+
+try:
+    import mysql.connector
+    MYSQL_AVAILABLE = True
+except ImportError:
+    MYSQL_AVAILABLE = False
 
 logger = logging.getLogger(__name__)
 
@@ -31,6 +36,11 @@ class Database:
                 logger.info(f"✅ 连接SQLite数据库: {Config.SQLITE_DB_PATH}")
             
             elif self.db_type == 'mysql':
+                if not MYSQL_AVAILABLE:
+                    logger.error("❌ MySQL模块未安装，请运行: pip install mysql-connector-python")
+                    logger.info("💡 或者在.env中设置 DB_TYPE=sqlite 使用SQLite")
+                    raise ImportError("mysql.connector not available")
+                
                 self.conn = mysql.connector.connect(
                     host=Config.DB_HOST,
                     port=Config.DB_PORT,
@@ -51,7 +61,18 @@ class Database:
     
     def _create_tables(self):
         """创建表（如果不存在）"""
-        sql_file = Config.STRATEGY_CONFIG.replace('config_multiframe.json', '../../paper_trading/sql/create_tables.sql')
+        # 获取SQL文件路径
+        import os
+        from pathlib import Path
+        
+        # 当前文件所在目录的上级目录
+        base_dir = Path(__file__).parent.parent
+        
+        # 根据数据库类型选择SQL文件
+        if self.db_type == 'sqlite':
+            sql_file = base_dir / 'sql' / 'create_tables_sqlite.sql'
+        else:
+            sql_file = base_dir / 'sql' / 'create_tables.sql'
         
         # 读取SQL文件
         try:
@@ -62,16 +83,36 @@ class Database:
             cursor = self.conn.cursor()
             
             if self.db_type == 'sqlite':
-                # SQLite需要逐条执行
-                for statement in sql_script.split(';'):
+                # SQLite需要逐条执行并清理MySQL语法
+                import re
+                
+                # 移除注释
+                sql_script = re.sub(r'--.*$', '', sql_script, flags=re.MULTILINE)
+                sql_script = re.sub(r'/\*.*?\*/', '', sql_script, flags=re.DOTALL)
+                
+                # 分割SQL语句
+                statements = sql_script.split(';')
+                
+                for statement in statements:
                     statement = statement.strip()
+                    if not statement or statement.startswith('--'):
+                        continue
+                    
+                    # 移除MySQL特有语法
+                    statement = re.sub(r'ENGINE=\w+', '', statement)
+                    statement = re.sub(r'DEFAULT CHARSET=\w+', '', statement)
+                    statement = re.sub(r'COMMENT\s*=?\s*["\'][^"\']*["\']', '', statement)
+                    statement = re.sub(r'COMMENT\s+["\'].*?["\']', '', statement, flags=re.MULTILINE)
+                    statement = re.sub(r'ON UPDATE CURRENT_TIMESTAMP', '', statement)
+                    
+                    # 清理空白
+                    statement = statement.strip()
+                    
                     if statement:
-                        # 移除MySQL特有语法
-                        statement = statement.replace('ENGINE=InnoDB', '')
-                        statement = statement.replace('DEFAULT CHARSET=utf8mb4', '')
-                        statement = statement.replace('COMMENT=', '--')
-                        statement = statement.replace("COMMENT '", "-- '")
-                        cursor.execute(statement)
+                        try:
+                            cursor.execute(statement)
+                        except Exception as e:
+                            logger.debug(f"跳过SQL: {e}")
             else:
                 cursor.execute(sql_script)
             

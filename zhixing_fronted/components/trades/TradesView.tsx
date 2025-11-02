@@ -331,21 +331,21 @@ export default function TradesView() {
       {/* 6步交易体系说明卡片 */}
       <Card className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-950 dark:to-purple-950 border-2 border-blue-200 dark:border-blue-800">
         <CardContent className="p-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="bg-blue-600 text-white rounded-full p-2">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            <div className="flex items-start gap-3 flex-1 min-w-0">
+              <div className="bg-blue-600 text-white rounded-full p-2 flex-shrink-0">
                 <Target className="w-5 h-5" />
               </div>
-              <div>
-                <h3 className="font-semibold text-lg">6步交易体系 - 系统化交易流程</h3>
-                <p className="text-sm text-muted-foreground">
+              <div className="flex-1 min-w-0">
+                <h3 className="font-semibold text-base md:text-lg truncate">6步交易体系 - 系统化交易流程</h3>
+                <p className="text-xs md:text-sm text-muted-foreground truncate md:whitespace-normal">
                   分辨趋势 → 找关键位 → 入场时机 → 制定计划 → 严格执行 → 复盘总结
                 </p>
               </div>
             </div>
             <Button 
               onClick={() => router.push('/plan/create')}
-              className="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600"
+              className="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 whitespace-nowrap flex-shrink-0 w-full md:w-auto"
             >
               <Plus className="w-4 h-4 mr-2" />
               开始6步向导创建
@@ -417,32 +417,32 @@ export default function TradesView() {
       </div>
 
       {/* 操作按钮 */}
-      <div className="flex justify-between items-center">
-        <div className="flex items-center gap-2">
+      <div className="flex flex-col lg:flex-row justify-between items-stretch lg:items-center gap-3">
+        <div className="flex flex-wrap items-center gap-2">
           <input ref={fileInputRef} type="file" accept=".csv,text/csv" className="hidden" onChange={handleCsvPicked} />
-          <Button variant="outline" onClick={triggerPickCsv}>导入CSV</Button>
-          <Button variant="outline" onClick={exportCsv}>导出CSV（当前筛选）</Button>
+          <Button variant="outline" size="sm" onClick={triggerPickCsv}>导入CSV</Button>
+          <Button variant="outline" size="sm" onClick={exportCsv} className="whitespace-nowrap">导出CSV</Button>
           <SavedFiltersMenu current={filters} onApply={setFilters} />
-          <Button variant="outline" onClick={() => setAlertOpen(true)}>配置提醒</Button>
-          <Button variant="outline" onClick={() => {
+          <Button variant="outline" size="sm" onClick={() => setAlertOpen(true)}>配置提醒</Button>
+          <Button variant="outline" size="sm" onClick={() => {
             setPendingTradeAction('manual_entry');
             setShowPreTradeChecklist(true);
           }}>手动录入</Button>
           {importMessage && <span className="text-xs text-muted-foreground ml-2">{importMessage}</span>}
         </div>
-        <div className="flex gap-2">
-          <Button variant="outline" onClick={() => {
+        <div className="flex flex-col sm:flex-row gap-2">
+          <Button variant="outline" size="sm" onClick={() => {
             // 快速录入：先检查清单，后创建
             setSelectedStockForPlan({ symbol: "AAPL", name: "苹果公司", price: 182.3 });
             setPendingTradeAction('create_plan');
             setShowPreTradeChecklist(true);
-          }}>
+          }} className="whitespace-nowrap">
             <Plus className="w-4 h-4 mr-2" />
             快速录入计划
           </Button>
-          <Button onClick={() => router.push('/plan/create')}>
+          <Button size="sm" onClick={() => router.push('/plan/create')} className="whitespace-nowrap">
             <Plus className="w-4 h-4 mr-2" />
-            创建交易计划（6步向导）
+            6步向导创建
           </Button>
         </div>
       </div>

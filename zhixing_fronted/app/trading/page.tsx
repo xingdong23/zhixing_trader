@@ -316,19 +316,20 @@ export default function TradingPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
-      <div className="max-w-7xl mx-auto">
-        {/* 页面标题 */}
-        <div className="mb-8">
-          <div className="flex items-center gap-3 mb-4">
-            <Zap className="h-8 w-8 text-blue-600" />
-            <h1 className="text-3xl font-bold text-gray-900">交易执行中心</h1>
+    <div className="h-screen bg-gray-50 flex flex-col overflow-hidden">
+      <div className="flex-1 overflow-y-auto">
+        <div className="max-w-7xl mx-auto p-6">
+          {/* 页面标题 */}
+          <div className="mb-6">
+            <div className="flex items-center gap-3 mb-2">
+              <Zap className="h-8 w-8 text-blue-600" />
+              <h1 className="text-3xl font-bold text-gray-900">交易执行中心</h1>
+            </div>
+            <p className="text-gray-600">管理券商连接、配置交易环境并监控自动执行</p>
           </div>
-          <p className="text-gray-600">管理券商连接、配置交易环境并监控自动执行</p>
-        </div>
 
-        {/* 系统状态卡片 */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+          {/* 系统状态卡片 */}
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
           <Card>
             <CardContent className="p-6">
               <div className="flex items-center gap-3">
