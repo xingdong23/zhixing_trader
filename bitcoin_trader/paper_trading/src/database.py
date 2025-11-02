@@ -114,7 +114,18 @@ class Database:
                         except Exception as e:
                             logger.debug(f"跳过SQL: {e}")
             else:
-                cursor.execute(sql_script)
+                # MySQL需要逐条执行
+                statements = sql_script.split(';')
+                for statement in statements:
+                    statement = statement.strip()
+                    if statement:
+                        try:
+                            cursor.execute(statement)
+                            # 每条语句后都提交并重新获取cursor
+                            self.conn.commit()
+                        except Exception as e:
+                            logger.debug(f"跳过SQL: {e}")
+                            continue
             
             self.conn.commit()
             cursor.close()
