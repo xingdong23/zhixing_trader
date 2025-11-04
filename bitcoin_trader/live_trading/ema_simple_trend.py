@@ -73,7 +73,7 @@ class EMASimpleTrendTrader:
         
         # 交易对和时间框架
         self.symbol = "ETH/USDT"
-        self.timeframe = "1h"
+        self.timeframe = "1H"  # OKX格式：1H, 4H, 1D等
         
         # 运行状态
         self.running = False
@@ -153,7 +153,7 @@ class EMASimpleTrendTrader:
         """运行一次策略循环"""
         try:
             # 获取1小时K线数据
-            df_1h = await self.fetch_klines(timeframe='1h', limit=200)
+            df_1h = await self.fetch_klines(timeframe='1H', limit=200)
             
             if df_1h.empty:
                 logger.warning("未获取到1小时K线数据")
@@ -185,8 +185,20 @@ class EMASimpleTrendTrader:
                     self.strategy.update_daily_data(daily_klines)
                     logger.debug(f"✓ 已更新日线数据: {len(daily_klines)} 条")
             
+            # 转换DataFrame为字典列表（策略需要的格式）
+            klines_1h = []
+            for _, row in df_1h.iterrows():
+                klines_1h.append({
+                    'timestamp': row['timestamp'],
+                    'open': row['open'],
+                    'high': row['high'],
+                    'low': row['low'],
+                    'close': row['close'],
+                    'volume': row['volume']
+                })
+            
             # 运行策略分析
-            signal = self.strategy.analyze(df_1h)
+            signal = self.strategy.analyze(klines_1h)
             
             logger.info(f"策略信号: {signal['signal']} - {signal['reason']}")
             
