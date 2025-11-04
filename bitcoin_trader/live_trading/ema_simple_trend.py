@@ -25,6 +25,8 @@ import requests
 import pandas as pd
 
 from strategies.ema_simple_trend.strategy_multiframe import EMASimpleTrendMultiframeStrategy
+from live_trading.db_logger import DBLogger
+from live_trading.mysql_logger import MySQLLogger
 
 # 加载环境变量
 load_dotenv()
@@ -48,7 +50,20 @@ logger = logging.getLogger(__name__)
 class EMASimpleTrendTrader:
     """EMA Simple Trend 交易机器人"""
     
-    def __init__(self, mode: str = "paper", symbol: str = None, timeframe: str = None, once: bool = False):
+    def __init__(
+        self,
+        mode: str = "paper",
+        symbol: str = None,
+        timeframe: str = None,
+        once: bool = False,
+        db_path: str = None,
+        db_backend: str = "sqlite",
+        mysql_host: str = None,
+        mysql_port: int = None,
+        mysql_user: str = None,
+        mysql_password: str = None,
+        mysql_database: str = None,
+    ):
         """
         初始化交易机器人
         
@@ -86,6 +101,19 @@ class EMASimpleTrendTrader:
         self.running = False
         self.last_kline_time = None
         self.once = once
+        # 数据库记录器（默认SQLite，可切换MySQL）
+        if (db_backend or "sqlite").lower() == "mysql":
+            self.db = MySQLLogger(
+                host=mysql_host or os.getenv("MYSQL_HOST", "127.0.0.1"),
+                port=int(mysql_port or os.getenv("MYSQL_PORT", 3306)),
+                user=mysql_user or os.getenv("MYSQL_USER", "root"),
+                password=mysql_password or os.getenv("MYSQL_PASSWORD", ""),
+                database=mysql_database or os.getenv("MYSQL_DB", "trading"),
+            )
+            logger.info("✓ 使用 MySQL 记录器记录signals/orders/config_snapshots")
+        else:
+            self.db = DBLogger(db_path or "logs/trading.sqlite3")
+            logger.info("✓ 使用 SQLite 记录器记录signals/orders/config_snapshots")
         
         # 获取资金配置
         capital = self.config.get('capital_management', {}).get('total_capital', 300.0)
@@ -218,15 +246,31 @@ class EMASimpleTrendTrader:
             
             logger.info(f"策略信号: {signal['signal']} - {signal['reason']}")
             
-            # 如果有交易信号
+            # 如果有交易信号：写入数据库（信号 + 订单占位）
             if signal["signal"] in ["buy", "sell", "close"]:
                 logger.info(f"🔔 交易信号触发!")
                 logger.info(f"  信号: {signal['signal']}")
                 logger.info(f"  价格: {signal.get('price', 0):.2f}")
                 logger.info(f"  原因: {signal['reason']}")
                 
-                # 这里可以添加实际的交易执行逻辑
-                # 由于您的API只有读权限，所以只记录信号
+                try:
+                    sig_id = self.db.log_signal(
+                        mode=self.mode,
+                        symbol=self.symbol,
+                        timeframe=self.timeframe,
+                        signal=signal,
+                    )
+                    # 当前不下单：记录一条未下单的占位订单，便于审计
+                    self.db.log_order(
+                        signal_id=sig_id,
+                        side=signal["signal"],
+                        price=signal.get("price"),
+                        amount=signal.get("amount"),
+                        status="not_placed",
+                        details={"reason": "read-only key / dry-run", "mode": self.mode},
+                    )
+                except Exception as e:
+                    logger.error(f"记录交易信号到数据库失败: {e}")
                 
         except Exception as e:
             logger.error(f"策略循环出错: {e}")
@@ -246,6 +290,23 @@ class EMASimpleTrendTrader:
         logger.info(f"运行模式: {self.mode}")
         logger.info("="*60)
         
+        # 记录配置快照（不保存明文密钥，仅记录是否存在）
+        try:
+            env_info = {
+                "has_api_key": bool(os.getenv("OKX_API_KEY")),
+                "has_api_secret": bool(os.getenv("OKX_API_SECRET")),
+                "has_passphrase": bool(os.getenv("OKX_PASSPHRASE")),
+            }
+            self.db.log_config_snapshot(
+                mode=self.mode,
+                symbol=self.symbol,
+                timeframe=self.timeframe,
+                config=self.config,
+                env_info=env_info,
+            )
+        except Exception as e:
+            logger.error(f"记录配置快照失败: {e}")
+
         # 单次检查模式：运行一次后退出
         if self.once:
             try:
@@ -300,14 +361,22 @@ def main():
     parser.add_argument('--symbol', type=str, default=None, help='交易对, 如 ETH/USDT')
     parser.add_argument('--timeframe', type=str, default=None, help='时间框架, 如 1H/4H/1D')
     parser.add_argument('--once', action='store_true', help='仅运行一次检查后退出')
+    parser.add_argument('--yes', action='store_true', help='实盘模式跳过交互确认')
+    parser.add_argument('--db-path', type=str, default=None, help='SQLite数据库路径, 默认 logs/trading.sqlite3')
+    parser.add_argument('--db', type=str, default='sqlite', choices=['sqlite', 'mysql'], help='数据库后端: sqlite 或 mysql')
+    parser.add_argument('--mysql-host', type=str, default=None, help='MySQL 主机, 默认 127.0.0.1')
+    parser.add_argument('--mysql-port', type=int, default=None, help='MySQL 端口, 默认 3306')
+    parser.add_argument('--mysql-user', type=str, default=None, help='MySQL 用户, 默认 root')
+    parser.add_argument('--mysql-password', type=str, default=None, help='MySQL 密码')
+    parser.add_argument('--mysql-database', type=str, default=None, help='MySQL 数据库名, 默认 trading')
     
     args = parser.parse_args()
     
     # 创建日志目录
     os.makedirs('logs', exist_ok=True)
     
-    # 实盘模式需要确认
-    if args.mode == 'live':
+    # 实盘模式需要确认（允许通过 --yes 跳过）
+    if args.mode == 'live' and not args.yes:
         print("\n" + "="*60)
         print("⚠️  警告：您即将在实盘模式下运行策略！")
         print("="*60)
@@ -323,6 +392,13 @@ def main():
         symbol=args.symbol,
         timeframe=args.timeframe,
         once=args.once,
+        db_path=args.db_path,
+        db_backend=args.db,
+        mysql_host=args.mysql_host,
+        mysql_port=args.mysql_port,
+        mysql_user=args.mysql_user,
+        mysql_password=args.mysql_password,
+        mysql_database=args.mysql_database,
     )
     
     try:
