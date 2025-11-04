@@ -13,6 +13,8 @@ source venv/bin/activate
 
 # 运行模式：paper(模拟盘) 或 live(实盘)
 MODE="${1:-paper}"
+shift || true
+EXTRA_ARGS="$@"
 
 # 停止旧进程
 echo "停止旧进程..."
@@ -21,14 +23,14 @@ sleep 2
 
 # 启动策略
 echo "启动 EMA Simple Trend 策略 - 模式: $MODE"
-nohup python live_trading/ema_simple_trend.py --mode "$MODE" \
-    > logs/ema_simple_trend_$(date +%Y%m%d_%H%M%S).log 2>&1 &
+# 日志由应用内的 TimedRotatingFileHandler 负责滚动到 logs/ema_simple_trend.log
+nohup python live_trading/ema_simple_trend.py --mode "$MODE" $EXTRA_ARGS >/dev/null 2>&1 &
 
 PID=$!
 echo "✅ 策略已启动 PID: $PID"
 echo ""
 echo "查看日志："
-echo "  tail -f logs/ema_simple_trend_*.log | tail -1"
+echo "  tail -f logs/ema_simple_trend.log"
 echo ""
 echo "停止策略："
 echo "  pkill -9 -f 'python.*ema_simple_trend'"

@@ -14,6 +14,7 @@ import logging
 import json
 from datetime import datetime
 from typing import Dict, List
+from logging.handlers import TimedRotatingFileHandler
 
 # 添加项目路径
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
@@ -28,15 +29,18 @@ from strategies.ema_simple_trend.strategy_multiframe import EMASimpleTrendMultif
 # 加载环境变量
 load_dotenv()
 
-# 配置日志
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.FileHandler(f'logs/ema_simple_trend_{datetime.now().strftime("%Y%m%d")}.log'),
-        logging.StreamHandler()
-    ]
+# 配置日志（按天轮转，保留7天）
+log_formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+file_handler = TimedRotatingFileHandler(
+    filename='logs/ema_simple_trend.log',
+    when='midnight',
+    backupCount=7,
+    encoding='utf-8'
 )
+file_handler.setFormatter(log_formatter)
+console_handler = logging.StreamHandler()
+console_handler.setFormatter(log_formatter)
+logging.basicConfig(level=logging.INFO, handlers=[file_handler, console_handler])
 
 logger = logging.getLogger(__name__)
 
@@ -44,12 +48,15 @@ logger = logging.getLogger(__name__)
 class EMASimpleTrendTrader:
     """EMA Simple Trend 交易机器人"""
     
-    def __init__(self, mode: str = "paper"):
+    def __init__(self, mode: str = "paper", symbol: str = None, timeframe: str = None, once: bool = False):
         """
         初始化交易机器人
         
         Args:
             mode: 运行模式 'paper' 或 'live'
+            symbol: 交易对（可选，默认 ETH/USDT）
+            timeframe: 时间框架（可选，默认 1H）
+            once: 是否仅运行一次检查后退出
         """
         self.mode = mode
         
@@ -71,13 +78,14 @@ class EMASimpleTrendTrader:
             load_daily_from_file=False  # 实盘模式从API获取
         )
         
-        # 交易对和时间框架
-        self.symbol = "ETH/USDT"
-        self.timeframe = "1H"  # OKX格式：1H, 4H, 1D等
+        # 交易对和时间框架（支持参数覆盖）
+        self.symbol = symbol or "ETH/USDT"
+        self.timeframe = (timeframe or "1H").upper()  # OKX格式：1H, 4H, 1D等
         
         # 运行状态
         self.running = False
         self.last_kline_time = None
+        self.once = once
         
         # 获取资金配置
         capital = self.config.get('capital_management', {}).get('total_capital', 300.0)
@@ -128,22 +136,30 @@ class EMASimpleTrendTrader:
                 'bar': timeframe,
                 'limit': str(limit),
             }
-            resp = requests.get(url, params=params, timeout=15)
-            data = resp.json()
-            
-            if data.get('code') != '0':
-                logger.error(f"获取K线数据失败: {data}")
-                return pd.DataFrame()
 
-            candles = data.get('data', [])
-            candles = list(reversed(candles))
-            
-            # 转换为DataFrame
-            df = pd.DataFrame(candles, columns=['timestamp', 'open', 'high', 'low', 'close', 'volume', 'volCcy', 'volCcyQuote', 'confirm'])
-            df['timestamp'] = pd.to_datetime(df['timestamp'].astype(int), unit='ms')
-            df[['open', 'high', 'low', 'close', 'volume']] = df[['open', 'high', 'low', 'close', 'volume']].astype(float)
-            
-            return df[['timestamp', 'open', 'high', 'low', 'close', 'volume']]
+            # 简单重试机制，最多3次，指数退避
+            for attempt in range(3):
+                try:
+                    resp = requests.get(url, params=params, timeout=15)
+                    data = resp.json()
+                    if data.get('code') == '0':
+                        candles = data.get('data', [])
+                        candles = list(reversed(candles))
+                        # 转换为DataFrame
+                        df = pd.DataFrame(candles, columns=['timestamp', 'open', 'high', 'low', 'close', 'volume', 'volCcy', 'volCcyQuote', 'confirm'])
+                        df['timestamp'] = pd.to_datetime(df['timestamp'].astype(int), unit='ms')
+                        df[['open', 'high', 'low', 'close', 'volume']] = df[['open', 'high', 'low', 'close', 'volume']].astype(float)
+                        return df[['timestamp', 'open', 'high', 'low', 'close', 'volume']]
+                    else:
+                        logger.warning(f"获取K线数据失败(第{attempt+1}次): {data}")
+                except Exception as e:
+                    logger.warning(f"请求OKX失败(第{attempt+1}次): {e}")
+                # 退避等待
+                await asyncio.sleep(2 * (attempt + 1))
+
+            # 多次重试失败
+            logger.error("获取K线数据失败: 超过最大重试次数")
+            return pd.DataFrame()
             
         except Exception as e:
             logger.error(f"获取K线数据失败: {e}")
@@ -230,6 +246,16 @@ class EMASimpleTrendTrader:
         logger.info(f"运行模式: {self.mode}")
         logger.info("="*60)
         
+        # 单次检查模式：运行一次后退出
+        if self.once:
+            try:
+                await self.run_strategy_cycle()
+                logger.info("✅ 单次检查完成，程序退出")
+            except Exception as e:
+                logger.error(f"单次检查失败: {e}")
+            self.stop()
+            return
+
         cycle_count = 0
         while self.running:
             try:
@@ -271,6 +297,9 @@ def main():
     parser.add_argument('--mode', type=str, default='paper', 
                        choices=['paper', 'live'],
                        help='运行模式: paper(模拟盘) 或 live(实盘)')
+    parser.add_argument('--symbol', type=str, default=None, help='交易对, 如 ETH/USDT')
+    parser.add_argument('--timeframe', type=str, default=None, help='时间框架, 如 1H/4H/1D')
+    parser.add_argument('--once', action='store_true', help='仅运行一次检查后退出')
     
     args = parser.parse_args()
     
@@ -289,7 +318,12 @@ def main():
             return
     
     # 创建并启动交易机器人
-    trader = EMASimpleTrendTrader(mode=args.mode)
+    trader = EMASimpleTrendTrader(
+        mode=args.mode,
+        symbol=args.symbol,
+        timeframe=args.timeframe,
+        once=args.once,
+    )
     
     try:
         asyncio.run(trader.start())
