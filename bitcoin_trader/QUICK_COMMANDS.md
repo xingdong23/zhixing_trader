@@ -68,57 +68,57 @@ ssh -i ~/.ssh/aliyun_trader root@101.42.14.209 "cd /opt/zhixing_trader/bitcoin_t
 
 ## 📊 日志查看
 
-### 实时查看最新日志
+### 实时查看最新日志（按天滚动）
 
 ```bash
 # 本地执行
-ssh -i ~/.ssh/aliyun_trader root@101.42.14.209 "tail -f /opt/zhixing_trader/bitcoin_trader/logs/ema_simple_trend_*.log | tail -1"
+ssh -i ~/.ssh/aliyun_trader root@101.42.14.209 "tail -f /opt/zhixing_trader/bitcoin_trader/logs/ema_simple_trend.log"
 
 # 或登录后执行
 cd /opt/zhixing_trader/bitcoin_trader
-tail -f logs/ema_simple_trend_*.log | tail -1
+tail -f logs/ema_simple_trend.log
 ```
 
 ### 查看最近30行日志
 
 ```bash
 # 本地执行
-ssh -i ~/.ssh/aliyun_trader root@101.42.14.209 "cd /opt/zhixing_trader/bitcoin_trader && ls -lt logs/ema_simple_trend_*.log | head -1 | awk '{print \$NF}' | xargs tail -30"
+ssh -i ~/.ssh/aliyun_trader root@101.42.14.209 "tail -n 30 /opt/zhixing_trader/bitcoin_trader/logs/ema_simple_trend.log"
 
 # 或登录后执行
-ls -lt logs/ema_simple_trend_*.log | head -1 | awk '{print $NF}' | xargs tail -30
+tail -n 30 logs/ema_simple_trend.log
 ```
 
 ### 查看最近100行日志
 
 ```bash
-ls -lt logs/ema_simple_trend_*.log | head -1 | awk '{print $NF}' | xargs tail -100
+tail -n 100 logs/ema_simple_trend.log
 ```
 
-### 列出所有日志文件
+### 列出所有日志文件（当前文件 + 历史滚动文件）
 
 ```bash
-ls -lht logs/ema_simple_trend_*.log
+ls -lht logs/ema_simple_trend.log*
 ```
 
-### 查看特定日期的日志
+### 查看特定日期的历史日志
 
 ```bash
-# 例如：查看20251104的日志
-cat logs/ema_simple_trend_20251104_*.log
+# 例如：查看 2025-11-04 的历史滚动文件（TimedRotatingFileHandler 默认后缀为 .yyyy-mm-dd）
+cat logs/ema_simple_trend.log.2025-11-04
 ```
 
 ### 搜索日志中的关键词
 
 ```bash
 # 搜索交易信号
-grep "交易信号触发" logs/ema_simple_trend_*.log
+grep "交易信号触发" logs/ema_simple_trend.log logs/ema_simple_trend.log.*
 
 # 搜索错误
-grep "ERROR" logs/ema_simple_trend_*.log
+grep "ERROR" logs/ema_simple_trend.log logs/ema_simple_trend.log.*
 
 # 搜索买入信号
-grep "signal.*buy" logs/ema_simple_trend_*.log
+grep "signal.*buy" logs/ema_simple_trend.log logs/ema_simple_trend.log.*
 ```
 
 ---
