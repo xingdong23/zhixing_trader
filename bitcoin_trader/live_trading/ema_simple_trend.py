@@ -65,8 +65,11 @@ class EMASimpleTrendTrader:
         # 初始化交易所
         self.exchange = self._init_exchange()
         
-        # 初始化策略
-        self.strategy = EMASimpleTrendMultiframeStrategy(self.config)
+        # 初始化策略（实盘模式不从文件加载日线数据）
+        self.strategy = EMASimpleTrendMultiframeStrategy(
+            self.config.get('capital_management', self.config),
+            load_daily_from_file=False  # 实盘模式从API获取
+        )
         
         # 交易对和时间框架
         self.symbol = "ETH/USDT"
@@ -76,7 +79,9 @@ class EMASimpleTrendTrader:
         self.running = False
         self.last_kline_time = None
         
-        logger.info(f"EMA Simple Trend 交易机器人初始化完成 - 模式: {mode}, 资金: {self.config['total_capital']} USDT")
+        # 获取资金配置
+        capital = self.config.get('capital_management', {}).get('total_capital', 300.0)
+        logger.info(f"EMA Simple Trend 交易机器人初始化完成 - 模式: {mode}, 资金: {capital} USDT")
     
     def _init_exchange(self) -> ccxt.Exchange:
         """初始化交易所"""
@@ -104,14 +109,23 @@ class EMASimpleTrendTrader:
         
         return exchange
     
-    async def fetch_klines(self, limit: int = 200) -> pd.DataFrame:
-        """获取K线数据"""
+    async def fetch_klines(self, timeframe: str = None, limit: int = 200) -> pd.DataFrame:
+        """
+        获取K线数据
+        
+        Args:
+            timeframe: 时间框架，默认使用self.timeframe
+            limit: K线数量
+        """
         try:
+            if timeframe is None:
+                timeframe = self.timeframe
+                
             inst_id = self.symbol.replace('/', '-')
             url = 'https://www.okx.com/api/v5/market/candles'
             params = {
                 'instId': inst_id,
-                'bar': self.timeframe,
+                'bar': timeframe,
                 'limit': str(limit),
             }
             resp = requests.get(url, params=params, timeout=15)
@@ -138,22 +152,41 @@ class EMASimpleTrendTrader:
     async def run_strategy_cycle(self):
         """运行一次策略循环"""
         try:
-            # 获取K线数据
-            df = await self.fetch_klines(limit=200)
+            # 获取1小时K线数据
+            df_1h = await self.fetch_klines(timeframe='1h', limit=200)
             
-            if df.empty:
-                logger.warning("未获取到K线数据")
+            if df_1h.empty:
+                logger.warning("未获取到1小时K线数据")
                 return
             
             # 检查是否有新K线
-            current_kline_time = df.iloc[-1]['timestamp']
+            current_kline_time = df_1h.iloc[-1]['timestamp']
             if self.last_kline_time and current_kline_time == self.last_kline_time:
                 return
             
             self.last_kline_time = current_kline_time
             
+            # 如果策略启用了日线趋势过滤，获取日线数据并更新
+            if self.strategy.use_daily_trend_filter:
+                df_1d = await self.fetch_klines(timeframe='1D', limit=100)
+                if not df_1d.empty:
+                    # 转换为策略需要的格式
+                    daily_klines = []
+                    for _, row in df_1d.iterrows():
+                        daily_klines.append({
+                            'timestamp': row['timestamp'],
+                            'open': row['open'],
+                            'high': row['high'],
+                            'low': row['low'],
+                            'close': row['close'],
+                            'volume': row['volume']
+                        })
+                    # 更新策略的日线数据
+                    self.strategy.update_daily_data(daily_klines)
+                    logger.debug(f"✓ 已更新日线数据: {len(daily_klines)} 条")
+            
             # 运行策略分析
-            signal = self.strategy.analyze(df)
+            signal = self.strategy.analyze(df_1h)
             
             logger.info(f"策略信号: {signal['signal']} - {signal['reason']}")
             
@@ -180,7 +213,8 @@ class EMASimpleTrendTrader:
         logger.info("="*60)
         logger.info(f"交易对: {self.symbol}")
         logger.info(f"时间框架: {self.timeframe}")
-        logger.info(f"初始资金: {self.config['total_capital']} USDT")
+        capital = self.config.get('capital_management', {}).get('total_capital', 300.0)
+        logger.info(f"初始资金: {capital} USDT")
         logger.info(f"运行模式: {self.mode}")
         logger.info("="*60)
         

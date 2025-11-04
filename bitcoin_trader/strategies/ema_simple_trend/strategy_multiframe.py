@@ -23,12 +23,13 @@ logger = logging.getLogger(__name__)
 class EMASimpleTrendMultiframeStrategy:
     """EMA简单趋势策略 - 多时间框架版本"""
     
-    def __init__(self, parameters: Dict[str, Any]):
+    def __init__(self, parameters: Dict[str, Any], load_daily_from_file: bool = True):
         """
         初始化策略
         
         Args:
             parameters: 策略参数字典
+            load_daily_from_file: 是否从文件加载日线数据（回测时True，实盘时False）
         """
         self.name = "EMA简单趋势策略-多时间框架"
         self.parameters = parameters
@@ -83,9 +84,9 @@ class EMASimpleTrendMultiframeStrategy:
         self.trailing_take_profit_price = None
         self.highest_price = None
         
-        # 加载日线数据
+        # 加载日线数据（回测时从文件加载，实盘时通过update_daily_data更新）
         self.daily_data = None
-        if self.use_daily_trend_filter:
+        if self.use_daily_trend_filter and load_daily_from_file:
             self._load_daily_data()
         
         logger.info(f"✓ {self.name}初始化完成")
@@ -96,7 +97,10 @@ class EMASimpleTrendMultiframeStrategy:
         logger.info(f"  日线趋势过滤: {self.use_daily_trend_filter}")
         if self.use_daily_trend_filter:
             logger.info(f"  日线EMA周期: {self.daily_ema_period}")
-            logger.info(f"  日线数据: {len(self.daily_data) if self.daily_data is not None else 0} 条")
+            if load_daily_from_file:
+                logger.info(f"  日线数据: {len(self.daily_data) if self.daily_data is not None else 0} 条 (从文件)")
+            else:
+                logger.info(f"  日线数据: 将从交易所实时获取")
         logger.info(f"  允许做空: {self.allow_short}")
     
     def _load_daily_data(self):
