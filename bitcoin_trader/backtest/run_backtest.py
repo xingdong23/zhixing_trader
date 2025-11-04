@@ -56,6 +56,7 @@ class BacktestRunner:
         """
         self.config_path = config_path
         self.backtest_dir = Path(__file__).parent
+        self.project_root = Path(__file__).parent.parent  # 项目根目录
         self.config = self._load_config()
         
     def _load_config(self) -> dict:
@@ -65,7 +66,7 @@ class BacktestRunner:
     
     def _load_strategy_config(self) -> dict:
         """加载策略配置"""
-        strategy_config_path = self.backtest_dir / self.config['strategy']['config_file']
+        strategy_config_path = self.project_root / self.config['strategy']['config_file']
         with open(strategy_config_path, 'r', encoding='utf-8') as f:
             return json.load(f)
     
