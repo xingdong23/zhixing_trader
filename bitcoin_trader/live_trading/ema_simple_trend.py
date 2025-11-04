@@ -230,19 +230,29 @@ class EMASimpleTrendTrader:
         logger.info(f"运行模式: {self.mode}")
         logger.info("="*60)
         
+        cycle_count = 0
         while self.running:
             try:
                 # 运行策略
                 await self.run_strategy_cycle()
+                cycle_count += 1
                 
-                # 等待1小时（因为是1小时K线）
-                await asyncio.sleep(3600)
+                # 每次循环后输出心跳日志
+                logger.info(f"💓 策略运行中 - 第 {cycle_count} 次检查完成，等待下一个小时...")
+                
+                # 等待1小时，但每5分钟输出一次心跳
+                for i in range(12):  # 12 * 5分钟 = 60分钟
+                    await asyncio.sleep(300)  # 5分钟
+                    if i < 11:  # 不在最后一次输出
+                        logger.info(f"⏰ 心跳检测 - 策略正常运行中 ({(i+1)*5}分钟/{60}分钟)")
                 
             except KeyboardInterrupt:
                 logger.info("收到停止信号")
                 break
             except Exception as e:
                 logger.error(f"运行出错: {e}")
+                import traceback
+                traceback.print_exc()
                 await asyncio.sleep(60)
         
         self.stop()
