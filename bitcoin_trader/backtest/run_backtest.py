@@ -18,18 +18,18 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from backtest.core import DataLoader, BacktestEngine, PerformanceAnalyzer
-from app.strategies import HighFrequencyScalpingStrategy, IntradayScalpingStrategy, TrendMomentumStrategy
-from app.strategies.grid_trading import GridTradingStrategy
-from app.strategies.trend_following import TrendFollowingStrategy
-from app.strategies.trend_breakout import TrendBreakoutStrategy
-from app.strategies.ema_crossover import EMACrossoverStrategy
-from app.strategies.bollinger_bands import BollingerBandsStrategy
-from app.strategies.ema144_trend import EMA144TrendStrategy
-from app.strategies.probability_profit import ProbabilityProfitStrategy
-from app.strategies.ema_rsi_volume import EMARSIVolumeStrategy
-from app.strategies.compression_expansion import CompressionExpansionStrategy
-from app.strategies.ema_simple_trend import EMASimpleTrendStrategy
-from app.strategies.ema_simple_trend.strategy_multiframe import EMASimpleTrendMultiframeStrategy
+from strategies import HighFrequencyScalpingStrategy, IntradayScalpingStrategy, TrendMomentumStrategy
+from strategies.grid_trading import GridTradingStrategy
+from strategies.trend_following import TrendFollowingStrategy
+from strategies.trend_breakout import TrendBreakoutStrategy
+from strategies.ema_crossover import EMACrossoverStrategy
+from strategies.bollinger_bands import BollingerBandsStrategy
+from strategies.ema144_trend import EMA144TrendStrategy
+from strategies.probability_profit import ProbabilityProfitStrategy
+from strategies.ema_rsi_volume import EMARSIVolumeStrategy
+from strategies.compression_expansion import CompressionExpansionStrategy
+from strategies.ema_simple_trend import EMASimpleTrendStrategy
+from strategies.ema_simple_trend.strategy_multiframe import EMASimpleTrendMultiframeStrategy
 
 # 配置日志
 logging.basicConfig(
