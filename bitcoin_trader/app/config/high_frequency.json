@@ -1,0 +1,51 @@
+{
+  "trading": {
+    "symbol": "BTC/USDT",
+    "timeframe": "5m",
+    "capital": 300.0,
+    "leverage": 3.0
+  },
+  "capital_management": {
+    "position_size_pct": 0.9,
+    "max_position_size": 0.95
+  },
+  "indicators": {
+    "ema_fast": 8,
+    "ema_slow": 21,
+    "rsi_period": 14,
+    "volume_ma_period": 5
+  },
+  "entry_conditions": {
+    "volume_threshold": 1.5,
+    "rsi_buy_threshold": 45,
+    "rsi_sell_threshold": 55
+  },
+  "exit_conditions": {
+    "stop_loss_pct": 0.012,
+    "take_profit_pct": 0.025,
+    "trailing_stop_pct": 0.008
+  },
+  "risk_control": {
+    "max_daily_loss": 0.08,
+    "max_consecutive_losses": 2,
+    "max_trades_per_day": 8
+  },
+  "session_filter": {
+    "enabled": false,
+    "allowed_sessions": ["MORNING_BREAKOUT", "US_SESSION"]
+  },
+  "trend_following": {
+    "enabled": true,
+    "min_profit_to_activate": 0.01,
+    "trailing_atr_multiplier": 1.2,
+    "use_ema_trailing": true,
+    "extend_holding_time": true,
+    "max_holding_time_on_trend": 240
+  },
+  "conservative_mode": {
+    "enabled": false
+  },
+  "special_conditions": {
+    "max_holding_time": 120
+  }
+}
