@@ -1,4 +1,4 @@
-# 🤖 Bitcoin Trader - 加密货币量化交易系统
+# 🤖 Crypto Strategy Trading - 加密货币策略交易系统
 
 一个专业的加密货币量化交易系统，支持多策略回测和实盘交易。
 
@@ -14,7 +14,7 @@
 ## 📁 项目结构
 
 ```
-bitcoin_trader/
+crypto_strategy_trading/
 ├── strategies/          # 【核心】交易策略
 │   ├── ema_simple_trend/      # EMA趋势策略（主力策略）
 │   ├── high_frequency/        # 高频交易策略
@@ -48,9 +48,8 @@ bitcoin_trader/
 ### 1. 环境准备
 
 ```bash
-# 克隆项目
-git clone https://github.com/xingdong23/zhixing_trader.git
-cd zhixing_trader/bitcoin_trader
+# 进入项目目录
+cd crypto_strategy_trading
 
 # 安装依赖
 pip install -r backtest/requirements.txt
