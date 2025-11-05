@@ -679,6 +679,7 @@ export default function TradingPage() {
           </DialogContent>
         </Dialog>
       </div>
+      </div>
     </div>
   )
 }
