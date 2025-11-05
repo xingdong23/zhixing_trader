@@ -20,9 +20,8 @@ wheels/
 .installed.cfg
 *.egg
 MANIFEST
-*.log
 
-# Virtual environments
+# Virtual Environment
 venv/
 .venv/
 ENV/
@@ -37,51 +36,55 @@ env/
 *~
 .DS_Store
 
-# Node
-node_modules/
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-.pnpm-debug.log*
-
-# Build artifacts
-*.tsbuildinfo
-dist/
-.next/
-out/
-
-# Test coverage
-htmlcov/
-.tox/
-.coverage
-.coverage.*
-.cache
-nosetests.xml
-coverage.xml
-*.cover
-.hypothesis/
-.pytest_cache/
+# Logs
+*.log
+logs/
+*.out
 
 # Database
 *.db
-*.sqlite
 *.sqlite3
 
-# Logs
-logs/
-*.log
+# Node
+node_modules/
+.next/
+out/
+*.tsbuildinfo
+
+# TypeScript
+*.tsbuildinfo
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Compiled files
+*.pyc
+*.pyo
+
+# Test coverage
+.coverage
+htmlcov/
+.pytest_cache/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
 
 # Temporary files
 *.tmp
 *.temp
-.temp/
-.tmp/
+.cache/
 
-# OS
-.DS_Store
-Thumbs.db
+# Backtest results (optional, keep structure)
+# crypto_strategy_trading/backtest/results/*.json
 
-# Project specific
+# Data files (large)
+*.csv
+*.parquet
 crypto_strategy_trading/backtest/data/*.csv
-crypto_strategy_trading/backtest/results/*.json
-crypto_strategy_trading/logs/*.log
