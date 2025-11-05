@@ -101,19 +101,29 @@ class EMASimpleTrendTrader:
         self.running = False
         self.last_kline_time = None
         self.once = once
-        # 数据库记录器（默认SQLite，可切换MySQL）
-        if (db_backend or "sqlite").lower() == "mysql":
+        # 数据库记录器（优先读取JSON配置，其次CLI覆盖，最后ENV/默认）
+        cfg_db = (self.config or {}).get('database', {})
+        cfg_backend = (cfg_db.get('backend') or '').lower() if isinstance(cfg_db, dict) else ''
+        eff_backend = (db_backend or cfg_backend or 'sqlite').lower()
+        if eff_backend == 'mysql':
+            cfg_mysql = cfg_db.get('mysql', {}) if isinstance(cfg_db, dict) else {}
+            eff_host = mysql_host or cfg_mysql.get('host') or os.getenv('MYSQL_HOST', '127.0.0.1')
+            eff_port = int(mysql_port or cfg_mysql.get('port') or os.getenv('MYSQL_PORT', 3306))
+            eff_user = mysql_user or cfg_mysql.get('user') or os.getenv('MYSQL_USER', 'root')
+            eff_password = mysql_password or cfg_mysql.get('password') or os.getenv('MYSQL_PASSWORD', '')
+            eff_database = mysql_database or cfg_mysql.get('database') or os.getenv('MYSQL_DB', 'trading')
             self.db = MySQLLogger(
-                host=mysql_host or os.getenv("MYSQL_HOST", "127.0.0.1"),
-                port=int(mysql_port or os.getenv("MYSQL_PORT", 3306)),
-                user=mysql_user or os.getenv("MYSQL_USER", "root"),
-                password=mysql_password or os.getenv("MYSQL_PASSWORD", ""),
-                database=mysql_database or os.getenv("MYSQL_DB", "trading"),
+                host=eff_host,
+                port=eff_port,
+                user=eff_user,
+                password=eff_password,
+                database=eff_database,
             )
-            logger.info("✓ 使用 MySQL 记录器记录signals/orders/config_snapshots")
+            logger.info(f"✓ 使用 MySQL 记录器 - {eff_user}@{eff_host}:{eff_port}/{eff_database}")
         else:
-            self.db = DBLogger(db_path or "logs/trading.sqlite3")
-            logger.info("✓ 使用 SQLite 记录器记录signals/orders/config_snapshots")
+            eff_db_path = db_path or 'logs/trading.sqlite3'
+            self.db = DBLogger(eff_db_path)
+            logger.info(f"✓ 使用 SQLite 记录器 - {eff_db_path}")
         
         # 获取资金配置
         capital = self.config.get('capital_management', {}).get('total_capital', 300.0)
@@ -363,7 +373,7 @@ def main():
     parser.add_argument('--once', action='store_true', help='仅运行一次检查后退出')
     parser.add_argument('--yes', action='store_true', help='实盘模式跳过交互确认')
     parser.add_argument('--db-path', type=str, default=None, help='SQLite数据库路径, 默认 logs/trading.sqlite3')
-    parser.add_argument('--db', type=str, default='sqlite', choices=['sqlite', 'mysql'], help='数据库后端: sqlite 或 mysql')
+    parser.add_argument('--db', type=str, default=None, choices=['sqlite', 'mysql'], help='数据库后端: sqlite 或 mysql（默认从配置文件读取）')
     parser.add_argument('--mysql-host', type=str, default=None, help='MySQL 主机, 默认 127.0.0.1')
     parser.add_argument('--mysql-port', type=int, default=None, help='MySQL 端口, 默认 3306')
     parser.add_argument('--mysql-user', type=str, default=None, help='MySQL 用户, 默认 root')
