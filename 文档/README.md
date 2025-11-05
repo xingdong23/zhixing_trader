@@ -48,7 +48,7 @@
 - 想了解架构？👉 [系统架构](02-架构设计/系统架构.md)
 
 ### 各模块文档
-- **Trading Journal (交易日志)** - [trading_journal/README.md](../trading_journal/README.md)
+- **Trading Journal (交易日志)** - [trading_journal/README.md](../stock_trading_journal/README.md)
 - **Quant Trading (量化交易)** - [quant_trading/README.md](../quant_trading/README.md)
 - **Market Data Service (市场数据)** - [market_data_service/README.md](../market_data_service/README.md)
 
