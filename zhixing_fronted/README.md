@@ -105,6 +105,20 @@ Continue building your app on:
 
 **[https://v0.app/chat/projects/mOiX9Ze3YqL](https://v0.app/chat/projects/mOiX9Ze3YqL)**
 
+## 📚 文档
+
+完整的项目文档已整理到 `docs/` 目录：
+
+- **[快速开始](docs/01-快速开始/)** - 快速上手和测试指南
+- **[功能说明](docs/02-功能说明/)** - 各功能模块详细说明
+- **[开发记录](docs/03-开发记录/)** - 开发过程和优化记录
+- **[交付报告](docs/04-交付报告/)** - 项目交付和完成报告
+- **[测试指南](docs/05-测试指南/)** - 测试相关文档
+
+👉 **[查看完整文档导航](docs/README.md)**
+
+---
+
 ## How It Works
 
 1. Create and modify your project using [v0.app](https://v0.app)
