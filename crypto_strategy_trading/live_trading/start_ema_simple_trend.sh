@@ -2,14 +2,18 @@
 # EMA Simple Trend 策略启动脚本
 
 # 设置项目路径
-PROJECT_DIR="/opt/zhixing_trader/bitcoin_trader"
+PROJECT_DIR="/opt/zhixing_trader/crypto_strategy_trading"
 cd "$PROJECT_DIR" || exit 1
 
 # 设置Python路径
 export PYTHONPATH="$PROJECT_DIR"
 
-# 激活虚拟环境
-source venv/bin/activate
+# 使用 bitcoin_trader 的虚拟环境（依赖已安装）
+VENV_PATH="/opt/zhixing_trader/bitcoin_trader/venv"
+if [ -d "$VENV_PATH" ]; then
+    source "$VENV_PATH/bin/activate"
+    echo "使用虚拟环境: $VENV_PATH"
+fi
 
 # 运行模式：paper(模拟盘) 或 live(实盘)
 MODE="${1:-paper}"
