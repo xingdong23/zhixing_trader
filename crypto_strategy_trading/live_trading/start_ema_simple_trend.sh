@@ -28,7 +28,7 @@ sleep 2
 # 启动策略
 echo "启动 EMA Simple Trend 策略 - 模式: $MODE"
 # 日志由应用内的 TimedRotatingFileHandler 负责滚动到 logs/ema_simple_trend.log
-nohup python live_trading/ema_simple_trend.py --mode "$MODE" $EXTRA_ARGS >/dev/null 2>&1 &
+nohup env PYTHONPATH="$PROJECT_DIR" python live_trading/ema_simple_trend.py --mode "$MODE" $EXTRA_ARGS >/dev/null 2>&1 &
 
 PID=$!
 echo "✅ 策略已启动 PID: $PID"
