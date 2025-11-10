@@ -94,3 +94,4 @@ echo "  重启服务: pm2 restart zhixing-frontend"
 echo "  查看状态: pm2 status"
 echo ""
 
+

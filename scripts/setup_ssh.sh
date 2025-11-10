@@ -35,3 +35,4 @@ echo "🎉 现在可以免密登录："
 echo "   ssh $USER@$SERVER"
 echo ""
 
+

@@ -344,7 +344,10 @@ export default function TradesView() {
               </div>
             </div>
             <Button 
-              onClick={() => router.push('/plan/create')}
+              onClick={() => {
+                console.log('按钮被点击了！');
+                router.push('/plan/create');
+              }}
               className="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 whitespace-nowrap flex-shrink-0 w-full md:w-auto"
             >
               <Plus className="w-4 h-4 mr-2" />
