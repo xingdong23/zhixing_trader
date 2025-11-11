@@ -1,0 +1,52 @@
+{
+  "strategy_name": "NR7缩口突破策略",
+  "description": "基于拉里·威廉姆斯的NR7策略，识别波动收窄后的突破机会",
+  
+  "capital_management": {
+    "total_capital": 300.0,
+    "risk_per_trade": 0.02,
+    "leverage": 3.0,
+    
+    "lookback_period": 7,
+    
+    "use_volume_filter": true,
+    "volume_period": 20,
+    "volume_threshold": 0.8,
+    
+    "risk_reward_ratio": 2.5,
+    
+    "use_trend_filter": false,
+    "trend_ema_period": 50,
+    
+    "allow_short": true
+  },
+  
+  "comments": {
+    "strategy": "NR7缩口突破策略 - 拉里·威廉姆斯经典策略",
+    "core_concept": "波动收窄后往往有大行情",
+    "nr7_definition": "当日波幅是近7天最小",
+    "entry_long": "次日突破NR7高点做多",
+    "entry_short": "次日突破NR7低点做空",
+    "stop_loss": "NR7另一端（高点或低点）",
+    "take_profit": "止损距离 × 2.5",
+    "risk_reward_ratio": "2.5:1",
+    "volume_filter": "成交量低于20日均量的80%",
+    "expected_performance": {
+      "win_rate": "50-60%",
+      "risk_reward": "2.5:1",
+      "monthly_return": "8-15%"
+    },
+    "timeframe": "建议使用4小时或日线K线"
+  },
+  
+  "database": {
+    "backend": "mysql",
+    "mysql": {
+      "host": "127.0.0.1",
+      "port": 3306,
+      "user": "root",
+      "password": "shuzhongren",
+      "database": "trading"
+    }
+  }
+}

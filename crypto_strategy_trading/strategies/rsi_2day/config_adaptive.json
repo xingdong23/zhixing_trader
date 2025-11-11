@@ -1,0 +1,87 @@
+{
+  "strategy_name": "2日RSI策略 - 自适应版本",
+  "description": "根据市场环境自动调整策略参数，适应牛市、熊市和震荡市",
+  
+  "capital_management": {
+    "total_capital": 300.0,
+    "risk_per_trade": 0.02,
+    "position_size": 0.9,
+    "leverage": 3.0,
+    
+    "rsi_period": 2,
+    "oversold_threshold": 10,
+    "overbought_threshold": 90,
+    "exit_threshold": 50,
+    
+    "use_trend_filter": true,
+    "trend_period": 50,
+    
+    "stop_loss_pct": 0.05,
+    "take_profit_pct": 0.10,
+    
+    "max_holding_days": 5,
+    
+    "allow_short": true,
+    
+    "regime_check_interval": 20
+  },
+  
+  "comments": {
+    "strategy": "2日RSI策略 - 自适应版本",
+    "core_concept": "根据市场环境自动调整策略参数",
+    "market_regimes": {
+      "bull": {
+        "description": "牛市环境",
+        "rsi_threshold": "25/75（放宽）",
+        "trend_filter": "关闭",
+        "allow_short": "禁止",
+        "take_profit": "15%（提高）",
+        "reason": "牛市中增加交易机会，禁止做空"
+      },
+      "bear": {
+        "description": "熊市环境",
+        "rsi_threshold": "10/90（严格）",
+        "trend_filter": "关闭",
+        "allow_short": "允许",
+        "take_profit": "10%（标准）",
+        "reason": "熊市中保持严格标准，允许做空"
+      },
+      "range": {
+        "description": "震荡市环境",
+        "rsi_threshold": "10/90（严格）",
+        "trend_filter": "开启",
+        "allow_short": "允许",
+        "take_profit": "10%（标准）",
+        "reason": "震荡市使用原版配置，表现最优"
+      }
+    },
+    "regime_detection": {
+      "method": "均线系统 + 波动率分析",
+      "indicators": ["50日均线", "200日均线", "ATR", "价格波动范围"],
+      "check_interval": "每20根K线检测一次"
+    },
+    "advantages": [
+      "自动适应不同市场环境",
+      "牛市中增加交易机会",
+      "熊市中保持严格标准",
+      "震荡市使用最优配置"
+    ],
+    "expected_performance": {
+      "bull_market": "交易次数增加，收益提升",
+      "bear_market": "保持原有表现",
+      "range_market": "保持原有表现（54.60%）"
+    },
+    "timeframe": "建议使用4小时K线"
+  },
+  
+  "database": {
+    "backend": "mysql",
+    "mysql": {
+      "host": "127.0.0.1",
+      "port": 3306,
+      "user": "root",
+      "password": "shuzhongren",
+      "database": "trading"
+    }
+  }
+}

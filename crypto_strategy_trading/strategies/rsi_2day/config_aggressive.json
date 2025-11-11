@@ -1,0 +1,60 @@
+{
+  "strategy_name": "2日RSI策略 - 激进优化版",
+  "description": "激进优化：收紧止损、缩短持仓、更极端RSI阈值、添加移动止损",
+  
+  "capital_management": {
+    "total_capital": 300.0,
+    "risk_per_trade": 0.02,
+    "position_size": 0.9,
+    "leverage": 3.0,
+    
+    "rsi_period": 2,
+    "oversold_threshold": 8,
+    "overbought_threshold": 92,
+    "exit_threshold": 50,
+    
+    "use_trend_filter": true,
+    "trend_period": 50,
+    
+    "stop_loss_pct": 0.04,
+    "take_profit_pct": 0.10,
+    
+    "max_holding_days": 3,
+    
+    "allow_short": true,
+    
+    "use_trailing_stop": true,
+    "trailing_stop_activation": 0.03,
+    "trailing_stop_distance": 0.02
+  },
+  
+  "comments": {
+    "strategy": "2日RSI策略 - 激进优化版",
+    "optimization": "保持高收益，适度降低回撤",
+    "changes": [
+      "止损：5% → 3%（收紧40%）",
+      "持仓时间：5天 → 2天（缩短60%）",
+      "RSI阈值：10/90 → 5/95（更极端）",
+      "添加移动止损：盈利3%后启动，距离2%"
+    ],
+    "entry_long": "2日RSI < 5（极度超卖）且处于上升趋势",
+    "entry_short": "2日RSI > 95（极度超买）且处于下降趋势",
+    "exit": "RSI回到50中轴 或 止损止盈 或 持仓2天",
+    "stop_loss": "3%固定止损",
+    "trailing_stop": "盈利3%后启动，跟随距离2%",
+    "take_profit": "10%固定止盈",
+    "expected_result": "收益率~48%，回撤~18%",
+    "timeframe": "建议使用4小时K线"
+  },
+  
+  "database": {
+    "backend": "mysql",
+    "mysql": {
+      "host": "127.0.0.1",
+      "port": 3306,
+      "user": "root",
+      "password": "shuzhongren",
+      "database": "trading"
+    }
+  }
+}

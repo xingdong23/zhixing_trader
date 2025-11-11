@@ -1,16 +1,16 @@
 {
-  "backtest_name": "EMA简单趋势策略 - 多时间框架版 - 1小时 - 2年",
+  "backtest_name": "EMA简单趋势策略 - 多时间框架版 - 1小时 - 6个月",
   "description": "日线EMA21判断趋势 + 1小时入场 + 2.7倍杠杆",
   
   "data": {
-    "source": "backtest/data/ETHUSDT-1h-2years.csv",
+    "source": "backtest/data/ETHUSDT-1h-6months.csv",
     "timeframe": "1h",
     "resample_from": "1h"
   },
   
   "strategy": {
     "name": "ema_simple_trend_multiframe",
-    "config_file": "strategies/ema_simple_trend/config_multiframe.json"
+    "config_file": "strategies/ema_simple_trend/config_multiframe_6months.json"
   },
   
   "backtest_settings": {
@@ -22,8 +22,8 @@
   },
   
   "output": {
-    "result_file": "results/ema_simple_trend_multiframe_1h_2years_result_{timestamp}.json",
-    "report_file": "results/ema_simple_trend_multiframe_1h_2years_report_{timestamp}.txt",
+    "result_file": "results/ema_simple_trend_multiframe_1h_6months_result_{timestamp}.json",
+    "report_file": "results/ema_simple_trend_multiframe_1h_6months_report_{timestamp}.txt",
     "save_trades": true,
     "save_equity_curve": true
   }

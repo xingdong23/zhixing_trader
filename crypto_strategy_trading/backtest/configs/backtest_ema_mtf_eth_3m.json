@@ -1,0 +1,26 @@
+{
+  "backtest_name": "EMA Simple Trend MTF - ETHUSDT 1h 3M 高收益验证",
+  "description": "ETHUSDT 1h，多时间框架EMA简单趋势策略，使用最近3个月数据验证高收益参数短期稳健性。",
+  "strategy": {
+    "name": "ema_simple_trend_multiframe",
+    "config_file": "backtest/configs/ema_simple_trend_multiframe_optimized_params_high_return.json"
+  },
+  "data": {
+    "source": "backtest/data/ETHUSDT-1h-ALL.csv",
+    "resample_from": "1h",
+    "timeframe": "1h",
+    "start_timestamp": 1727740800000,
+    "end_timestamp": 1730332800000
+  },
+  "backtest_settings": {
+    "initial_capital": 1000,
+    "window_size": 500,
+    "taker_fee_rate": 0.0004,
+    "maker_fee_rate": 0.0002
+  },
+  "output": {
+    "save_trades": true,
+    "result_file": "results/ema_mtf_eth_3m_high_return_{timestamp}.json",
+    "save_equity_curve": false
+  }
+}

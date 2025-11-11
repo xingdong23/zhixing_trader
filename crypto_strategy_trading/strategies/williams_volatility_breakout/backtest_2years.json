@@ -1,0 +1,30 @@
+{
+  "backtest_name": "威廉姆斯波动性突破策略 - 4小时 - 2年",
+  "description": "拉里·威廉姆斯经典波动性突破策略，测试2年数据",
+  
+  "data": {
+    "source": "backtest/data/ETHUSDT-4h-2years-new.csv",
+    "timeframe": "4h",
+    "resample_from": "4h"
+  },
+  
+  "strategy": {
+    "name": "williams_volatility_breakout",
+    "config_file": "strategies/williams_volatility_breakout/config.json"
+  },
+  
+  "backtest_settings": {
+    "initial_capital": 300.0,
+    "window_size": 250,
+    "taker_fee_rate": 0.0005,
+    "maker_fee_rate": 0.0002,
+    "slippage_rate": 0.0001
+  },
+  
+  "output": {
+    "result_file": "results/williams_volatility_breakout_4h_2years_result_{timestamp}.json",
+    "report_file": "results/williams_volatility_breakout_4h_2years_report_{timestamp}.txt",
+    "save_trades": true,
+    "save_equity_curve": true
+  }
+}

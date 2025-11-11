@@ -1,0 +1,30 @@
+{
+  "backtest_name": "NR7缩口突破策略 - 4小时 - 6个月",
+  "description": "基于拉里·威廉姆斯的NR7策略，识别波动收窄后的突破机会",
+  
+  "data": {
+    "source": "backtest/data/ETHUSDT-4h-6months.csv",
+    "timeframe": "4h",
+    "resample_from": "4h"
+  },
+  
+  "strategy": {
+    "name": "nr7_breakout",
+    "config_file": "strategies/nr7_breakout/config.json"
+  },
+  
+  "backtest_settings": {
+    "initial_capital": 300.0,
+    "window_size": 250,
+    "taker_fee_rate": 0.0005,
+    "maker_fee_rate": 0.0002,
+    "slippage_rate": 0.0001
+  },
+  
+  "output": {
+    "result_file": "results/nr7_breakout_4h_6months_result_{timestamp}.json",
+    "report_file": "results/nr7_breakout_4h_6months_report_{timestamp}.txt",
+    "save_trades": true,
+    "save_equity_curve": true
+  }
+}

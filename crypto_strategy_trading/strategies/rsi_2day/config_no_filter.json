@@ -1,0 +1,48 @@
+{
+  "strategy_name": "2日RSI策略 - 无趋势过滤版",
+  "description": "基于拉里·威廉姆斯的极短期RSI策略，移除趋势过滤以增加交易机会",
+  
+  "capital_management": {
+    "total_capital": 300.0,
+    "risk_per_trade": 0.02,
+    "position_size": 0.9,
+    "leverage": 3.0,
+    
+    "rsi_period": 2,
+    "oversold_threshold": 10.0,
+    "overbought_threshold": 90.0,
+    "exit_threshold": 50.0,
+    
+    "use_trend_filter": false,
+    "trend_period": 50,
+    
+    "stop_loss_pct": 0.05,
+    "take_profit_pct": 0.10,
+    
+    "max_holding_days": 5,
+    
+    "allow_short": true
+  },
+  
+  "comments": {
+    "strategy": "2日RSI策略 - 无趋势过滤版",
+    "entry_long": "2日RSI < 10（极度超卖）",
+    "entry_short": "2日RSI > 90（极度超买）",
+    "exit": "RSI回到50中轴 或 止损止盈 或 持仓5天",
+    "stop_loss": "5%",
+    "take_profit": "10%",
+    "expected_result": "测试无趋势过滤的表现",
+    "timeframe": "建议使用4小时K线"
+  },
+  
+  "database": {
+    "backend": "mysql",
+    "mysql": {
+      "host": "127.0.0.1",
+      "port": 3306,
+      "user": "root",
+      "password": "shuzhongren",
+      "database": "trading"
+    }
+  }
+}

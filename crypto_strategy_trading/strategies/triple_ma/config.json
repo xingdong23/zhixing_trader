@@ -1,0 +1,47 @@
+{
+  "strategy_name": "3-5-7日均线策略",
+  "description": "简单的三均线趋势跟踪策略，使用3日、5日、7日均线捕捉短期趋势",
+  
+  "capital_management": {
+    "total_capital": 300.0,
+    "risk_per_trade": 0.02,
+    "leverage": 3.0,
+    
+    "ma_short": 18,
+    "ma_medium": 30,
+    "ma_long": 42,
+    
+    "stop_loss_pct": 0.02,
+    "take_profit_pct": 0.08,
+    
+    "allow_short": true
+  },
+  
+  "comments": {
+    "strategy": "3-5-7日均线策略 - 简单趋势跟踪",
+    "core_concept": "使用三条短期均线捕捉短期趋势",
+    "entry_long": "3日均线上穿5日均线，且5日均线在7日均线之上",
+    "entry_short": "3日均线下穿5日均线，且5日均线在7日均线之下",
+    "exit": "反向穿越信号 或 价格突破7日均线 或 止损止盈",
+    "stop_loss": "7日均线下方2%",
+    "take_profit": "8%固定止盈",
+    "expected_performance": {
+      "win_rate": "40-50%",
+      "risk_reward": "2:1",
+      "monthly_return": "5-10%"
+    },
+    "difficulty": "非常简单",
+    "timeframe": "建议使用4小时或日线K线"
+  },
+  
+  "database": {
+    "backend": "mysql",
+    "mysql": {
+      "host": "127.0.0.1",
+      "port": 3306,
+      "user": "root",
+      "password": "shuzhongren",
+      "database": "trading"
+    }
+  }
+}

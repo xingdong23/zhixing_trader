@@ -1,6 +1,6 @@
 {
-  "strategy_name": "EMA简单趋势策略 - 多时间框架版",
-  "description": "日线判断趋势方向 + 1小时寻找入场 + 2.7倍杠杆",
+  "strategy_name": "EMA简单趋势策略 - 多时间框架版（4小时优化）",
+  "description": "4小时判断趋势方向 + 1小时寻找入场 + 2.7倍杠杆",
   
   "capital_management": {
     "total_capital": 300.0,
@@ -27,15 +27,16 @@
     
     "use_daily_trend_filter": true,
     "daily_ema_period": 21,
-    "daily_data_file": "backtest/data/ETHUSDT-1d-from1h.csv"
+    "daily_data_file": "backtest/data/ETHUSDT-4h-6months.csv"
   },
   
   "comments": {
-    "strategy": "多时间框架版本 - 日线过滤做多信号",
-    "daily_trend": "日线在EMA21上方→允许做多，日线在EMA21下方→空仓等待",
+    "strategy": "多时间框架版本 - 4小时过滤做多信号（更灵活）",
+    "daily_trend": "4小时在EMA21上方→允许做多，4小时在EMA21下方→空仓等待",
     "position_size": "85%仓位",
     "leverage": "2.7倍杠杆",
-    "allow_short": "false - 只做多，用日线趋势过滤信号"
+    "allow_short": "false - 只做多，用4小时趋势过滤信号",
+    "optimization": "相比日线，4小时级别更灵活，能更快捕捉趋势变化"
   },
   "database": {
     "backend": "mysql",

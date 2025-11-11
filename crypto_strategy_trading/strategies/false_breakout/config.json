@@ -1,0 +1,61 @@
+{
+  "strategy_name": "假突破陷阱策略",
+  "description": "拉里·威廉姆斯的Oops模式，捕捉假突破后的反转",
+  
+  "capital_management": {
+    "total_capital": 300.0,
+    "risk_per_trade": 0.02,
+    "leverage": 3.0,
+    
+    "atr_period": 14,
+    "stop_loss_atr_multiplier": 1.5,
+    
+    "take_profit_ratio": 2.0,
+    
+    "require_close_in_range": true,
+    "min_breakout_pct": 0.0001,
+    
+    "allow_short": true
+  },
+  
+  "comments": {
+    "strategy": "假突破陷阱策略 (False Breakout Trap / Oops Pattern)",
+    "author": "拉里·威廉姆斯 (Larry Williams)",
+    "core_concept": "捕捉假突破后的反转机会",
+    "oops_pattern": {
+      "long_oops": "开盘低于昨日低点，但收盘回到昨日区间内 → 做多",
+      "short_oops": "开盘高于昨日高点，但收盘回到昨日区间内 → 做空"
+    },
+    "entry_rules": [
+      "价格突破关键支撑/阻力位",
+      "但收盘时又回到区间内",
+      "向假突破相反方向交易"
+    ],
+    "stop_loss": "假突破极值点外1.5个ATR",
+    "take_profit": "2倍止损距离（盈亏比2:1）",
+    "advantages": [
+      "捕捉市场反转机会",
+      "高胜率（55-65%）",
+      "严格止损控制风险",
+      "适合加密货币市场（假突破频繁）"
+    ],
+    "expected_performance": {
+      "win_rate": "55-65%",
+      "risk_reward": "2:1",
+      "monthly_return": "8-15%"
+    },
+    "best_timeframe": "4小时或日线",
+    "market_condition": "适合震荡市和趋势转折点"
+  },
+  
+  "database": {
+    "backend": "mysql",
+    "mysql": {
+      "host": "127.0.0.1",
+      "port": 3306,
+      "user": "root",
+      "password": "shuzhongren",
+      "database": "trading"
+    }
+  }
+}

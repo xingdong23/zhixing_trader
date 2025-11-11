@@ -1,0 +1,30 @@
+{
+  "backtest_name": "2日RSI策略 - 自适应版 - 4小时 - 6个月",
+  "description": "根据市场环境自动调整参数，测试6个月数据",
+  
+  "data": {
+    "source": "backtest/data/ETHUSDT-4h-6months.csv",
+    "timeframe": "4h",
+    "resample_from": "4h"
+  },
+  
+  "strategy": {
+    "name": "rsi_2day_adaptive",
+    "config_file": "strategies/rsi_2day/config_adaptive.json"
+  },
+  
+  "backtest_settings": {
+    "initial_capital": 300.0,
+    "window_size": 250,
+    "taker_fee_rate": 0.0005,
+    "maker_fee_rate": 0.0002,
+    "slippage_rate": 0.0001
+  },
+  
+  "output": {
+    "result_file": "results/rsi_2day_adaptive_4h_6months_result_{timestamp}.json",
+    "report_file": "results/rsi_2day_adaptive_4h_6months_report_{timestamp}.txt",
+    "save_trades": true,
+    "save_equity_curve": true
+  }
+}

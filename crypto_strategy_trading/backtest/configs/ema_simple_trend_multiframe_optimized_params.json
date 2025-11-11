@@ -1,0 +1,58 @@
+{
+  "risk_management": {
+    "total_capital": 1000,
+    "leverage": 2.0,
+    "max_risk_per_trade": 0.02,
+    "max_daily_drawdown": 0.08,
+    "use_dynamic_leverage": true,
+    "min_leverage": 1.0,
+    "max_leverage": 4.0,
+    "leverage_increase_step": 0.3,
+    "leverage_decrease_step": 0.7,
+    "leverage_after_drawdown": 1.0
+  },
+  "capital_management": {
+    "position_size": 0.4,
+    "use_volatility_position_sizing": true,
+    "atr_period": 14,
+    "min_position_size": 0.15,
+    "max_position_size": 0.8
+  },
+  "indicators": {
+    "ema_fast": 5,
+    "ema_medium": 13,
+    "ema_slow": 21,
+    "use_daily_trend_filter": true,
+    "daily_ema_period": 21,
+    "daily_data_file": "backtest/data/ETHUSDT-1d-from1h.csv"
+  },
+  "entry_conditions": {
+    "trend_strength_filter": true,
+    "ema_slope_threshold": 0.00005,
+    "ema_band_distance_min": 0.001,
+    "allow_short": false,
+    "min_rr_ratio": 2.0,
+    "reentry_cooldown": 3
+  },
+  "stop_loss_take_profit": {
+    "stop_loss_pct": 0.03,
+    "take_profit_pct": 0.15,
+    "partial_take_profit_pct": 0.06,
+    "use_atr_stop": true,
+    "atr_stop_multiplier": 2.5,
+    "atr_tp_multiplier": 5.0
+  },
+  "exit_conditions": {
+    "use_trailing_stop": true,
+    "trailing_stop_activation": 0.05,
+    "trailing_stop_distance": 0.03,
+    "use_trailing_take_profit": true,
+    "trailing_take_profit_activation": 0.06,
+    "trailing_take_profit_distance": 0.025,
+    "use_ema_exit": false
+  },
+  "special_conditions": {
+    "volume_confirmation": false,
+    "volume_multiplier": 1.05
+  }
+}
