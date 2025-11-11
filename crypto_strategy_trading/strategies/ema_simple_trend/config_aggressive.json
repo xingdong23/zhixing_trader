@@ -1,0 +1,56 @@
+{
+  "strategy_name": "EMA简单趋势策略 - 激进版",
+  "description": "日线判断趋势 + 1小时入场 + 高杠杆 + 更大仓位",
+  
+  "capital_management": {
+    "total_capital": 300.0,
+    "position_size": 0.95,
+    "leverage": 5.0,
+    "ema_fast": 5,
+    "ema_medium": 13,
+    "ema_slow": 21,
+    "stop_loss_pct": 0.025,
+    "take_profit_pct": 0.15,
+    "partial_take_profit_pct": 0.08,
+    "use_trailing_stop": true,
+    "trailing_stop_activation": 0.05,
+    "trailing_stop_distance": 0.025,
+    "use_trailing_take_profit": false,
+    "trailing_take_profit_activation": 0.055,
+    "trailing_take_profit_distance": 0.022,
+    "volume_confirmation": false,
+    "volume_multiplier": 1.05,
+    "trend_strength_filter": false,
+    "ema_slope_threshold": 0.0001,
+    "use_ema_exit": false,
+    "allow_short": false,
+    
+    "use_daily_trend_filter": true,
+    "daily_ema_period": 21,
+    "daily_data_file": "backtest/data/ETHUSDT-1d-6months.csv",
+    
+    "use_dynamic_leverage": false
+  },
+  
+  "comments": {
+    "strategy": "激进版本 - 追求高收益",
+    "changes": [
+      "仓位提升至95%（原85%）",
+      "杠杆提升至5倍（原2.7倍）",
+      "止损收紧至2.5%（原3.2%）",
+      "止盈提高至15%（原10%）",
+      "部分止盈8%（原0%）"
+    ],
+    "risk_warning": "高杠杆高风险，回撤可能较大"
+  },
+  "database": {
+    "backend": "mysql",
+    "mysql": {
+      "host": "127.0.0.1",
+      "port": 3306,
+      "user": "root",
+      "password": "shuzhongren",
+      "database": "trading"
+    }
+  }
+}

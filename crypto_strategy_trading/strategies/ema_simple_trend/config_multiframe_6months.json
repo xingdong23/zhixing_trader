@@ -27,7 +27,7 @@
     
     "use_daily_trend_filter": true,
     "daily_ema_period": 21,
-    "daily_data_file": "backtest/data/ETHUSDT-1d-from1h.csv"
+    "daily_data_file": "backtest/data/ETHUSDT-1d-6months.csv"
   },
   
   "comments": {

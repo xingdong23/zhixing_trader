@@ -85,7 +85,7 @@ class BacktestEngine:
             })
             
             # 处理交易信号
-            if signal['signal'] in ['buy', 'sell', 'close']:
+            if signal and signal.get('signal') in ['buy', 'sell', 'close']:
                 self._execute_signal(signal, current_time, current_price)
             
             # 每100根K线打印一次进度
@@ -153,6 +153,17 @@ class BacktestEngine:
         self.positions.append(position)
         self.strategy.update_position(signal)
         
+        # 调用策略的交易回调（开仓）
+        if hasattr(self.strategy, 'on_trade'):
+            entry_trade = {
+                'type': 'entry',
+                'side': side,
+                'price': entry_price,
+                'amount': amount,
+                'timestamp': timestamp
+            }
+            self.strategy.on_trade(entry_trade)
+        
         logger.info(f"📈 开仓 {side.upper()}: 价格={entry_price:.2f}, 数量={amount:.4f}, 保证金={margin_required:.2f}")
     
     def _close_position(self, signal: Dict, timestamp: datetime, current_price: float):
@@ -196,6 +207,7 @@ class BacktestEngine:
         
         # 记录交易
         trade = {
+            'type': exit_type,  # 添加type字段用于策略回调
             'entry_time': position['entry_time'],
             'exit_time': timestamp,
             'side': position['side'],
@@ -223,6 +235,10 @@ class BacktestEngine:
         self.strategy.update_position(signal)
         self.strategy.record_trade(signal)
         
+        # 调用策略的交易回调（传递完整的交易信息）
+        if hasattr(self.strategy, 'on_trade'):
+            self.strategy.on_trade(trade)
+        
         # 如果是部分平仓，更新持仓数量
         if exit_ratio < 1.0:
             position['amount'] = position['amount'] * (1 - exit_ratio)
@@ -248,7 +264,8 @@ class BacktestEngine:
             'signal': 'sell' if self.strategy.current_position['side'] == 'long' else 'buy',
             'price': current_price,
             'type': 'force_close',
-            'amount': self.strategy.current_position['amount']
+            'amount': self.strategy.current_position['amount'],
+            'timestamp': timestamp
         }
         
         self._close_position(signal, timestamp, current_price)

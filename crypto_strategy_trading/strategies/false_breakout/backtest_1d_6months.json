@@ -1,0 +1,30 @@
+{
+  "backtest_name": "假突破陷阱策略 - 日线 - 6个月",
+  "description": "拉里·威廉姆斯的Oops模式，使用日线数据",
+  
+  "data": {
+    "source": "backtest/data/ETHUSDT-1d-6months.csv",
+    "timeframe": "1d",
+    "resample_from": "1d"
+  },
+  
+  "strategy": {
+    "name": "false_breakout",
+    "config_file": "strategies/false_breakout/config.json"
+  },
+  
+  "backtest_settings": {
+    "initial_capital": 300.0,
+    "window_size": 250,
+    "taker_fee_rate": 0.0005,
+    "maker_fee_rate": 0.0002,
+    "slippage_rate": 0.0001
+  },
+  
+  "output": {
+    "result_file": "results/false_breakout_1d_6months_result_{timestamp}.json",
+    "report_file": "results/false_breakout_1d_6months_report_{timestamp}.txt",
+    "save_trades": true,
+    "save_equity_curve": true
+  }
+}

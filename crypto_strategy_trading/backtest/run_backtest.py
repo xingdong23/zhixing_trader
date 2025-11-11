@@ -30,6 +30,12 @@ from strategies.ema_rsi_volume import EMARSIVolumeStrategy
 from strategies.compression_expansion import CompressionExpansionStrategy
 from strategies.ema_simple_trend import EMASimpleTrendStrategy
 from strategies.ema_simple_trend.strategy_multiframe import EMASimpleTrendMultiframeStrategy
+from strategies.williams_volatility_breakout.strategy import WilliamsVolatilityBreakoutStrategy
+from strategies.rsi_2day.strategy import RSI2DayStrategy
+from strategies.rsi_2day.strategy_adaptive import AdaptiveRSI2DayStrategy
+from strategies.nr7_breakout.strategy import NR7BreakoutStrategy
+from strategies.triple_ma.strategy import TripleMAStrategy
+from strategies.false_breakout.strategy import FalseBreakoutStrategy
 
 # 配置日志
 logging.basicConfig(
@@ -218,17 +224,23 @@ class BacktestRunner:
                 'high_frequency': HighFrequencyScalpingStrategy,
                 'grid_trading': GridTradingStrategy,
                 'trend_following': TrendFollowingStrategy,
-                'intraday_scalping': IntradayScalpingStrategy,
                 'trend_breakout': TrendBreakoutStrategy,
-                'trend_momentum': TrendMomentumStrategy,
                 'ema_crossover': EMACrossoverStrategy,
                 'bollinger_bands': BollingerBandsStrategy,
                 'ema144_trend': EMA144TrendStrategy,
                 'probability_profit': ProbabilityProfitStrategy,
                 'ema_rsi_volume': EMARSIVolumeStrategy,
                 'compression_expansion': CompressionExpansionStrategy,
+                'intraday_scalping': IntradayScalpingStrategy,
+                'trend_momentum': TrendMomentumStrategy,
                 'ema_simple_trend': EMASimpleTrendStrategy,
-                'ema_simple_trend_multiframe': EMASimpleTrendMultiframeStrategy
+                'ema_simple_trend_multiframe': EMASimpleTrendMultiframeStrategy,
+                'williams_volatility_breakout': WilliamsVolatilityBreakoutStrategy,
+                'rsi_2day': RSI2DayStrategy,
+                'rsi_2day_adaptive': AdaptiveRSI2DayStrategy,
+                'nr7_breakout': NR7BreakoutStrategy,
+                'triple_ma': TripleMAStrategy,
+                'false_breakout': FalseBreakoutStrategy
             }
             
             if strategy_name not in strategy_map:

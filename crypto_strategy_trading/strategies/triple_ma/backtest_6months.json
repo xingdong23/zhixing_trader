@@ -1,0 +1,30 @@
+{
+  "backtest_name": "3-5-7日均线策略 - 4小时 - 6个月",
+  "description": "简单的三均线趋势跟踪策略，使用3日、5日、7日均线",
+  
+  "data": {
+    "source": "backtest/data/ETHUSDT-4h-6months.csv",
+    "timeframe": "4h",
+    "resample_from": "4h"
+  },
+  
+  "strategy": {
+    "name": "triple_ma",
+    "config_file": "strategies/triple_ma/config.json"
+  },
+  
+  "backtest_settings": {
+    "initial_capital": 300.0,
+    "window_size": 250,
+    "taker_fee_rate": 0.0005,
+    "maker_fee_rate": 0.0002,
+    "slippage_rate": 0.0001
+  },
+  
+  "output": {
+    "result_file": "results/triple_ma_4h_6months_result_{timestamp}.json",
+    "report_file": "results/triple_ma_4h_6months_report_{timestamp}.txt",
+    "save_trades": true,
+    "save_equity_curve": true
+  }
+}

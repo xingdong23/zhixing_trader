@@ -1,0 +1,30 @@
+{
+  "backtest_name": "EMA简单趋势策略 - 激进版 - 6个月",
+  "description": "日线EMA21判断趋势 + 1小时入场 + 5倍杠杆 + 95%仓位 - 追求高收益",
+  
+  "data": {
+    "source": "backtest/data/ETHUSDT-1h-6months.csv",
+    "timeframe": "1h",
+    "resample_from": "1h"
+  },
+  
+  "strategy": {
+    "name": "ema_simple_trend_multiframe",
+    "config_file": "strategies/ema_simple_trend/config_aggressive.json"
+  },
+  
+  "backtest_settings": {
+    "initial_capital": 300.0,
+    "window_size": 250,
+    "taker_fee_rate": 0.0005,
+    "maker_fee_rate": 0.0002,
+    "slippage_rate": 0.0001
+  },
+  
+  "output": {
+    "result_file": "results/ema_simple_trend_aggressive_6months_result_{timestamp}.json",
+    "report_file": "results/ema_simple_trend_aggressive_6months_report_{timestamp}.txt",
+    "save_trades": true,
+    "save_equity_curve": true
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "backtest_name": "EMA Simple Trend Multiframe 优化版回测",
+  "description": "多时间框架 EMA 简单趋势策略（含ATR风控、动态仓位、动态杠杆、趋势强度过滤和RR过滤）的优化参数回测",
+  "strategy": {
+    "name": "ema_simple_trend_multiframe",
+    "config_file": "backtest/configs/ema_simple_trend_multiframe_optimized_params.json"
+  },
+  "data": {
+    "source": "backtest/data/ETHUSDT-1h-2022-11-01.csv",
+    "resample_from": "1h",
+    "timeframe": "1h"
+  },
+  "backtest_settings": {
+    "initial_capital": 1000,
+    "window_size": 1000,
+    "taker_fee_rate": 0.0004,
+    "maker_fee_rate": 0.0002
+  },
+  "output": {
+    "save_trades": true,
+    "result_file": "results/ema_simple_trend_multiframe_optimized_{timestamp}.json",
+    "save_equity_curve": false
+  }
+}

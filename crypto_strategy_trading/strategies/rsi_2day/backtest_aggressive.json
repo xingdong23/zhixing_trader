@@ -1,0 +1,30 @@
+{
+  "backtest_name": "2日RSI策略 - 激进优化版 - 4小时 - 6个月",
+  "description": "激进优化：收紧止损、缩短持仓、更极端RSI阈值、添加移动止损",
+  
+  "data": {
+    "source": "backtest/data/ETHUSDT-4h-6months.csv",
+    "timeframe": "4h",
+    "resample_from": "4h"
+  },
+  
+  "strategy": {
+    "name": "rsi_2day",
+    "config_file": "strategies/rsi_2day/config_aggressive.json"
+  },
+  
+  "backtest_settings": {
+    "initial_capital": 300.0,
+    "window_size": 250,
+    "taker_fee_rate": 0.0005,
+    "maker_fee_rate": 0.0002,
+    "slippage_rate": 0.0001
+  },
+  
+  "output": {
+    "result_file": "results/rsi_2day_aggressive_4h_6months_result_{timestamp}.json",
+    "report_file": "results/rsi_2day_aggressive_4h_6months_report_{timestamp}.txt",
+    "save_trades": true,
+    "save_equity_curve": true
+  }
+}
