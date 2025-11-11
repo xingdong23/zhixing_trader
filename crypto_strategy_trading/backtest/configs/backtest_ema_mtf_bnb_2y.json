@@ -1,0 +1,26 @@
+{
+  "backtest_name": "EMA Simple Trend MTF - BNBUSDT 1h 高收益参数普适性测试",
+  "description": "使用与 ETH 相同的 EMA 多时间框架高收益参数结构，在 BNBUSDT 上验证策略是否具备普适性。",
+  "strategy": {
+    "name": "ema_simple_trend_multiframe",
+    "config_file": "backtest/configs/ema_simple_trend_multiframe_optimized_params_high_return_bnb.json"
+  },
+  "data": {
+    "source": "backtest/data/BNBUSDT-1h-ALL.csv",
+    "resample_from": "1h",
+    "timeframe": "1h",
+    "start_timestamp": 0,
+    "end_timestamp": 0
+  },
+  "backtest_settings": {
+    "initial_capital": 1000,
+    "window_size": 500,
+    "taker_fee_rate": 0.0004,
+    "maker_fee_rate": 0.0002
+  },
+  "output": {
+    "save_trades": true,
+    "result_file": "results/ema_mtf_eth_2y_high_return_{timestamp}.json",
+    "save_equity_curve": false
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "backtest_name": "EMA MTF + Bear Regime Combo - ETHUSDT 1h",
+  "description": "组合测试：多头主策略 + 熊市增强策略（仅在熊市区间启用 bear_trend_regime），用于验证熊市表现改善。",
+  "initial_capital": 1000,
+  "exchange": "binance",
+  "symbol": "ETHUSDT",
+  "timeframe": "1h",
+  "data": {
+    "source": "backtest/data/ETHUSDT-1h-ALL.csv"
+  },
+  "strategies": [
+    {
+      "name": "ema_simple_trend_multiframe",
+      "config_file": "backtest/configs/ema_simple_trend_multiframe_optimized_params_high_return.json",
+      "enabled": true
+    },
+    {
+      "name": "bear_trend_regime",
+      "config_file": "backtest/configs/bear_trend_regime_params_eth.json",
+      "enabled": true,
+      "only_when_bear": true
+    }
+  ]
+}
