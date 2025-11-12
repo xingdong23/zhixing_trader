@@ -1,9 +1,10 @@
 {
+  "_category": "candidate",
   "backtest_name": "EMA Simple Trend MTF - ETHUSDT 1h 2Y 高收益优先",
   "description": "ETHUSDT 1h，多时间框架EMA简单趋势策略，使用长周期数据验证高收益参数基础。",
   "strategy": {
     "name": "ema_simple_trend_multiframe",
-    "config_file": "backtest/configs/ema_simple_trend_multiframe_optimized_params_high_return.json"
+    "config_file": "strategies/ema_simple_trend/config_multiframe.json"
   },
   "data": {
     "source": "backtest/data/ETHUSDT-1h-ALL.csv",
@@ -21,6 +22,7 @@
   "output": {
     "save_trades": true,
     "result_file": "results/ema_mtf_eth_2y_high_return_{timestamp}.json",
-    "save_equity_curve": false
+    "save_equity_curve": false,
+    "label": "candidate"
   }
 }
