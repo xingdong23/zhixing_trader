@@ -3,7 +3,7 @@
   "description": "多时间框架 EMA 简单趋势策略（含ATR风控、动态仓位、动态杠杆、趋势强度过滤和RR过滤）的优化参数回测",
   "strategy": {
     "name": "ema_simple_trend_multiframe",
-    "config_file": "backtest/configs/ema_simple_trend_multiframe_optimized_params.json"
+    "config_file": "strategies/ema_simple_trend/config_multiframe.json"
   },
   "data": {
     "source": "backtest/data/ETHUSDT-1h-2022-11-01.csv",
