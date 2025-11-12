@@ -18,24 +18,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from backtest.core import DataLoader, BacktestEngine, PerformanceAnalyzer
-from strategies import HighFrequencyScalpingStrategy, IntradayScalpingStrategy, TrendMomentumStrategy
-from strategies.grid_trading import GridTradingStrategy
-from strategies.trend_following import TrendFollowingStrategy
-from strategies.trend_breakout import TrendBreakoutStrategy
-from strategies.ema_crossover import EMACrossoverStrategy
-from strategies.bollinger_bands import BollingerBandsStrategy
-from strategies.ema144_trend import EMA144TrendStrategy
-from strategies.probability_profit import ProbabilityProfitStrategy
-from strategies.ema_rsi_volume import EMARSIVolumeStrategy
-from strategies.compression_expansion import CompressionExpansionStrategy
-from strategies.ema_simple_trend import EMASimpleTrendStrategy
-from strategies.ema_simple_trend.strategy_multiframe import EMASimpleTrendMultiframeStrategy
-from strategies.williams_volatility_breakout.strategy import WilliamsVolatilityBreakoutStrategy
-from strategies.rsi_2day.strategy import RSI2DayStrategy
-from strategies.rsi_2day.strategy_adaptive import AdaptiveRSI2DayStrategy
-from strategies.nr7_breakout.strategy import NR7BreakoutStrategy
-from strategies.triple_ma.strategy import TripleMAStrategy
-from strategies.false_breakout.strategy import FalseBreakoutStrategy
+from strategies import get_strategy_class
 
 # 配置日志
 logging.basicConfig(
@@ -218,37 +201,13 @@ class BacktestRunner:
             # 3. 初始化策略
             logger.info("\n⚙️  步骤 3/4: 初始化策略")
             
-            # 根据策略名称选择对应的策略类
+            # 根据策略名称选择对应的策略类（通过统一注册表）
             strategy_name = self.config['strategy']['name']
-            strategy_map = {
-                'high_frequency': HighFrequencyScalpingStrategy,
-                'grid_trading': GridTradingStrategy,
-                'trend_following': TrendFollowingStrategy,
-                'trend_breakout': TrendBreakoutStrategy,
-                'ema_crossover': EMACrossoverStrategy,
-                'bollinger_bands': BollingerBandsStrategy,
-                'ema144_trend': EMA144TrendStrategy,
-                'probability_profit': ProbabilityProfitStrategy,
-                'ema_rsi_volume': EMARSIVolumeStrategy,
-                'compression_expansion': CompressionExpansionStrategy,
-                'intraday_scalping': IntradayScalpingStrategy,
-                'trend_momentum': TrendMomentumStrategy,
-                'ema_simple_trend': EMASimpleTrendStrategy,
-                'ema_simple_trend_multiframe': EMASimpleTrendMultiframeStrategy,
-                'williams_volatility_breakout': WilliamsVolatilityBreakoutStrategy,
-                'rsi_2day': RSI2DayStrategy,
-                'rsi_2day_adaptive': AdaptiveRSI2DayStrategy,
-                'nr7_breakout': NR7BreakoutStrategy,
-                'triple_ma': TripleMAStrategy,
-                'false_breakout': FalseBreakoutStrategy
-            }
-            
-            if strategy_name not in strategy_map:
-                raise ValueError(f"未知的策略名称: {strategy_name}")
-            
-            StrategyClass = strategy_map[strategy_name]
+            StrategyClass = get_strategy_class(strategy_name)
+
+            # 实例化策略（约定：策略接受扁平化参数字典）
             strategy = StrategyClass(strategy_params)
-            logger.info(f"✓ 策略初始化完成: {strategy.name}")
+            logger.info(f"✓ 策略初始化完成: {getattr(strategy, 'name', StrategyClass.__name__)}")
             
             # 4. 运行回测
             logger.info("\n🔄 步骤 4/4: 运行回测")
