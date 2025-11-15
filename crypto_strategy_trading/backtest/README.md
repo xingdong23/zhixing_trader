@@ -12,16 +12,27 @@ backtest/
 ├── run_backtest.py          # 回测主程序
 │
 ├── configs/                 # 配置文件目录
-│   └── backtest_config.json # 回测配置文件
+│   ├── candidate/           # 候选配置
+│   ├── experimental/        # 实验配置
+│   ├── internal/            # 内部配置
+│   └── stable/              # 稳定配置
 │
 ├── data/                    # 历史数据目录
-│   └── ETH-USDT-1m-2025.10.23.csv
+│   └── *.csv                # 各种交易对的历史数据
 │
 ├── core/                    # 核心代码目录
 │   ├── __init__.py
 │   ├── data_loader.py       # 数据加载器
 │   ├── backtest_engine.py   # 回测引擎
 │   └── performance_analyzer.py  # 性能分析器
+│
+├── scripts/                 # 数据处理脚本
+│   ├── README.md            # 脚本说明文档
+│   ├── download_binance_data.py  # 币安数据下载
+│   ├── merge_data.py        # 数据合并
+│   ├── merge_ethusdt_1h_all.py   # ETHUSDT专用合并
+│   ├── resample_data.py     # 数据重采样
+│   └── run_ema_backtest_all.sh   # 批量回测脚本
 │
 └── results/                 # 回测结果目录
     ├── backtest_result_*.json
