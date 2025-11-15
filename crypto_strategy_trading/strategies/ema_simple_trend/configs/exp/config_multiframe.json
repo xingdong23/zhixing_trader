@@ -24,7 +24,7 @@
 
     "stop_loss_pct": 0.025,
     "take_profit_pct": 0.18,
-    "partial_take_profit_pct": 0.05,
+    "partial_take_profit_pct": 0.0,
 
     "use_atr_stop": true,
     "atr_stop_multiplier": 2.0,

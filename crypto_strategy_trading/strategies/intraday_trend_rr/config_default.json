@@ -1,0 +1,29 @@
+{
+  "risk_management": {
+    "total_capital": 300.0,
+    "leverage": 3.0,
+    "risk_per_trade_pct": 0.012,
+    "max_daily_loss_pct": 0.04,
+    "max_trades_per_day": 5,
+    "max_consecutive_losses": 3
+  },
+  "indicators": {
+    "ema_fast_period": 20,
+    "ema_slow_period": 50,
+    "atr_period": 14,
+    "min_atr_pct": 0.003,
+    "max_atr_pct": 0.02
+  },
+  "entry_conditions": {
+    "r_multiple_tp1": 1.8,
+    "r_multiple_tp2": 3.0,
+    "tp1_close_ratio": 0.5
+  },
+  "exit_conditions": {
+    "max_holding_minutes": 360
+  },
+  "daily_risk_controls": {
+    "trading_start_hour": 8,
+    "trading_end_hour": 22
+  }
+}

@@ -74,6 +74,10 @@ class EMASimpleTrendMultiframeStrategy:
         self.stop_loss_pct = float(parameters.get('stop_loss_pct', 0.032))
         self.take_profit_pct = float(parameters.get('take_profit_pct', 0.16))
         self.partial_take_profit_pct = float(parameters.get('partial_take_profit_pct', 0.07))
+        # 部分止盈后的保本保护开关（默认开启）
+        self.move_stop_to_break_even_after_partial = parameters.get(
+            'move_stop_to_break_even_after_partial', True
+        )
         
         # 移动止损
         self.use_trailing_stop = parameters.get('use_trailing_stop', True)
@@ -540,8 +544,14 @@ class EMASimpleTrendMultiframeStrategy:
         else:  # SHORT
             pnl_pct = (entry_price - current_price) / entry_price
         
-        # === 止损 ===
-        if pnl_pct <= -self.stop_loss_pct:
+        # === 止损 / 保本止损 ===
+        stop_threshold = -self.stop_loss_pct
+        if self.partial_closed and self.move_stop_to_break_even_after_partial:
+            # 部分止盈后，将剩余仓位的有效止损抬到盈亏平衡点（0%），
+            # 确保整笔交易（部分止盈 + 剩余仓位）不会由盈转亏。
+            stop_threshold = 0.0
+
+        if pnl_pct <= stop_threshold:
             # 这里 pnl_pct<0 正常表示亏损；如果因为其它逻辑导致 pnl_pct>=0 仍触发，
             # 也直接打印实际百分比，避免和真实盈亏方向相反。
             direction = "亏损" if pnl_pct < 0 else "盈利"

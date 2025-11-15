@@ -10,6 +10,8 @@
 # 基础与趋势类策略
 from .high_frequency import HighFrequencyScalpingStrategy
 from .intraday_scalping import IntradayScalpingStrategy
+from .intraday_trend_rr import IntradayTrendRRStrategy
+from .intraday_mean_reversion import IntradayMeanReversionStrategy
 from .trend_momentum import TrendMomentumStrategy
 from .trend_following import TrendFollowingStrategy
 from .trend_breakout import TrendBreakoutStrategy
@@ -31,7 +33,6 @@ from .probability_profit import ProbabilityProfitStrategy
 from .ema_simple_trend import EMASimpleTrendStrategy
 from .ema_simple_trend.strategy_multiframe import EMASimpleTrendMultiframeStrategy
 
-
 # RSI 2-Day 系列
 from .rsi_2day.strategy import RSI2DayStrategy
 from .rsi_2day.strategy_adaptive import AdaptiveRSI2DayStrategy
@@ -48,6 +49,8 @@ __all__ = [
     # 基础
     'HighFrequencyScalpingStrategy',
     'IntradayScalpingStrategy',
+    'IntradayTrendRRStrategy',
+    'IntradayMeanReversionStrategy',
     'TrendMomentumStrategy',
     'TrendFollowingStrategy',
     'TrendBreakoutStrategy',
@@ -86,6 +89,7 @@ STRATEGY_REGISTRY = {
     # 高频与动量
     'high_frequency': HighFrequencyScalpingStrategy,
     'intraday_scalping': IntradayScalpingStrategy,
+    'intraday_trend_rr': IntradayTrendRRStrategy,
     'trend_momentum': TrendMomentumStrategy,
 
     # 趋势

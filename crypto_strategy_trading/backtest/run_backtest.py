@@ -213,10 +213,15 @@ class BacktestRunner:
             logger.info("\n🔄 步骤 4/4: 运行回测")
             backtest_settings = self.config['backtest_settings']
             engine = BacktestEngine(
-                strategy, 
+                strategy,
                 initial_capital=backtest_settings['initial_capital'],
                 taker_fee_rate=backtest_settings.get('taker_fee_rate', 0.0005),
-                maker_fee_rate=backtest_settings.get('maker_fee_rate', 0.0002)
+                maker_fee_rate=backtest_settings.get('maker_fee_rate', 0.0002),
+                # 注意：slippage_rate 优先，其次兼容内部一些旧配置里用的 "slippage"
+                slippage_rate=backtest_settings.get(
+                    'slippage_rate',
+                    backtest_settings.get('slippage', 0.0)
+                ),
             )
             
             result = engine.run(
