@@ -10,7 +10,7 @@
   
   "strategy": {
     "name": "ema_simple_trend_multiframe",
-    "config_file": "strategies/ema_simple_trend/config_multiframe_6months.json"
+    "config_file": "strategies/ema_simple_trend/configs/config_multiframe_6months.json"
   },
   
   "backtest_settings": {

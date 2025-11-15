@@ -542,7 +542,10 @@ class EMASimpleTrendMultiframeStrategy:
         
         # === 止损 ===
         if pnl_pct <= -self.stop_loss_pct:
-            logger.info(f"✗ 止损: {pnl_pct*100:.2f}%")
+            # 这里 pnl_pct<0 正常表示亏损；如果因为其它逻辑导致 pnl_pct>=0 仍触发，
+            # 也直接打印实际百分比，避免和真实盈亏方向相反。
+            direction = "亏损" if pnl_pct < 0 else "盈利"
+            logger.info(f"✗ 止损触发: {pnl_pct*100:.2f}% ({direction})")
             return self._create_exit_signal("stop_loss")
         
         # === 部分止盈 ===
@@ -701,3 +704,17 @@ class EMASimpleTrendMultiframeStrategy:
             # 记录平仓bar索引用于冷却期（如 trade 中提供该字段）
             if 'bar_index' in trade:
                 self.last_exit_index = trade['bar_index']
+
+    def update_capital(self, new_capital: float):
+        """
+        更新策略内部资金基数（供回测引擎调用）
+
+        作用：
+        - 让 self.capital 跟随实际权益变化
+        - 使 _dynamic_position_size / 杠杆与仓位计算基于最新资金，
+          避免出现权益下降后仍按初始 300 USDT 计算保证金，从而频繁触发“资金不足，无法开仓”
+        """
+        try:
+            self.capital = float(new_capital)
+        except Exception:
+            logger.warning(f"更新资金失败，收到的值: {new_capital}")
