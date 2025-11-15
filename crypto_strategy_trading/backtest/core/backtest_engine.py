@@ -12,8 +12,9 @@ logger = logging.getLogger(__name__)
 class BacktestEngine:
     """回测引擎"""
     
-    def __init__(self, strategy, initial_capital: float = 300.0, 
-                 taker_fee_rate: float = 0.0005, maker_fee_rate: float = 0.0002):
+    def __init__(self, strategy, initial_capital: float = 300.0,
+                 taker_fee_rate: float = 0.0005, maker_fee_rate: float = 0.0002,
+                 slippage_rate: float = 0.0):
         """
         初始化回测引擎
         
@@ -22,6 +23,7 @@ class BacktestEngine:
             initial_capital: 初始资金
             taker_fee_rate: Taker手续费率（吃单，默认0.05%）
             maker_fee_rate: Maker手续费率（挂单，默认0.02%）
+            slippage_rate: 滑点率（按价格百分比向不利方向偏移，默认0）
         """
         self.strategy = strategy
         self.initial_capital = initial_capital
@@ -31,6 +33,9 @@ class BacktestEngine:
         self.taker_fee_rate = taker_fee_rate
         self.maker_fee_rate = maker_fee_rate
         self.total_fees = 0.0  # 累计手续费
+
+        # 滑点设置（所有成交价格在信号价基础上向不利方向偏移 slippage_rate）
+        self.slippage_rate = slippage_rate
         
         # 交易记录
         self.trades: List[Dict] = []
@@ -121,8 +126,17 @@ class BacktestEngine:
     def _open_position(self, signal: Dict, timestamp: datetime):
         """开仓"""
         side = 'long' if signal['signal'] == 'buy' else 'short'
-        entry_price = signal['price']
+        raw_entry_price = signal['price']
         amount = signal['amount']
+        
+        # 按方向应用滑点：向不利方向偏移
+        if self.slippage_rate > 0:
+            if side == 'long':
+                entry_price = raw_entry_price * (1 + self.slippage_rate)
+            else:  # short
+                entry_price = raw_entry_price * (1 - self.slippage_rate)
+        else:
+            entry_price = raw_entry_price
         
         # 计算开仓成本（考虑杠杆）
         leverage = signal.get('leverage', 1.0)
@@ -172,12 +186,21 @@ class BacktestEngine:
             return
         
         position = self.positions[-1]
-        exit_price = signal.get('price', current_price)
+        raw_exit_price = signal.get('price', current_price)
         exit_type = signal.get('type', 'manual')
         exit_ratio = signal.get('exit_ratio', 1.0)  # 平仓比例，默认100%
         
         # 计算实际平仓数量
         exit_amount = position['amount'] * exit_ratio
+        
+        # 按方向应用滑点：向不利方向偏移
+        if self.slippage_rate > 0:
+            if position['side'] == 'long':
+                exit_price = raw_exit_price * (1 - self.slippage_rate)
+            else:  # short
+                exit_price = raw_exit_price * (1 + self.slippage_rate)
+        else:
+            exit_price = raw_exit_price
         
         # 计算盈亏
         if position['side'] == 'long':
