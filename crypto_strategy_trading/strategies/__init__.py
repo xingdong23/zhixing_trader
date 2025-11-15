@@ -30,7 +30,7 @@ from .probability_profit import ProbabilityProfitStrategy
 # EMA Simple Trend 系列
 from .ema_simple_trend import EMASimpleTrendStrategy
 from .ema_simple_trend.strategy_multiframe import EMASimpleTrendMultiframeStrategy
-from .ema_simple_trend.strategy_multiframe_unified_regime import EMASimpleTrendMultiframeUnifiedRegimeStrategy
+
 
 # RSI 2-Day 系列
 from .rsi_2day.strategy import RSI2DayStrategy
@@ -68,7 +68,6 @@ __all__ = [
     # EMA Simple Trend
     'EMASimpleTrendStrategy',
     'EMASimpleTrendMultiframeStrategy',
-    'EMASimpleTrendMultiframeUnifiedRegimeStrategy',
 
     # RSI 2-Day
     'RSI2DayStrategy',
@@ -109,7 +108,6 @@ STRATEGY_REGISTRY = {
     # EMA Simple Trend 系列
     'ema_simple_trend': EMASimpleTrendStrategy,
     'ema_simple_trend_multiframe': EMASimpleTrendMultiframeStrategy,
-    'ema_simple_trend_unified_regime': EMASimpleTrendMultiframeUnifiedRegimeStrategy,
 
     # RSI 2-Day 系列
     'rsi_2day': RSI2DayStrategy,
