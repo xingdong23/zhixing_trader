@@ -1,0 +1,19 @@
+{
+  "symbol": "ETH-USDT",
+  "check_interval": 600,
+  "strategy_params": {
+    "symbol": "ETH-USDT",
+    "leverage": 1.8,
+    "target_delta": 0.98,
+    "funding_threshold": 0.0001
+  },
+  "telegram_token": "",
+  "telegram_chat_id": "",
+  "description": "OKX资金费率套利策略配置",
+  "notes": [
+    "leverage: 杠杆倍数，50 USDT建议1.8x，300 USDT可开到2.0x",
+    "target_delta: 超额比例，0.98表示轻微超额以吃更多费率",
+    "funding_threshold: 资金费率阈值，超过此值做空，否则做多",
+    "check_interval: 检查间隔（秒），默认600秒（10分钟）"
+  ]
+}

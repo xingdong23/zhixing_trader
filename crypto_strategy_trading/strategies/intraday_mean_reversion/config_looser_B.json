@@ -1,0 +1,47 @@
+{
+  "risk_management": {
+    "total_capital": 300.0,
+    "leverage": 2.0,
+    "risk_per_trade_pct": 0.012,
+    "max_daily_loss_pct": 0.05,
+    "max_trades_per_day": 8,
+    "max_consecutive_losses": 3
+  },
+  "indicators": {
+    "ma_period": 50,
+    "bb_period": 50,
+    "bb_std": 2.0,
+    "atr_period": 14
+  },
+  "entry_conditions": {
+    "z_entry": 1.5
+  },
+  "exit_conditions": {
+    "z_exit": 0.5,
+    "max_holding_minutes": 180
+  },
+  "trend_indicators": {
+    "trend_ma_period": 100,
+    "max_trend_slope": 0.002,
+    "trend_slope_lookback": 12
+  },
+  "stop_loss_take_profit": {
+    "min_atr_pct": 0.0015,
+    "max_atr_pct": 0.04,
+    "atr_stop_mult": 1.0,
+    "rr_target": 1.7
+  },
+  "daily_risk_controls": {
+    "trading_start_hour": 8,
+    "trading_end_hour": 22
+  },
+  "parameters": {
+    "allow_short": true,
+    "use_candlestick_filter": true,
+    "min_body_pct": 0.0005,
+    "min_shadow_body_ratio": 2.0,
+    "max_opposite_shadow_body_ratio": 1.0,
+    "min_range_body_ratio": 2.0,
+    "min_prior_trend_bars": 2
+  }
+}

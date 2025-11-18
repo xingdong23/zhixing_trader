@@ -44,6 +44,9 @@ from .false_breakout import FalseBreakoutStrategy
 # 熊市/特殊 regime 策略
 from .bear_trend_enhanced.strategy_bear_regime import BearTrendRegimeStrategy
 
+# 套利策略
+from .funding_arbitrage import FundingArbitrageStrategy
+
 
 __all__ = [
     # 基础
@@ -82,6 +85,9 @@ __all__ = [
 
     # Regime
     'BearTrendRegimeStrategy',
+    
+    # 套利
+    'FundingArbitrageStrategy',
 ]
 
 # 统一策略注册表（回测 / 实盘通过名字调用）
@@ -90,6 +96,7 @@ STRATEGY_REGISTRY = {
     'high_frequency': HighFrequencyScalpingStrategy,
     'intraday_scalping': IntradayScalpingStrategy,
     'intraday_trend_rr': IntradayTrendRRStrategy,
+    'intraday_mean_reversion': IntradayMeanReversionStrategy,
     'trend_momentum': TrendMomentumStrategy,
 
     # 趋势
@@ -123,6 +130,9 @@ STRATEGY_REGISTRY = {
 
     # 熊市/Regime
     'bear_trend_regime': BearTrendRegimeStrategy,
+    
+    # 套利
+    'funding_arbitrage': FundingArbitrageStrategy,
 }
 
 
