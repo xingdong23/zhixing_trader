@@ -27,6 +27,10 @@ from typing import Dict, Any, Optional
 # 添加项目根目录到路径
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
+# 加载环境变量
+from dotenv import load_dotenv
+load_dotenv()
+
 import ccxt
 from strategies.funding_arbitrage import FundingArbitrageStrategy
 
