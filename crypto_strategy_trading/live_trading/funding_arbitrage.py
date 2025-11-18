@@ -66,6 +66,12 @@ class FundingArbitrageBot:
         # 运行状态
         self.last_day = None
         self.running = True
+        self.start_time = datetime.now()
+        
+        # 收益统计
+        self.daily_funding_earned = 0.0  # 今日收益
+        self.total_funding_earned = 0.0  # 累计收益
+        self.last_funding_time = None    # 上次结算时间
         
         self.logger.info("=" * 60)
         self.logger.info(f"🤖 资金费率套利机器人启动")
@@ -146,6 +152,21 @@ class FundingArbitrageBot:
             )
         except Exception as e:
             self.logger.debug(f"Telegram发送失败: {e}")
+    
+    def calculate_funding_income(self, funding_rate: float, position_value: float) -> float:
+        """
+        计算资金费率收益
+        
+        Args:
+            funding_rate: 当前资金费率
+            position_value: 仓位价值
+            
+        Returns:
+            收益金额（USDT）
+        """
+        # 资金费率每8小时结算一次
+        # 收益 = 仓位价值 × 资金费率
+        return position_value * abs(funding_rate)
     
     def get_funding_rate(self) -> float:
         """获取资金费率"""
@@ -271,15 +292,53 @@ class FundingArbitrageBot:
                            f"资金费率: {funding_rate*100:.4f}%, "
                            f"现货余额: {spot_balance:.4f}")
             
-            # 发送每日通知
+            # 获取当前持仓价值
+            current_position = self.get_futures_position()
+            position_value = current_position['size'] * current_price if current_position['size'] > 0 else 0
+            
+            # 计算预期收益（每8小时结算一次）
+            expected_income = self.calculate_funding_income(funding_rate, position_value)
+            
+            # 获取当前时间
             now = datetime.now()
+            
+            # 检查是否到了资金费率结算时间（UTC 0:00, 8:00, 16:00）
+            # 如果距离上次结算超过8小时，说明已经结算过了
+            if self.last_funding_time is not None:
+                hours_passed = (now - self.last_funding_time).total_seconds() / 3600
+                if hours_passed >= 8 and position_value > 0:
+                    # 记录收益
+                    self.daily_funding_earned += expected_income
+                    self.total_funding_earned += expected_income
+                    self.last_funding_time = now
+                    
+                    self.logger.info(f"💰 资金费率结算: +{expected_income:.4f} USDT")
+            else:
+                # 首次运行，记录时间
+                self.last_funding_time = now
+            
+            # 发送每日通知
             if self.last_day != now.day:
+                # 计算运行天数
+                running_days = (now - self.start_time).days + 1
+                daily_avg = self.total_funding_earned / running_days if running_days > 0 else 0
+                
                 self.send_telegram(
-                    f"【{now.strftime('%Y-%m-%d')}】\n"
-                    f"机器人正常运行\n"
+                    f"📊 每日收益报告【{now.strftime('%Y-%m-%d')}】\n\n"
+                    f"💰 今日收益: +{self.daily_funding_earned:.4f} USDT\n"
+                    f"📈 累计收益: +{self.total_funding_earned:.4f} USDT\n"
+                    f"⏱️ 运行天数: {running_days}天\n"
+                    f"📊 日均收益: +{daily_avg:.4f} USDT\n"
+                    f"🔄 翻仓次数: {self.strategy.flip_count}次\n\n"
+                    f"当前状态:\n"
                     f"资金费率: {funding_rate*100:.4f}%\n"
-                    f"价格: ${current_price:.2f}"
+                    f"价格: ${current_price:.2f}\n"
+                    f"仓位价值: ${position_value:.2f}\n"
+                    f"预期下次收益: +{expected_income:.4f} USDT"
                 )
+                
+                # 重置今日收益
+                self.daily_funding_earned = 0.0
                 self.last_day = now.day
             
             # 准备市场数据
