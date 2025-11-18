@@ -5,8 +5,7 @@
     "symbol": "ETH-USDT",
     "leverage": 1.8,
     "target_delta": 0.98,
-    "funding_threshold": 0.0001,
-    "max_position_value": 90.0
+    "funding_threshold": 0.0001
   },
   "telegram_token": "7825962342:AAFUeP2Ra9gug4NCv8IHtdS99PiKU35Gltc",
   "telegram_chat_id": "8497306845",
