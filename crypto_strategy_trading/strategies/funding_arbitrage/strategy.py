@@ -34,6 +34,7 @@ class FundingArbitrageStrategy:
         self.leverage = parameters.get("leverage", 1.8)
         self.target_delta = parameters.get("target_delta", 0.98)  # 轻微超额
         self.funding_threshold = parameters.get("funding_threshold", 0.0001)  # 费率阈值
+        self.max_position_value = parameters.get("max_position_value", None)  # 最大仓位价值限制（USDT）
         
         # 持仓状态
         self.current_position = None  # 当前合约仓位 {'side': 'long'/'short', 'size': float}
@@ -85,6 +86,11 @@ class FundingArbitrageStrategy:
         
         # 计算目标合约价值
         target_futures_value = spot_value * self.leverage * self.target_delta
+        
+        # 如果设置了最大仓位限制，则限制目标合约价值
+        if self.max_position_value is not None and target_futures_value > self.max_position_value:
+            target_futures_value = self.max_position_value
+            logger.info(f"⚠️  仓位受限于最大值: ${self.max_position_value:.2f}")
         
         # 获取当前合约仓位
         current_side = None
