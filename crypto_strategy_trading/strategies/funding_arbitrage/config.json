@@ -3,7 +3,7 @@
   "check_interval": 600,
   "strategy_params": {
     "symbol": "ETH-USDT",
-    "leverage": 1.8,
+    "leverage": 2.0,
     "target_delta": 0.98,
     "funding_threshold": 0.0001
   },
