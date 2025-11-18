@@ -90,16 +90,22 @@ class FundingArbitrageBot:
         log_dir = "logs"
         os.makedirs(log_dir, exist_ok=True)
         
-        log_file = os.path.join(
-            log_dir, 
-            f"funding_arbitrage_{self.mode}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log"
-        )
+        # 使用固定的日志文件名，支持日志滚动
+        log_file = os.path.join(log_dir, f"funding_arbitrage_{self.mode}.log")
+        
+        # 使用RotatingFileHandler支持日志滚动
+        from logging.handlers import RotatingFileHandler
         
         logging.basicConfig(
             level=logging.INFO,
             format='%(asctime)s [%(levelname)s] %(message)s',
             handlers=[
-                logging.FileHandler(log_file, encoding='utf-8'),
+                RotatingFileHandler(
+                    log_file, 
+                    maxBytes=10*1024*1024,  # 10MB
+                    backupCount=5,           # 保留5个备份
+                    encoding='utf-8'
+                ),
                 logging.StreamHandler()
             ]
         )
