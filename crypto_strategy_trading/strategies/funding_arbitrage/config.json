@@ -7,8 +7,6 @@
     "target_delta": 0.98,
     "funding_threshold": 0.0001
   },
-  "telegram_token": "7825962342:AAFUeP2Ra9gug4NCv8IHtdS99PiKU35Gltc",
-  "telegram_chat_id": "8497306845",
   "description": "OKX资金费率套利策略配置",
   "notes": [
     "leverage: 杠杆倍数，50 USDT建议1.8x，300 USDT可开到2.0x",

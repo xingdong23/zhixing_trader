@@ -165,7 +165,8 @@ class FundingArbitrageStrategy:
         current_side: Optional[str],
         target_value: float,
         current_price: float,
-        funding_rate: float
+        funding_rate: float,
+        target_spot_type: str = "coin"
     ) -> Dict[str, Any]:
         """
         创建调仓信号
@@ -183,10 +184,10 @@ class FundingArbitrageStrategy:
         
         reason = ""
         if is_flip:
-            reason = f"费率反转！翻仓 {current_side} → {desired_side}"
+            reason = f"费率反转！翻仓 {current_side} → {desired_side}, 现货目标: {target_spot_type}"
             self.flip_count += 1
         else:
-            reason = f"仓位调整 → {desired_side}"
+            reason = f"仓位调整 → {desired_side}, 现货目标: {target_spot_type}"
         
         self.rebalance_count += 1
         self.last_rebalance_time = datetime.now()
@@ -196,6 +197,7 @@ class FundingArbitrageStrategy:
             "side": desired_side,
             "target_size": target_size,
             "target_value": target_value,
+            "target_spot_type": target_spot_type,
             "price": current_price,
             "funding_rate": funding_rate,
             "reason": reason,
