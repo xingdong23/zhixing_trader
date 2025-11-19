@@ -22,13 +22,17 @@ import argparse
 import logging
 import requests
 from datetime import datetime
-from typing import Dict, Any, Optional
+from typing import Dict, Any
 
 # 添加项目根目录到路径
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 # 加载环境变量
 from dotenv import load_dotenv
+# 优先加载 strategies/funding_arbitrage/.env
+env_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "strategies", "funding_arbitrage", ".env")
+load_dotenv(env_path)
+# 如果没有，尝试加载根目录 .env 作为后备
 load_dotenv()
 
 import ccxt
@@ -59,10 +63,16 @@ class FundingArbitrageBot:
         # 初始化策略
         self.strategy = FundingArbitrageStrategy(config["strategy_params"])
         
-        # Telegram配置
-        self.telegram_token = config.get("telegram_token", "")
-        self.telegram_chat_id = config.get("telegram_chat_id", "")
+        # 飞书配置
+        self.feishu_webhook = os.getenv("FEISHU_WEBHOOK", "")
+        if not self.feishu_webhook:
+             # 兼容 config.json (虽然不推荐)
+             self.feishu_webhook = config.get("feishu_webhook", "")
         
+        if not self.feishu_webhook:
+            self.logger.warning("⚠️  未配置飞书 Webhook，将无法发送通知")
+            self.logger.warning("   请在 .env 中配置 FEISHU_WEBHOOK=你的Webhook地址")
+
         # 运行状态
         self.last_day = None
         self.running = True
@@ -74,14 +84,14 @@ class FundingArbitrageBot:
         self.last_funding_time = None    # 上次结算时间
         
         self.logger.info("=" * 60)
-        self.logger.info(f"🤖 资金费率套利机器人启动")
+        self.logger.info("🤖 资金费率套利机器人启动")
         self.logger.info(f"模式: {'🔴 实盘' if self.is_live else '🟢 模拟盘'}")
         self.logger.info(f"交易对: {config['symbol']}")
         self.logger.info(f"杠杆: {config['strategy_params']['leverage']}x")
         self.logger.info(f"检查间隔: {config.get('check_interval', 600)}秒")
         self.logger.info("=" * 60)
         
-        self.send_telegram(f"🤖 资金费率套利机器人启动\n"
+        self.send_notification(f"🤖 资金费率套利机器人启动\n"
                           f"模式: {'实盘' if self.is_live else '模拟盘'}\n"
                           f"交易对: {config['symbol']}")
     
@@ -143,21 +153,21 @@ class FundingArbitrageBot:
             self.logger.info("✓ 使用OKX模拟盘")
         else:
             self.logger.info("✓ 使用OKX实盘")
-    
-    def send_telegram(self, msg: str):
-        """发送Telegram通知"""
-        if not self.telegram_token or not self.telegram_chat_id:
+
+    def send_notification(self, msg: str):
+        """发送飞书通知"""
+        if not self.feishu_webhook:
             return
         
         try:
-            url = f"https://api.telegram.org/bot{self.telegram_token}/sendMessage"
-            requests.post(
-                url, 
-                data={'chat_id': self.telegram_chat_id, 'text': msg}, 
-                timeout=10
-            )
+            headers = {'Content-Type': 'application/json'}
+            data = {
+                "msg_type": "text",
+                "content": {"text": msg}
+            }
+            requests.post(self.feishu_webhook, headers=headers, json=data, timeout=10)
         except Exception as e:
-            self.logger.debug(f"Telegram发送失败: {e}")
+            self.logger.debug(f"飞书发送失败: {e}")
     
     def calculate_funding_income(self, funding_rate: float, position_value: float) -> float:
         """
@@ -207,12 +217,21 @@ class FundingArbitrageBot:
             symbol = self.config["symbol"]
             base_currency = symbol.split("-")[0]  # ETH
             
-            balance = self.exchange.fetch_balance()
+            balance = self.exchange.fetch_balance({'type': 'spot'})
             spot_balance = balance.get(base_currency, {}).get('free', 0.0)
             
             return spot_balance
         except Exception as e:
             self.logger.error(f"获取现货余额失败: {e}")
+            return 0.0
+
+    def get_usdt_balance(self) -> float:
+        """获取USDT余额"""
+        try:
+            balance = self.exchange.fetch_balance({'type': 'spot'})
+            return balance.get('USDT', {}).get('free', 0.0)
+        except Exception as e:
+            self.logger.error(f"获取USDT余额失败: {e}")
             return 0.0
     
     def get_futures_position(self) -> Dict[str, Any]:
@@ -247,19 +266,58 @@ class FundingArbitrageBot:
                 # 平仓
                 side = 'sell' if position['side'] == 'long' else 'buy'
                 
-                order = self.exchange.create_order(
+                # 获取当前价格，使用限价单
+                ticker = self.exchange.fetch_ticker(swap_symbol)
+                price = ticker['bid'] if side == 'sell' else ticker['ask']
+                
+                self.exchange.create_order(
                     symbol=swap_symbol,
-                    type='market',
+                    type='limit',
                     side=side,
                     amount=position['size'],
+                    price=price,
                     params={'reduceOnly': True}
                 )
                 
-                self.logger.info(f"✓ 平仓成功: {position['side']} {position['size']}")
+                self.logger.info(f"✓ 平仓下单(Limit): {position['side']} {position['size']} @ {price}")
                 time.sleep(2)  # 等待订单执行
         except Exception as e:
             self.logger.error(f"平仓失败: {e}")
     
+    def execute_spot_trade(self, target_type: str, current_price: float):
+        """执行现货交易"""
+        try:
+            spot_balance = self.get_spot_balance()
+            usdt_balance = self.get_usdt_balance()
+            symbol = self.config["symbol"]
+            
+            # 最小交易额 (假设10U)
+            min_trade_value = 10.0
+            
+            if target_type == "coin":
+                # 目标持币，如果有大量USDT，买入
+                if usdt_balance > min_trade_value:
+                    # 保留一点USDT作为手续费
+                    amount = (usdt_balance - 1) / current_price 
+                    if amount > 0:
+                        # 使用限价单 (Buy at Ask)
+                        ticker = self.exchange.fetch_ticker(symbol)
+                        price = ticker['ask'] 
+                        self.logger.info(f"买入现货(Limit): {amount:.4f} {symbol} @ {price}")
+                        self.exchange.create_order(symbol, 'limit', 'buy', amount, price)
+                    
+            elif target_type == "usdt":
+                # 目标持U，如果有大量币，卖出
+                if spot_balance * current_price > min_trade_value:
+                    # 使用限价单 (Sell at Bid)
+                    ticker = self.exchange.fetch_ticker(symbol)
+                    price = ticker['bid']
+                    self.logger.info(f"卖出现货(Limit): {spot_balance:.4f} {symbol} @ {price}")
+                    self.exchange.create_order(symbol, 'limit', 'sell', spot_balance, price)
+                    
+        except Exception as e:
+            self.logger.error(f"现货交易失败: {e}")
+
     def open_futures_position(self, side: str, size: float):
         """开合约仓位"""
         try:
@@ -273,30 +331,82 @@ class FundingArbitrageBot:
             # 开仓
             order_side = 'buy' if side == 'long' else 'sell'
             
+            # 获取价格
+            ticker = self.exchange.fetch_ticker(swap_symbol)
+            price = ticker['ask'] if order_side == 'buy' else ticker['bid']
+            
             order = self.exchange.create_order(
                 symbol=swap_symbol,
-                type='market',
+                type='limit',
                 side=order_side,
-                amount=size
+                amount=size,
+                price=price
             )
             
-            self.logger.info(f"✓ 开仓成功: {side.upper()} {size:.4f}")
+            self.logger.info(f"✓ 开仓下单(Limit): {side.upper()} {size:.4f} @ {price}")
             return order
         except Exception as e:
             self.logger.error(f"开仓失败: {e}")
             return None
     
+    def get_total_equity(self) -> float:
+        """
+        获取账户总权益 (Spot + USDT + Unrealized PnL)
+        
+        Returns:
+            总权益 (USDT)
+        """
+        try:
+            # 1. 现货价值
+            spot_balance = self.get_spot_balance()
+            current_price = self.get_current_price()
+            spot_value = spot_balance * current_price
+            
+            # 2. USDT 余额
+            usdt_balance = self.get_usdt_balance()
+            
+            # 3. 合约未实现盈亏 (Upl)
+            upl = 0.0
+            position = self.get_futures_position()
+            if position['size'] > 0:
+                # OKX 的 positions 接口通常包含 upl
+                # 如果没有，我们需要手动计算: size * (mark_price - entry_price) * direction
+                # 但这里简单起见，我们假设 fetch_positions 返回了 upl 或我们忽略微小的 upl 差异，
+                # 或者更严谨地，我们应该从 fetch_balance 的 total 字段获取权益
+                pass
+                
+            # 更准确的方法是直接获取账户权益
+            balance = self.exchange.fetch_balance()
+            # OKX Unified Account 'total' usually contains the equity in USDT
+            # 但是为了保险，我们使用 total['USDT'] (如果它是估值) 或者 info 里面的 eq
+            
+            # 尝试从 info 获取 totalEq (OKX specific)
+            if 'info' in balance and 'data' in balance['info'] and len(balance['info']['data']) > 0:
+                details = balance['info']['data'][0]
+                if 'totalEq' in details:
+                    return float(details['totalEq'])
+            
+            # 降级方案：手动计算
+            return spot_value + usdt_balance + upl
+            
+        except Exception as e:
+            self.logger.error(f"获取总权益失败: {e}")
+            # 降级返回现货+USDT
+            return (self.get_spot_balance() * self.get_current_price()) + self.get_usdt_balance()
+
     def rebalance(self):
         """执行仓位再平衡"""
         try:
             # 获取市场数据
             current_price = self.get_current_price()
             funding_rate = self.get_funding_rate()
-            spot_balance = self.get_spot_balance()
+            
+            # 获取总权益 (这是计算敞口的关键)
+            total_equity = self.get_total_equity()
             
             self.logger.info(f"📊 当前价格: ${current_price:.2f}, "
                            f"资金费率: {funding_rate*100:.4f}%, "
-                           f"现货余额: {spot_balance:.4f}")
+                           f"账户权益: ${total_equity:.2f}")
             
             # 获取当前持仓价值
             current_position = self.get_futures_position()
@@ -329,7 +439,7 @@ class FundingArbitrageBot:
                 running_days = (now - self.start_time).days + 1
                 daily_avg = self.total_funding_earned / running_days if running_days > 0 else 0
                 
-                self.send_telegram(
+                self.send_notification(
                     f"📊 每日收益报告【{now.strftime('%Y-%m-%d')}】\n\n"
                     f"💰 今日收益: +{self.daily_funding_earned:.4f} USDT\n"
                     f"📈 累计收益: +{self.total_funding_earned:.4f} USDT\n"
@@ -350,7 +460,7 @@ class FundingArbitrageBot:
             # 准备市场数据
             market_data = {
                 "funding_rate": funding_rate,
-                "spot_balance": spot_balance
+                "total_equity": total_equity
             }
             
             # 模拟K线数据（只需要价格）
@@ -368,12 +478,19 @@ class FundingArbitrageBot:
                 self.logger.info(f"🔄 {signal['reason']}")
                 
                 if signal["signal"] == "flip":
-                    self.send_telegram(f"⚡ 费率反转！正在自动翻仓...")
+                    self.send_notification("⚡ 费率反转！正在自动翻仓...")
                 
-                # 先平掉现有仓位
+                # 1. 先平掉现有合约仓位 (Limit)
                 self.close_futures_position()
                 
-                # 开新仓位
+                # 2. 调整现货仓位 (Market/Limit)
+                target_spot_type = signal.get("target_spot_type", "coin")
+                self.execute_spot_trade(target_spot_type, current_price)
+                
+                # 等待现货交易完成
+                time.sleep(2)
+                
+                # 3. 开新合约仓位 (Limit)
                 target_side = signal["side"]
                 target_size = signal["target_size"]
                 
@@ -383,19 +500,20 @@ class FundingArbitrageBot:
                     # 更新策略状态
                     self.strategy.update_position(signal)
                     
-                    self.send_telegram(
+                    self.send_notification(
                         f"✅ 仓位已调整\n"
                         f"方向: {target_side.upper()}\n"
                         f"大小: {target_size:.4f}\n"
                         f"价值: ${signal['target_value']:.2f}\n"
-                        f"资金费率: {funding_rate*100:.4f}%"
+                        f"资金费率: {funding_rate*100:.4f}%\n"
+                        f"现货: {target_spot_type.upper()}"
                     )
             else:
                 self.logger.info(f"✓ {signal['reason']}")
         
         except Exception as e:
             self.logger.error(f"❌ 再平衡失败: {e}")
-            self.send_telegram(f"❌ 出错: {str(e)}")
+            self.send_notification(f"❌ 出错: {str(e)}")
     
     def run(self):
         """主循环"""
@@ -416,11 +534,11 @@ class FundingArbitrageBot:
                 break
             except Exception as e:
                 self.logger.error(f"❌ 主循环错误: {e}")
-                self.send_telegram(f"❌ 主循环错误: {str(e)}")
+                self.send_notification(f"❌ 主循环错误: {str(e)}")
                 time.sleep(60)  # 出错后等待1分钟
         
         self.logger.info("👋 机器人已停止")
-        self.send_telegram("👋 资金费率套利机器人已停止")
+        self.send_notification("👋 资金费率套利机器人已停止")
 
 
 def load_config(config_file: str) -> Dict[str, Any]:
@@ -440,9 +558,7 @@ def load_config(config_file: str) -> Dict[str, Any]:
                 "leverage": 1.8,
                 "target_delta": 0.98,
                 "funding_threshold": 0.0001
-            },
-            "telegram_token": "7825962342:AAFUeP2Ra9gug4NCv8IHtdS99PiKU35Gltc",
-            "telegram_chat_id": "85973068545"
+            }
         }
 
 
