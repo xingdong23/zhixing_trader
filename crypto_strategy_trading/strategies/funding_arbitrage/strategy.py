@@ -185,6 +185,8 @@ class FundingArbitrageStrategy:
         reason = ""
         if is_flip:
             reason = f"费率反转！翻仓 {current_side} → {desired_side}, 现货目标: {target_spot_type}"
+            if desired_side == "long":
+                logger.warning("⚠️  警告：负费率策略(持有USDT+做多合约)会导致净多头敞口，非市场中性！")
             self.flip_count += 1
         else:
             reason = f"仓位调整 → {desired_side}, 现货目标: {target_spot_type}"
