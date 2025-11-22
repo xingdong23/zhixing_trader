@@ -11,8 +11,8 @@ OKX 资金费率套利全自动机器人
 5. 完整日志记录
 
 使用方法：
-    python live_trading/funding_arbitrage.py --mode paper  # 模拟盘测试
-    python live_trading/funding_arbitrage.py --mode live   # 实盘运行
+    python strategies/funding_arbitrage/funding_arbitrage.py --mode paper  # 模拟盘测试
+    python strategies/funding_arbitrage/funding_arbitrage.py --mode live   # 实盘运行
 """
 
 import os
@@ -25,18 +25,18 @@ from datetime import datetime
 from typing import Dict, Any
 
 # 添加项目根目录到路径
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
 # 加载环境变量
 from dotenv import load_dotenv
-# 优先加载 strategies/funding_arbitrage/.env
-env_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "strategies", "funding_arbitrage", ".env")
+# 优先加载当前目录下的 .env
+env_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".env")
 load_dotenv(env_path)
 # 如果没有，尝试加载根目录 .env 作为后备
 load_dotenv()
 
 import ccxt
-from strategies.funding_arbitrage import FundingArbitrageStrategy
+from strategies.funding_arbitrage.strategy import FundingArbitrageStrategy
 
 
 class FundingArbitrageBot:
@@ -575,7 +575,7 @@ def main():
     parser.add_argument(
         "--config",
         type=str,
-        default="strategies/funding_arbitrage/config.json",
+        default="config.json",
         help="配置文件路径"
     )
     
