@@ -5,6 +5,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
 import type { Trade } from "@/app/trades/types";
 
 interface ManualTradeDialogProps {
@@ -13,6 +15,18 @@ interface ManualTradeDialogProps {
   onSave: (trade: Trade) => void;
   nextId: number;
 }
+
+const MOOD_OPTIONS = [
+  { value: 'FOMO', label: '追高', emoji: '🚀' },
+  { value: 'Confident', label: '自信', emoji: '💪' },
+  { value: 'Revenge', label: '报复', emoji: '😡' },
+  { value: 'Bored', label: '无聊', emoji: '🥱' },
+  { value: 'Disciplined', label: '纪律', emoji: '🧘' },
+] as const;
+
+const MISTAKE_OPTIONS = [
+  '止损过大', '过早平仓', '逆势扛单', '频繁交易', '无失误'
+];
 
 export default function ManualTradeDialog({ open, onClose, onSave, nextId }: ManualTradeDialogProps) {
   const [form, setForm] = useState({
@@ -23,7 +37,23 @@ export default function ManualTradeDialog({ open, onClose, onSave, nextId }: Man
     price: "",
     date: new Date().toISOString(),
     tags: "",
+    // 新增字段
+    mood: "" as Trade['mood'] | "",
+    mistakes: [] as string[],
+    strategy: "",
   });
+
+  const handleMistakeToggle = (mistake: string) => {
+    setForm(prev => {
+      if (mistake === '无失误') {
+        return { ...prev, mistakes: ['无失误'] };
+      }
+      const newMistakes = prev.mistakes.includes(mistake)
+        ? prev.mistakes.filter(m => m !== mistake)
+        : [...prev.mistakes.filter(m => m !== '无失误'), mistake];
+      return { ...prev, mistakes: newMistakes };
+    });
+  };
 
   const handleSave = () => {
     const quantity = Number(form.quantity);
@@ -39,6 +69,11 @@ export default function ManualTradeDialog({ open, onClose, onSave, nextId }: Man
       entryPrice: price,
       entryQuantity: Number.isFinite(quantity) ? quantity : undefined,
       strategyTags: form.tags ? form.tags.split(",").map(s => s.trim()).filter(Boolean) : undefined,
+      // 新增字段映射
+      mood: form.mood || undefined,
+      mistakes: form.mistakes.length > 0 ? form.mistakes : undefined,
+      strategy: form.strategy || undefined,
+      
       createdAt: form.date || now,
       updatedAt: now,
     } as Trade;
@@ -47,43 +82,95 @@ export default function ManualTradeDialog({ open, onClose, onSave, nextId }: Man
 
   return (
     <Dialog open={open} onOpenChange={(v) => (!v ? onClose() : undefined)}>
-      <DialogContent>
+      <DialogContent className="max-w-2xl">
         <DialogHeader>
-          <DialogTitle>手动录入交易</DialogTitle>
+          <DialogTitle>录入交易与心理复盘</DialogTitle>
         </DialogHeader>
-        <div className="grid grid-cols-2 gap-4 py-2">
-          <div>
-            <Label>股票代码</Label>
-            <Input value={form.symbol} onChange={(e) => setForm({ ...form, symbol: e.target.value })} placeholder="AAPL" />
+        <div className="grid grid-cols-2 gap-6 py-4">
+          {/* 左侧：基础信息 */}
+          <div className="space-y-4">
+            <h4 className="font-medium text-sm text-muted-foreground">基础信息</h4>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>股票代码</Label>
+                <Input value={form.symbol} onChange={(e) => setForm({ ...form, symbol: e.target.value })} placeholder="AAPL" />
+              </div>
+              <div className="space-y-2">
+                <Label>方向</Label>
+                <Input value={form.side} onChange={(e) => setForm({ ...form, side: e.target.value })} placeholder="buy/short" />
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>价格</Label>
+                <Input type="number" step="0.01" value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })} placeholder="0.00" />
+              </div>
+              <div className="space-y-2">
+                <Label>数量</Label>
+                <Input type="number" value={form.quantity} onChange={(e) => setForm({ ...form, quantity: e.target.value })} placeholder="100" />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label>策略模式</Label>
+              <Input value={form.strategy} onChange={(e) => setForm({ ...form, strategy: e.target.value })} placeholder="例: 突破回踩, 消息面..." />
+            </div>
           </div>
-          <div>
-            <Label>股票名称</Label>
-            <Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="Apple Inc." />
-          </div>
-          <div>
-            <Label>方向（buy/short）</Label>
-            <Input value={form.side} onChange={(e) => setForm({ ...form, side: e.target.value })} placeholder="buy" />
-          </div>
-          <div>
-            <Label>数量</Label>
-            <Input type="number" value={form.quantity} onChange={(e) => setForm({ ...form, quantity: e.target.value })} placeholder="100" />
-          </div>
-          <div>
-            <Label>价格</Label>
-            <Input type="number" step="0.01" value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })} placeholder="182.30" />
-          </div>
-          <div>
-            <Label>时间</Label>
-            <Input value={form.date} onChange={(e) => setForm({ ...form, date: e.target.value })} />
-          </div>
-          <div className="col-span-2">
-            <Label>策略标签（用逗号分隔）</Label>
-            <Input value={form.tags} onChange={(e) => setForm({ ...form, tags: e.target.value })} placeholder="趋势, 突破, 回调买入" />
+
+          {/* 右侧：心理与复盘 */}
+          <div className="space-y-4 border-l pl-6">
+            <h4 className="font-medium text-sm text-muted-foreground">心理与复盘</h4>
+            
+            {/* 心情选择 */}
+            <div className="space-y-2">
+              <Label>当时的心态 (Mood)</Label>
+              <div className="flex flex-wrap gap-2">
+                {MOOD_OPTIONS.map((option) => (
+                  <button
+                    key={option.value}
+                    onClick={() => setForm({ ...form, mood: option.value as Trade['mood'] })}
+                    className={cn(
+                      "flex items-center gap-1 px-3 py-1.5 rounded-full border transition-all text-sm",
+                      form.mood === option.value
+                        ? "border-primary bg-primary/10 ring-2 ring-primary/20"
+                        : "border-input hover:bg-accent hover:text-accent-foreground"
+                    )}
+                  >
+                    <span>{option.emoji}</span>
+                    <span>{option.label}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* 错误标签 */}
+            <div className="space-y-2">
+              <Label>执行失误 (Mistakes)</Label>
+              <div className="flex flex-wrap gap-2">
+                {MISTAKE_OPTIONS.map((mistake) => (
+                  <Badge
+                    key={mistake}
+                    variant={form.mistakes.includes(mistake) ? "destructive" : "outline"}
+                    className={cn(
+                      "cursor-pointer hover:opacity-80 transition-colors",
+                      form.mistakes.includes(mistake) && mistake === '无失误' ? "bg-green-500 border-green-500" : ""
+                    )}
+                    onClick={() => handleMistakeToggle(mistake)}
+                  >
+                    {mistake}
+                  </Badge>
+                ))}
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label>备注/Tags</Label>
+              <Input value={form.tags} onChange={(e) => setForm({ ...form, tags: e.target.value })} placeholder="额外标签..." />
+            </div>
           </div>
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={onClose}>取消</Button>
-          <Button onClick={handleSave}>保存</Button>
+          <Button onClick={handleSave} disabled={!form.symbol || !form.price}>保存交易</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
