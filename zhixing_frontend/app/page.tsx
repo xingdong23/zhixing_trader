@@ -95,6 +95,8 @@ import ReverseAlertSystem from "@/components/trading/ReverseAlertSystem"
 import TradingHealthCenter from "@/components/trading/TradingHealthCenter"
 import TechnicalPatternScanner from "@/components/market/TechnicalPatternScanner"
 import WisdomLibrary from "@/components/wisdom/WisdomLibrary"
+import KeyMetrics from "@/components/dashboard/KeyMetrics"
+import TradeHeatmap from "@/components/dashboard/TradeHeatmap"
 
 // 导入Mock数据
 import { getMockStocks } from './mockStockData'
@@ -138,7 +140,7 @@ export default function TradingSystem() {
       const hash = window.location.hash.replace('#', '')
       if (!hash) return
       const valid = [
-        'dashboard','categories','trades','notes','review','strategies','checklist','psychology','wisdom','errors','pivot','brokers'
+        'dashboard','categories','trades','notes','review','strategies','checklist','psychology','wisdom','errors','pivot','brokers','health','patterns'
       ]
       if (valid.includes(hash)) setCurrentPage(hash)
     }
@@ -154,7 +156,7 @@ export default function TradingSystem() {
     // 则优先尊重现有 hash，避免初次渲染时被覆盖回 dashboard
     const existing = window.location.hash.replace('#', '')
     const valid = [
-      'dashboard','categories','trades','notes','review','strategies','checklist','psychology','wisdom','errors','pivot','brokers'
+      'dashboard','categories','trades','notes','review','strategies','checklist','psychology','wisdom','errors','pivot','brokers','health','patterns'
     ]
     if (existing && valid.includes(existing) && existing !== currentPage) {
       // 不覆盖由外部显式指定的 hash
@@ -353,7 +355,7 @@ export default function TradingSystem() {
     <div className="min-h-screen bg-background">
       <div className="flex">
         {/* Sidebar */}
-        <div className="w-64 bg-sidebar border-r border-sidebar-border p-6">
+        <div className="w-64 flex-shrink-0 bg-sidebar border-r border-sidebar-border p-6">
           <div className="flex items-center gap-3 mb-8">
             <BarChart3 className="w-8 h-8 text-sidebar-primary" />
             <h1 className="text-xl font-bold text-sidebar-foreground">QuantMind</h1>
@@ -397,7 +399,7 @@ export default function TradingSystem() {
         </div>
 
         {/* Main Content */}
-        <div className="flex-1">
+        <div className="flex-1 min-w-0">
           {/* Header */}
           <header className="bg-sidebar border-b border-sidebar-border px-6 py-4">
             <div className="flex items-center justify-between gap-4">
@@ -481,348 +483,46 @@ export default function TradingSystem() {
             />
 
             {currentPage === "dashboard" && (
-              <div className="space-y-6">
-                {/* 价格数据同步 */}
-                <Card>
-                  <CardHeader>
-                    <CardTitle>价格数据同步</CardTitle>
-                    <p className="text-sm text-gray-600">从雅虎财经同步自选股的最新价格和K线数据</p>
-                  </CardHeader>
-                  <CardContent>
-                    <DataSyncButton 
-                      onSyncComplete={(result) => {
-                        console.log('同步完成:', result)
-                        // 同步完成后可以刷新自选股列表
-                        fetchBackendStocks()
-                      }}
-                      showProgress={true}
-                      autoRefresh={true}
-                    />
-                  </CardContent>
-                </Card>
+              <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                {/* 1. 核心指标卡片 */}
+                <div className="space-y-2">
+                  <h3 className="text-lg font-medium text-muted-foreground">Overview</h3>
+                  <KeyMetrics />
+                </div>
 
-                {/* Stock Pool */}
-                <Card>
-                  <CardHeader>
-                    <div className="flex justify-between items-center">
-                      <CardTitle>自选股票</CardTitle>
-                      <input ref={fileInputRef} type="file" accept=".csv,text/csv" onChange={handleCsvPicked} className="hidden" />
-                      <Button onClick={triggerPickCsv} disabled={importing}>
-                        <Upload className="w-4 h-4 mr-2" />
-                        {importing ? '导入中...' : '导入股票列表'}
-                      </Button>
-                      {importMsg && (
-                        <span className="ml-3 text-sm text-gray-600">{importMsg}</span>
-                      )}
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    {/* 多级分类树选择器 */}
-                    <div className="mb-6">
-                      <CategorySelector 
-                        onSelectCategory={setSelectedCategoryId}
-                        selectedCategoryId={selectedCategoryId}
-                        compact={true}
-                      />
-                    </div>
+                {/* 2. 交易热力图 */}
+                <div className="space-y-2">
+                  <h3 className="text-lg font-medium text-muted-foreground">Trading Activity</h3>
+                  <TradeHeatmap />
+                </div>
 
-                    {/* Stock Table */}
-                    <div className="overflow-x-auto">
-                      <table className="w-full">
-                        <thead>
-                          <tr className="border-b">
-                            <th 
-                              className="text-left p-2 cursor-pointer hover:bg-muted/50 select-none"
-                              onClick={() => handleSort('name')}
-                            >
-                              <div className="flex items-center gap-1">
-                                代码/名称
-                                {sortField === 'name' && (
-                                  sortOrder === 'asc' ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />
-                                )}
-                              </div>
-                            </th>
-                            <th className="text-left p-2">
-                              <div className="flex items-center gap-2">
-                                <div 
-                                  className="flex items-center gap-1 cursor-pointer hover:bg-muted/50 select-none px-1 py-0.5 rounded"
-                                  onClick={() => handleSort('price')}
-                                >
-                                  现价
-                                  {sortField === 'price' && (
-                                    sortOrder === 'asc' ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />
-                                  )}
-                                </div>
-                                <div className="relative">
-                                  <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    className="h-6 w-6 p-0 price-filter-button"
-                                    onClick={() => setShowPriceFilter(!showPriceFilter)}
-                                  >
-                                    <Filter className={`w-3 h-3 ${(priceRange.min !== undefined || priceRange.max !== undefined) ? 'text-blue-600' : 'text-gray-400'}`} />
-                                  </Button>
-                                  {showPriceFilter && (
-                                    <div className="absolute top-8 left-0 bg-white border border-gray-200 rounded-lg shadow-lg p-3 z-50 w-64 price-filter-popup">
-                                      <div className="space-y-3">
-                                        <div className="text-sm font-medium">价格范围筛选</div>
-                                        <div className="flex items-center gap-2">
-                                          <Input
-                                            type="number"
-                                            placeholder="最低价"
-                                            value={priceRange.min || ''}
-                                            onChange={(e) => setPriceRange(prev => ({
-                                              ...prev,
-                                              min: e.target.value ? Number(e.target.value) : undefined
-                                            }))}
-                                            className="w-20 h-8 text-xs"
-                                          />
-                                          <span className="text-xs">-</span>
-                                          <Input
-                                            type="number"
-                                            placeholder="最高价"
-                                            value={priceRange.max || ''}
-                                            onChange={(e) => setPriceRange(prev => ({
-                                              ...prev,
-                                              max: e.target.value ? Number(e.target.value) : undefined
-                                            }))}
-                                            className="w-20 h-8 text-xs"
-                                          />
-                                        </div>
-                                        <div className="flex gap-2">
-                                          <Button
-                                            variant="outline"
-                                            size="sm"
-                                            className="h-6 text-xs"
-                                            onClick={() => {
-                                              setPriceRange({})
-                                              setShowPriceFilter(false)
-                                            }}
-                                          >
-                                            清除
-                                          </Button>
-                                          <Button
-                                            variant="default"
-                                            size="sm"
-                                            className="h-6 text-xs"
-                                            onClick={() => setShowPriceFilter(false)}
-                                          >
-                                            确定
-                                          </Button>
-                                        </div>
-                                      </div>
-                                    </div>
-                                  )}
-                                </div>
-                              </div>
-                            </th>
-                            <th className="text-left p-2">
-                              <div className="flex items-center gap-2">
-                                <div 
-                                  className="flex items-center gap-1 cursor-pointer hover:bg-muted/50 select-none px-1 py-0.5 rounded"
-                                  onClick={() => handleSort('change_percent')}
-                                >
-                                  涨跌幅
-                                  {sortField === 'change_percent' && (
-                                    sortOrder === 'asc' ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />
-                                  )}
-                                </div>
-                                <div className="relative">
-                                  <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    className="h-6 w-6 p-0 change-percent-filter-button"
-                                    onClick={() => setShowChangePercentFilter(!showChangePercentFilter)}
-                                  >
-                                    <Filter className={`w-3 h-3 ${(changePercentRange.min !== undefined || changePercentRange.max !== undefined) ? 'text-blue-600' : 'text-gray-400'}`} />
-                                  </Button>
-                                  {showChangePercentFilter && (
-                                    <div className="absolute top-8 left-0 bg-white border border-gray-200 rounded-lg shadow-lg p-3 z-50 w-64 change-percent-filter-popup">
-                                      <div className="space-y-3">
-                                        <div className="text-sm font-medium">涨跌幅范围筛选</div>
-                                        <div className="flex items-center gap-2">
-                                          <Input
-                                            type="number"
-                                            placeholder="最小%"
-                                            value={changePercentRange.min || ''}
-                                            onChange={(e) => setChangePercentRange(prev => ({
-                                              ...prev,
-                                              min: e.target.value ? Number(e.target.value) : undefined
-                                            }))}
-                                            className="w-20 h-8 text-xs"
-                                          />
-                                          <span className="text-xs">-</span>
-                                          <Input
-                                            type="number"
-                                            placeholder="最大%"
-                                            value={changePercentRange.max || ''}
-                                            onChange={(e) => setChangePercentRange(prev => ({
-                                              ...prev,
-                                              max: e.target.value ? Number(e.target.value) : undefined
-                                            }))}
-                                            className="w-20 h-8 text-xs"
-                                          />
-                                        </div>
-                                        <div className="flex gap-2">
-                                          <Button
-                                            variant="outline"
-                                            size="sm"
-                                            className="h-6 text-xs"
-                                            onClick={() => {
-                                              setChangePercentRange({})
-                                              setShowChangePercentFilter(false)
-                                            }}
-                                          >
-                                            清除
-                                          </Button>
-                                          <Button
-                                            variant="default"
-                                            size="sm"
-                                            className="h-6 text-xs"
-                                            onClick={() => setShowChangePercentFilter(false)}
-                                          >
-                                            确定
-                                          </Button>
-                                        </div>
-                                      </div>
-                                    </div>
-                                  )}
-                                </div>
-                              </div>
-                            </th>
-                            <th 
-                              className="text-left p-2 cursor-pointer hover:bg-muted/50 select-none"
-                              onClick={() => handleSort('market')}
-                            >
-                              <div className="flex items-center gap-1">
-                                市场
-                                {sortField === 'market' && (
-                                  sortOrder === 'asc' ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />
-                                )}
-                              </div>
-                            </th>
-                            <th className="text-left p-2">概念</th>
-                            <th 
-                              className="text-left p-2 cursor-pointer hover:bg-muted/50 select-none"
-                              onClick={() => handleSort('updated_at')}
-                            >
-                              <div className="flex items-center gap-1">
-                                更新时间
-                                {sortField === 'updated_at' && (
-                                  sortOrder === 'asc' ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />
-                                )}
-                              </div>
-                            </th>
-                            <th className="text-left p-2">操作</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {backendStocks.map((s) => (
-                            <tr key={s.symbol} className="border-b hover:bg-muted/50">
-                              <td className="p-2">
-                                <div className="font-medium">{s.name}</div>
-                                <div className="text-sm text-muted-foreground">{s.symbol}</div>
-                              </td>
-                              <td className="p-2">
-                                {s.price != null ? `$${Number(s.price).toFixed(2)}` : '-'}
-                              </td>
-                              <td className="p-2">
-                                {(() => {
-                                  const p = s.change_percent
-                                  if (p == null) return '-'
-                                  const positive = p >= 0
-                                  return (
-                                    <span className={positive ? 'text-green-600 font-medium' : 'text-red-600 font-medium'}>
-                                      {positive ? '+' : ''}{Number(p).toFixed(2)}%
-                                    </span>
-                                  )
-                                })()}
-                              </td>
-                              <td className="p-2">{s.market || '-'}</td>
-                              <td className="p-2">
-                                {s.concepts && s.concepts.length > 0 ? (
-                                  <div className="flex flex-wrap gap-1">
-                                    {s.concepts.slice(0, 3).map((concept, idx) => (
-                                      <Badge key={idx} variant="secondary" className="text-xs">{concept}</Badge>
-                                    ))}
-                                    {s.concepts.length > 3 && (
-                                      <Badge variant="outline" className="text-xs">+{s.concepts.length - 3}</Badge>
-                                    )}
-                                  </div>
-                                ) : (
-                                  <span className="text-muted-foreground text-sm">-</span>
-                                )}
-                              </td>
-                              <td className="p-2">
-                                <span className="text-sm text-muted-foreground">
-                                  {s.updated_at ? new Date(s.updated_at).toLocaleString('zh-CN') : '-'}
-                                </span>
-                              </td>
-                              <td className="p-2">
-                                <div className="flex gap-2">
-                                  <Button 
-                                    size="sm" 
-                                    variant="outline" 
-                                  onClick={() => { setSelectedStock(s); setNoteEditorOpen(true) }}
-                                    title="添加笔记"
-                                  >
-                                    <PenTool className="w-4 h-4" />
-                                  </Button>
-                                  <Button 
-                                    size="sm" 
-                                    variant="outline" 
-                                    onClick={() => {
-                                      setSelectedStock(s)
-                                      setShowAddAlertDialog(true)
-                                    }}
-                                    title="设定提醒"
-                                  >
-                                    <Bell className="w-4 h-4" />
-                                  </Button>
-                                  <Button 
-                                    size="sm" 
-                                    variant="outline" 
-                                    onClick={() => router.push(`/stock/${s.symbol}`)}
-                                  >
-                                    详情
-                                  </Button>
-                                </div>
-                              </td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-
-                    {/* Pagination */}
-                    <div className="flex justify-between items-center mt-4">
-                      <div className="text-sm text-muted-foreground">
-                        共 {total} 条 · 每页 {pageSize} 条
-                        </div>
-                        <div className="flex items-center gap-2">
-                              <Button
-                                variant="outline"
-                                size="sm"
-                          onClick={() => setPage(Math.max(1, page - 1))}
-                          disabled={page <= 1}
-                              >
-                          上一页
-                              </Button>
-                        <span className="text-sm">
-                          第 {page} / {Math.ceil(total / pageSize)} 页
-                            </span>
-                                <Button
-                                  variant="outline"
-                              size="sm"
-                          onClick={() => setPage(Math.min(Math.ceil(total / pageSize), page + 1))}
-                          disabled={page >= Math.ceil(total / pageSize)}
-                            >
-                          下一页
-                            </Button>
-                          </div>
-                      </div>
+                {/* 3. 底部快捷入口 */}
+                <div className="grid gap-4 md:grid-cols-2">
+                  <Card className="bg-card/50 backdrop-blur-sm border-none shadow-lg hover:bg-card/80 transition-colors cursor-pointer" onClick={() => setCurrentPage('trades')}>
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                      <CardTitle className="text-sm font-medium">Recent Trades</CardTitle>
+                      <DollarSign className="h-4 w-4 text-muted-foreground" />
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-2xl font-bold">12</div>
+                      <p className="text-xs text-muted-foreground">
+                        Trades this week
+                      </p>
                     </CardContent>
                   </Card>
+                  <Card className="bg-card/50 backdrop-blur-sm border-none shadow-lg hover:bg-card/80 transition-colors cursor-pointer" onClick={() => setCurrentPage('strategies')}>
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                      <CardTitle className="text-sm font-medium">Active Strategies</CardTitle>
+                      <Target className="h-4 w-4 text-muted-foreground" />
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-2xl font-bold">3</div>
+                      <p className="text-xs text-muted-foreground">
+                        Running currently
+                      </p>
+                    </CardContent>
+                  </Card>
+                </div>
               </div>
             )}
 
@@ -830,8 +530,8 @@ export default function TradingSystem() {
               <div className="text-center py-12">
                 <h3 className="text-lg font-medium mb-2">交易计划</h3>
                 <p className="text-muted-foreground">功能开发中...</p>
-                          </div>
-                        )}
+              </div>
+            )}
 
             {currentPage === "trades" && (
               <TradesView />

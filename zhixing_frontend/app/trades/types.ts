@@ -63,6 +63,11 @@ export interface Trade {
   reviewNotes?: string;
   reviewLessons?: string;
   reviewTags?: string[];
+
+  // 心理与策略（新增）
+  mood?: 'FOMO' | 'Confident' | 'Revenge' | 'Bored' | 'Disciplined';
+  mistakes?: string[];
+  strategy?: string;
   
   // 关联
   strategyId?: number;
