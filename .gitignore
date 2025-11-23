@@ -10,8 +10,10 @@ dist/
 downloads/
 eggs/
 .eggs/
+# Python lib directories (but not frontend lib)
 lib/
 lib64/
+!zhixing_frontend/lib/
 parts/
 sdist/
 var/
