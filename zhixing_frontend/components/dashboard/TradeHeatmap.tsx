@@ -4,6 +4,7 @@ import { ActivityCalendar, Activity } from 'react-activity-calendar';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { format, subDays } from 'date-fns';
+import { BarChart, Bar, XAxis, ResponsiveContainer, Cell, Tooltip as RechartsTooltip } from 'recharts';
 
 // 生成模拟数据
 const generateMockData = (): Activity[] => {
@@ -63,13 +64,16 @@ const explicitTheme = {
 };
 
 export default function TradeHeatmap() {
+  const last7Days = data.slice(-7);
+
   return (
     <TooltipProvider>
       <Card className="border-none shadow-lg bg-card/50 backdrop-blur-sm">
         <CardHeader>
           <CardTitle className="text-lg font-medium flex items-center justify-between">
             <span>交易热力图 (Trading Activity)</span>
-            <div className="flex items-center gap-2 text-xs text-muted-foreground font-normal">
+            {/* Legend 只在桌面端显示完整，移动端简化 */}
+            <div className="hidden md:flex items-center gap-2 text-xs text-muted-foreground font-normal">
               <span>Less</span>
               <div className="flex gap-1">
                   <div className="w-3 h-3 rounded-sm bg-[#ef4444]" title="大亏" />
@@ -82,50 +86,83 @@ export default function TradeHeatmap() {
             </div>
           </CardTitle>
         </CardHeader>
-        <CardContent className="flex justify-center pb-6 overflow-x-auto">
-          <div className="min-w-[800px]">
-              <ActivityCalendar
-              data={data}
-              theme={explicitTheme}
-              labels={{
-                  legend: {
-                  less: 'Loss',
-                  more: 'Profit',
-                  },
-                  months: [
-                  'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-                  'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
-                  ],
-                  weekdays: [
-                  'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'
-                  ],
-                  totalCount: '{{count}} active days in 2024'
-              }}
-              showWeekdayLabels
-              blockSize={14}
-              blockMargin={4}
-              fontSize={12}
-              renderBlock={(block: React.ReactElement, activity: Activity) => (
-                  <Tooltip delayDuration={0}>
-                      <TooltipTrigger asChild>
-                          {block}
-                      </TooltipTrigger>
-                      <TooltipContent className="bg-popover text-popover-foreground border-border">
-                          <div className="text-xs font-medium">
-                              <p>{activity.date}</p>
-                              <p className={
-                                  activity.level === 0 ? 'text-muted-foreground' :
-                                  activity.level <= 2 ? 'text-red-500' : 'text-green-500'
-                              }>
-                                  {activity.level === 0 ? 'No Trade' : 
-                                   activity.level <= 2 ? `Loss: -$${activity.count}` : 
-                                   `Profit: +$${activity.count}`}
-                              </p>
-                          </div>
-                      </TooltipContent>
-                  </Tooltip>
-              )}
-              />
+        <CardContent className="pb-6">
+          {/* Desktop View: Calendar Heatmap */}
+          <div className="hidden md:flex justify-center overflow-x-auto">
+            <div className="min-w-[800px]">
+                <ActivityCalendar
+                data={data}
+                theme={explicitTheme}
+                labels={{
+                    legend: {
+                    less: 'Loss',
+                    more: 'Profit',
+                    },
+                    months: [
+                    'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+                    'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+                    ],
+                    weekdays: [
+                    'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'
+                    ],
+                    totalCount: '{{count}} active days in 2024'
+                }}
+                showWeekdayLabels
+                blockSize={14}
+                blockMargin={4}
+                fontSize={12}
+                renderBlock={(block: React.ReactElement, activity: Activity) => (
+                    <Tooltip delayDuration={0}>
+                        <TooltipTrigger asChild>
+                            {block}
+                        </TooltipTrigger>
+                        <TooltipContent className="bg-popover text-popover-foreground border-border">
+                            <div className="text-xs font-medium">
+                                <p>{activity.date}</p>
+                                <p className={
+                                    activity.level === 0 ? 'text-muted-foreground' :
+                                    activity.level <= 2 ? 'text-red-500' : 'text-green-500'
+                                }>
+                                    {activity.level === 0 ? 'No Trade' : 
+                                     activity.level <= 2 ? `Loss: -$${activity.count}` : 
+                                     `Profit: +$${activity.count}`}
+                                </p>
+                            </div>
+                        </TooltipContent>
+                    </Tooltip>
+                )}
+                />
+            </div>
+          </div>
+
+          {/* Mobile View: Last 7 Days Bar Chart */}
+          <div className="block md:hidden h-[200px] w-full">
+             <p className="text-xs text-muted-foreground mb-2">最近 7 天盈亏概览</p>
+             <ResponsiveContainer width="100%" height="100%">
+               <BarChart data={last7Days}>
+                 <Bar dataKey="count" radius={[4, 4, 0, 0]}>
+                   {last7Days.map((entry, index) => (
+                     <Cell 
+                        key={`cell-${index}`} 
+                        fill={entry.level >= 3 ? '#22c55e' : entry.level === 0 ? '#334155' : '#ef4444'} 
+                        fillOpacity={entry.level === 0 ? 0.3 : 1}
+                     />
+                   ))}
+                 </Bar>
+                 <XAxis 
+                    dataKey="date" 
+                    tickFormatter={(val) => val.slice(5)} 
+                    fontSize={10} 
+                    tickLine={false}
+                    axisLine={false}
+                    stroke="#888888"
+                 />
+                 <RechartsTooltip 
+                    cursor={{fill: 'transparent'}}
+                    contentStyle={{ backgroundColor: '#1f2937', border: 'none', borderRadius: '8px', fontSize: '12px' }}
+                 />
+               </BarChart>
+             </ResponsiveContainer>
           </div>
         </CardContent>
       </Card>
