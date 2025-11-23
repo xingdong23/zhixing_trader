@@ -7,34 +7,53 @@ interface MetricCardProps {
   title: string;
   value: string;
   subValue?: string;
-  icon: React.ReactNode;
+  icon: React.ReactElement;
   trend?: 'up' | 'down' | 'neutral';
   color: string;
 }
 
-const MetricCard = ({ title, value, subValue, icon, trend, color }: MetricCardProps) => (
-  <Card className="relative overflow-hidden border-none shadow-lg bg-white/5 backdrop-blur-lg hover:bg-white/10 transition-all duration-300 group">
-    <div className={`absolute top-0 left-0 w-1 h-full ${color}`} />
-    <CardContent className="p-6">
-      <div className="flex justify-between items-start">
+const MetricCard = ({ title, value, subValue, icon, trend, color }: MetricCardProps) => {
+  const isPositive = trend === 'up' || value.startsWith('+');
+  const valueClass = isPositive 
+    ? "bg-gradient-to-r from-emerald-400 to-cyan-500 bg-clip-text text-transparent" 
+    : trend === 'down' ? "text-rose-400" : "text-slate-100";
+
+  return (
+    <Card className="relative overflow-hidden border border-slate-800/60 bg-slate-900/40 backdrop-blur-xl shadow-xl transition-all duration-300 hover:-translate-y-1 hover:border-slate-600 hover:bg-slate-800/60 group">
+      {/* Background Ambient Glow */}
+      <div className={`absolute -top-12 -right-12 w-32 h-32 ${color.replace('bg-', 'bg-')}/20 blur-[60px] rounded-full pointer-events-none`} />
+      
+      {/* Big Faint Background Icon */}
+      <div className="absolute -bottom-4 -right-4 opacity-[0.05] group-hover:opacity-[0.1] transition-opacity duration-500 pointer-events-none rotate-[-12deg]">
+        {React.cloneElement(icon as React.ReactElement<any>, { className: "w-28 h-28" })}
+      </div>
+
+      <CardContent className="p-4 md:p-6 relative z-10">
+        <div className="flex justify-between items-start mb-3">
+           <p className="text-xs md:text-sm font-medium text-slate-400 uppercase tracking-wider">{title}</p>
+           {/* Small Icon Badge */}
+           <div className={`p-2 rounded-lg bg-white/5 border border-white/10 ${color.replace('bg-', 'text-')} shadow-inner group-hover:scale-110 transition-transform`}>
+             {React.cloneElement(icon as React.ReactElement<any>, { className: "w-4 h-4" })}
+           </div>
+        </div>
+        
         <div className="space-y-1">
-          <p className="text-sm font-medium text-muted-foreground">{title}</p>
-          <h3 className="text-2xl font-bold tracking-tight">{value}</h3>
+          <h3 className={`text-2xl md:text-3xl font-bold tracking-tight ${valueClass}`}>
+            {value}
+          </h3>
+          
           {subValue && (
-            <p className={`text-xs flex items-center gap-1 ${trend === 'up' ? 'text-green-500' : trend === 'down' ? 'text-red-500' : 'text-muted-foreground'}`}>
-              {trend === 'up' && <TrendingUp className="w-3 h-3" />}
-              {trend === 'down' && <TrendingDown className="w-3 h-3" />}
-              {subValue}
-            </p>
+            <div className={`flex items-center gap-1 text-xs md:text-sm ${trend === 'up' ? 'text-emerald-400' : trend === 'down' ? 'text-rose-400' : 'text-slate-400'}`}>
+               {trend === 'up' && <TrendingUp className="w-3 h-3" />}
+               {trend === 'down' && <TrendingDown className="w-3 h-3" />}
+               <span className="font-medium">{subValue}</span>
+            </div>
           )}
         </div>
-        <div className={`p-3 rounded-xl bg-white/10 ${color.replace('bg-', 'text-')} group-hover:scale-110 transition-transform duration-300`}>
-          {icon}
-        </div>
-      </div>
-    </CardContent>
-  </Card>
-);
+      </CardContent>
+    </Card>
+  );
+};
 
 export default function KeyMetrics() {
   // TODO: Replace with real data from store/API
@@ -74,7 +93,7 @@ export default function KeyMetrics() {
   ];
 
   return (
-    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+    <div className="grid grid-cols-2 gap-3 md:gap-4 lg:grid-cols-4">
       {metrics.map((metric, index) => (
         <MetricCard key={index} {...metric} />
       ))}

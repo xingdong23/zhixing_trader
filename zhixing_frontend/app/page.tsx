@@ -61,6 +61,7 @@ import {
   Folder,
   Flame,
   Lightbulb,
+  Menu,
 } from "lucide-react"
 
 // 导入策略管理组件
@@ -190,8 +191,10 @@ export default function TradingSystem() {
   
   // 熔断状态
   const [isCircuitBreakerActive, setIsCircuitBreakerActive] = useState(false)
-  
 
+  // 移动端侧边栏状态
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false)
+  
   // 处理排序点击
   const handleSort = (field: string) => {
     if (sortField === field) {
@@ -354,8 +357,21 @@ export default function TradingSystem() {
   return (
     <div className="min-h-screen bg-background">
       <div className="flex">
+        {/* Mobile Overlay */}
+        {isSidebarOpen && (
+          <div 
+            className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+            onClick={() => setIsSidebarOpen(false)}
+          />
+        )}
+
         {/* Sidebar */}
-        <div className="w-64 flex-shrink-0 bg-sidebar border-r border-sidebar-border p-6">
+        <div className={`
+          fixed inset-y-0 left-0 z-50 w-64 flex-shrink-0 bg-sidebar border-r border-sidebar-border p-6
+          transform transition-transform duration-200 ease-in-out
+          lg:translate-x-0 lg:static lg:block
+          ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}
+        `}>
           <div className="flex items-center gap-3 mb-8">
             <BarChart3 className="w-8 h-8 text-sidebar-primary" />
             <h1 className="text-xl font-bold text-sidebar-foreground">QuantMind</h1>
@@ -378,6 +394,7 @@ export default function TradingSystem() {
                 key={id}
                 onClick={() => {
                   setCurrentPage(id)
+                  setIsSidebarOpen(false) // Close sidebar on mobile click
                   if (typeof window !== 'undefined') {
                     const target = `#${id}`
                     if (window.location.hash !== target) {
@@ -401,11 +418,21 @@ export default function TradingSystem() {
         {/* Main Content */}
         <div className="flex-1 min-w-0">
           {/* Header */}
-          <header className="bg-sidebar border-b border-sidebar-border px-6 py-4">
+          <header className="bg-sidebar border-b border-sidebar-border px-6 py-4 sticky top-0 z-30">
             <div className="flex items-center justify-between gap-4">
               {/* Left Section - Title and Alerts */}
-              <div className="flex items-center gap-4 flex-shrink-0">
-                <h2 className="text-xl font-semibold text-sidebar-foreground whitespace-nowrap">
+              <div className="flex items-center gap-3 md:gap-4 flex-shrink-0">
+                {/* Hamburger Menu for Mobile */}
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="lg:hidden -ml-2"
+                  onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+                >
+                  <Menu className="w-6 h-6" />
+                </Button>
+
+                <h2 className="text-lg md:text-xl font-semibold text-sidebar-foreground whitespace-nowrap">
                   {currentPage === "dashboard" && "股票"}
                   {currentPage === "trades" && "交易"}
                   {currentPage === "notes" && "笔记"}
@@ -474,7 +501,7 @@ export default function TradingSystem() {
           </header>
 
           {/* Page Content */}
-          <main className="px-6 py-4">
+          <main className="p-4 lg:p-6">
             {/* 智能提醒系统 - 只在有重要提醒时显示 */}
             <ReverseAlertSystem 
               variant="banner"

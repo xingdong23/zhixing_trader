@@ -9,6 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { Heart, TrendingUp, AlertCircle, Brain } from 'lucide-react';
 import { toast } from 'sonner';
 import PsychologyAnalysis from './PsychologyAnalysis';
+import PsychologyRadarChart from './PsychologyRadarChart';
 
 // 情绪类型
 const emotions = [
@@ -86,8 +87,11 @@ export default function PsychologyView() {
         </div>
       </div>
 
-      {/* 核心分析图表 */}
-      <PsychologyAnalysis />
+      {/* 核心分析图表区域 */}
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+        <PsychologyAnalysis />
+        <PsychologyRadarChart />
+      </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* 左侧：情绪录入 */}
