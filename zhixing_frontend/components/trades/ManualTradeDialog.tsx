@@ -17,11 +17,10 @@ interface ManualTradeDialogProps {
 }
 
 const MOOD_OPTIONS = [
-  { value: 'FOMO', label: '追高', emoji: '🚀' },
-  { value: 'Confident', label: '自信', emoji: '💪' },
-  { value: 'Revenge', label: '报复', emoji: '😡' },
-  { value: 'Bored', label: '无聊', emoji: '🥱' },
-  { value: 'Disciplined', label: '纪律', emoji: '🧘' },
+  { value: 'FOMO', label: '上头 (FOMO)', emoji: '🤯' },
+  { value: 'Greedy', label: '贪婪 (Greedy)', emoji: '🤑' },
+  { value: 'Fearful', label: '恐惧 (Fearful)', emoji: '😱' },
+  { value: 'Disciplined', label: '按计划 (Disciplined)', emoji: '🧘' },
 ] as const;
 
 const MISTAKE_OPTIONS = [
@@ -41,6 +40,7 @@ export default function ManualTradeDialog({ open, onClose, onSave, nextId }: Man
     mood: "" as Trade['mood'] | "",
     mistakes: [] as string[],
     strategy: "",
+    imageUrl: "",
   });
 
   const handleMistakeToggle = (mistake: string) => {
@@ -73,7 +73,8 @@ export default function ManualTradeDialog({ open, onClose, onSave, nextId }: Man
       mood: form.mood || undefined,
       mistakes: form.mistakes.length > 0 ? form.mistakes : undefined,
       strategy: form.strategy || undefined,
-      
+      imageUrl: form.imageUrl || undefined,
+
       createdAt: form.date || now,
       updatedAt: now,
     } as Trade;
@@ -119,7 +120,7 @@ export default function ManualTradeDialog({ open, onClose, onSave, nextId }: Man
           {/* 右侧：心理与复盘 */}
           <div className="space-y-4 border-l pl-6">
             <h4 className="font-medium text-sm text-muted-foreground">心理与复盘</h4>
-            
+
             {/* 心情选择 */}
             <div className="space-y-2">
               <Label>当时的心态 (Mood)</Label>
@@ -165,6 +166,49 @@ export default function ManualTradeDialog({ open, onClose, onSave, nextId }: Man
             <div className="space-y-2">
               <Label>备注/Tags</Label>
               <Input value={form.tags} onChange={(e) => setForm({ ...form, tags: e.target.value })} placeholder="额外标签..." />
+            </div>
+
+            {/* 图片上传 */}
+            <div className="space-y-2">
+              <Label>截图 (可选)</Label>
+              <Input
+                type="file"
+                accept="image/*"
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) {
+                    // Simple client-side compression
+                    const reader = new FileReader();
+                    reader.onload = (event) => {
+                      const img = new Image();
+                      img.onload = () => {
+                        const canvas = document.createElement('canvas');
+                        const MAX_WIDTH = 800;
+                        const scaleSize = MAX_WIDTH / img.width;
+                        canvas.width = MAX_WIDTH;
+                        canvas.height = img.height * scaleSize;
+                        const ctx = canvas.getContext('2d');
+                        ctx?.drawImage(img, 0, 0, canvas.width, canvas.height);
+                        const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.7);
+                        setForm({ ...form, imageUrl: compressedDataUrl });
+                      };
+                      img.src = event.target?.result as string;
+                    };
+                    reader.readAsDataURL(file);
+                  }
+                }}
+              />
+              {form.imageUrl && (
+                <div className="mt-2 relative w-full h-32 rounded-md overflow-hidden border">
+                  <img src={form.imageUrl} alt="Preview" className="w-full h-full object-cover" />
+                  <button
+                    onClick={() => setForm({ ...form, imageUrl: "" })}
+                    className="absolute top-1 right-1 bg-black/50 text-white rounded-full p-1 hover:bg-black/70"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18" /><path d="m6 6 18 18" /></svg>
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         </div>

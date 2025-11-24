@@ -28,33 +28,49 @@ import { toast } from "sonner";
 import TradingDisciplineReminder from "@/components/trading/TradingDisciplineReminder";
 import PreTradeChecklist from "@/components/trading/PreTradeChecklist";
 
-// Mock 数据
+import { useLiveQuery } from "dexie-react-hooks";
+import { db, migrateFromLocalStorage } from "@/lib/db";
+
+// Mock 数据 (仅用于初始化或fallback)
 import { mockTrades, mockStatistics } from "@/app/trades/mockData";
 
 export default function TradesView() {
   const router = useRouter();
-  const [trades, setTrades] = useState<Trade[]>(mockTrades);
+
+  // 使用 Dexie 的 useLiveQuery 实时获取数据
+  const rawTrades = useLiveQuery(() => db.trades.orderBy('createdAt').reverse().toArray()) || [];
+
+  // 自动检测违规 (Computed)
+  const trades = useMemo(() => {
+    return rawTrades.map(trade => {
+      const violations = detectViolations(trade);
+      const violationCost = calculateViolationCost({ ...trade, violations });
+      return { ...trade, violations, violationCost };
+    });
+  }, [rawTrades]);
+
   const [filters, setFilters] = useState<TradeFiltersType>({});
   const [showPlanForm, setShowPlanForm] = useState(false);
   const [editingTrade, setEditingTrade] = useState<Trade | null>(null);
   // 强制计划表单（演示）
   const [showForcedPlanForm, setShowForcedPlanForm] = useState(false);
-  const [selectedStockForPlan, setSelectedStockForPlan] = useState<{symbol: string, name: string, price: number} | null>(null);
+  const [selectedStockForPlan, setSelectedStockForPlan] = useState<{ symbol: string, name: string, price: number } | null>(null);
   const [activeTab, setActiveTab] = useState<"active" | "pending" | "history">("active");
   const fileInputRef = React.useRef<HTMLInputElement>(null as any);
   const [importMessage, setImportMessage] = useState<string>("");
   const [manualOpen, setManualOpen] = useState(false);
   const [alertOpen, setAlertOpen] = useState(false);
-  const [alertCfg, setAlertCfg] = useState<AlertConfig>(() => {
-    try {
-      const raw = localStorage.getItem("alertConfig");
-      return raw ? JSON.parse(raw) : {};
-    } catch { return {}; }
-  });
+  const [alertCfg, setAlertCfg] = useState<AlertConfig>({});
+  // 加载配置
+  React.useEffect(() => {
+    db.settings.get('alertConfig').then(item => {
+      if (item) setAlertCfg(item.value);
+    });
+  }, []);
   const [goalTriggered, setGoalTriggered] = useState(false);
   const [ddTriggered, setDdTriggered] = useState(false);
   const [highlightTradeId, setHighlightTradeId] = useState<number | null>(null);
-  
+
   // 交易前检查清单状态
   const [showPreTradeChecklist, setShowPreTradeChecklist] = useState(false);
   const [pendingTradeAction, setPendingTradeAction] = useState<'create_plan' | 'manual_entry' | null>(null);
@@ -122,50 +138,16 @@ export default function TradesView() {
     }
   }, [filteredTrades, activeTab]);
 
-  // 自动检测违规
-  React.useEffect(() => {
-    const tradesWithViolations = trades.map(trade => {
-      const violations = detectViolations(trade);
-      const violationCost = calculateViolationCost({ ...trade, violations });
-      return {
-        ...trade,
-        violations,
-        violationCost,
-      };
-    });
-    
-    // 只有当违规信息改变时才更新状态
-    const hasChanges = tradesWithViolations.some((t, i) => {
-      const original = trades[i];
-      return (
-        (t.violations?.length || 0) !== (original.violations?.length || 0) ||
-        t.violationCost !== original.violationCost
-      );
-    });
-    
-    if (hasChanges) {
-      setTrades(tradesWithViolations);
-    }
-  }, [trades.map(t => `${t.id}-${t.status}-${t.entryPrice}-${t.exitPrice}`).join(",")]);
+  // 自动检测违规逻辑已移至 useMemo
+  // React.useEffect(() => { ... }, [trades]);
 
-  // 持久化（本地）
+  // 迁移数据（仅一次）
   React.useEffect(() => {
-    const saved = localStorage.getItem("tradesData");
-    if (saved) {
-      try {
-        const parsed: Trade[] = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          setTrades(parsed);
-        }
-      } catch {}
-    }
+    migrateFromLocalStorage();
   }, []);
 
-  React.useEffect(() => {
-    try {
-      localStorage.setItem("tradesData", JSON.stringify(trades));
-    } catch {}
-  }, [trades]);
+  // 移除旧的 LocalStorage 同步逻辑
+  // React.useEffect(() => { ... }, [trades]);
 
   // 提醒触发检查
   React.useEffect(() => {
@@ -256,7 +238,7 @@ export default function TradesView() {
           added++;
         });
         if (newOnes.length > 0) {
-          setTrades((prev) => [...newOnes, ...prev]);
+          db.trades.bulkAdd(newOnes).catch(err => toast.error("导入失败: " + err.message));
         }
         setImportMessage(`导入完成：新增 ${added} 条，重复 ${rows.length - added} 条`);
       } catch (err) {
@@ -301,21 +283,24 @@ export default function TradesView() {
   };
 
   // 处理创建/更新交易计划
-  const handleSavePlan = (tradeData: Partial<Trade>) => {
+  const handleSavePlan = async (tradeData: Partial<Trade>) => {
     if (editingTrade) {
       // 更新
-      setTrades(prev => prev.map(t => t.id === editingTrade.id ? { ...t, ...tradeData, updatedAt: new Date().toISOString() } : t));
+      await db.trades.update(editingTrade.id, { ...tradeData, updatedAt: new Date().toISOString() });
     } else {
       // 创建
+      const maxIdTrade = await db.trades.orderBy('id').last();
+      const nextId = (maxIdTrade?.id || 0) + 1;
+
       const newTrade: Trade = {
         ...tradeData,
-        id: Math.max(...trades.map(t => t.id)) + 1,
+        id: nextId,
         status: "pending",
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
         planCreatedAt: new Date().toISOString(),
       } as Trade;
-      setTrades(prev => [newTrade, ...prev]);
+      await db.trades.add(newTrade);
     }
     setShowPlanForm(false);
     setEditingTrade(null);
@@ -343,7 +328,7 @@ export default function TradesView() {
                 </p>
               </div>
             </div>
-            <Button 
+            <Button
               onClick={() => {
                 console.log('按钮被点击了！');
                 router.push('/plan/create');
@@ -358,8 +343,8 @@ export default function TradesView() {
       </Card>
 
       {/* 交易纪律提醒 - 在交易页面顶部突出显示 */}
-      <TradingDisciplineReminder 
-        variant="card" 
+      <TradingDisciplineReminder
+        variant="card"
         dismissible={false}
         autoRotate={true}
         rotateInterval={12}
@@ -428,8 +413,8 @@ export default function TradesView() {
           <SavedFiltersMenu current={filters} onApply={setFilters} />
           <Button variant="outline" size="sm" onClick={() => setAlertOpen(true)}>配置提醒</Button>
           <Button variant="outline" size="sm" onClick={() => {
-            setPendingTradeAction('manual_entry');
-            setShowPreTradeChecklist(true);
+            // MVP优化：直接打开录入弹窗，跳过繁琐检查
+            setManualOpen(true);
           }}>手动录入</Button>
           {importMessage && <span className="text-xs text-muted-foreground ml-2">{importMessage}</span>}
         </div>
@@ -533,13 +518,12 @@ export default function TradesView() {
           </Card>
         ) : (
           filteredTrades.map(trade => (
-            <div 
+            <div
               key={trade.id}
-              className={`transition-all duration-500 ${
-                highlightTradeId === trade.id 
-                  ? 'ring-4 ring-green-400 ring-opacity-50 rounded-lg scale-105' 
-                  : ''
-              }`}
+              className={`transition-all duration-500 ${highlightTradeId === trade.id
+                ? 'ring-4 ring-green-400 ring-opacity-50 rounded-lg scale-105'
+                : ''
+                }`}
             >
               <TradeCard trade={trade} />
             </div>
@@ -573,10 +557,13 @@ export default function TradesView() {
               symbol={selectedStockForPlan?.symbol || ""}
               name={selectedStockForPlan?.name || ""}
               currentPrice={selectedStockForPlan?.price || 0}
-              onSubmit={(plan: TradePlan) => {
+              onSubmit={async (plan: TradePlan) => {
                 // 将计划转换为交易记录并添加到列表
+                const maxIdTrade = await db.trades.orderBy('id').last();
+                const nextId = (maxIdTrade?.id || 0) + 1;
+
                 const newTrade: Trade = {
-                  id: Math.max(0, ...trades.map(t => t.id)) + 1,
+                  id: nextId,
                   symbol: plan.symbol,
                   stockName: plan.name,
                   status: "planned",
@@ -594,19 +581,19 @@ export default function TradesView() {
                   updatedAt: new Date().toISOString(),
                   planCreatedAt: new Date().toISOString(),
                 } as Trade;
-                
-                setTrades(prev => [newTrade, ...prev]);
-                
+
+                await db.trades.add(newTrade);
+
                 // 关闭对话框
                 setShowForcedPlanForm(false);
-                
+
                 // 自动切换到"等待执行"标签页
                 setActiveTab("pending");
-                
+
                 // 高亮显示新创建的计划（3秒后恢复）
                 setHighlightTradeId(newTrade.id);
                 setTimeout(() => setHighlightTradeId(null), 3000);
-                
+
                 // 显示成功提示，并提供查看详情的按钮
                 const scoreValue = typeof plan.score === 'number' ? plan.score : 0;
                 toast.success(`✅ 强制交易计划创建成功！`, {
@@ -628,8 +615,8 @@ export default function TradesView() {
         open={manualOpen}
         onClose={() => setManualOpen(false)}
         nextId={(trades.length > 0 ? Math.max(...trades.map(t => t.id)) + 1 : 1)}
-        onSave={(t) => {
-          setTrades(prev => [t, ...prev]);
+        onSave={async (t) => {
+          await db.trades.add(t);
           setManualOpen(false);
         }}
       />
@@ -641,10 +628,10 @@ export default function TradesView() {
         initial={alertCfg}
         onSave={(cfg) => {
           setAlertCfg(cfg);
-          try { localStorage.setItem("alertConfig", JSON.stringify(cfg)); } catch {}
+          db.settings.put({ key: 'alertConfig', value: cfg });
         }}
       />
-      
+
       {/* 交易前强制检查清单 */}
       <PreTradeChecklist
         open={showPreTradeChecklist}

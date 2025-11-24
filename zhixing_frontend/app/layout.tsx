@@ -4,10 +4,24 @@ import { GeistMono } from 'geist/font/mono'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'QuantMind - 智能量化交易系统',
-  description: 'QuantMind Frontend - 专业的智能量化交易系统前端界面',
+  title: "知行交易 - Zhixing Trader",
+  description: "专业的量化交易复盘工具",
+  manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "知行交易",
+  },
   generator: 'v0.app',
 }
+
+export const viewport = {
+  themeColor: "#000000",
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+};
 
 export default function RootLayout({
   children,
@@ -25,7 +39,7 @@ html {
 }
         `}</style>
       </head>
-      <body style={{zIndex: "0"}}>{children}</body>
+      <body style={{ zIndex: "0" }}>{children}</body>
     </html>
   )
 }

@@ -4,11 +4,11 @@ import { useRouter } from "next/navigation";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { 
-  TrendingUp, 
-  TrendingDown, 
-  Clock, 
-  Target, 
+import {
+  TrendingUp,
+  TrendingDown,
+  Clock,
+  Target,
   AlertCircle,
   FileText,
   Image as ImageIcon,
@@ -20,10 +20,13 @@ import {
   StickyNote,
   AlertTriangle,
   DollarSign,
-  ArrowRight
+  ArrowRight,
+  Share2
 } from "lucide-react";
 import type { Trade } from "@/app/trades/types";
 import { getViolationColor, getViolationLabel } from "@/lib/violations";
+import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
+import ShareTradeCard from "./ShareTradeCard";
 
 interface TradeCardProps {
   trade: Trade;
@@ -78,7 +81,7 @@ export default function TradeCard({ trade }: TradeCardProps) {
   };
 
   return (
-    <Card 
+    <Card
       className="p-4 hover:shadow-lg transition-shadow cursor-pointer"
       onClick={() => router.push(`/trade/${trade.id}`)}
     >
@@ -96,16 +99,28 @@ export default function TradeCard({ trade }: TradeCardProps) {
               <p className="text-sm text-gray-500">{trade.stockName}</p>
             </div>
           </div>
-          <Button 
-            variant="ghost" 
-            size="sm"
-            onClick={(e) => {
-              e.stopPropagation();
-              router.push(`/trade/${trade.id}`);
-            }}
-          >
-            <ArrowRight className="w-4 h-4" />
-          </Button>
+          <div className="flex items-center gap-1">
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button variant="ghost" size="sm" onClick={(e) => e.stopPropagation()}>
+                  <Share2 className="w-4 h-4" />
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-md bg-transparent border-none shadow-none p-0 flex justify-center" onClick={(e) => e.stopPropagation()}>
+                <ShareTradeCard trade={trade} onClose={() => { }} />
+              </DialogContent>
+            </Dialog>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={(e) => {
+                e.stopPropagation();
+                router.push(`/trade/${trade.id}`);
+              }}
+            >
+              <ArrowRight className="w-4 h-4" />
+            </Button>
+          </div>
         </div>
 
         {/* 价格信息 */}
@@ -223,9 +238,9 @@ export default function TradeCard({ trade }: TradeCardProps) {
               </p>
               <div className="flex flex-wrap gap-1">
                 {trade.violations.slice(0, 3).map((v, i) => (
-                  <Badge 
-                    key={i} 
-                    variant="outline" 
+                  <Badge
+                    key={i}
+                    variant="outline"
                     className={`text-xs ${getViolationColor(v.severity)}`}
                   >
                     {getViolationLabel(v.type)}
@@ -296,7 +311,7 @@ export default function TradeCard({ trade }: TradeCardProps) {
                 </div>
               )}
             </div>
-            
+
             {trade.status === "active" && (
               <div className="flex items-center gap-2 text-xs">
                 <div className="flex items-center gap-1 text-gray-500">

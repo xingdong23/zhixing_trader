@@ -68,6 +68,7 @@ export interface Trade {
   mood?: 'FOMO' | 'Confident' | 'Revenge' | 'Bored' | 'Disciplined';
   mistakes?: string[];
   strategy?: string;
+  imageUrl?: string;
   
   // 关联
   strategyId?: number;
