@@ -1,0 +1,29 @@
+{
+    "backtest_name": "K线形态策略回测",
+    "description": "识别锤子线、吞没形态等典型K线形态进行交易",
+    
+    "strategy": {
+        "name": "candlestick_pattern",
+        "config_file": "strategies/candlestick_patterns/config.json"
+    },
+    
+    "data": {
+        "source": "backtest/data/BTCUSDT-5m-merged.csv",
+        "resample_from": "5m",
+        "timeframe": "5m"
+    },
+    
+    "backtest_settings": {
+        "initial_capital": 300.0,
+        "taker_fee_rate": 0.0005,
+        "maker_fee_rate": 0.0002,
+        "slippage_rate": 0.0001,
+        "window_size": 100
+    },
+    
+    "output": {
+        "save_trades": true,
+        "save_equity_curve": true,
+        "result_file": "results/candlestick_pattern_{timestamp}.json"
+    }
+}

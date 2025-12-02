@@ -1,0 +1,26 @@
+{
+  "backtest_name": "南瓜汤(PSMI)策略 ETH 1h 长期回测",
+  "description": "ETHUSDT 1小时K线 2022-11至2025-11 回测 (约25000根K线)",
+  "data": {
+    "source": "backtest/data/ETHUSDT-1h-ALL.csv",
+    "timeframe": "1h",
+    "resample_from": "1h"
+  },
+  "strategy": {
+    "name": "pumpkin_soup",
+    "config_file": "strategies/pumpkin_soup/config.json"
+  },
+  "backtest_settings": {
+    "initial_capital": 10000.0,
+    "window_size": 200,
+    "taker_fee_rate": 0.0005,
+    "maker_fee_rate": 0.0002,
+    "slippage_rate": 0.0001
+  },
+  "output": {
+    "result_file": "results/pumpkin_soup_eth_1h_{timestamp}.json",
+    "report_file": "results/pumpkin_soup_eth_1h_report_{timestamp}.txt",
+    "save_trades": true,
+    "save_equity_curve": true
+  }
+}

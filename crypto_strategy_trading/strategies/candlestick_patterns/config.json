@@ -1,0 +1,41 @@
+{
+    "strategy_name": "candlestick_pattern",
+    "description": "K线形态策略 - 识别锤子线、吞没形态等典型K线形态进行交易",
+    
+    "risk_management": {
+        "total_capital": 300.0,
+        "risk_per_trade": 0.02,
+        "leverage": 3.0
+    },
+    
+    "parameters": {
+        "body_ratio_threshold": 0.3,
+        "shadow_ratio_threshold": 2.0,
+        "doji_body_ratio": 0.1,
+        
+        "trend_period": 20,
+        "ema_period": 20,
+        
+        "risk_reward_ratio": 2.0,
+        "atr_period": 14,
+        "stop_loss_atr_multiplier": 1.5,
+        
+        "use_volume_confirmation": true,
+        "volume_threshold": 1.2,
+        "require_trend_context": true,
+        
+        "enabled_patterns": [
+            "hammer",
+            "inverted_hammer",
+            "hanging_man",
+            "shooting_star",
+            "bullish_engulfing",
+            "bearish_engulfing",
+            "doji",
+            "morning_star",
+            "evening_star"
+        ],
+        
+        "allow_short": true
+    }
+}

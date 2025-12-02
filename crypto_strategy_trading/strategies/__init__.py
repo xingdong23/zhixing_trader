@@ -40,9 +40,12 @@ from .rsi_2day.strategy_adaptive import AdaptiveRSI2DayStrategy
 # 形态/突破类策略
 from .nr7_breakout import NR7BreakoutStrategy
 from .false_breakout import FalseBreakoutStrategy
+from .candlestick_patterns import CandlestickPatternStrategy
 
 # 熊市/特殊 regime 策略
 from .bear_trend_enhanced.strategy_bear_regime import BearTrendRegimeStrategy
+# 南瓜汤策略 (PSMI)
+from .pumpkin_soup import PumpkinSoupStrategy
 
 # 套利策略
 from .funding_arbitrage import FundingArbitrageStrategy
@@ -82,9 +85,13 @@ __all__ = [
     # 形态/突破
     'NR7BreakoutStrategy',
     'FalseBreakoutStrategy',
+    'CandlestickPatternStrategy',
 
     # Regime
     'BearTrendRegimeStrategy',
+
+    # 南瓜汤
+    'PumpkinSoupStrategy',
     
     # 套利
     'FundingArbitrageStrategy',
@@ -127,10 +134,14 @@ STRATEGY_REGISTRY = {
     # 形态/突破
     'nr7_breakout': NR7BreakoutStrategy,
     'false_breakout': FalseBreakoutStrategy,
+    'candlestick_pattern': CandlestickPatternStrategy,
 
     # 熊市/Regime
     'bear_trend_regime': BearTrendRegimeStrategy,
     
+    # 南瓜汤
+    'pumpkin_soup': PumpkinSoupStrategy,
+
     # 套利
     'funding_arbitrage': FundingArbitrageStrategy,
 }

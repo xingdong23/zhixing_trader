@@ -1,0 +1,35 @@
+{
+    "backtest_name": "pumpkin_soup_eth_1h",
+    "description": "南瓜汤策略 ETH 1小时回测",
+    "strategy": {
+        "name": "pumpkin_soup",
+        "config_file": "strategies/pumpkin_soup/backtest_eth_5m.json"
+    },
+    "data": {
+        "source": "backtest/data/ETHUSDT-1h-2024-10-18.csv",
+        "resample_from": "1h",
+        "timeframe": "1h"
+    },
+    "backtest_settings": {
+        "initial_capital": 300,
+        "window_size": 200,
+        "taker_fee_rate": 0.0005,
+        "maker_fee_rate": 0.0002,
+        "slippage_rate": 0.0001
+    },
+    "output": {
+        "save_trades": true,
+        "result_file": "results/pumpkin_soup_eth_1h_{timestamp}.json",
+        "save_equity_curve": false
+    },
+    "parameters": {
+        "ema_fast_len": 8,
+        "ema_mid_len": 21,
+        "ema_slow_len": 55,
+        "ewo_fast_len": 5,
+        "ewo_slow_len": 35,
+        "risk_per_trade": 0.02,
+        "total_capital": 300,
+        "leverage": 5.0
+    }
+}
