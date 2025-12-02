@@ -17,7 +17,7 @@ from typing import Dict, List
 from logging.handlers import TimedRotatingFileHandler
 
 # 添加项目路径
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))))
 
 from dotenv import load_dotenv
 import ccxt
@@ -25,8 +25,8 @@ import requests
 import pandas as pd
 
 from strategies.ema_simple_trend.strategy_multiframe import EMASimpleTrendMultiframeStrategy
-from live_trading.db_logger import DBLogger
-from live_trading.mysql_logger import MySQLLogger
+from live_trading.common.db_logger import DBLogger
+from live_trading.common.mysql_logger import MySQLLogger
 
 # 加载环境变量
 load_dotenv()
@@ -77,7 +77,7 @@ class EMASimpleTrendTrader:
         
         # 加载配置
         config_path = os.path.join(
-            os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+            os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))),
             'strategies/ema_simple_trend/config_multiframe.json'
         )
         

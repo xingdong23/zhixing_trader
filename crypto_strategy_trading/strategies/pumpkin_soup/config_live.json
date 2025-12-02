@@ -1,0 +1,38 @@
+{
+    "exchange": {
+        "name": "binance",
+        "api_key": "YOUR_API_KEY",
+        "api_secret": "YOUR_API_SECRET",
+        "testnet": false
+    },
+    "strategy": {
+        "name": "pumpkin_soup",
+        "symbol": "BTC/USDT",
+        "timeframe": "1h",
+        "parameters": {
+            "ema_fast_len": 8,
+            "ema_mid_len": 21,
+            "ema_slow_len": 55,
+            "ewo_fast_len": 5,
+            "ewo_slow_len": 35,
+            "enable_chop_filter": false,
+            "choppiness_threshold": 50.0,
+            "enable_adx_filter": false,
+            "adx_threshold": 30.0,
+            "enable_mtf_filter": true,
+            "htf_multiplier": 4
+        }
+    },
+    "risk_management": {
+        "total_capital": 300.0,
+        "leverage": 10.0,
+        "risk_per_trade": 0.12,
+        "max_daily_loss_pct": 0.20,
+        "max_trades_per_day": 50,
+        "max_consecutive_losses": 10
+    },
+    "logging": {
+        "level": "INFO",
+        "file": "logs/trading_live.log"
+    }
+}

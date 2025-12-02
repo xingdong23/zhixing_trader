@@ -21,46 +21,51 @@
 - ✅ 完整的日志记录
 - ✅ 只读API权限（安全）
 
-## 使用方法
+## 目录结构
 
-### 1. 快速启动
-
-```bash
-# 模拟盘模式（推荐）
-bash live_trading/start_ema_simple_trend.sh paper
-
-# 实盘模式（谨慎使用）
-bash live_trading/start_ema_simple_trend.sh live
+```
+live_trading/
+  ├── common/                 # 公共组件 (日志记录器等)
+  ├── ema_simple_trend/       # EMA 简单趋势策略
+  │   ├── runner.py           # 运行脚本
+  │   └── start.sh            # 启动脚本
+  ├── pumpkin_soup/           # Pumpkin Soup (南瓜汤) 策略
+  │   ├── runner.py           # 运行脚本
+  │   └── start.sh            # 启动脚本
+  └── funding_arbitrage/      # 资金费率套利
+      └── start.sh            # 启动脚本
 ```
 
-### 2. 手动启动
+## 快速启动
+
+### 1. EMA Simple Trend 策略
 
 ```bash
-cd /opt/zhixing_trader/bitcoin_trader
-export PYTHONPATH=/opt/zhixing_trader/bitcoin_trader
-source venv/bin/activate
-
 # 模拟盘
-python live_trading/ema_simple_trend.py --mode paper
+bash live_trading/ema_simple_trend/start.sh paper
 
 # 实盘
-python live_trading/ema_simple_trend.py --mode live
+bash live_trading/ema_simple_trend/start.sh live
 ```
 
-### 3. 查看日志
+### 2. Pumpkin Soup 策略
 
 ```bash
-# 查看最新日志
-tail -f logs/ema_simple_trend_*.log | tail -1
+# 模拟盘
+bash live_trading/pumpkin_soup/start.sh paper
 
-# 查看所有日志
-ls -lt logs/ema_simple_trend_*.log
+# 实盘
+bash live_trading/pumpkin_soup/start.sh live
 ```
 
-### 4. 停止策略
+### 3. 停止策略
 
 ```bash
-pkill -9 -f 'python.*ema_simple_trend'
+# 停止 EMA 策略
+pkill -9 -f "python live_trading/ema_simple_trend/runner.py"
+
+# 停止 Pumpkin Soup 策略
+pkill -9 -f "python live_trading/pumpkin_soup/runner.py"
 ```
 
 ## 配置文件

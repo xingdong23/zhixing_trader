@@ -420,68 +420,75 @@ class PumpkinSoupStrategy:
             return 50.0
 
     def _calculate_adx(self, klines: List[Dict], period: int = 14) -> float:
-        """计算 ADX"""
+        """计算 ADX (使用 Wilder's Smoothing)"""
         if len(klines) < period * 2 + 1: return 0.0
         
         highs = np.array([k["high"] for k in klines])
         lows = np.array([k["low"] for k in klines])
         closes = np.array([k["close"] for k in klines])
         
-        # True Range
+        # 1. True Range
         tr = np.maximum(highs[1:] - lows[1:], 
                        np.maximum(np.abs(highs[1:] - closes[:-1]), 
                                 np.abs(lows[1:] - closes[:-1])))
         
-        # Directional Movement
+        # 2. Directional Movement
         up_move = highs[1:] - highs[:-1]
         down_move = lows[:-1] - lows[1:]
         
         plus_dm = np.where((up_move > down_move) & (up_move > 0), up_move, 0.0)
         minus_dm = np.where((down_move > up_move) & (down_move > 0), down_move, 0.0)
         
-        # Smoothing (Wilder's Smoothing)
+        # 3. Wilder's Smoothing Helper
         def wilder_smooth(data, period):
-            smoothed = np.zeros_like(data)
-            smoothed[period-1] = np.mean(data[:period]) # First value is SMA
+            # 初始化：第一个值用简单平均
+            smoothed = np.zeros(len(data))
+            smoothed[period-1] = np.mean(data[:period])
+            
+            # 后续值：Previous * (n-1)/n + Current
             for i in range(period, len(data)):
                 smoothed[i] = smoothed[i-1] * (period - 1) / period + data[i]
             return smoothed
 
-        # Smooth TR, +DM, -DM
-        # Note: We need enough data for smoothing to stabilize, but here we just use what we have
-        # For simplicity in this snippet, we use a simple rolling sum for the first step if needed, 
-        # but standard ADX uses Wilder's. Let's use a simplified EMA-like approach for robustness if data is short,
-        # or implement Wilder's properly.
+        # 平滑 TR, +DM, -DM
+        # 注意：我们需要从数据开头开始计算以获得准确的平滑值
+        # 这里为了确保数组长度对齐，我们对整个数组进行平滑
+        tr_smooth = wilder_smooth(tr, period)
+        plus_dm_smooth = wilder_smooth(plus_dm, period)
+        minus_dm_smooth = wilder_smooth(minus_dm, period)
         
-        # Using simple EMA for smoothing to be robust and fast
-        alpha = 1.0 / period
-        
-        def ema_smooth(data):
-            res = np.zeros_like(data)
-            res[0] = data[0]
-            for i in range(1, len(data)):
-                res[i] = alpha * data[i] + (1.0 - alpha) * res[i-1]
-            return res
-            
-        tr_smooth = ema_smooth(tr)
-        plus_dm_smooth = ema_smooth(plus_dm)
-        minus_dm_smooth = ema_smooth(minus_dm)
-        
-        # Avoid division by zero
+        # 避免除零
         tr_smooth = np.where(tr_smooth == 0, 1e-10, tr_smooth)
         
+        # 4. DI Calculation
         plus_di = 100 * plus_dm_smooth / tr_smooth
         minus_di = 100 * minus_dm_smooth / tr_smooth
         
+        # 5. DX Calculation
         dx = 100 * np.abs(plus_di - minus_di) / (plus_di + minus_di + 1e-10)
         
-        # ADX is smoothed DX
-        adx = ema_smooth(dx)
+        # 6. ADX Calculation (DX的平滑)
+        adx = wilder_smooth(dx, period)
         
         return float(adx[-1])
 
     def _check_risk_controls(self, current_time: float) -> bool:
-        # 回测时禁用风控，让策略充分运行
+        """检查风控条件"""
+        # 1. 每日亏损限制
+        max_daily_loss_pct = float(self.parameters.get("max_daily_loss_pct", 0.15))
+        capital = float(self.parameters.get("total_capital", 1000.0))
+        
+        # 如果当日亏损超过限制 (例如 15%)，停止交易
+        if self.daily_pnl < -(capital * max_daily_loss_pct):
+            logger.warning(f"触发每日亏损风控: 当前亏损 {self.daily_pnl:.2f}, 限制 {-(capital * max_daily_loss_pct):.2f}")
+            return False
+            
+        # 2. 连败限制 (可选)
+        max_consecutive_losses = int(self.parameters.get("max_consecutive_losses", 10))
+        if self.consecutive_losses >= max_consecutive_losses:
+            logger.warning(f"触发连败风控: 连续亏损 {self.consecutive_losses} 次")
+            return False
+            
         return True
 
     def update_position(self, signal: Dict[str, Any]):
