@@ -24,7 +24,7 @@ import ccxt
 import requests
 import pandas as pd
 
-from strategies.ema_simple_trend.strategy_multiframe import EMASimpleTrendMultiframeStrategy
+from strategies.ema_simple_trend.strategy import EMASimpleTrendMultiframeStrategy
 from live_trading.common.db_logger import DBLogger
 from live_trading.common.mysql_logger import MySQLLogger
 
@@ -78,7 +78,7 @@ class EMASimpleTrendTrader:
         # 加载配置
         config_path = os.path.join(
             os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))),
-            'strategies/ema_simple_trend/config_multiframe.json'
+            'strategies/ema_simple_trend/config.json'
         )
         
         with open(config_path, 'r', encoding='utf-8') as f:

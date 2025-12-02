@@ -31,7 +31,7 @@ from .probability_profit import ProbabilityProfitStrategy
 
 # EMA Simple Trend 系列
 from .ema_simple_trend import EMASimpleTrendStrategy
-from .ema_simple_trend.strategy_multiframe import EMASimpleTrendMultiframeStrategy
+from .ema_simple_trend.strategy import EMASimpleTrendMultiframeStrategy
 
 # RSI 2-Day 系列
 from .rsi_2day.strategy import RSI2DayStrategy

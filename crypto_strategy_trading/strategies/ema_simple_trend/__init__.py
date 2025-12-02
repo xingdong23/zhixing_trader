@@ -2,7 +2,7 @@
 EMA简单趋势策略 - 多时间框架版本
 """
 
-from .strategy_multiframe import EMASimpleTrendMultiframeStrategy
+from .strategy import EMASimpleTrendMultiframeStrategy
 
 # 兼容旧名称
 EMASimpleTrendStrategy = EMASimpleTrendMultiframeStrategy

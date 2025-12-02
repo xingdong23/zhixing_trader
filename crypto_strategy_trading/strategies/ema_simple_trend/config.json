@@ -1,42 +1,33 @@
 {
   "strategy_name": "EMA简单趋势策略 - 多时间框架版",
   "description": "日线判断趋势方向 + 1小时寻找入场 + 2.7倍杠杆",
-  
   "capital_management": {
     "total_capital": 300.0,
-
     "position_size": 0.5,
     "leverage": 2.5,
-
     "ema_fast": 5,
     "ema_medium": 13,
     "ema_slow": 21,
-
     "max_risk_per_trade": 0.015,
     "max_daily_drawdown": 0.15,
     "use_volatility_position_sizing": true,
     "atr_period": 14,
     "min_position_size": 0.2,
     "max_position_size": 0.9,
-
     "min_rr_ratio": 1.6,
     "reentry_cooldown": 2,
-
     "stop_loss_pct": 0.025,
     "take_profit_pct": 0.18,
     "partial_take_profit_pct": 0.0,
-
     "use_atr_stop": true,
     "atr_stop_multiplier": 2.0,
     "atr_tp_multiplier": 4.0,
-
     "use_trailing_stop": true,
     "trailing_stop_activation": 0.05,
     "trailing_stop_distance": 0.03,
     "use_trailing_take_profit": true,
     "trailing_take_profit_activation": 0.06,
     "trailing_take_profit_distance": 0.025,
-
     "volume_confirmation": false,
     "volume_multiplier": 1.05,
     "trend_strength_filter": true,
@@ -44,12 +35,10 @@
     "ema_band_distance_min": 0.0008,
     "use_ema_exit": false,
     "allow_short": false,
-
     "use_daily_trend_filter": true,
     "daily_ema_period": 21,
-    "daily_data_file": "backtest/data/ETHUSDT-1d-from1h.csv"
+    "daily_data_file": "backtest/data/BTCUSDT-1d-ALL.csv"
   },
-  
   "comments": {
     "strategy": "多时间框架版本 - 日线过滤做多信号",
     "daily_trend": "日线在EMA21上方→允许做多，日线在EMA21下方→空仓等待",
