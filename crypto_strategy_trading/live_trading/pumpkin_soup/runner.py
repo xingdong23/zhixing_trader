@@ -29,7 +29,8 @@ from live_trading.common.db_logger import DBLogger
 from live_trading.common.mysql_logger import MySQLLogger
 
 # 加载环境变量
-load_dotenv()
+env_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), '.env')
+load_dotenv(env_path)
 
 # 配置日志
 log_formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
