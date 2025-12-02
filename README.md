@@ -149,7 +149,7 @@ zhixing_trader/
 └── 文档/                         # 项目文档
 ```
 
-📘 **详细结构**: [PROJECT_STRUCTURE.md](PROJECT_STRUCTURE.md)
+📘 **详细结构**: [PROJECT_STRUCTURE.md](文档/PROJECT_STRUCTURE.md)
 
 ---
 
@@ -223,7 +223,7 @@ zhixing_trader/
 ### 快速开始
 - [启动服务指南](文档/01-快速开始/启动服务指南.md)
 - [项目结构说明](文档/01-快速开始/项目结构说明.md)
-- [项目详细结构](PROJECT_STRUCTURE.md)
+- [项目详细结构](文档/PROJECT_STRUCTURE.md)
 
 ### 架构设计
 - [系统架构](文档/02-架构设计/系统架构.md)
@@ -353,6 +353,6 @@ FUTU_PORT=11111
 
 Made with ❤️ by Cheng Zheng
 
-[文档](文档/) • [快速开始](文档/01-快速开始/启动服务指南.md) • [项目结构](PROJECT_STRUCTURE.md)
+[文档](文档/) • [快速开始](文档/01-快速开始/启动服务指南.md) • [项目结构](文档/PROJECT_STRUCTURE.md)
 
 </div>
