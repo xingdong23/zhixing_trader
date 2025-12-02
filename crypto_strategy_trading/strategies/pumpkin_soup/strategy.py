@@ -36,6 +36,16 @@ class PumpkinSoupStrategy:
         self.ewo_fast_len = int(parameters.get("ewo_fast_len", 5))
         self.ewo_slow_len = int(parameters.get("ewo_slow_len", 35))
         
+        # 过滤器参数 (默认关闭)
+        self.enable_chop_filter = parameters.get("enable_chop_filter", False)
+        self.choppiness_threshold = float(parameters.get("choppiness_threshold", 61.8))
+        self.enable_adx_filter = parameters.get("enable_adx_filter", False)
+        self.adx_threshold = float(parameters.get("adx_threshold", 20.0))
+        
+        # 多周期共振参数
+        self.enable_mtf_filter = parameters.get("enable_mtf_filter", True)
+        self.htf_multiplier = int(parameters.get("htf_multiplier", 4))  # 高级别周期倍数，4=4H(相对1H)
+        
         # 持仓信息
         self.current_position: Optional[Dict] = None
         
@@ -85,7 +95,6 @@ class PumpkinSoupStrategy:
         ema_fast = self._calculate_ema(closes, self.ema_fast_len)
         ema_mid = self._calculate_ema(closes, self.ema_mid_len)
         ema_slow = self._calculate_ema(closes, self.ema_slow_len)
-        
         ewo = self._calculate_ewo(closes)
         
         current_price = closes[-1]
@@ -93,30 +102,65 @@ class PumpkinSoupStrategy:
         current_ema_mid = ema_mid[-1]
         current_ema_slow = ema_slow[-1]
         
-        # 1. 趋势判断 (导航) - 放宽条件
-        # 强多头：价格 > 所有EMA
-        strong_bull = (current_price > current_ema_fast) and \
-                     (current_price > current_ema_mid) and \
-                     (current_price > current_ema_slow)
-        # 弱多头：价格 > 中期EMA，且中期EMA > 慢速EMA
-        weak_bull = (current_price > current_ema_mid) and (current_ema_mid > current_ema_slow)
-        is_bull_trend = strong_bull or weak_bull
+        # 1. 趋势判断 (导航) - 严格条件，只做强趋势
+        # 强多头：价格 > 所有EMA，且EMA多头排列
+        ema_bull_aligned = (current_ema_fast > current_ema_mid > current_ema_slow)
+        is_bull_trend = (current_price > current_ema_fast) and ema_bull_aligned
                        
-        # 强空头：价格 < 所有EMA
-        strong_bear = (current_price < current_ema_fast) and \
-                     (current_price < current_ema_mid) and \
-                     (current_price < current_ema_slow)
-        # 弱空头：价格 < 中期EMA，且中期EMA < 慢速EMA
-        weak_bear = (current_price < current_ema_mid) and (current_ema_mid < current_ema_slow)
-        is_bear_trend = strong_bear or weak_bear
+        # 强空头：价格 < 所有EMA，且EMA空头排列
+        ema_bear_aligned = (current_ema_fast < current_ema_mid < current_ema_slow)
+        is_bear_trend = (current_price < current_ema_fast) and ema_bear_aligned
         
         if not (is_bull_trend or is_bear_trend):
-            return {"signal": "hold", "reason": "趋势不明确(价格在EMA之间)"}
+            return {"signal": "hold", "reason": "趋势不明确"}
         
         # 趋势强度过滤：EMA之间的距离要够大
         ema_spread = abs(current_ema_fast - current_ema_slow) / current_price
-        if ema_spread < 0.015:  # EMA距离小于1.5%，说明趋势不明确
+        if ema_spread < 0.015:  # EMA距离小于1.5%，趋势不够强
             return {"signal": "hold", "reason": "趋势强度不足"}
+        
+        # 趋势持续性过滤：检查过去5根K线EMA排列是否一致
+        lookback_trend = 5
+        trend_consistent = True
+        for i in range(-lookback_trend, 0):
+            if is_bull_trend:
+                if not (ema_fast[i] > ema_mid[i] > ema_slow[i]):
+                    trend_consistent = False
+                    break
+            else:
+                if not (ema_fast[i] < ema_mid[i] < ema_slow[i]):
+                    trend_consistent = False
+                    break
+        
+        if not trend_consistent:
+            return {"signal": "hold", "reason": "趋势不稳定"}
+        
+        # 多周期共振过滤：只过滤明确反向的高级别趋势
+        # 宽松版：mixed时允许交易，只有明确反向时才过滤
+        if self.enable_mtf_filter:
+            htf_trend = self._get_htf_trend(closes)
+            if is_bull_trend and htf_trend == "bear":
+                return {"signal": "hold", "reason": "高级别空头趋势，不做多"}
+            if is_bear_trend and htf_trend == "bull":
+                return {"signal": "hold", "reason": "高级别多头趋势，不做空"}
+        
+        # EWO方向过滤：EWO符号必须与趋势一致
+        current_ewo = ewo[-1]
+        if is_bull_trend and current_ewo < 0:
+            return {"signal": "hold", "reason": "EWO为负，多头动能不足"}
+        if is_bear_trend and current_ewo > 0:
+            return {"signal": "hold", "reason": "EWO为正，空头动能不足"}
+
+        # 1.5 震荡过滤 (CHOP & ADX)
+        if self.enable_chop_filter:
+            chop = self._calculate_chop(klines)
+            if chop > self.choppiness_threshold:
+                return {"signal": "hold", "reason": f"市场震荡 (CHOP={chop:.1f})"}
+                
+        if self.enable_adx_filter:
+            adx = self._calculate_adx(klines)
+            if adx < self.adx_threshold:
+                return {"signal": "hold", "reason": f"趋势太弱 (ADX={adx:.1f})"}
             
         # 2. 回调识别 (油门 - EWO)
         # EWO变色逻辑：
@@ -182,9 +226,20 @@ class PumpkinSoupStrategy:
             risk_amount = atr
             stop_loss = price - atr
         
-        # 直接按杠杆计算仓位：使用80%的可用杠杆仓位
-        position_value = capital * leverage * 0.8
-        position_size = position_value / price
+        # 基于风险的仓位管理
+        # 风险金额 = 总资金 * 单笔风险比例 (例如 5%)
+        risk_per_trade = float(self.parameters.get("risk_per_trade", 0.05))
+        risk_capital = capital * risk_per_trade
+        
+        # 仓位大小 = 风险金额 / (入场价 - 止损价)
+        # 例如：风险15U，止损距离100U，则仓位 = 0.15 BTC
+        position_size = risk_capital / risk_amount
+        
+        # 杠杆限制检查
+        max_position_value = capital * leverage
+        if position_size * price > max_position_value:
+            position_size = max_position_value / price
+            logger.warning(f"仓位受杠杆限制，已调整: {position_size:.4f}")
         
         # 盈亏比 2:1
         take_profit = price + (risk_amount * 2.0)
@@ -208,9 +263,18 @@ class PumpkinSoupStrategy:
             risk_amount = atr
             stop_loss = price + atr
         
-        # 直接按杠杆计算仓位：使用80%的可用杠杆仓位
-        position_value = capital * leverage * 0.8
-        position_size = position_value / price
+        # 基于风险的仓位管理
+        risk_per_trade = float(self.parameters.get("risk_per_trade", 0.05))
+        risk_capital = capital * risk_per_trade
+        
+        # 仓位大小 = 风险金额 / (止损价 - 入场价)
+        position_size = risk_capital / risk_amount
+        
+        # 杠杆限制检查
+        max_position_value = capital * leverage
+        if position_size * price > max_position_value:
+            position_size = max_position_value / price
+            logger.warning(f"仓位受杠杆限制，已调整: {position_size:.4f}")
         
         # 盈亏比 2:1
         take_profit = price - (risk_amount * 2.0)
@@ -265,6 +329,41 @@ class PumpkinSoupStrategy:
             "reason": f"{exit_type}触发"
         }
 
+    def _get_htf_trend(self, closes: np.ndarray) -> str:
+        """
+        获取高级别周期的趋势方向
+        使用"放大参数法"：在1H上计算放大N倍参数的EMA来近似高级别趋势
+        4H EMA8 ≈ 1H EMA32, 4H EMA21 ≈ 1H EMA84, 4H EMA55 ≈ 1H EMA220
+        """
+        multiplier = self.htf_multiplier
+        
+        # 放大参数
+        htf_slow_len = self.ema_slow_len * multiplier  # 55*4=220
+        
+        if len(closes) < htf_slow_len + 10:
+            return "unknown"
+        
+        # 在1H数据上计算放大参数的EMA
+        htf_ema_fast = self._calculate_ema(closes, self.ema_fast_len * multiplier)
+        htf_ema_mid = self._calculate_ema(closes, self.ema_mid_len * multiplier)
+        htf_ema_slow = self._calculate_ema(closes, self.ema_slow_len * multiplier)
+        
+        current_price = closes[-1]
+        ema_f = htf_ema_fast[-1]
+        ema_m = htf_ema_mid[-1]
+        ema_s = htf_ema_slow[-1]
+        
+        # 带缓冲区的宽松版：价格需要明确高于/低于EMA220一定距离
+        # 避免在EMA220附近频繁切换趋势判断
+        buffer = 0.02  # 2%缓冲区
+        
+        if current_price > ema_s * (1 + buffer):
+            return "bull"
+        elif current_price < ema_s * (1 - buffer):
+            return "bear"
+        else:
+            return "mixed"  # 价格在EMA220±2%范围内，趋势不明确
+
     def _calculate_ema(self, data: np.ndarray, period: int) -> np.ndarray:
         if len(data) == 0: return np.array([])
         alpha = 2.0 / (period + 1.0)
@@ -290,6 +389,96 @@ class PumpkinSoupStrategy:
                        np.maximum(np.abs(highs[1:] - closes[:-1]), 
                                 np.abs(lows[1:] - closes[:-1])))
         return float(np.mean(tr[-period:]))
+
+    def _calculate_chop(self, klines: List[Dict], period: int = 14) -> float:
+        """计算 Choppiness Index"""
+        if len(klines) < period + 1: return 50.0
+        
+        highs = np.array([k["high"] for k in klines])
+        lows = np.array([k["low"] for k in klines])
+        closes = np.array([k["close"] for k in klines])
+        
+        # True Range
+        tr = np.maximum(highs[1:] - lows[1:], 
+                       np.maximum(np.abs(highs[1:] - closes[:-1]), 
+                                np.abs(lows[1:] - closes[:-1])))
+        
+        atr_sum = np.sum(tr[-period:])
+        
+        # Max High - Min Low over period
+        max_hi = np.max(highs[-period:])
+        min_lo = np.min(lows[-period:])
+        range_diff = max_hi - min_lo
+        
+        if range_diff == 0: return 50.0
+        
+        # CHOP = 100 * LOG10(SUM(ATR(1), n) / (MaxHi(n) - MinLo(n))) / LOG10(n)
+        try:
+            chop = 100 * np.log10(atr_sum / range_diff) / np.log10(period)
+            return float(chop)
+        except:
+            return 50.0
+
+    def _calculate_adx(self, klines: List[Dict], period: int = 14) -> float:
+        """计算 ADX"""
+        if len(klines) < period * 2 + 1: return 0.0
+        
+        highs = np.array([k["high"] for k in klines])
+        lows = np.array([k["low"] for k in klines])
+        closes = np.array([k["close"] for k in klines])
+        
+        # True Range
+        tr = np.maximum(highs[1:] - lows[1:], 
+                       np.maximum(np.abs(highs[1:] - closes[:-1]), 
+                                np.abs(lows[1:] - closes[:-1])))
+        
+        # Directional Movement
+        up_move = highs[1:] - highs[:-1]
+        down_move = lows[:-1] - lows[1:]
+        
+        plus_dm = np.where((up_move > down_move) & (up_move > 0), up_move, 0.0)
+        minus_dm = np.where((down_move > up_move) & (down_move > 0), down_move, 0.0)
+        
+        # Smoothing (Wilder's Smoothing)
+        def wilder_smooth(data, period):
+            smoothed = np.zeros_like(data)
+            smoothed[period-1] = np.mean(data[:period]) # First value is SMA
+            for i in range(period, len(data)):
+                smoothed[i] = smoothed[i-1] * (period - 1) / period + data[i]
+            return smoothed
+
+        # Smooth TR, +DM, -DM
+        # Note: We need enough data for smoothing to stabilize, but here we just use what we have
+        # For simplicity in this snippet, we use a simple rolling sum for the first step if needed, 
+        # but standard ADX uses Wilder's. Let's use a simplified EMA-like approach for robustness if data is short,
+        # or implement Wilder's properly.
+        
+        # Using simple EMA for smoothing to be robust and fast
+        alpha = 1.0 / period
+        
+        def ema_smooth(data):
+            res = np.zeros_like(data)
+            res[0] = data[0]
+            for i in range(1, len(data)):
+                res[i] = alpha * data[i] + (1.0 - alpha) * res[i-1]
+            return res
+            
+        tr_smooth = ema_smooth(tr)
+        plus_dm_smooth = ema_smooth(plus_dm)
+        minus_dm_smooth = ema_smooth(minus_dm)
+        
+        # Avoid division by zero
+        tr_smooth = np.where(tr_smooth == 0, 1e-10, tr_smooth)
+        
+        plus_di = 100 * plus_dm_smooth / tr_smooth
+        minus_di = 100 * minus_dm_smooth / tr_smooth
+        
+        dx = 100 * np.abs(plus_di - minus_di) / (plus_di + minus_di + 1e-10)
+        
+        # ADX is smoothed DX
+        adx = ema_smooth(dx)
+        
+        return float(adx[-1])
 
     def _check_risk_controls(self, current_time: float) -> bool:
         # 回测时禁用风控，让策略充分运行

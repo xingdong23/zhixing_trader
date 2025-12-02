@@ -1,6 +1,6 @@
 {
-  "backtest_name": "南瓜汤(PSMI)策略 BTC 1h 长期回测",
-  "description": "BTCUSDT 1小时K线 2022-11至2024-11 回测 (约17000根K线)",
+  "backtest_name": "南瓜汤策略 BTC 1h 全周期回测",
+  "description": "BTCUSDT 1小时 2022-11至2024-11 (2年)",
   "data": {
     "source": "backtest/data/BTCUSDT-1h-ALL.csv",
     "timeframe": "1h",
@@ -11,15 +11,14 @@
     "config_file": "strategies/pumpkin_soup/config.json"
   },
   "backtest_settings": {
-    "initial_capital": 10000.0,
-    "window_size": 200,
+    "initial_capital": 300.0,
+    "window_size": 300,
     "taker_fee_rate": 0.0005,
     "maker_fee_rate": 0.0002,
-    "slippage_rate": 0.0001
+    "slippage_rate": 0.0005
   },
   "output": {
     "result_file": "results/pumpkin_soup_btc_1h_{timestamp}.json",
-    "report_file": "results/pumpkin_soup_btc_1h_report_{timestamp}.txt",
     "save_trades": true,
     "save_equity_curve": true
   }

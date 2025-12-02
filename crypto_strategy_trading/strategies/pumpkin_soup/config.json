@@ -1,6 +1,6 @@
 {
   "risk_management": {
-    "total_capital": 10000.0,
+    "total_capital": 300.0,
     "leverage": 5.0,
     "risk_per_trade": 0.05,
     "max_daily_loss_pct": 0.15,
@@ -12,6 +12,8 @@
     "ema_mid_len": 21,
     "ema_slow_len": 55,
     "ewo_fast_len": 5,
-    "ewo_slow_len": 35
+    "ewo_slow_len": 35,
+    "enable_mtf_filter": true,
+    "htf_multiplier": 4
   }
 }
