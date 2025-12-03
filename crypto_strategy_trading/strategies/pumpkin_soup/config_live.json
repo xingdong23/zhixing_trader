@@ -1,33 +1,33 @@
 {
-    "exchange": {
-        "name": "okx",
-        "testnet": false
-    },
-    "strategy": {
-        "name": "pumpkin_soup",
-        "symbol": "BTC/USDT",
-        "timeframe": "1h",
-        "parameters": {
-            "ema_fast_len": 8,
-            "ema_mid_len": 21,
-            "ema_slow_len": 55,
-            "ewo_fast_len": 5,
-            "ewo_slow_len": 35,
-            "enable_chop_filter": false,
-            "choppiness_threshold": 50.0,
-            "enable_adx_filter": false,
-            "adx_threshold": 30.0,
-            "enable_mtf_filter": true,
-            "htf_multiplier": 4
-        }
+    "strategy_name": "pumpkin_soup_live",
+    "symbol": "BTCUSDT",
+    "timeframe": "1h",
+    "exchange": "binance",
+    "api_key": "YOUR_API_KEY",
+    "api_secret": "YOUR_API_SECRET",
+    "parameters": {
+        "ema_fast_len": 8,
+        "ema_mid_len": 21,
+        "ema_slow_len": 55,
+        "ewo_fast_len": 5,
+        "ewo_slow_len": 35,
+        "enable_mtf_filter": true,
+        "htf_multiplier": 4,
+        "enable_regime_filter": true,
+        "regime_ema_len": 2400,
+        "enable_chop_filter": true,
+        "choppiness_threshold": 55.0,
+        "enable_adx_filter": true,
+        "adx_threshold": 30.0,
+        "risk_per_trade": 0.05,
+        "max_leverage": 3.0,
+        "stop_loss_atr_multiplier": 2.0,
+        "take_profit_atr_multiplier": 4.0
     },
     "risk_management": {
-        "total_capital": 300.0,
-        "leverage": 10.0,
-        "risk_per_trade": 0.12,
-        "max_daily_loss_pct": 0.20,
-        "max_trades_per_day": 50,
-        "max_consecutive_losses": 10
+        "max_daily_loss": 0.20,
+        "max_drawdown_limit": 0.30,
+        "total_capital": 1000.0
     },
     "logging": {
         "level": "INFO",

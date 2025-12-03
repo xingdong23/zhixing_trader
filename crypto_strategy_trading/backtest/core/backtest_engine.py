@@ -356,6 +356,7 @@ class BacktestEngine:
                 'profit_factor': profit_factor,
                 'max_drawdown': max_drawdown,
                 'avg_holding_time': avg_holding_time,
+                'buy_and_hold_return': (self.equity_curve[-1]['price'] - self.equity_curve[0]['price']) / self.equity_curve[0]['price'] * 100 if self.equity_curve else 0
             },
             'trades': self.trades,
             'equity_curve': self.equity_curve,

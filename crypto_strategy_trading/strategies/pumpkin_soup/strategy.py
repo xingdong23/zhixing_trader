@@ -42,6 +42,11 @@ class PumpkinSoupStrategy:
         self.enable_adx_filter = parameters.get("enable_adx_filter", False)
         self.adx_threshold = float(parameters.get("adx_threshold", 20.0))
         
+        # 宏观趋势过滤器 (Regime Filter)
+        self.enable_regime_filter = parameters.get("enable_regime_filter", False)
+        self.regime_ema_len = int(parameters.get("regime_ema_len", 800))
+        logger.info(f"Regime Filter Enabled: {self.enable_regime_filter}, Length: {self.regime_ema_len}")
+        
         # 多周期共振参数
         self.enable_mtf_filter = parameters.get("enable_mtf_filter", True)
         self.htf_multiplier = int(parameters.get("htf_multiplier", 4))  # 高级别周期倍数，4=4H(相对1H)
@@ -143,6 +148,13 @@ class PumpkinSoupStrategy:
                 return {"signal": "hold", "reason": "高级别空头趋势，不做多"}
             if is_bear_trend and htf_trend == "bull":
                 return {"signal": "hold", "reason": "高级别多头趋势，不做空"}
+                
+        # 宏观趋势过滤 (Regime Filter)
+        regime = self._check_regime_filter(closes, current_price)
+        if is_bull_trend and regime == "bear":
+            return {"signal": "hold", "reason": "宏观空头趋势 (Regime)，禁止做多"}
+        if is_bear_trend and regime == "bull":
+            return {"signal": "hold", "reason": "宏观多头趋势 (Regime)，禁止做空"}
         
         # EWO方向过滤：EWO符号必须与趋势一致
         current_ewo = ewo[-1]
@@ -473,6 +485,28 @@ class PumpkinSoupStrategy:
         adx = wilder_smooth(dx, period)
         
         return float(adx[-1])
+
+    def _check_regime_filter(self, closes: np.ndarray, current_price: float) -> str:
+        """
+        检查宏观趋势 (Regime Filter)
+        返回: "bull", "bear", "all"
+        """
+        if not self.enable_regime_filter:
+            return "all"
+            
+        if len(closes) < self.regime_ema_len:
+            logger.debug(f"Regime Filter: Data insufficient ({len(closes)} < {self.regime_ema_len})")
+            return "all"
+            
+        regime_ema = self._calculate_ema(closes, self.regime_ema_len)
+        current_regime_ema = regime_ema[-1]
+        
+        logger.info(f"Regime Check: Price={current_price:.2f}, EMA({self.regime_ema_len})={current_regime_ema:.2f}")
+        
+        if current_price > current_regime_ema:
+            return "bull"  # 只做多
+        else:
+            return "bear"  # 只做空
 
     def _check_risk_controls(self, current_time: float) -> bool:
         """检查风控条件"""

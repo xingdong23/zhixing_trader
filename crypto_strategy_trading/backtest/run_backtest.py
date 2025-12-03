@@ -103,6 +103,11 @@ class BacktestRunner:
         # 处理保守模式
         if 'conservative_mode' in strategy_config:
             params['conservative_mode'] = strategy_config['conservative_mode'].get('enabled', False)
+
+        # 允许从回测配置中覆盖参数
+        if 'strategy' in self.config and 'parameters' in self.config['strategy']:
+            logger.info(f"应用回测配置中的参数覆盖: {self.config['strategy']['parameters']}")
+            params.update(self.config['strategy']['parameters'])
         
         return params
     

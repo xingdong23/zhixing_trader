@@ -1,0 +1,36 @@
+{
+    "backtest_name": "南瓜汤策略 BTC 2024 YTD (Year To Date)",
+    "description": "BTCUSDT 2024.01 - 2024.11 (大牛市)",
+    "data": {
+        "source": "backtest/data/BTCUSDT-1h-2024-FULL.csv",
+        "timeframe": "1h",
+        "resample_from": "1h",
+        "start_timestamp": 1696118400000,
+        "end_timestamp": 1733270400000
+    },
+    "strategy": {
+        "name": "pumpkin_soup",
+        "config_file": "strategies/pumpkin_soup/config.json",
+        "parameters": {
+            "enable_regime_filter": true,
+            "regime_ema_len": 2400,
+            "enable_mtf_filter": true,
+            "enable_chop_filter": true,
+            "choppiness_threshold": 55.0,
+            "enable_adx_filter": true,
+            "adx_threshold": 30.0
+        }
+    },
+    "backtest_settings": {
+        "initial_capital": 1000.0,
+        "window_size": 3000,
+        "taker_fee_rate": 0.0005,
+        "maker_fee_rate": 0.0002,
+        "slippage_rate": 0.0005
+    },
+    "output": {
+        "result_file": "results/pumpkin_soup_btc_2024_ytd.json",
+        "save_trades": true,
+        "save_equity_curve": true
+    }
+}
