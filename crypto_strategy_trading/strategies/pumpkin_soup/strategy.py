@@ -218,7 +218,8 @@ class PumpkinSoupStrategy:
         return {"signal": "hold", "reason": "无入场信号"}
 
     def _create_long_signal(self, price: float, stop_loss: float, atr: float) -> Dict[str, Any]:
-        capital = float(self.parameters.get("total_capital", 1000.0))
+        # 使用 95% 的资金计算，预留 5% 防止滑点和手续费导致资金不足
+        capital = float(self.parameters.get("total_capital", 1000.0)) * 0.95
         leverage = float(self.parameters.get("leverage", 5.0))
         
         risk_amount = price - stop_loss
@@ -255,7 +256,8 @@ class PumpkinSoupStrategy:
         }
 
     def _create_short_signal(self, price: float, stop_loss: float, atr: float) -> Dict[str, Any]:
-        capital = float(self.parameters.get("total_capital", 1000.0))
+        # 使用 95% 的资金计算，预留 5% 防止滑点和手续费导致资金不足
+        capital = float(self.parameters.get("total_capital", 1000.0)) * 0.95
         leverage = float(self.parameters.get("leverage", 5.0))
         
         risk_amount = stop_loss - price
