@@ -12,6 +12,7 @@ import argparse
 import logging
 import json
 from datetime import datetime
+import pandas as pd
 from pathlib import Path
 
 # 添加项目路径
@@ -151,20 +152,42 @@ class BacktestRunner:
             df_raw = data_loader.load()
             
             # 时间过滤（在重采样之前进行，因为重采样后DataFrame结构会变化）
-            if 'start_timestamp' in self.config['data'] or 'end_timestamp' in self.config['data']:
-                start_ts = self.config['data'].get('start_timestamp')
-                end_ts = self.config['data'].get('end_timestamp')
-                
-                if start_ts or end_ts:
-                    original_count = len(df_raw)
-                    if start_ts:
-                        df_raw = df_raw[df_raw['open_time'] >= start_ts]
-                    if end_ts:
-                        df_raw = df_raw[df_raw['open_time'] <= end_ts]
-                    filtered_count = len(df_raw)
-                    logger.info(f"✓ 时间过滤: {original_count} -> {filtered_count} 根原始K线")
-                    # 更新data_loader的df，以便后续重采样使用过滤后的数据
-                    data_loader.df = df_raw
+            # 时间过滤（在重采样之前进行，因为重采样后DataFrame结构会变化）
+            data_config = self.config['data']
+            
+            start_ts = data_config.get('start_timestamp')
+            end_ts = data_config.get('end_timestamp')
+            
+            # 支持日期字符串格式 (YYYY-MM-DD)
+            if 'start_date' in data_config and not start_ts:
+                try:
+                    start_ts = pd.to_datetime(data_config['start_date']).timestamp() * 1000
+                except Exception as e:
+                    logger.warning(f"无法解析 start_date: {e}")
+            
+            if 'end_date' in data_config and not end_ts:
+                try:
+                    # end_date 通常指当天的结束，所以加一天减1毫秒，或者直接解析
+                    # 这里简单解析，如果需要包含当天，建议在配置中指定后一天或具体时间
+                    # 为了方便，如果是日期字符串，默认包含该日全天 (即到次日0点)
+                    dt = pd.to_datetime(data_config['end_date'])
+                    # 如果只有日期没有时间，默认是0点。为了包含当天，我们加一天
+                    if len(data_config['end_date']) <= 10:  # YYYY-MM-DD
+                        dt = dt + pd.Timedelta(days=1)
+                    end_ts = dt.timestamp() * 1000
+                except Exception as e:
+                    logger.warning(f"无法解析 end_date: {e}")
+
+            if start_ts or end_ts:
+                original_count = len(df_raw)
+                if start_ts:
+                    df_raw = df_raw[df_raw['open_time'] >= start_ts]
+                if end_ts:
+                    df_raw = df_raw[df_raw['open_time'] < end_ts] # 使用 < 避免重叠
+                filtered_count = len(df_raw)
+                logger.info(f"✓ 时间过滤: {original_count} -> {filtered_count} 根原始K线")
+                # 更新data_loader的df，以便后续重采样使用过滤后的数据
+                data_loader.df = df_raw
             
             # 根据配置重采样
             resample_from = self.config['data']['resample_from']
