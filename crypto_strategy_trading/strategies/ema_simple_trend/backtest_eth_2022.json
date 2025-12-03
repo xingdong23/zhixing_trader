@@ -1,0 +1,44 @@
+{
+    "backtest_name": "EMA Simple Trend ETH 2022",
+    "description": "Backtest for EMA Simple Trend on ETH (2022 Bear Market)",
+    "exchange": {
+        "name": "binance",
+        "fee_rate": 0.0005
+    },
+    "backtest_settings": {
+        "initial_capital": 300.0,
+        "window_size": 300,
+        "maker_fee": 0.0002,
+        "taker_fee": 0.0005
+    },
+    "output": {
+        "result_file": "results/ema_simple_trend_eth_2022_{timestamp}.json",
+        "save_trades": true,
+        "save_equity_curve": true
+    },
+    "data": {
+        "symbol": "ETH/USDT",
+        "timeframe": "1h",
+        "source": "backtest/data/ETHUSDT-1h-ALL.csv",
+        "resample_from": "1h",
+        "start_date": "2022-11-01",
+        "end_date": "2024-11-10"
+    },
+    "strategy": {
+        "name": "ema_simple_trend",
+        "config_file": "strategies/ema_simple_trend/config.json",
+        "parameters": {
+            "total_capital": 300.0,
+            "leverage": 1.0,
+            "daily_data_file": "backtest/data/ETHUSDT-1d-ALL.csv",
+            "position_size": 1.0,
+            "ema_fast": 5,
+            "ema_medium": 13,
+            "ema_slow": 21,
+            "use_daily_trend_filter": true,
+            "daily_ema_period": 21,
+            "stop_loss_pct": 0.032,
+            "take_profit_pct": 0.16
+        }
+    }
+}
