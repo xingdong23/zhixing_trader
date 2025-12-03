@@ -12,6 +12,8 @@ from dotenv import load_dotenv
 
 from live_trading.common.db_logger import DBLogger
 from live_trading.common.mysql_logger import MySQLLogger
+import requests
+import time
 
 logger = logging.getLogger(__name__)
 
@@ -187,6 +189,14 @@ class BaseTrader:
         logger.info("="*60)
         logger.info(f"🚀 {self.name} 已启动")
         logger.info("="*60)
+        
+        # 0. 启动前健康检查
+        if not await self.check_health():
+            logger.critical("❌ 健康检查失败，无法启动")
+            self.send_alert("启动失败", f"{self.name} 健康检查未通过，请检查日志")
+            return
+            
+        self.send_alert("启动成功", f"🚀 {self.name} 交易机器人已启动\n模式: {self.mode}\n交易对: {self.symbol}")
 
         if self.once:
             await self.run_strategy_cycle()
@@ -209,3 +219,52 @@ class BaseTrader:
     def stop(self):
         self.running = False
         logger.info(f"🛑 {self.name} 已停止")
+        self.send_alert("停止运行", f"🛑 {self.name} 交易机器人已停止")
+
+    async def check_health(self) -> bool:
+        """启动前健康检查"""
+        try:
+            # 1. 检查交易所连接
+            logger.info("正在检查交易所连接...")
+            await self.exchange.fetch_time()
+            logger.info("✓ 交易所连接正常")
+            
+            # 2. 检查数据库连接 (如果是 MySQL)
+            # SQLite 是本地文件，通常没问题
+            
+            # 3. 检查余额 (确保 API Key 权限正确)
+            logger.info("正在检查账户权限...")
+            await self.exchange.fetch_balance()
+            logger.info("✓ 账户权限正常")
+            
+            return True
+        except Exception as e:
+            logger.error(f"健康检查失败: {e}")
+            return False
+
+    def send_alert(self, title: str, message: str):
+        """发送飞书报警"""
+        webhook = os.getenv("FEISHU_WEBHOOK")
+        if not webhook:
+            return
+            
+        try:
+            # 构造飞书富文本消息
+            data = {
+                "msg_type": "post",
+                "content": {
+                    "post": {
+                        "zh_cn": {
+                            "title": title,
+                            "content": [
+                                [{"tag": "text", "text": message}]
+                            ]
+                        }
+                    }
+                }
+            }
+            response = requests.post(webhook, json=data, timeout=5)
+            if response.status_code != 200:
+                logger.error(f"发送报警失败: {response.text}")
+        except Exception as e:
+            logger.error(f"发送报警异常: {e}")

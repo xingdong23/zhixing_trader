@@ -228,6 +228,15 @@ class PumpkinSoupTrader(BaseTrader):
 
                 await safe_create_order(self.symbol, 'market', order_side, amount, params=params)
                 logger.info("✓ 平仓订单已发送")
+                
+                # 发送平仓报警
+                self.send_alert(
+                    "平仓成功",
+                    f"✅ 策略平仓 ({side})\n"
+                    f"交易对: {self.symbol}\n"
+                    f"数量: {amount}\n"
+                    f"原因: {signal.get('reason', 'Signal')}"
+                )
                 return
 
             # 2. 开仓逻辑 (Open Position)
@@ -251,7 +260,18 @@ class PumpkinSoupTrader(BaseTrader):
                 return self.exchange.create_order(*args, **kwargs)
 
             order = await safe_create_order(self.symbol, 'market', side, amount)
-            logger.info(f"✓ 开仓订单成功: ID={order['id']}, 成交均价={order.get('average')}")
+            avg_price = order.get('average') or price
+            logger.info(f"✓ 开仓订单成功: ID={order['id']}, 成交均价={avg_price}")
+            
+            # 发送开仓报警
+            self.send_alert(
+                "开仓成功",
+                f"🚀 策略开仓 ({side})\n"
+                f"交易对: {self.symbol}\n"
+                f"价格: {avg_price}\n"
+                f"数量: {amount}\n"
+                f"原因: {signal.get('reason', 'Signal')}"
+            )
             
             # B. 发送止损单 (Algo Order)
             if stop_loss and stop_loss > 0:
@@ -287,6 +307,12 @@ class PumpkinSoupTrader(BaseTrader):
                     # retry_on_error 会自动重试，如果最终失败，会抛出异常被外层捕获
                     await safe_create_order(self.symbol, 'stop_market', sl_side, amount, params={'stopPrice': stop_loss})
                     logger.info("✓ 止损单已设置")
+                    
+                    self.send_alert(
+                        "止损设置成功",
+                        f"🛡️ 止损单已挂单\n"
+                        f"触发价格: {stop_loss}"
+                    )
                     
                 except Exception as e:
                     logger.error(f"❌ 设置止损失败 (请手动设置!): {e}")
