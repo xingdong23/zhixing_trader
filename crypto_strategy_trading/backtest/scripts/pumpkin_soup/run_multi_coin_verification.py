@@ -6,8 +6,27 @@ import pandas as pd
 from pathlib import Path
 from datetime import datetime
 
+"""
+📊 多币种批量验证脚本 (Multi-Coin Verification)
+
+目的:
+    在多个币种上单独运行 **南瓜汤策略**，以对比其表现。
+    这有助于识别哪些资产最适合该趋势跟踪策略。
+
+逻辑:
+    - 遍历预定义的币种列表 (SOL, ETH, BNB 等)。
+    - 对每个币种在相同时间段内运行标准回测。
+    - 打印包含收益率、回撤、胜率等指标的对比汇总表。
+
+用法:
+    python backtest/scripts/run_multi_coin_verification.py
+
+输出:
+    在控制台打印每个币种的性能指标表格。
+"""
+
 # Add project root to path
-sys.path.insert(0, str(Path(__file__).parent.parent))
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
 from backtest.core import DataLoader, BacktestEngine, PerformanceAnalyzer
 from strategies.pumpkin_soup.strategy import PumpkinSoupStrategy

@@ -9,7 +9,12 @@
 ```
 backtest/
 ├── README.md                # 本文档
-├── run_backtest.py          # 回测主程序
+├── run_backtest.py          # 回测主程序 (单币种/单策略)
+│
+├── scripts/                 # 专用回测脚本
+│   ├── run_fusion_backtest.py       # 融合策略回测 (RS选币 + 南瓜汤)
+│   ├── run_multi_coin_verification.py # 多币种批量验证脚本
+│   └── run_rs_backtest.py           # 相对强弱套利策略回测
 │
 ├── configs/                 # 配置文件目录
 │   ├── candidate/           # 候选配置

@@ -4,8 +4,30 @@ import pandas as pd
 import logging
 from datetime import datetime
 
+"""
+📈 相对强弱套利 (RSA) 回测脚本
+
+目的:
+    测试 **相对强弱套利 (Relative Strength Arbitrage)** 策略。
+    该策略做多最强的资产 (Top N)，做空基准资产 (BTC) 
+    (或根据配置保持中性/现金)，以捕获相对表现产生的 Alpha。
+
+逻辑:
+    - 计算一篮子资产在回溯期 (如 7 天) 内的 RS 分数 (动量)。
+    - 定期再平衡 (如每 24 小时)。
+    - 将资金分配给 Top N 资产。
+
+用法:
+    python backtest/scripts/run_rs_backtest.py
+
+关键参数:
+    - `lookback`: 168 (7天)
+    - `rebalance_freq`: 24 (小时)
+    - `top_n`: 1 (只选择表现最好的 1 个资产)
+"""
+
 # Add project root to path
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
 
 from backtest.core.multi_asset_engine import MultiAssetBacktestEngine
 from strategies.relative_strength.strategy import RelativeStrengthStrategy

@@ -8,8 +8,36 @@ from pathlib import Path
 from datetime import datetime, timedelta
 from typing import Dict, List, Optional
 
+"""
+🚀 融合策略回测脚本 (Fusion Strategy Backtest)
+
+目的:
+    验证 "融合模式" (Fusion Mode) 假设：即动态选择最强资产并使用南瓜汤策略进行交易，能否获得更优的风险调整后收益。
+
+策略逻辑:
+    1. **资产选择 (每日)**:
+       - 计算所有候选币种的 24小时动量 (涨幅)。
+       - 选择 Top 1 最强资产。
+       - 如果领涨资产发生变化，则切换资产 (平仓旧资产，开启新资产监控)。
+    
+    2. **执行 (每小时)**:
+       - 在选定的资产上运行 **南瓜汤策略 (Pumpkin Soup)** (趋势跟踪)。
+       - 使用标准的南瓜汤参数 (EMA, EWO, 波动率目标等)。
+
+用法:
+    python backtest/scripts/run_fusion_backtest.py
+
+要求:
+    - 数据文件必须存在于 `backtest/data/` (例如 SOLUSDT-1h-merged.csv)。
+    - `strategies.pumpkin_soup` 模块可用。
+
+关键参数:
+    - `rs_lookback`: 24 (小时) 用于动量计算。
+    - `coins`: 待监控的候选币种列表。
+"""
+
 # Add project root to path
-sys.path.insert(0, str(Path(__file__).parent.parent))
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
 from backtest.core import DataLoader
 from strategies.pumpkin_soup.strategy import PumpkinSoupStrategy
