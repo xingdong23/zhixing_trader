@@ -1,0 +1,49 @@
+{
+    "backtest_name": "BTC_2024_Vol_Target",
+    "description": "Verify Volatility Targeting on BTC 2024 YTD",
+    "data": {
+        "source": "backtest/data/SOLUSDT-1h-merged.csv",
+        "symbol": "SOLUSDT",
+        "timeframe": "1h",
+        "resample_from": "1h",
+        "start_date": "2023-01-01",
+        "end_date": "2023-03-10"
+    },
+    "strategy": {
+        "name": "pumpkin_soup",
+        "config_file": "strategies/pumpkin_soup/config.json",
+        "parameters": {
+            "ema_fast_len": 8,
+            "ema_mid_len": 21,
+            "ema_slow_len": 55,
+            "ewo_fast_len": 5,
+            "ewo_slow_len": 35,
+            "enable_chop_filter": true,
+            "choppiness_threshold": 50.0,
+            "enable_adx_filter": true,
+            "adx_threshold": 25.0,
+            "enable_regime_filter": false,
+            "regime_ema_len": 2400,
+            "enable_mtf_filter": true,
+            "htf_multiplier": 4,
+            "risk_per_trade": 0.05,
+            "leverage": 5.0,
+            "enable_vol_targeting": true,
+            "volatility_target": 0.40,
+            "volatility_window": 480,
+            "total_capital": 10000.0
+        }
+    },
+    "backtest_settings": {
+        "initial_capital": 10000.0,
+        "window_size": 1000,
+        "taker_fee_rate": 0.0005,
+        "maker_fee_rate": 0.0002,
+        "slippage_rate": 0.0005
+    },
+    "output": {
+        "result_file": "results/pumpkin_soup_btc_2024_vol_target.json",
+        "save_trades": true,
+        "save_equity_curve": true
+    }
+}

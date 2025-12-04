@@ -50,6 +50,13 @@ class PumpkinSoupStrategy:
         # 多周期共振参数
         self.enable_mtf_filter = parameters.get("enable_mtf_filter", True)
         self.htf_multiplier = int(parameters.get("htf_multiplier", 4))  # 高级别周期倍数，4=4H(相对1H)
+
+        # 波动率目标 (Volatility Targeting)
+        self.enable_vol_targeting = parameters.get("enable_vol_targeting", False)
+        self.volatility_target = float(parameters.get("volatility_target", 0.40)) # 40% 年化波动率
+        self.volatility_window = int(parameters.get("volatility_window", 480)) # 20天 (24*20)
+        if self.enable_vol_targeting:
+            logger.info(f"Vol Targeting Enabled: Target={self.volatility_target:.2%}, Window={self.volatility_window}")
         
         # 持仓信息
         self.current_position: Optional[Dict] = None
@@ -95,6 +102,9 @@ class PumpkinSoupStrategy:
         closes = np.array([k["close"] for k in klines])
         highs = np.array([k["high"] for k in klines])
         lows = np.array([k["low"] for k in klines])
+        
+        # 暂存 klines 供 Vol Target 使用
+        self.latest_klines = klines
         
         # 计算指标
         ema_fast = self._calculate_ema(closes, self.ema_fast_len)
@@ -248,6 +258,26 @@ class PumpkinSoupStrategy:
         # 例如：风险15U，止损距离100U，则仓位 = 0.15 BTC
         position_size = risk_capital / risk_amount
         
+        # --- 波动率目标调整 (Vol Targeting) ---
+        if self.enable_vol_targeting:
+            # 计算当前波动率 (年化)
+            # 注意：这里需要传入 klines 历史数据，但 _create_long_signal 签名没带 klines
+            # 我们需要修改调用处或者在这里获取。由于 _create_long_signal 是内部调用，
+            # 我们可以假设 self.klines 存在，或者修改方法签名。
+            # 为了简单，我们暂存最近的 klines 到 self.latest_klines
+            if hasattr(self, 'latest_klines') and self.latest_klines:
+                current_vol = self._calculate_volatility(self.latest_klines, self.volatility_window)
+                if current_vol > 0:
+                    # 目标敞口 = 资金 * (目标波动率 / 当前波动率)
+                    # 仓位 = 目标敞口 / 价格
+                    vol_target_exposure = capital * (self.volatility_target / current_vol)
+                    vol_target_size = vol_target_exposure / price
+                    
+                    if vol_target_size < position_size:
+                        logger.info(f"Vol Target 限制仓位: 原 {position_size:.4f} -> 新 {vol_target_size:.4f} (Vol: {current_vol:.2%})")
+                        position_size = vol_target_size
+        # -------------------------------------
+
         # 杠杆限制检查
         max_position_value = capital * leverage
         if position_size * price > max_position_value:
@@ -284,6 +314,19 @@ class PumpkinSoupStrategy:
         # 仓位大小 = 风险金额 / (止损价 - 入场价)
         position_size = risk_capital / risk_amount
         
+        # --- 波动率目标调整 (Vol Targeting) ---
+        if self.enable_vol_targeting:
+            if hasattr(self, 'latest_klines') and self.latest_klines:
+                current_vol = self._calculate_volatility(self.latest_klines, self.volatility_window)
+                if current_vol > 0:
+                    vol_target_exposure = capital * (self.volatility_target / current_vol)
+                    vol_target_size = vol_target_exposure / price
+                    
+                    if vol_target_size < position_size:
+                        logger.info(f"Vol Target 限制仓位: 原 {position_size:.4f} -> 新 {vol_target_size:.4f} (Vol: {current_vol:.2%})")
+                        position_size = vol_target_size
+        # -------------------------------------
+
         # 杠杆限制检查
         max_position_value = capital * leverage
         if position_size * price > max_position_value:
@@ -485,6 +528,26 @@ class PumpkinSoupStrategy:
         adx = wilder_smooth(dx, period)
         
         return float(adx[-1])
+
+    def _calculate_volatility(self, klines: List[Dict], window: int) -> float:
+        """计算年化波动率 (基于 Close)"""
+        if len(klines) < window + 1:
+            return 0.0
+            
+        closes = np.array([k["close"] for k in klines])
+        # 计算对数收益率
+        returns = np.diff(np.log(closes))
+        
+        # 取最近 window 个收益率
+        recent_returns = returns[-window:]
+        
+        # 计算标准差
+        std_dev = np.std(recent_returns)
+        
+        # 年化 (假设 1H 数据: sqrt(365 * 24))
+        annualized_vol = std_dev * np.sqrt(365 * 24)
+        
+        return float(annualized_vol)
 
     def _check_regime_filter(self, closes: np.ndarray, current_price: float) -> str:
         """
