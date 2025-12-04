@@ -52,31 +52,31 @@ from .pumpkin_soup import PumpkinSoupStrategy
 from .funding_arbitrage import FundingArbitrageStrategy
 
 # Alpha Mining
-from crypto_strategy_trading.strategies.alpha.alpha_mining_demo.strategy import AlphaMiningDemoStrategy
-from crypto_strategy_trading.strategies.alpha.auto_alpha_20251204_102816.strategy import AutoAlpha20251204102816
-from crypto_strategy_trading.strategies.alpha.auto_alpha_20251204_102822.strategy import AutoAlpha20251204102822
-from crypto_strategy_trading.strategies.alpha.auto_alpha_20251204_102829.strategy import AutoAlpha20251204102829
-from crypto_strategy_trading.strategies.alpha.auto_alpha_20251204_102835.strategy import AutoAlpha20251204102835
-from crypto_strategy_trading.strategies.alpha.auto_alpha_20251204_102842.strategy import AutoAlpha20251204102842
-from crypto_strategy_trading.strategies.alpha.auto_alpha_20251204_102849.strategy import AutoAlpha20251204102849
-from crypto_strategy_trading.strategies.alpha.auto_alpha_20251204_102855.strategy import AutoAlpha20251204102855
-from crypto_strategy_trading.strategies.alpha.auto_alpha_20251204_102902.strategy import AutoAlpha20251204102902
-from crypto_strategy_trading.strategies.alpha.auto_alpha_20251204_102909.strategy import AutoAlpha20251204102909
-from crypto_strategy_trading.strategies.alpha.auto_alpha_20251204_102915.strategy import AutoAlpha20251204102915
-from crypto_strategy_trading.strategies.alpha.auto_alpha_20251204_102922.strategy import AutoAlpha20251204102922
-from crypto_strategy_trading.strategies.alpha.auto_alpha_20251204_102929.strategy import AutoAlpha20251204102929
-from crypto_strategy_trading.strategies.alpha.auto_alpha_20251204_111517.strategy import AutoAlpha20251204111517
-from crypto_strategy_trading.strategies.alpha.auto_alpha_20251204_111525.strategy import AutoAlpha20251204111525
-from crypto_strategy_trading.strategies.alpha.auto_alpha_20251204_111532.strategy import AutoAlpha20251204111532
-from crypto_strategy_trading.strategies.alpha.auto_alpha_20251204_111539.strategy import AutoAlpha20251204111539
-from crypto_strategy_trading.strategies.alpha.auto_alpha_20251204_111546.strategy import AutoAlpha20251204111546
-from crypto_strategy_trading.strategies.alpha.auto_alpha_20251204_111553.strategy import AutoAlpha20251204111553
-from crypto_strategy_trading.strategies.alpha.auto_alpha_20251204_111600.strategy import AutoAlpha20251204111600
-from crypto_strategy_trading.strategies.alpha.auto_alpha_20251204_111607.strategy import AutoAlpha20251204111607
-from crypto_strategy_trading.strategies.alpha.auto_alpha_20251204_111614.strategy import AutoAlpha20251204111614
-from crypto_strategy_trading.strategies.alpha.auto_alpha_20251204_111621.strategy import AutoAlpha20251204111621
-from crypto_strategy_trading.strategies.alpha.auto_alpha_20251204_111628.strategy import AutoAlpha20251204111628
-from crypto_strategy_trading.strategies.alpha.auto_alpha_20251204_111635.strategy import AutoAlpha20251204111635
+# from .alpha.alpha_mining_demo.strategy import AlphaMiningDemoStrategy
+# from .alpha.auto_alpha_20251204_102816.strategy import AutoAlpha20251204102816
+# from .alpha.auto_alpha_20251204_102822.strategy import AutoAlpha20251204102822
+# from .alpha.auto_alpha_20251204_102829.strategy import AutoAlpha20251204102829
+# from .alpha.auto_alpha_20251204_102835.strategy import AutoAlpha20251204102835
+# from .alpha.auto_alpha_20251204_102842.strategy import AutoAlpha20251204102842
+# from .alpha.auto_alpha_20251204_102849.strategy import AutoAlpha20251204102849
+# from .alpha.auto_alpha_20251204_102855.strategy import AutoAlpha20251204102855
+# from .alpha.auto_alpha_20251204_102902.strategy import AutoAlpha20251204102902
+# from .alpha.auto_alpha_20251204_102909.strategy import AutoAlpha20251204102909
+# from .alpha.auto_alpha_20251204_102915.strategy import AutoAlpha20251204102915
+# from .alpha.auto_alpha_20251204_102922.strategy import AutoAlpha20251204102922
+# from .alpha.auto_alpha_20251204_102929.strategy import AutoAlpha20251204102929
+# from .alpha.auto_alpha_20251204_111517.strategy import AutoAlpha20251204111517
+# from .alpha.auto_alpha_20251204_111525.strategy import AutoAlpha20251204111525
+# from .alpha.auto_alpha_20251204_111532.strategy import AutoAlpha20251204111532
+# from .alpha.auto_alpha_20251204_111539.strategy import AutoAlpha20251204111539
+# from .alpha.auto_alpha_20251204_111546.strategy import AutoAlpha20251204111546
+# from .alpha.auto_alpha_20251204_111553.strategy import AutoAlpha20251204111553
+# from .alpha.auto_alpha_20251204_111600.strategy import AutoAlpha20251204111600
+# from .alpha.auto_alpha_20251204_111607.strategy import AutoAlpha20251204111607
+# from .alpha.auto_alpha_20251204_111614.strategy import AutoAlpha20251204111614
+# from .alpha.auto_alpha_20251204_111621.strategy import AutoAlpha20251204111621
+# from .alpha.auto_alpha_20251204_111628.strategy import AutoAlpha20251204111628
+# from .alpha.auto_alpha_20251204_111635.strategy import AutoAlpha20251204111635
 
 
 __all__ = [
