@@ -42,6 +42,9 @@ class PumpkinSoupStrategy:
         self.enable_adx_filter = parameters.get("enable_adx_filter", False)
         self.adx_threshold = float(parameters.get("adx_threshold", 20.0))
         
+        # 趋势强度阈值
+        self.ema_spread_threshold = float(parameters.get("ema_spread_threshold", 0.015))
+        
         # 宏观趋势过滤器 (Regime Filter)
         self.enable_regime_filter = parameters.get("enable_regime_filter", False)
         self.regime_ema_len = int(parameters.get("regime_ema_len", 800))
@@ -131,7 +134,7 @@ class PumpkinSoupStrategy:
         
         # 趋势强度过滤：EMA之间的距离要够大
         ema_spread = abs(current_ema_fast - current_ema_slow) / current_price
-        if ema_spread < 0.015:  # EMA距离小于1.5%，趋势不够强
+        if ema_spread < self.ema_spread_threshold:  # EMA距离小于阈值，趋势不够强
             return {"signal": "hold", "reason": "趋势强度不足"}
         
         # 趋势持续性过滤：检查过去5根K线EMA排列是否一致
@@ -239,9 +242,15 @@ class PumpkinSoupStrategy:
                 
         return {"signal": "hold", "reason": "无入场信号"}
 
+    def update_capital(self, capital: float):
+        """更新当前资金 (用于复利计算)"""
+        self.current_capital = capital
+
     def _create_long_signal(self, price: float, stop_loss: float, atr: float) -> Dict[str, Any]:
+        # 使用当前资金(如果有)或初始资金
+        total_capital = getattr(self, 'current_capital', float(self.parameters.get("total_capital", 1000.0)))
         # 使用 95% 的资金计算，预留 5% 防止滑点和手续费导致资金不足
-        capital = float(self.parameters.get("total_capital", 1000.0)) * 0.95
+        capital = total_capital * 0.95
         leverage = float(self.parameters.get("leverage", 5.0))
         
         risk_amount = price - stop_loss
@@ -298,8 +307,10 @@ class PumpkinSoupStrategy:
         }
 
     def _create_short_signal(self, price: float, stop_loss: float, atr: float) -> Dict[str, Any]:
+        # 使用当前资金(如果有)或初始资金
+        total_capital = getattr(self, 'current_capital', float(self.parameters.get("total_capital", 1000.0)))
         # 使用 95% 的资金计算，预留 5% 防止滑点和手续费导致资金不足
-        capital = float(self.parameters.get("total_capital", 1000.0)) * 0.95
+        capital = total_capital * 0.95
         leverage = float(self.parameters.get("leverage", 5.0))
         
         risk_amount = stop_loss - price
@@ -356,15 +367,38 @@ class PumpkinSoupStrategy:
         
         # 1. 止损止盈
         if side == "long":
+            # 移动止损逻辑
+            if self.parameters.get("enable_trailing_stop", True):
+                # 计算新的止损位 (例如: 最高价回撤 3*ATR)
+                # 这里简化处理：如果价格上涨，提升止损
+                # 实际应该记录持仓期间最高价，这里用当前价近似
+                atr = self._calculate_atr(klines)
+                new_stop = current_price - 3 * atr
+                if new_stop > position["stop_loss"]:
+                    position["stop_loss"] = new_stop
+                    # logger.info(f"移动止损更新: {new_stop:.2f}")
+
             if current_price <= position["stop_loss"]:
                 return self._create_exit_signal("stop_loss", current_price)
-            if current_price >= position["take_profit"]:
-                return self._create_exit_signal("take_profit", current_price)
-        else:
+            
+            # 移除固定止盈，让利润奔跑
+            # if current_price >= position["take_profit"]:
+            #     return self._create_exit_signal("take_profit", current_price)
+                
+        else: # short
+            # 移动止损逻辑
+            if self.parameters.get("enable_trailing_stop", True):
+                atr = self._calculate_atr(klines)
+                new_stop = current_price + 3 * atr
+                if new_stop < position["stop_loss"]:
+                    position["stop_loss"] = new_stop
+
             if current_price >= position["stop_loss"]:
                 return self._create_exit_signal("stop_loss", current_price)
-            if current_price <= position["take_profit"]:
-                return self._create_exit_signal("take_profit", current_price)
+            
+            # 移除固定止盈
+            # if current_price <= position["take_profit"]:
+            #     return self._create_exit_signal("take_profit", current_price)
                 
         # 2. 动能耗尽出场 (EWO反向)
         # 可选：如果EWO出现明显的背离或反向信号，提前离场
@@ -615,6 +649,7 @@ class PumpkinSoupStrategy:
     def reset_daily_stats(self):
         self.daily_pnl = 0.0
         self.daily_trades = []
+        self.consecutive_losses = 0  # Reset consecutive losses daily for intraday strategy
         
     def get_statistics(self) -> Dict[str, Any]:
         return {

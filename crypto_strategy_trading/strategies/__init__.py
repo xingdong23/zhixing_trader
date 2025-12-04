@@ -48,8 +48,10 @@ from .bear_trend_enhanced.strategy_bear_regime import BearTrendRegimeStrategy
 from .pumpkin_soup import PumpkinSoupStrategy
 
 # 套利策略
-# 套利策略
 from .funding_arbitrage import FundingArbitrageStrategy
+
+# 彩票式策略
+from .lottery_scalping import LotteryScalpingStrategy
 
 # Alpha Mining
 # from .alpha.alpha_mining_demo.strategy import AlphaMiningDemoStrategy
@@ -123,6 +125,9 @@ __all__ = [
     
     # 套利
     'FundingArbitrageStrategy',
+    
+    # 彩票式
+    'LotteryScalpingStrategy',
 ]
 
 # 统一策略注册表（回测 / 实盘通过名字调用）
@@ -172,6 +177,9 @@ STRATEGY_REGISTRY = {
 
     # 套利
     'funding_arbitrage': FundingArbitrageStrategy,
+    
+    # 彩票式
+    'lottery_scalping': LotteryScalpingStrategy,
 
     # Alpha Mining
     # 'alpha_mining_demo': AlphaMiningDemoStrategy,

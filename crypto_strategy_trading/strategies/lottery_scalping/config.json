@@ -1,0 +1,20 @@
+{
+    "strategy_name": "lottery_scalping",
+    "symbol": "ETHUSDT",
+    "interval": "5m",
+    "start_date": "2024-05-01",
+    "end_date": "2024-10-25",
+    "initial_capital": 100,
+    "parameters": {
+        "total_capital": 100,
+        "bet_per_trade": 1,
+        "leverage": 100,
+        "take_profit_pct": 1.0,
+        "stop_loss_pct": 1.0,
+        "entry_method": "volatility_breakout",
+        "timeframe": "5m",
+        "volatility_threshold": 0.002,
+        "max_daily_losses": 10,
+        "cooldown_after_loss": 3
+    }
+}

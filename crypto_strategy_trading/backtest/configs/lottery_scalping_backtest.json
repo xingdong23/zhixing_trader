@@ -1,0 +1,28 @@
+{
+    "backtest_name": "Lottery Scalping 彩票式策略回测",
+    "description": "100U本金,每次1U,100倍杠杆,目标100倍收益",
+    "strategy": {
+        "name": "lottery_scalping",
+        "config_file": "strategies/lottery_scalping/config.json",
+        "parameters": {}
+    },
+    "data": {
+        "source": "backtest/data/ETHUSDT-5m-2024-merged.csv",
+        "resample_from": "5m",
+        "timeframe": "5m",
+        "start_date": "2024-05-01",
+        "end_date": "2024-10-25"
+    },
+    "backtest_settings": {
+        "initial_capital": 100,
+        "window_size": 100,
+        "taker_fee_rate": 0.0005,
+        "maker_fee_rate": 0.0002,
+        "slippage_rate": 0.0005
+    },
+    "output": {
+        "save_trades": true,
+        "result_file": "results/lottery_scalping_{timestamp}.json",
+        "save_equity_curve": true
+    }
+}
