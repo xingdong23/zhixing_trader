@@ -1,21 +1,23 @@
 class PhoenixConfig:
-    # Gambling Core Parameters
-    LEVERAGE = 20            # High leverage
-    TOTAL_CAPITAL = 300      # Small capital
-    BASE_BET = 50            # "High Roller": Bet 50U per hand (1/6th of capital)
+    # --- 赌博核心参数 (Gambling Core) ---
+    LEVERAGE = 20            # 杠杆倍数 (20x) - 放大收益的核心
+    TOTAL_CAPITAL = 300      # 总本金 (300U)
+    BASE_BET = 50            # "High Roller" 底注: 单把下注 50U (1/6 本金)
     
-    # Anti-Martingale Logic (The "Paroli" System)
-    # Goal: Double the chip in 3 wins (1.26^3 ~= 2.0)
-    MAX_CONSECUTIVE_WINS = 3 # Target streak
+    # --- 连赢机制 (Anti-Martingale) ---
+    # 目标：连赢3把就收手 (Jackpot)
+    # 逻辑：50U -> 80U -> 130U -> 200U+ (翻4倍)
+    MAX_CONSECUTIVE_WINS = 3 
     
-    # Risk Management (Optimized for 5m Trends)
-    TAKE_PROFIT_PCT = 0.03   # 3% move * 20x = 60% gain
-    STOP_LOSS_PCT = 0.015    # 1.5% move * 20x = 30% loss (Tighten SL to preserve chips)
+    # --- 风控参数 (Risk Management) ---
+    # 针对 5分钟级别 (5m) 优化的参数
+    TAKE_PROFIT_PCT = 0.03   # 止盈: 3% 波动 * 20倍杠杆 = 60% 收益
+    STOP_LOSS_PCT = 0.015    # 止损: 1.5% 波动 * 20倍杠杆 = 30% 亏损 (保本金)
     
-    # Indicator Settings (Volatility Breakout)
-    BOLLINGER_WINDOW = 20
-    BOLLINGER_STD = 2.0
+    # --- 技术指标 (Indicators) ---
+    BOLLINGER_WINDOW = 20    # 布林带周期
+    BOLLINGER_STD = 2.0      # 布林带标准差 (2.0倍)
     
-    # Assets
+    # --- 资产设置 ---
     SYMBOL = "SOL/USDT"
     TIMEFRAME = "5m"
