@@ -48,7 +48,35 @@ from .bear_trend_enhanced.strategy_bear_regime import BearTrendRegimeStrategy
 from .pumpkin_soup import PumpkinSoupStrategy
 
 # 套利策略
+# 套利策略
 from .funding_arbitrage import FundingArbitrageStrategy
+
+# Alpha Mining
+from .alpha_mining_demo.strategy import AlphaMiningDemoStrategy
+from .auto_alpha_20251204_102816.strategy import AutoAlpha20251204102816
+from .auto_alpha_20251204_102822.strategy import AutoAlpha20251204102822
+from .auto_alpha_20251204_102829.strategy import AutoAlpha20251204102829
+from .auto_alpha_20251204_102835.strategy import AutoAlpha20251204102835
+from .auto_alpha_20251204_102842.strategy import AutoAlpha20251204102842
+from .auto_alpha_20251204_102849.strategy import AutoAlpha20251204102849
+from .auto_alpha_20251204_102855.strategy import AutoAlpha20251204102855
+from .auto_alpha_20251204_102902.strategy import AutoAlpha20251204102902
+from .auto_alpha_20251204_102909.strategy import AutoAlpha20251204102909
+from .auto_alpha_20251204_102915.strategy import AutoAlpha20251204102915
+from .auto_alpha_20251204_102922.strategy import AutoAlpha20251204102922
+from .auto_alpha_20251204_102929.strategy import AutoAlpha20251204102929
+from .auto_alpha_20251204_111517.strategy import AutoAlpha20251204111517
+from .auto_alpha_20251204_111525.strategy import AutoAlpha20251204111525
+from .auto_alpha_20251204_111532.strategy import AutoAlpha20251204111532
+from .auto_alpha_20251204_111539.strategy import AutoAlpha20251204111539
+from .auto_alpha_20251204_111546.strategy import AutoAlpha20251204111546
+from .auto_alpha_20251204_111553.strategy import AutoAlpha20251204111553
+from .auto_alpha_20251204_111600.strategy import AutoAlpha20251204111600
+from .auto_alpha_20251204_111607.strategy import AutoAlpha20251204111607
+from .auto_alpha_20251204_111614.strategy import AutoAlpha20251204111614
+from .auto_alpha_20251204_111621.strategy import AutoAlpha20251204111621
+from .auto_alpha_20251204_111628.strategy import AutoAlpha20251204111628
+from .auto_alpha_20251204_111635.strategy import AutoAlpha20251204111635
 
 
 __all__ = [
@@ -144,6 +172,33 @@ STRATEGY_REGISTRY = {
 
     # 套利
     'funding_arbitrage': FundingArbitrageStrategy,
+
+    # Alpha Mining
+    'alpha_mining_demo': AlphaMiningDemoStrategy,
+    'auto_alpha_20251204_102816': AutoAlpha20251204102816,
+    'auto_alpha_20251204_102822': AutoAlpha20251204102822,
+    'auto_alpha_20251204_102829': AutoAlpha20251204102829,
+    'auto_alpha_20251204_102835': AutoAlpha20251204102835,
+    'auto_alpha_20251204_102842': AutoAlpha20251204102842,
+    'auto_alpha_20251204_102849': AutoAlpha20251204102849,
+    'auto_alpha_20251204_102855': AutoAlpha20251204102855,
+    'auto_alpha_20251204_102902': AutoAlpha20251204102902,
+    'auto_alpha_20251204_102909': AutoAlpha20251204102909,
+    'auto_alpha_20251204_102915': AutoAlpha20251204102915,
+    'auto_alpha_20251204_102922': AutoAlpha20251204102922,
+    'auto_alpha_20251204_102929': AutoAlpha20251204102929,
+    'auto_alpha_20251204_111517': AutoAlpha20251204111517,
+    'auto_alpha_20251204_111525': AutoAlpha20251204111525,
+    'auto_alpha_20251204_111532': AutoAlpha20251204111532,
+    'auto_alpha_20251204_111539': AutoAlpha20251204111539,
+    'auto_alpha_20251204_111546': AutoAlpha20251204111546,
+    'auto_alpha_20251204_111553': AutoAlpha20251204111553,
+    'auto_alpha_20251204_111600': AutoAlpha20251204111600,
+    'auto_alpha_20251204_111607': AutoAlpha20251204111607,
+    'auto_alpha_20251204_111614': AutoAlpha20251204111614,
+    'auto_alpha_20251204_111621': AutoAlpha20251204111621,
+    'auto_alpha_20251204_111628': AutoAlpha20251204111628,
+    'auto_alpha_20251204_111635': AutoAlpha20251204111635,
 }
 
 
@@ -155,4 +210,52 @@ def get_strategy_class(name: str):
     try:
         return STRATEGY_REGISTRY[name]
     except KeyError:
-        raise ValueError(f"未知的策略名称: {name}. 可用策略: {sorted(STRATEGY_REGISTRY.keys())}")
+        raise ValueError(f"未知的策略名称: {name    'auto_alpha_20251204_102816': AutoAlpha20251204102816,
+    'auto_alpha_20251204_102822': AutoAlpha20251204102822,
+    'auto_alpha_20251204_102829': AutoAlpha20251204102829,
+    'auto_alpha_20251204_102835': AutoAlpha20251204102835,
+    'auto_alpha_20251204_102842': AutoAlpha20251204102842,
+    'auto_alpha_20251204_102849': AutoAlpha20251204102849,
+    'auto_alpha_20251204_102855': AutoAlpha20251204102855,
+    'auto_alpha_20251204_102902': AutoAlpha20251204102902,
+    'auto_alpha_20251204_102909': AutoAlpha20251204102909,
+    'auto_alpha_20251204_102915': AutoAlpha20251204102915,
+    'auto_alpha_20251204_102922': AutoAlpha20251204102922,
+    'auto_alpha_20251204_102929': AutoAlpha20251204102929,
+    'auto_alpha_20251204_111517': AutoAlpha20251204111517,
+    'auto_alpha_20251204_111525': AutoAlpha20251204111525,
+    'auto_alpha_20251204_111532': AutoAlpha20251204111532,
+    'auto_alpha_20251204_111539': AutoAlpha20251204111539,
+    'auto_alpha_20251204_111546': AutoAlpha20251204111546,
+    'auto_alpha_20251204_111553': AutoAlpha20251204111553,
+    'auto_alpha_20251204_111600': AutoAlpha20251204111600,
+    'auto_alpha_20251204_111607': AutoAlpha20251204111607,
+    'auto_alpha_20251204_111614': AutoAlpha20251204111614,
+    'auto_alpha_20251204_111621': AutoAlpha20251204111621,
+    'auto_alpha_20251204_111628': AutoAlpha20251204111628,
+    'auto_alpha_20251204_111635': AutoAlpha20251204111635,
+}. 可用策略: {sorted(STRATEGY_REGISTRY.keys())    'auto_alpha_20251204_102816': AutoAlpha20251204102816,
+    'auto_alpha_20251204_102822': AutoAlpha20251204102822,
+    'auto_alpha_20251204_102829': AutoAlpha20251204102829,
+    'auto_alpha_20251204_102835': AutoAlpha20251204102835,
+    'auto_alpha_20251204_102842': AutoAlpha20251204102842,
+    'auto_alpha_20251204_102849': AutoAlpha20251204102849,
+    'auto_alpha_20251204_102855': AutoAlpha20251204102855,
+    'auto_alpha_20251204_102902': AutoAlpha20251204102902,
+    'auto_alpha_20251204_102909': AutoAlpha20251204102909,
+    'auto_alpha_20251204_102915': AutoAlpha20251204102915,
+    'auto_alpha_20251204_102922': AutoAlpha20251204102922,
+    'auto_alpha_20251204_102929': AutoAlpha20251204102929,
+    'auto_alpha_20251204_111517': AutoAlpha20251204111517,
+    'auto_alpha_20251204_111525': AutoAlpha20251204111525,
+    'auto_alpha_20251204_111532': AutoAlpha20251204111532,
+    'auto_alpha_20251204_111539': AutoAlpha20251204111539,
+    'auto_alpha_20251204_111546': AutoAlpha20251204111546,
+    'auto_alpha_20251204_111553': AutoAlpha20251204111553,
+    'auto_alpha_20251204_111600': AutoAlpha20251204111600,
+    'auto_alpha_20251204_111607': AutoAlpha20251204111607,
+    'auto_alpha_20251204_111614': AutoAlpha20251204111614,
+    'auto_alpha_20251204_111621': AutoAlpha20251204111621,
+    'auto_alpha_20251204_111628': AutoAlpha20251204111628,
+    'auto_alpha_20251204_111635': AutoAlpha20251204111635,
+}")

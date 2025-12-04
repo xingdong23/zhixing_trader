@@ -1,0 +1,28 @@
+{
+    "backtest_name": "Auto Backtest auto_alpha_20251204_102829",
+    "description": "Automated backtest",
+    "strategy": {
+        "name": "auto_alpha_20251204_102829",
+        "config_file": "strategies/auto_alpha_20251204_102829/config.json",
+        "parameters": {}
+    },
+    "data": {
+        "source": "backtest/data/BTCUSDT-1h-merged.csv",
+        "resample_from": "1h",
+        "timeframe": "1h",
+        "start_date": "2024-01-01",
+        "end_date": "2024-12-01"
+    },
+    "backtest_settings": {
+        "initial_capital": 10000,
+        "window_size": 200,
+        "taker_fee_rate": 0.0005,
+        "maker_fee_rate": 0.0002,
+        "slippage_rate": 0.0001
+    },
+    "output": {
+        "save_trades": true,
+        "result_file": "results/auto_alpha_20251204_102829.json",
+        "save_equity_curve": true
+    }
+}
