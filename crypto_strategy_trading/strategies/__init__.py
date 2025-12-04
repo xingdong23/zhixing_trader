@@ -8,50 +8,50 @@
 """
 
 # 基础与趋势类策略
-from .high_frequency import HighFrequencyScalpingStrategy
-from .intraday_scalping import IntradayScalpingStrategy
-from .intraday_trend_rr import IntradayTrendRRStrategy
-from .intraday_mean_reversion import IntradayMeanReversionStrategy
-from .trend_momentum import TrendMomentumStrategy
-from .trend_following import TrendFollowingStrategy
-from .trend_breakout import TrendBreakoutStrategy
+from crypto_strategy_trading.strategies.old_strategies.high_frequency import HighFrequencyScalpingStrategy
+from crypto_strategy_trading.strategies.old_strategies.intraday_scalping import IntradayScalpingStrategy
+from crypto_strategy_trading.strategies.old_strategies.intraday_trend_rr import IntradayTrendRRStrategy
+from crypto_strategy_trading.strategies.old_strategies.intraday_mean_reversion import IntradayMeanReversionStrategy
+from crypto_strategy_trading.strategies.old_strategies.trend_momentum import TrendMomentumStrategy
+from crypto_strategy_trading.strategies.old_strategies.trend_following import TrendFollowingStrategy
+from crypto_strategy_trading.strategies.old_strategies.trend_breakout import TrendBreakoutStrategy
 
 # 均线与波动类策略
-from .ema_crossover import EMACrossoverStrategy
-from .ema144_trend import EMA144TrendStrategy
-from .bollinger_bands import BollingerBandsStrategy
-from .ema_rsi_volume import EMARSIVolumeStrategy
-from .compression_expansion import CompressionExpansionStrategy
-from .triple_ma import TripleMAStrategy
-from .williams_volatility_breakout import WilliamsVolatilityBreakoutStrategy
+from crypto_strategy_trading.strategies.old_strategies.ema_crossover import EMACrossoverStrategy
+from crypto_strategy_trading.strategies.old_strategies.ema144_trend import EMA144TrendStrategy
+from crypto_strategy_trading.strategies.old_strategies.bollinger_bands import BollingerBandsStrategy
+from crypto_strategy_trading.strategies.old_strategies.ema_rsi_volume import EMARSIVolumeStrategy
+from crypto_strategy_trading.strategies.old_strategies.compression_expansion import CompressionExpansionStrategy
+from crypto_strategy_trading.strategies.old_strategies.triple_ma import TripleMAStrategy
+from crypto_strategy_trading.strategies.old_strategies.williams_volatility_breakout import WilliamsVolatilityBreakoutStrategy
 
 # 网格与概率类策略
-from .grid_trading import GridTradingStrategy
-from .probability_profit import ProbabilityProfitStrategy
+from crypto_strategy_trading.strategies.old_strategies.grid_trading import GridTradingStrategy
+from crypto_strategy_trading.strategies.old_strategies.probability_profit import ProbabilityProfitStrategy
 
 # EMA Simple Trend 系列
-from .ema_simple_trend import EMASimpleTrendStrategy
-from .ema_simple_trend.strategy import EMASimpleTrendMultiframeStrategy
+from crypto_strategy_trading.strategies.old_strategies.ema_simple_trend import EMASimpleTrendStrategy
+from crypto_strategy_trading.strategies.old_strategies.ema_simple_trend import EMASimpleTrendMultiframeStrategy
 
 # RSI 2-Day 系列
-from .rsi_2day.strategy import RSI2DayStrategy
-from .rsi_2day.strategy_adaptive import AdaptiveRSI2DayStrategy
+from crypto_strategy_trading.strategies.old_strategies.rsi_2day.strategy import RSI2DayStrategy
+from crypto_strategy_trading.strategies.old_strategies.rsi_2day.strategy_adaptive import AdaptiveRSI2DayStrategy
 
 # 形态/突破类策略
-from .nr7_breakout import NR7BreakoutStrategy
-from .false_breakout import FalseBreakoutStrategy
-from .candlestick_patterns import CandlestickPatternStrategy
+from crypto_strategy_trading.strategies.old_strategies.nr7_breakout import NR7BreakoutStrategy
+from crypto_strategy_trading.strategies.old_strategies.false_breakout import FalseBreakoutStrategy
+from crypto_strategy_trading.strategies.old_strategies.candlestick_patterns import CandlestickPatternStrategy
 
 # 熊市/特殊 regime 策略
-from .bear_trend_enhanced.strategy_bear_regime import BearTrendRegimeStrategy
+from crypto_strategy_trading.strategies.old_strategies.bear_trend_enhanced.strategy_bear_regime import BearTrendRegimeStrategy
 # 南瓜汤策略 (PSMI)
 from .pumpkin_soup import PumpkinSoupStrategy
 
 # 套利策略
-from .funding_arbitrage import FundingArbitrageStrategy
+from crypto_strategy_trading.strategies.old_strategies.funding_arbitrage import FundingArbitrageStrategy
 
 # 彩票式策略
-from .lottery_scalping import LotteryScalpingStrategy
+from crypto_strategy_trading.strategies.old_strategies.lottery_scalping import LotteryScalpingStrategy
 
 # Alpha Mining
 # from .alpha.alpha_mining_demo.strategy import AlphaMiningDemoStrategy

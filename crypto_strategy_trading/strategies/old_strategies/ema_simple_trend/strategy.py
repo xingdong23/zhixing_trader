@@ -150,7 +150,7 @@ class EMASimpleTrendMultiframeStrategy:
             # 尝试多个可能的路径
             possible_paths = [
                 self.daily_data_file,
-                os.path.join('..', '..', '..', self.daily_data_file),
+                os.path.join('../..', '..', '..', self.daily_data_file),
                 os.path.join(os.getcwd(), self.daily_data_file)
             ]
             

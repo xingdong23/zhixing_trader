@@ -1,0 +1,20 @@
+{
+    "strategy_name": "martingale_sniper",
+    "interval": "1m",
+    "initial_capital": 300,
+    "parameters": {
+        "total_capital": 300,
+        "base_bet": 10,
+        "max_martingale_level": 5,
+        "leverage": 20,
+        "take_profit_pct": 0.15,
+        "stop_loss_pct": 0.08,
+        "explosion_threshold_5m": 0.05,
+        "explosion_threshold_1m": 0.03,
+        "volume_spike_ratio": 5.0,
+        "min_volume_24h_usdt": 1000000,
+        "max_already_pumped_pct": 0.15,
+        "cooldown_after_loss_minutes": 5,
+        "max_daily_rounds": 10
+    }
+}

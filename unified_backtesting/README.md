@@ -283,9 +283,10 @@ results = engine.run(data, strategy)
 ```
 
 ### 加密货币策略集成
+
 ```python
 # 从 crypto_strategy_trading 导入策略
-from crypto_strategy_trading.strategies.ema_simple_trend import EMASimpleTrendStrategy
+from crypto_strategy_trading.strategies.old_strategies.ema_simple_trend import EMASimpleTrendStrategy
 
 # 使用适配器转换
 strategy = StrategyAdapter.from_crypto_strategy(EMASimpleTrendStrategy)
