@@ -78,14 +78,14 @@ def run_regime_verification():
         print("No data found.")
         return
 
-    # Best Parameters (DOGEUSDT)
+    # Best Parameters (DOGEUSDT - Robust/All-Weather)
     params = {
         'leverage': 15,
-        'take_profit_pct': 0.2142,
-        'stop_loss_pct': 0.4235,
-        'explosion_threshold': 0.0703,
-        'volume_spike_ratio': 3.22,
-        'martingale_sequence': [1, 3, 9, 27, 81],
+        'take_profit_pct': 0.2425,    # 24.25%
+        'stop_loss_pct': 0.2940,      # 29.40%
+        'explosion_threshold': 0.0366, # 3.66% (Lower threshold to trade more in chop)
+        'volume_spike_ratio': 3.47,
+        'martingale_sequence': [1, 3, 9, 27, 81], # Aggressive
         'cooldown_minutes': 15,
         'max_daily_rounds': 10,
         'symbol': symbol,
