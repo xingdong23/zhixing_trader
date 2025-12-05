@@ -1,0 +1,8 @@
+{
+    "leverage": 15,
+    "take_profit_pct": 0.2141998667968414,
+    "stop_loss_pct": 0.4235057454965043,
+    "explosion_threshold": 0.07033981689481024,
+    "volume_spike_ratio": 3.216677247615066,
+    "seq_type": "aggressive"
+}

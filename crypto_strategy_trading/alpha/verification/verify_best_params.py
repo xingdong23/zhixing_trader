@@ -13,13 +13,13 @@ project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(_
 sys.path.insert(0, project_root)
 
 from strategies.martingale_sniper.strategy_single import MartingaleSniperSingleStrategy
-from alphaV2.optimization.optuna_martingale import load_data
+from alpha.optimization.optuna_martingale import load_data
 
 logging.basicConfig(level=logging.INFO, format='%(message)s')
 logger = logging.getLogger(__name__)
 
 def run_verification():
-    symbol = '1000PEPEUSDT'
+    symbol = 'DOGEUSDT'
     data_dir = os.path.join(project_root, 'backtest', 'data')
     
     print(f"Loading data for {symbol}...")
@@ -28,13 +28,13 @@ def run_verification():
         print("No data found.")
         return
 
-    # Parameters from Optuna Trial 24 (Best so far: 180.36% return)
+    # Parameters from Optuna Best Result (DOGEUSDT: 180.36% return)
     params = {
         'leverage': 15,
-        'take_profit_pct': 0.1886,    # 18.86%
-        'stop_loss_pct': 0.3075,      # 30.75%
-        'explosion_threshold': 0.0682, # 6.82%
-        'volume_spike_ratio': 3.34,
+        'take_profit_pct': 0.2142,    # 21.42%
+        'stop_loss_pct': 0.4235,      # 42.35%
+        'explosion_threshold': 0.0703, # 7.03%
+        'volume_spike_ratio': 3.22,
         'martingale_sequence': [1, 3, 9, 27, 81], # Aggressive
         'cooldown_minutes': 15,
         'max_daily_rounds': 10,
@@ -75,7 +75,7 @@ def run_verification():
                 strategy.update_position(action)
                 # Log trade
                 if action['signal'] == 'close':
-                    pnl = action['realized_pnl']
+                    pnl = action.get('realized_pnl', 0.0)
                     print(f"  [{now}] Closed: PnL {pnl:.2f} (Cap: {strategy.current_capital:.2f})")
         else:
             if strategy.current_capital < 10:

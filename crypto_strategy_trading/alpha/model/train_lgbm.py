@@ -35,8 +35,8 @@ except ImportError:
 project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 sys.path.insert(0, project_root)
 
-from alphaV2.mining.feature_factory import FeatureFactory
-from alphaV2.optimization.optuna_martingale import load_data # 复用数据加载函数
+from alpha.mining.feature_factory import FeatureFactory
+from alpha.optimization.optuna_martingale import load_data # 复用数据加载函数
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
