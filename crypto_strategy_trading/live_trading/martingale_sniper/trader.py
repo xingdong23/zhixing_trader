@@ -194,6 +194,13 @@ class MartingaleSniperTrader:
                 logger.info(f"📝 [模拟] BUY {symbol} 数量:{amount:.4f}")
                 return True
             else:
+                # 🚨 关键：设置逐仓模式（Isolated），避免一次强平亏光全部
+                try:
+                    await self.exchange.set_margin_mode('isolated', symbol)
+                    logger.info(f"✓ 已设置 {symbol} 为逐仓模式")
+                except Exception as e:
+                    logger.warning(f"设置逐仓模式失败(可能已是): {e}")
+                
                 # 设置杠杆
                 await self.exchange.set_leverage(signal['leverage'], symbol)
                 
