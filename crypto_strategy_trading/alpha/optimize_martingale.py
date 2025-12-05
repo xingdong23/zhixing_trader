@@ -20,47 +20,72 @@ logging.basicConfig(level=logging.WARNING, format='%(message)s')
 logger = logging.getLogger(__name__)
 
 def load_data(symbol, data_dir):
-    """Load data for a specific symbol (Merged or scattered)"""
-    # 1. Try merged file first
-    merged_path = os.path.join(data_dir, f'{symbol}-5m-merged.csv')
-    if os.path.exists(merged_path):
-        # FAST MODE: Just read it
-        df = pd.read_csv(merged_path, low_memory=False)
-    else:
-        # 2. Try scattered files
-        files = sorted([f for f in os.listdir(data_dir) if f.startswith(f'{symbol}-5m-') and f.endswith('.csv')])
-        if not files:
-            return None
-        
-        dfs = []
-        for f in files:
-            try:
-                path = os.path.join(data_dir, f)
-                df = pd.read_csv(path)
-                dfs.append(df)
-            except Exception:
-                pass
-        
-        if not dfs:
-            return None
-        df = pd.concat(dfs, ignore_index=True)
-
-    # Common Processing
-    df = df[df['open_time'] != 'open_time']
+    """Load ALL available data for a specific symbol"""
+    print(f"Loading data for {symbol}...")
     
-    if 'vol' in df.columns:
-        df = df.rename(columns={'vol': 'volume'})
+    # Find all matching files
+    files = sorted([f for f in os.listdir(data_dir) if f.startswith(f'{symbol}-5m-') and f.endswith('.csv')])
+    
+    if not files:
+        print(f"No data found for {symbol}")
+        return None
+    
+    dfs = []
+    for f in files:
+        try:
+            path = os.path.join(data_dir, f)
+            # Skip the 'merged' file itself if we are loading individual days to avoid duplication
+            # actually, if merged file exists, it might be better? 
+            # Let's just load everything and drop duplicates.
+            df = pd.read_csv(path, low_memory=False)
+            dfs.append(df)
+        except Exception:
+            pass
+    
+    if not dfs:
+        return None
         
+    df = pd.concat(dfs, ignore_index=True)
+
+    if df.empty:
+        return None
+
+    # Create a clean dataframe to avoid duplicate column issues
+    clean_df = pd.DataFrame()
+    
+    # Handle timestamp first
+    if 'open_time' in df.columns:
+        # If open_time is duplicated, take first
+        ot = df['open_time']
+        if isinstance(ot, pd.DataFrame):
+            ot = ot.iloc[:, 0]
+        clean_df['open_time'] = ot
+        clean_df['timestamp'] = pd.to_datetime(pd.to_numeric(ot, errors='coerce'), unit='ms')
+    
+    # Handle volume rename if needed (check source df)
+    if 'vol' in df.columns and 'volume' not in df.columns:
+        vol = df['vol']
+        if isinstance(vol, pd.DataFrame):
+            vol = vol.iloc[:, 0]
+        clean_df['volume'] = pd.to_numeric(vol, errors='coerce')
+        
+    # Process standard columns
     cols = ['open', 'high', 'low', 'close', 'volume']
     for col in cols:
         if col in df.columns:
-            df[col] = pd.to_numeric(df[col])
+            val = df[col]
+            if isinstance(val, pd.DataFrame):
+                val = val.iloc[:, 0]
+            clean_df[col] = pd.to_numeric(val, errors='coerce')
+        elif col in clean_df.columns:
+            # Already processed (e.g. volume)
+            pass
             
-    if 'open_time' in df.columns:
-        df['timestamp'] = pd.to_datetime(pd.to_numeric(df['open_time']), unit='ms')
+    # Drop duplicates
+    clean_df = clean_df.drop_duplicates(subset=['timestamp'])
+    clean_df = clean_df.sort_values('timestamp').reset_index(drop=True)
     
-    df = df.sort_values('timestamp').reset_index(drop=True)
-    return df
+    return clean_df
 
 def evaluate_params(args):
     """Run a single backtest with specific parameters"""
@@ -73,8 +98,12 @@ def evaluate_params(args):
         'take_profit_pct': params['take_profit_pct'],
         'stop_loss_pct': params['stop_loss_pct'],
         'explosion_threshold': params['explosion_threshold'],
-        'cooldown_minutes': 5,
-        'max_daily_rounds': 5
+        'cooldown_minutes': params['cooldown_minutes'],
+        'max_daily_rounds': params['max_daily_rounds'],
+        'volume_spike_ratio': params['volume_spike_ratio'],
+        # Mining Parameters
+        'martingale_sequence': params['martingale_sequence'],
+        'safety_override': params['safety_override']
     }
     
     # Override hardcoded safety in strategy for testing purposes?
@@ -155,27 +184,38 @@ def run_optimization(symbol, data_dir):
     # Let's use full data for 3 months PEPE, it's fast enough (~25k rows)
     print(f"Data Loaded: {len(data)} rows.")
 
-    # Search Space
+    # Search Space (Deep Mining)
+    sequences = [
+        [1, 2, 4, 8, 16],       # Standard
+        [1, 3, 9, 27, 81],      # Triple (Aggressive)
+    ]
+    
     param_grid = {
-        'explosion_threshold': [0.03, 0.04, 0.045, 0.05, 0.06],
-        'take_profit_pct': [0.10, 0.12, 0.15, 0.20],
-        'stop_loss_pct': [0.10], # Keep standard
-        'leverage': [5, 10, 20]
+        'explosion_threshold': [0.03, 0.045, 0.06],
+        'take_profit_pct': [0.10, 0.15, 0.20],
+        'stop_loss_pct': [0.10], 
+        'leverage': [5, 10, 20],
+        'martingale_sequence': sequences,
+        # Deep Mining Additions
+        'volume_spike_ratio': [3.0, 4.0, 5.0],
+        'cooldown_minutes': [5, 15],
+        'max_daily_rounds': [5, 10]
     }
     
     keys, values = zip(*param_grid.items())
     combinations = [dict(zip(keys, v)) for v in itertools.product(*values)]
     
-    print(f"Testing {len(combinations)} combinations...")
+    print(f"Testing {len(combinations)} combinations (Deep Mining)...")
     
     results = []
     
-    # Sequential execution for simplicity and debugging first
-    # (Parallel can be added if slow)
+    # Sequential execution
     for i, params in enumerate(combinations):
+        # Pass safety override by default for mining
+        params['safety_override'] = True
         res = evaluate_params((data, params, symbol))
         results.append(res)
-        if (i+1) % 10 == 0:
+        if (i+1) % 100 == 0:
             print(f"Progress: {i+1}/{len(combinations)}")
             
     # Sort results
@@ -183,26 +223,26 @@ def run_optimization(symbol, data_dir):
     sorted_results = sorted(results, key=lambda x: (-1 if x['busts'] > 0 else 1, x['return_pct']), reverse=True)
     
     print("\n🏆 Top 5 Configurations:")
-    print(f"{'#':<3} | {'Leverage':<8} | {'Threshold':<9} | {'TP %':<6} | {'Return %':<10} | {'Trades':<6} | {'Busts':<5}")
-    print("-" * 70)
+    print(f"{'#':<3} | {'Leverage':<8} | {'Seq':<15} | {'Thresh':<8} | {'TP %':<5} | {'Return %':<10} | {'Trades':<6} | {'Busts':<5}")
+    print("-" * 80)
     
     for i, res in enumerate(sorted_results[:5]):
         p = res['params']
-        print(f"{i+1:<3} | {p['leverage']:<8} | {p['explosion_threshold']:<9.1%} | {p['take_profit_pct']:<6.0%} | {res['return_pct']:<10.2f} | {res['total_trades']:<6} | {res['busts']:<5}")
+        seq_str = str(p['martingale_sequence'][:3]) + "..." # Truncate for display
+        print(f"{i+1:<3} | {p['leverage']:<8} | {seq_str:<15} | {p['explosion_threshold']:<8.1%} | {p['take_profit_pct']:<5.0%} | {res['return_pct']:<10.2f} | {res['total_trades']:<6} | {res['busts']:<5}")
 
-    # Also show the best "Aggressive" one (High returns even if risky? No, we filter busts first above)
-    # Let's look for highest return regardless of busts?
-    print("\n💀 Highest Returns (Ignoring Risk):")
+    print("\n💀 Highest Returns (Risk On):")
     sorted_by_profit = sorted(results, key=lambda x: x['return_pct'], reverse=True)
     for i, res in enumerate(sorted_by_profit[:3]):
         p = res['params']
-        print(f"{i+1:<3} | {p['leverage']}x | Thresh {p['explosion_threshold']:.1%} | Ret {res['return_pct']:.2f}% | Busts {res['busts']}")
+        seq_str = str(p['martingale_sequence'][:3]) + "..." 
+        print(f"{i+1:<3} | {p['leverage']}x | Seq {seq_str} | Thresh {p['explosion_threshold']:.1%} | Ret {res['return_pct']:.2f}% | Busts {res['busts']}")
 
 if __name__ == "__main__":
     base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     data_dir = os.path.join(base_dir, 'backtest', 'data')
     
-    targets = ['1000PEPEUSDT', 'DOGEUSDT', 'ETHUSDT']
+    targets = ['1000PEPEUSDT', 'DOGEUSDT', 'ETHUSDT', 'WIFUSDT']
     
     for coin in targets:
         run_optimization(coin, data_dir)

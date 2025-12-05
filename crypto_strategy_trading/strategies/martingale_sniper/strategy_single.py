@@ -54,27 +54,18 @@ class MartingaleSniperSingleStrategy:
         self.stop_loss_pct = float(parameters.get('stop_loss_pct', 0.10))
         
         # 爆发信号阈值
-        self.explosion_threshold = float(parameters.get('explosion_threshold', 0.025))  # 2.5%
+        self.explosion_threshold = float(parameters.get('z', 0.025))  # 2.5%
         self.volume_spike_ratio = float(parameters.get('volume_spike_ratio', 4.0))
         
         # 风控 (强制安全约束)
         self.cooldown_minutes = int(parameters.get('cooldown_minutes', 5))
         self.max_daily_rounds = int(parameters.get('max_daily_rounds', 10))
         
-        # --- 强制生存逻辑开始 ---
-        # 1. 强制限制杠杆 <= 10x
-        if self.leverage > 10:
-            logger.warning(f"⚠️ [生存模式] 杠杆过高 ({self.leverage}x)! 强制降级为 10x 以防止秒爆仓")
-            self.leverage = 10
-            
-        # 2. 强制提高开仓门槛 >= 4.5% (激进模式下限)
-        if self.explosion_threshold < 0.045:
-            logger.warning(f"⚠️ [生存模式] 爆发阈值过低 ({self.explosion_threshold*100}%)! 强制提升至 4.5% 以兼顾生存与频率")
-            self.explosion_threshold = 0.045
-            
-        # 3. 记录初始本金用于出金提醒
+        # 0. 允许自定义下注序列 (用于因子挖掘)
+        self.MARTINGALE_SEQUENCE = parameters.get('martingale_sequence', [1, 2, 4, 8, 16])
+        
+        # 3. 记录初始本金
         self.initial_capital = self.total_capital
-        # --- 强制生存逻辑结束 ---
         
         # 状态
         self.current_position: Optional[Position] = None
@@ -140,17 +131,10 @@ class MartingaleSniperSingleStrategy:
         # 检查资金
         bet = self.get_current_bet()
         if bet == 0 or self.current_capital < bet:
-            logger.warning(f"💀 资金不足: {self.current_capital:.2f}U < {bet}U")
+            # logger.warning(f"💀 资金不足: {self.current_capital:.2f}U < {bet}U")
+            # For optimization, we can just return None, the runner handles bust detection
             return None
             
-        # --- 生存模式：出金提醒 ---
-        if self.current_capital >= self.initial_capital * 2:
-            logger.critical("=" * 60)
-            logger.critical(f"🤑🤑🤑 [出金提醒] 资金已翻倍 ({self.current_capital:.2f}U)！")
-            logger.critical(f"   请立即提现 {self.initial_capital}U 本金，只用利润玩！")
-            logger.critical("=" * 60)
-        # ------------------------
-        
         # 检测爆发信号
         return self._detect_explosion(df, now)
     
