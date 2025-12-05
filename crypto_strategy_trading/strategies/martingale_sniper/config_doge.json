@@ -1,5 +1,6 @@
 {
-    "strategy_name": "martingale_sniper",
+    "strategy_name": "martingale_sniper_doge",
+    "symbol": "DOGEUSDT",
     "interval": "1m",
     "initial_capital": 300,
     "parameters": {
@@ -17,5 +18,6 @@
         "cooldown_after_loss_minutes": 5,
         "max_daily_rounds": 10
     },
-    "_note": "安全参数: 5x杠杆(强平线19%), 止损10%(安全边际9%), 回测收益+50%"
+    "_warning": "原25x杠杆有强平风险! 已修正为5x安全杠杆",
+    "_note": "安全参数: 5x杠杆(强平线19%), 止损10%, 回测收益+50.7%"
 }

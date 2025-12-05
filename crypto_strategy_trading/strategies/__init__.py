@@ -8,50 +8,50 @@
 """
 
 # 基础与趋势类策略
-from crypto_strategy_trading.strategies.backup.high_frequency import HighFrequencyScalpingStrategy
-from crypto_strategy_trading.strategies.backup.intraday_scalping import IntradayScalpingStrategy
-from crypto_strategy_trading.strategies.backup.intraday_trend_rr import IntradayTrendRRStrategy
-from crypto_strategy_trading.strategies.backup.intraday_mean_reversion import IntradayMeanReversionStrategy
-from crypto_strategy_trading.strategies.backup.trend_momentum import TrendMomentumStrategy
-from crypto_strategy_trading.strategies.backup.trend_following import TrendFollowingStrategy
-from crypto_strategy_trading.strategies.backup.trend_breakout import TrendBreakoutStrategy
+# from crypto_strategy_trading.strategies.backup.high_frequency import HighFrequencyScalpingStrategy
+# from crypto_strategy_trading.strategies.backup.intraday_scalping import IntradayScalpingStrategy
+# from crypto_strategy_trading.strategies.backup.intraday_trend_rr import IntradayTrendRRStrategy
+# from crypto_strategy_trading.strategies.backup.intraday_mean_reversion import IntradayMeanReversionStrategy
+# from crypto_strategy_trading.strategies.backup.trend_momentum import TrendMomentumStrategy
+# from crypto_strategy_trading.strategies.backup.trend_following import TrendFollowingStrategy
+# from crypto_strategy_trading.strategies.backup.trend_breakout import TrendBreakoutStrategy
 
 # 均线与波动类策略
-from crypto_strategy_trading.strategies.backup.ema_crossover import EMACrossoverStrategy
-from crypto_strategy_trading.strategies.backup.ema144_trend import EMA144TrendStrategy
-from crypto_strategy_trading.strategies.backup.bollinger_bands import BollingerBandsStrategy
-from crypto_strategy_trading.strategies.backup.ema_rsi_volume import EMARSIVolumeStrategy
-from crypto_strategy_trading.strategies.backup.compression_expansion import CompressionExpansionStrategy
-from crypto_strategy_trading.strategies.backup.triple_ma import TripleMAStrategy
-from crypto_strategy_trading.strategies.backup.williams_volatility_breakout import WilliamsVolatilityBreakoutStrategy
+# from crypto_strategy_trading.strategies.backup.ema_crossover import EMACrossoverStrategy
+# from crypto_strategy_trading.strategies.backup.ema144_trend import EMA144TrendStrategy
+# from crypto_strategy_trading.strategies.backup.bollinger_bands import BollingerBandsStrategy
+# from crypto_strategy_trading.strategies.backup.ema_rsi_volume import EMARSIVolumeStrategy
+# from crypto_strategy_trading.strategies.backup.compression_expansion import CompressionExpansionStrategy
+# from crypto_strategy_trading.strategies.backup.triple_ma import TripleMAStrategy
+# from crypto_strategy_trading.strategies.backup.williams_volatility_breakout import WilliamsVolatilityBreakoutStrategy
 
 # 网格与概率类策略
-from crypto_strategy_trading.strategies.backup.grid_trading import GridTradingStrategy
-from crypto_strategy_trading.strategies.backup.probability_profit import ProbabilityProfitStrategy
+# from crypto_strategy_trading.strategies.backup.grid_trading import GridTradingStrategy
+# from crypto_strategy_trading.strategies.backup.probability_profit import ProbabilityProfitStrategy
 
 # EMA Simple Trend 系列
-from crypto_strategy_trading.strategies.backup.ema_simple_trend import EMASimpleTrendStrategy
-from crypto_strategy_trading.strategies.backup.ema_simple_trend import EMASimpleTrendMultiframeStrategy
+# from crypto_strategy_trading.strategies.backup.ema_simple_trend import EMASimpleTrendStrategy
+# from crypto_strategy_trading.strategies.backup.ema_simple_trend import EMASimpleTrendMultiframeStrategy
 
 # RSI 2-Day 系列
-from crypto_strategy_trading.strategies.backup.rsi_2day.strategy import RSI2DayStrategy
-from crypto_strategy_trading.strategies.backup.rsi_2day.strategy_adaptive import AdaptiveRSI2DayStrategy
+# from crypto_strategy_trading.strategies.backup.rsi_2day.strategy import RSI2DayStrategy
+# from crypto_strategy_trading.strategies.backup.rsi_2day.strategy_adaptive import AdaptiveRSI2DayStrategy
 
 # 形态/突破类策略
-from crypto_strategy_trading.strategies.backup.nr7_breakout import NR7BreakoutStrategy
-from crypto_strategy_trading.strategies.backup.false_breakout import FalseBreakoutStrategy
-from crypto_strategy_trading.strategies.backup.candlestick_patterns import CandlestickPatternStrategy
+# from crypto_strategy_trading.strategies.backup.nr7_breakout import NR7BreakoutStrategy
+# from crypto_strategy_trading.strategies.backup.false_breakout import FalseBreakoutStrategy
+# from crypto_strategy_trading.strategies.backup.candlestick_patterns import CandlestickPatternStrategy
 
 # 熊市/特殊 regime 策略
-from crypto_strategy_trading.strategies.backup.bear_trend_enhanced.strategy_bear_regime import BearTrendRegimeStrategy
+# from crypto_strategy_trading.strategies.backup.bear_trend_enhanced.strategy_bear_regime import BearTrendRegimeStrategy
 # 南瓜汤策略 (PSMI)
 from .pumpkin_soup import PumpkinSoupStrategy
 
 # 套利策略
-from crypto_strategy_trading.strategies.backup.funding_arbitrage import FundingArbitrageStrategy
+# from crypto_strategy_trading.strategies.backup.funding_arbitrage import FundingArbitrageStrategy
 
 # 彩票式策略
-from crypto_strategy_trading.strategies.backup.lottery_scalping import LotteryScalpingStrategy
+# from crypto_strategy_trading.strategies.backup.lottery_scalping import LotteryScalpingStrategy
 
 # Alpha Mining
 # from .alpha.alpha_mining_demo.strategy import AlphaMiningDemoStrategy
@@ -131,82 +131,59 @@ __all__ = [
 ]
 
 # 统一策略注册表（回测 / 实盘通过名字调用）
+# 统一策略注册表（回测 / 实盘通过名字调用）
 STRATEGY_REGISTRY = {
     # 高频与动量
-    'high_frequency': HighFrequencyScalpingStrategy,
-    'intraday_scalping': IntradayScalpingStrategy,
-    'intraday_trend_rr': IntradayTrendRRStrategy,
-    'intraday_mean_reversion': IntradayMeanReversionStrategy,
-    'trend_momentum': TrendMomentumStrategy,
+    # 'high_frequency': HighFrequencyScalpingStrategy,
+    # 'intraday_scalping': IntradayScalpingStrategy,
+    # 'intraday_trend_rr': IntradayTrendRRStrategy,
+    # 'intraday_mean_reversion': IntradayMeanReversionStrategy,
+    # 'trend_momentum': TrendMomentumStrategy,
 
     # 趋势
-    'trend_following': TrendFollowingStrategy,
-    'trend_breakout': TrendBreakoutStrategy,
+    # 'trend_following': TrendFollowingStrategy,
+    # 'trend_breakout': TrendBreakoutStrategy,
 
     # 均线&波动
-    'ema_crossover': EMACrossoverStrategy,
-    'ema144_trend': EMA144TrendStrategy,
-    'bollinger_bands': BollingerBandsStrategy,
-    'ema_rsi_volume': EMARSIVolumeStrategy,
-    'compression_expansion': CompressionExpansionStrategy,
-    'triple_ma': TripleMAStrategy,
-    'williams_volatility_breakout': WilliamsVolatilityBreakoutStrategy,
+    # 'ema_crossover': EMACrossoverStrategy,
+    # 'ema144_trend': EMA144TrendStrategy,
+    # 'bollinger_bands': BollingerBandsStrategy,
+    # 'ema_rsi_volume': EMARSIVolumeStrategy,
+    # 'compression_expansion': CompressionExpansionStrategy,
+    # 'triple_ma': TripleMAStrategy,
+    # 'williams_volatility_breakout': WilliamsVolatilityBreakoutStrategy,
 
     # 网格&概率
-    'grid_trading': GridTradingStrategy,
-    'probability_profit': ProbabilityProfitStrategy,
+    # 'grid_trading': GridTradingStrategy,
+    # 'probability_profit': ProbabilityProfitStrategy,
 
     # EMA Simple Trend 系列
-    'ema_simple_trend': EMASimpleTrendStrategy,
-    'ema_simple_trend_multiframe': EMASimpleTrendMultiframeStrategy,
+    # 'ema_simple_trend': EMASimpleTrendStrategy,
+    # 'ema_simple_trend_multiframe': EMASimpleTrendMultiframeStrategy,
 
     # RSI 2-Day 系列
-    'rsi_2day': RSI2DayStrategy,
-    'rsi_2day_adaptive': AdaptiveRSI2DayStrategy,
+    # 'rsi_2day': RSI2DayStrategy,
+    # 'rsi_2day_adaptive': AdaptiveRSI2DayStrategy,
 
     # 形态/突破
-    'nr7_breakout': NR7BreakoutStrategy,
-    'false_breakout': FalseBreakoutStrategy,
-    'candlestick_pattern': CandlestickPatternStrategy,
+    # 'nr7_breakout': NR7BreakoutStrategy,
+    # 'false_breakout': FalseBreakoutStrategy,
+    # 'candlestick_pattern': CandlestickPatternStrategy,
 
     # 熊市/Regime
-    'bear_trend_regime': BearTrendRegimeStrategy,
+    # 'bear_trend_regime': BearTrendRegimeStrategy,
     
     # 南瓜汤
     'pumpkin_soup': PumpkinSoupStrategy,
 
     # 套利
-    'funding_arbitrage': FundingArbitrageStrategy,
+    # 'funding_arbitrage': FundingArbitrageStrategy,
     
     # 彩票式
-    'lottery_scalping': LotteryScalpingStrategy,
+    # 'lottery_scalping': LotteryScalpingStrategy,
 
     # Alpha Mining
-    # 'alpha_mining_demo': AlphaMiningDemoStrategy,
-    # 'auto_alpha_20251204_102816': AutoAlpha20251204102816,
-    # 'auto_alpha_20251204_102822': AutoAlpha20251204102822,
-    # 'auto_alpha_20251204_102829': AutoAlpha20251204102829,
-    # 'auto_alpha_20251204_102835': AutoAlpha20251204102835,
-    # 'auto_alpha_20251204_102842': AutoAlpha20251204102842,
-    # 'auto_alpha_20251204_102849': AutoAlpha20251204102849,
-    # 'auto_alpha_20251204_102855': AutoAlpha20251204102855,
-    # 'auto_alpha_20251204_102902': AutoAlpha20251204102902,
-    # 'auto_alpha_20251204_102909': AutoAlpha20251204102909,
-    # 'auto_alpha_20251204_102915': AutoAlpha20251204102915,
-    # 'auto_alpha_20251204_102922': AutoAlpha20251204102922,
-    # 'auto_alpha_20251204_102929': AutoAlpha20251204102929,
-    # 'auto_alpha_20251204_111517': AutoAlpha20251204111517,
-    # 'auto_alpha_20251204_111525': AutoAlpha20251204111525,
-    # 'auto_alpha_20251204_111532': AutoAlpha20251204111532,
-    # 'auto_alpha_20251204_111539': AutoAlpha20251204111539,
-    # 'auto_alpha_20251204_111546': AutoAlpha20251204111546,
-    # 'auto_alpha_20251204_111553': AutoAlpha20251204111553,
-    # 'auto_alpha_20251204_111600': AutoAlpha20251204111600,
-    # 'auto_alpha_20251204_111607': AutoAlpha20251204111607,
-    # 'auto_alpha_20251204_111614': AutoAlpha20251204111614,
-    # 'auto_alpha_20251204_111621': AutoAlpha20251204111621,
-    # 'auto_alpha_20251204_111628': AutoAlpha20251204111628,
-    # 'auto_alpha_20251204_111635': AutoAlpha20251204111635,
+    # ... (already commented out)
 }
 
 
