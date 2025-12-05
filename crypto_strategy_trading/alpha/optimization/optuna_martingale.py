@@ -72,7 +72,15 @@ def load_data(symbol, data_dir):
     
     cols = ['open', 'high', 'low', 'close', 'volume']
     for col in cols:
-        val = df.get(col) or df.get('vol' if col == 'volume' else col)
+        # 优先获取标准列名
+        if col in df.columns:
+            val = df[col]
+        # 其次尝试别名 (如 vol -> volume)
+        elif col == 'volume' and 'vol' in df.columns:
+            val = df['vol']
+        else:
+            val = None
+            
         if val is not None:
             if isinstance(val, pd.DataFrame): val = val.iloc[:, 0]
             clean_df[col] = pd.to_numeric(val, errors='coerce')
