@@ -61,6 +61,10 @@ class MartingaleSniperSingleStrategy:
         self.cooldown_minutes = int(parameters.get('cooldown_minutes', 5))
         self.max_daily_rounds = int(parameters.get('max_daily_rounds', 10))
         
+        # 仿真参数
+        self.fee_rate = float(parameters.get('fee_rate', 0.0005)) # 0.05%
+        self.slippage = float(parameters.get('slippage', 0.0005)) # 0.05%
+
         # 0. 允许自定义下注序列 (用于因子挖掘)
         self.MARTINGALE_SEQUENCE = parameters.get('martingale_sequence', [1, 2, 4, 8, 16])
         
@@ -271,19 +275,38 @@ class MartingaleSniperSingleStrategy:
         pos = self.current_position
         pnl_pct = signal['pnl_pct']
         
-        # 计算盈亏
+        # 计算真实盈亏 (考虑滑点和手续费)
+        # 进场成本: entry_price * (1 + slippage)
+        # 出场价格: current_price * (1 - slippage)
+        # 手续费: 开仓费 + 平仓费 (基于名义价值)
+        
+        entry_price_real = pos.entry_price * (1 + self.slippage)
+        exit_price_real = signal['price'] * (1 - self.slippage)
+        
+        # 名义价值
+        position_value = pos.amount * pos.entry_price # 约等于 bet_amount * leverage
+        
+        # 手续费 (开仓 + 平仓)
+        total_fees = position_value * self.fee_rate + (pos.amount * exit_price_real) * self.fee_rate
+        
         if signal['reason'] == 'liquidation':
-            # 强平：亏损全部下注金额
+            # 强平：亏损全部下注金额 (不扣手续费了，因为保证金没了)
             pnl_amount = -pos.bet_amount
         else:
-            pnl_amount = pos.bet_amount * pnl_pct * self.leverage
+            # 原始盈亏
+            raw_pnl = (exit_price_real - entry_price_real) * pos.amount
+            pnl_amount = raw_pnl - total_fees
+            
             # 最多亏本金
             if pnl_amount < -pos.bet_amount:
                 pnl_amount = -pos.bet_amount
         
         self.current_capital += pnl_amount
         
-        if signal['is_win']:
+        # 更新 signal 中的 pnl 以便记录
+        signal['realized_pnl'] = pnl_amount
+        
+        if pnl_amount > 0:
             # 赢了，重置马丁层级
             logger.info("=" * 50)
             logger.info(f"🎉 马丁L{self.martingale_level + 1} 止盈!")

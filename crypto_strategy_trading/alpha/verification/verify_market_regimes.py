@@ -81,13 +81,18 @@ def run_regime_verification():
     # Best Parameters (DOGEUSDT - Robust/All-Weather)
     params = {
         'leverage': 15,
-        'take_profit_pct': 0.2425,    # 24.25%
-        'stop_loss_pct': 0.2940,      # 29.40%
-        'explosion_threshold': 0.0366, # 3.66% (Lower threshold to trade more in chop)
+        'take_profit_pct': 0.2425,
+        'stop_loss_pct': 0.2940,
+        'explosion_threshold': 0.0366,
         'volume_spike_ratio': 3.47,
-        'martingale_sequence': [1, 3, 9, 27, 81], # Aggressive
+        'martingale_sequence': [1, 3, 9, 27, 81],
         'cooldown_minutes': 15,
         'max_daily_rounds': 10,
+        
+        # Real-world Simulation
+        'fee_rate': 0.0005, # 0.05% per side
+        'slippage': 0.0005, # 0.05% slippage
+        
         'symbol': symbol,
         'total_capital': 300.0,
         'safety_override': True
