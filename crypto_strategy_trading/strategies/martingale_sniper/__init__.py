@@ -1,3 +1,3 @@
-from .strategy import MartingaleSniperStrategy
+from .strategy_single import MartingaleSniperSingleStrategy
 
-__all__ = ['MartingaleSniperStrategy']
+__all__ = ['MartingaleSniperSingleStrategy']

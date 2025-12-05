@@ -39,7 +39,7 @@ class FeatureFactory:
             
         # 1. 趋势指标 (Trend Indicators)
         # 移动平均线 (Moving Averages)
-        for window in [7, 14, 30, 60, 90]:
+        for window in [7, 14, 20, 30, 60, 90]:
             df[f'ma_{window}'] = df['close'].rolling(window).mean()
             df[f'ma_{window}_ratio'] = df['close'] / df[f'ma_{window}']
             

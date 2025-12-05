@@ -53,7 +53,7 @@ def run_backtest(data, params, regime_name):
                 busts = 1
                 break
             
-            df_slice = data.iloc[i-10:i+1]
+            df_slice = data.iloc[i-100:i+1]
             signal = strategy.analyze(df_slice)
             if signal:
                 strategy.update_position(signal)
@@ -92,6 +92,9 @@ def run_regime_verification():
         # Real-world Simulation
         'fee_rate': 0.0005, # 0.05% per side
         'slippage': 0.0005, # 0.05% slippage
+        
+        # Alpha Factor Integration
+        'atr_threshold': 0.001, # 0.1% (Lower threshold to allow trades)
         
         'symbol': symbol,
         'total_capital': 300.0,

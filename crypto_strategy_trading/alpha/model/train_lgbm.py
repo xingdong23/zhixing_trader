@@ -125,5 +125,5 @@ if __name__ == "__main__":
     base_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
     data_dir = os.path.join(base_dir, 'backtest', 'data')
     
-    # 默认测试 PEPE
-    train_model('1000PEPEUSDT', data_dir)
+    # 默认测试 DOGE
+    train_model('DOGEUSDT', data_dir)

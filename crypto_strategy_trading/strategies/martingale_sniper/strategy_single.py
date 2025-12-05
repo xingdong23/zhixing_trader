@@ -47,26 +47,34 @@ class MartingaleSniperSingleStrategy:
         
         # 资金管理
         self.total_capital = float(parameters.get('total_capital', 300.0))
-        self.leverage = int(parameters.get('leverage', 5))  # 默认5倍安全杠杆
+        self.leverage = int(parameters.get('leverage', 14))  # Trial 63: 14倍杠杆
         
-        # 止盈止损
-        self.take_profit_pct = float(parameters.get('take_profit_pct', 0.15))
-        self.stop_loss_pct = float(parameters.get('stop_loss_pct', 0.10))
+        # 止盈止损 (Trial 63: 高胜率宽止损)
+        self.take_profit_pct = float(parameters.get('take_profit_pct', 0.2014)) # ~20.1%
+        self.stop_loss_pct = float(parameters.get('stop_loss_pct', 0.4096))     # ~40.9%
         
         # 爆发信号阈值
-        self.explosion_threshold = float(parameters.get('z', 0.025))  # 2.5%
-        self.volume_spike_ratio = float(parameters.get('volume_spike_ratio', 4.0))
+        self.explosion_threshold = float(parameters.get('z', 0.0455))  # ~4.55%
+        self.volume_spike_ratio = float(parameters.get('volume_spike_ratio', 5.49))
         
-        # 风控 (强制安全约束)
+        # 风控
         self.cooldown_minutes = int(parameters.get('cooldown_minutes', 5))
-        self.max_daily_rounds = int(parameters.get('max_daily_rounds', 10))
+        self.max_daily_rounds = int(parameters.get('max_daily_rounds', 9))
         
         # 仿真参数
         self.fee_rate = float(parameters.get('fee_rate', 0.0005)) # 0.05%
         self.slippage = float(parameters.get('slippage', 0.0005)) # 0.05%
-
-        # 0. 允许自定义下注序列 (用于因子挖掘)
-        self.MARTINGALE_SEQUENCE = parameters.get('martingale_sequence', [1, 2, 4, 8, 16])
+        
+        # Alpha 因子参数
+        self.atr_period = int(parameters.get('atr_period', 14))
+        self.atr_threshold = float(parameters.get('atr_threshold', 0.0011)) # Trial 63: 0.11%
+        
+        # 趋势过滤器 (核心: Trial 63 选择了 EMA20)
+        self.trend_ema_period = int(parameters.get('trend_ema_period', 20)) # 20 = 启用 EMA20 过滤
+        
+        # 0. 允许自定义下注序列 (Trial 63: Aggressive [1, 3, 9, 27, 81])
+        # 这种激进序列配合趋势过滤，能在正确趋势中快速回本
+        self.MARTINGALE_SEQUENCE = parameters.get('martingale_sequence', [1, 3, 9, 27, 81])
         
         # 3. 记录初始本金
         self.initial_capital = self.total_capital
@@ -100,7 +108,8 @@ class MartingaleSniperSingleStrategy:
         logger.info(f"   止损: -{self.stop_loss_pct*100}%")
         logger.info(f"   爆发阈值: {self.explosion_threshold*100}%")
         logger.info("=" * 60)
-    
+
+
     def get_current_bet(self) -> float:
         """获取当前应该下注的金额"""
         if self.martingale_level >= len(self.MARTINGALE_SEQUENCE):
@@ -141,10 +150,27 @@ class MartingaleSniperSingleStrategy:
             
         # 检测爆发信号
         return self._detect_explosion(df, now)
-    
+
+    def _calculate_atr(self, df: pd.DataFrame, period: int = 14) -> float:
+        """计算 ATR (平均真实波幅)"""
+        if len(df) < period + 1:
+            return 0.0
+            
+        high = df['high']
+        low = df['low']
+        close = df['close'].shift(1)
+        
+        tr1 = high - low
+        tr2 = (high - close).abs()
+        tr3 = (low - close).abs()
+        
+        tr = pd.concat([tr1, tr2, tr3], axis=1).max(axis=1)
+        atr = tr.rolling(window=period).mean().iloc[-1]
+        return atr
+
     def _detect_explosion(self, df: pd.DataFrame, now: datetime) -> Optional[Dict]:
         """检测爆发信号"""
-        if len(df) < 3:
+        if len(df) < max(3, self.atr_period + 2):
             return None
         
         current = df.iloc[-1]
@@ -158,19 +184,33 @@ class MartingaleSniperSingleStrategy:
         # 计算成交量变化
         vol_ratio = float(current['volume']) / float(prev['volume']) if float(prev['volume']) > 0 else 0
         
+        # 计算 ATR 因子
+        atr = self._calculate_atr(df, self.atr_period)
+        atr_ratio = atr / price if price > 0 else 0
+        
         # 信号判断
         is_explosion = False
         reason = ""
         
+        # 因子过滤: 如果启用了 ATR 阈值，且当前波动率过低，则忽略信号
+        if self.atr_threshold > 0 and atr_ratio < self.atr_threshold:
+            return None
+            
+        # 趋势过滤: 如果启用了 EMA 趋势，且价格在 EMA 之下，则只做多策略不建议开仓
+        if self.trend_ema_period > 0:
+            ema = df['close'].ewm(span=self.trend_ema_period, adjust=False).mean().iloc[-1]
+            if price < ema:
+                return None
+        
         # 条件1: 涨幅超过阈值
         if change >= self.explosion_threshold:
             is_explosion = True
-            reason = f"涨幅+{change*100:.2f}%"
+            reason = f"涨幅+{change*100:.2f}% (ATR:{atr_ratio*100:.2f}%)"
         
         # 条件2: 量价齐飞
         elif vol_ratio >= self.volume_spike_ratio and change > 0.015:
             is_explosion = True
-            reason = f"量价齐飞 Vol×{vol_ratio:.1f} +{change*100:.2f}%"
+            reason = f"量价齐飞 Vol×{vol_ratio:.1f} +{change*100:.2f}% (ATR:{atr_ratio*100:.2f}%)"
         
         if not is_explosion:
             return None
@@ -356,6 +396,7 @@ class MartingaleSniperSingleStrategy:
             'total_capital': self.total_capital,
             'current_capital': self.current_capital,
             'return_pct': (self.current_capital / self.total_capital - 1) * 100,
+            'total_trades': self.total_trades,
             'total_rounds': self.total_rounds,
             'rounds_won': self.rounds_won,
             'rounds_lost': self.rounds_lost,
