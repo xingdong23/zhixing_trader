@@ -1,0 +1,12 @@
+{
+    "strategy_name": "vwap_mean_reversion",
+    "parameters": {
+        "symbol": "DOGE/USDT",
+        "entry_threshold": 0.02,
+        "stop_loss_pct": 0.05,
+        "take_profit_target": "vwap",
+        "take_profit_pct": 0.05,
+        "bet_amount": 100.0,
+        "leverage": 5
+    }
+}

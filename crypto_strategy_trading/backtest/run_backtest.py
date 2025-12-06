@@ -150,7 +150,8 @@ class BacktestRunner:
             # 数据路径相对于项目根目录
             data_path = self.backtest_dir.parent / self.config['data']['source']
             
-            if not data_path.exists():
+            # 如果路径不包含通配符，则检查文件是否存在
+            if '*' not in str(data_path) and not data_path.exists():
                 raise FileNotFoundError(f"数据文件不存在: {data_path}")
             
             data_loader = DataLoader(str(data_path))

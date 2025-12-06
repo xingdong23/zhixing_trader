@@ -59,6 +59,8 @@ from .pumpkin_soup import PumpkinSoupStrategy
 # from .alpha.auto_alpha_20251204_102822.strategy import AutoAlpha20251204102822
 # from .alpha.auto_alpha_20251204_102829.strategy import AutoAlpha20251204102829
 # from .alpha.auto_alpha_20251204_102835.strategy import AutoAlpha20251204102835
+from .ai_gambler.strategy import AiGamblerStrategy
+from .vwap_mean_reversion.strategy import VwapMeanReversionStrategy
 # from .alpha.auto_alpha_20251204_102842.strategy import AutoAlpha20251204102842
 # from .alpha.auto_alpha_20251204_102849.strategy import AutoAlpha20251204102849
 # from .alpha.auto_alpha_20251204_102855.strategy import AutoAlpha20251204102855
@@ -128,6 +130,7 @@ __all__ = [
     
     # 彩票式
     'LotteryScalpingStrategy',
+    'VwapMeanReversionStrategy',
 ]
 
 # 统一策略注册表（回测 / 实盘通过名字调用）
@@ -184,6 +187,10 @@ STRATEGY_REGISTRY = {
 
     # Alpha Mining
     # ... (already commented out)
+    
+    # AI Gambler
+    'ai_gambler': AiGamblerStrategy,
+    'vwap_mean_reversion': VwapMeanReversionStrategy,
 }
 
 

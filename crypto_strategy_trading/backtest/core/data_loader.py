@@ -82,6 +82,13 @@ class DataLoader:
                     'close_time', 'quote_vol', 'count', 'taker_buy_vol',
                     'taker_buy_quote_vol', 'ignore'
                 ]
+            
+            # 确保 open_time 是数值类型 (处理混合类型导致的合并/排序错误)
+            if 'open_time' in df.columns:
+                df['open_time'] = pd.to_numeric(df['open_time'], errors='coerce')
+                # 删除转换失败的行 (例如包含header的非第一行)
+                df = df.dropna(subset=['open_time'])
+                
             dfs.append(df)
         
         # 合并所有DataFrame
@@ -342,14 +349,22 @@ class DataLoader:
         
         klines = []
         for idx, row in df.iterrows():
-            klines.append({
+            kline = {
                 'timestamp': idx if isinstance(idx, datetime) else datetime.fromtimestamp(row['open_time'] / 1000),
                 'open': float(row['open']),
                 'high': float(row['high']),
                 'low': float(row['low']),
                 'close': float(row['close']),
                 'volume': float(row['vol']) if 'vol' in row else float(row.get('volume', 0)),
-            })
+            }
+            
+            # 添加额外列 (for AI Strategy)
+            extra_cols = ['quote_vol', 'count', 'taker_buy_vol', 'taker_buy_quote_vol', 'close_time']
+            for col in extra_cols:
+                if col in row:
+                    kline[col] = float(row[col])
+            
+            klines.append(kline)
         
         return klines
     

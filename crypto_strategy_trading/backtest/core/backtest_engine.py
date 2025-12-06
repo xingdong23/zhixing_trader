@@ -119,7 +119,7 @@ class BacktestEngine:
         elif signal_type in ['stop_loss', 'take_profit', 'timeout', 'accelerated_exit', 'partial_close', 
                              'max_loss_stop', 'ema13_break', 'ema48_break', 'trailing_stop', 'ema_break',
                              'triple_resonance', 'ema21_cross', 'ema9_break', 'ema21_break', 'partial_take_profit',
-                             'ema55_cross', '移动止损', '固定止损', '第一次部分止盈', '第二次全部止盈']:  # 添加新的平仓类型
+                             'ema55_cross', '移动止损', '固定止损', '第一次部分止盈', '第二次全部止盈', 'liquidation']:  # 添加新的平仓类型
             # 平仓
             self._close_position(signal, timestamp, current_price)
     

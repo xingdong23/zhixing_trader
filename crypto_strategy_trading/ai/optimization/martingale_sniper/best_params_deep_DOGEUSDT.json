@@ -1,0 +1,12 @@
+{
+    "leverage": 14,
+    "take_profit_pct": 0.234330812826746,
+    "stop_loss_pct": 0.2558112518854581,
+    "explosion_threshold": 0.04877343564911509,
+    "volume_spike_ratio": 4.817143521667637,
+    "cooldown_minutes": 42,
+    "max_daily_rounds": 11,
+    "trend_ema_period": 0,
+    "atr_threshold": 0.001139678563087469,
+    "seq_type": "aggressive"
+}

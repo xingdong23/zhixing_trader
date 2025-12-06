@@ -1,0 +1,35 @@
+{
+    "backtest_name": "AI Gambler DOGE 2023 (Choppy)",
+    "description": "Backtest of AI Gambler Strategy in 2023 Choppy Market",
+    "strategy": {
+        "name": "ai_gambler",
+        "config_file": "strategies/ai_gambler/config.json",
+        "parameters": {
+            "symbol": "DOGEUSDT",
+            "total_capital": 280,
+            "leverage": 20,
+            "take_profit_pct": 0.50,
+            "stop_loss_pct": 0.20,
+            "ai_threshold": 0.60
+        }
+    },
+    "data": {
+        "source": "data/raw/DOGEUSDT_15m_2023.csv",
+        "resample_from": "15m",
+        "timeframe": "15m",
+        "start_date": "2023-01-01",
+        "end_date": "2023-12-31"
+    },
+    "backtest_settings": {
+        "initial_capital": 280,
+        "window_size": 500,
+        "taker_fee_rate": 0.0005,
+        "maker_fee_rate": 0.0002,
+        "slippage_rate": 0.0005
+    },
+    "output": {
+        "save_trades": true,
+        "result_file": "results/ai_gambler_doge_2023_{timestamp}.json",
+        "save_equity_curve": true
+    }
+}

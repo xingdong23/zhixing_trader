@@ -1,0 +1,12 @@
+{
+    "strategy_name": "ai_gambler",
+    "symbol": "DOGEUSDT",
+    "leverage": 20,
+    "total_capital": 280.0,
+    "bullets": 3,
+    "ai_threshold": 0.60,
+    "take_profit_pct": 0.50,
+    "stop_loss_pct": 0.20,
+    "model_path": "../../alpha/model/volatility_model_DOGEUSDT.joblib",
+    "feature_path": "../../alpha/model/best_features_DOGEUSDT.json"
+}

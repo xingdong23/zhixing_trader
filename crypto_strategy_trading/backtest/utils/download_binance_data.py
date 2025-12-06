@@ -160,6 +160,11 @@ class BinanceDataDownloader:
         after_count = len(merged_df)
         
         # 排序
+        # 修复: 确保 open_time 是数值类型，防止排序报错
+        if 'open_time' in merged_df.columns:
+            merged_df['open_time'] = pd.to_numeric(merged_df['open_time'], errors='coerce')
+            merged_df = merged_df.dropna(subset=['open_time'])
+            
         merged_df = merged_df.sort_values('open_time').reset_index(drop=True)
         
         # 保存

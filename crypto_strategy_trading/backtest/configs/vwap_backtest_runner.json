@@ -1,0 +1,27 @@
+{
+    "backtest_name": "VWAP Mean Reversion - DOGE",
+    "description": "Backtesting VWAP Mean Reversion strategy on DOGEUSDT 5m data",
+    "strategy": {
+        "name": "vwap_mean_reversion",
+        "config_file": "backtest/configs/vwap_strategy_config.json"
+    },
+    "data": {
+        "source": "data/DOGEUSDT-5m-2024-*.csv",
+        "timeframe": "5m",
+        "resample_from": "5m",
+        "start_date": "2024-01-01",
+        "end_date": "2024-12-31"
+    },
+    "backtest_settings": {
+        "initial_capital": 10000.0,
+        "window_size": 1000,
+        "slippage_rate": 0.0005,
+        "taker_fee_rate": 0.0005,
+        "maker_fee_rate": 0.0002
+    },
+    "output": {
+        "save_trades": true,
+        "save_equity_curve": true,
+        "result_file": "results/vwap_doge_result_{timestamp}.json"
+    }
+}

@@ -1,0 +1,35 @@
+{
+    "backtest_name": "AI Gambler DOGEUSDT Backtest (2024 Real Data)",
+    "description": "Simulation of AI-driven rollover strategy using Random Forest discovered factors (NATR, Count, QuoteVol).",
+    "strategy": {
+        "name": "ai_gambler",
+        "config_file": "strategies/ai_gambler/config.json",
+        "parameters": {
+            "symbol": "DOGEUSDT",
+            "total_capital": 280,
+            "leverage": 20,
+            "take_profit_pct": 0.50,
+            "stop_loss_pct": 0.20,
+            "ai_threshold": 0.60
+        }
+    },
+    "data": {
+        "source": "data/raw/DOGEUSDT_15m.csv",
+        "resample_from": "15m",
+        "timeframe": "15m",
+        "start_date": "2024-01-01",
+        "end_date": "2024-12-05"
+    },
+    "backtest_settings": {
+        "initial_capital": 280,
+        "window_size": 500,
+        "taker_fee_rate": 0.0005,
+        "maker_fee_rate": 0.0002,
+        "slippage_rate": 0.0005
+    },
+    "output": {
+        "save_trades": true,
+        "result_file": "results/ai_gambler_doge_{timestamp}.json",
+        "save_equity_curve": true
+    }
+}
