@@ -1,0 +1,12 @@
+{
+    "timeframe": "1h",
+    "exchange": {
+        "name": "binance",
+        "ccxt_config": {
+            "verify": false
+        },
+        "pair_whitelist": [
+            "BNB/USDT"
+        ]
+    }
+}

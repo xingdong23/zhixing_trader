@@ -20,7 +20,12 @@
             "label_period_candles": 4,
             "DI_threshold": 1,
             "weight_factor": 0.9,
-            "principal_component_analysis": false
+            "principal_component_analysis": false,
+            "include_shifted_candles": 0,
+            "use_SVM_to_remove_outliers": false,
+            "plot_feature_importances": 0,
+            "shuffle_after_split": false,
+            "buffer_train_data_candles": 0
         },
         "data_split_parameters": {
             "test_size": 0.2,
@@ -31,6 +36,20 @@
             "n_estimators": 200,
             "learning_rate": 0.05,
             "max_depth": 6
-        }
-    }
+        },
+        "write_metrics_to_disk": false,
+        "conv_width": 1,
+        "save_backtest_models": false,
+        "activate_tensorboard": true,
+        "wait_for_training_iteration_on_reload": true,
+        "continual_learning": false,
+        "keras": false
+    },
+    "timeframe": "1h",
+    "stake_amount": "unlimited",
+    "stake_currency": "USDT",
+    "max_open_trades": 5,
+    "pairs": [
+        "BNB/USDT"
+    ]
 }

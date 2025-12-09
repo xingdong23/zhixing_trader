@@ -2,11 +2,11 @@ from freqtrade.strategy import IStrategy
 from pandas import DataFrame
 import talib.abstract as ta
 import logging
-from freqtrade.pys.freqai.strategy.FreqaiStrategyMixin import FreqaiStrategyMixin
+# FreqaiExtrasMixin removed - using standard IStrategy for compatibility
 
 logger = logging.getLogger(__name__)
 
-class FreqAIStrategy(IStrategy, FreqaiStrategyMixin):
+class FreqAIStrategy(IStrategy):
     """FreqAI 机器学习策略"""
     
     INTERFACE_VERSION = 3
@@ -38,20 +38,19 @@ class FreqAIStrategy(IStrategy, FreqaiStrategyMixin):
     def feature_engineering_standard(self, dataframe: DataFrame, **kwargs) -> DataFrame:
         """
         标准特征工程 (不随 period 扩展)
-        集成 FeatureAdapter 复用现有核心特征
+        使用内置 TA-Lib 指标
         """
-        # 懒加载 Adapter 以避免循环导入
-        if not hasattr(self, 'feature_adapter'):
-            from ...feature_bridge.feature_adapter import FeatureAdapter
-            self.feature_adapter = FeatureAdapter()
+        # MACD
+        macd = ta.MACD(dataframe)
+        dataframe["%macd"] = macd["macd"]
+        dataframe["%macdsignal"] = macd["macdsignal"]
+        dataframe["%macdhist"] = macd["macdhist"]
         
-        # 生成并合并特征
-        freqai_features = self.feature_adapter.generate_freqai_features(dataframe)
+        # RSI
+        dataframe["%rsi_14"] = ta.RSI(dataframe, timeperiod=14)
         
-        # 合并特征 (确保不重复)
-        for col in freqai_features.columns:
-            if col not in dataframe.columns:
-                dataframe[col] = freqai_features[col]
+        # 成交量变化
+        dataframe["%volume_pct_change"] = dataframe["volume"].pct_change()
                 
         # 补充时间特征
         dataframe["%day_of_week"] = dataframe["date"].dt.dayofweek

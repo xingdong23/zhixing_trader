@@ -22,7 +22,10 @@
         "pair_whitelist": [
             "DOGE/USDT:USDT",
             "PEPE/USDT:USDT",
-            "SHIB/USDT:USDT"
+            "SHIB/USDT:USDT",
+            "BNB/USDT:USDT",
+            "BTC/USDT:USDT",
+            "1000PEPE/USDT:USDT"
         ]
     },
     "entry_pricing": {
