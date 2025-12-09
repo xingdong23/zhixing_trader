@@ -1,0 +1,10 @@
+# GPU Training Dependencies
+torch>=2.0.0
+transformers>=4.38.0
+accelerate
+gluonts
+chronos-forecasting
+pandas
+numpy
+scipy
+matplotlib

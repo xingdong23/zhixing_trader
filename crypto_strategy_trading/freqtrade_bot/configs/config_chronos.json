@@ -1,0 +1,31 @@
+{
+    "freqai": {
+        "enabled": true,
+        "purge_old_models": 2,
+        "train_period_days": 0,
+        "backtest_period_days": 7,
+        "live_retrain_hours": 0,
+        "identifier": "chronos_inference",
+        "feature_parameters": {
+            "include_timeframes": [
+                "15m"
+            ],
+            "include_corr_pairlist": [],
+            "indicator_periods_candles": [
+                10
+            ],
+            "label_period_candles": 4,
+            "DI_threshold": 0,
+            "weight_factor": 0,
+            "principal_component_analysis": false
+        },
+        "data_split_parameters": {
+            "test_size": 0,
+            "random_state": 42
+        },
+        "model_training_parameters": {
+            "model_name": "amazon/chronos-t5-small",
+            "context_length": 64
+        }
+    }
+}
