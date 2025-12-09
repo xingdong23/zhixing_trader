@@ -14,7 +14,7 @@ from dataclasses import dataclass
 # 添加项目根目录到路径
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../')))
 
-from alpha.mining.feature_factory import FeatureFactory
+from ai.mining.feature_factory import FeatureFactory
 
 logger = logging.getLogger(__name__)
 

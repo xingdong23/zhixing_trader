@@ -1,0 +1,26 @@
+{
+    "backtest_name": "Vwap_Mean_Reversion_PEPE_5m",
+    "description": "Backtest for VWAP Mean Reversion on 1000PEPEUSDT 5m data with optimized parameters",
+    "data": {
+        "source": "data/1000PEPEUSDT-5m-merged.csv",
+        "timeframe": "5m",
+        "resample_from": "5m"
+    },
+    "strategy": {
+        "name": "vwap_mean_reversion",
+        "module": "strategies.vwap_mean_reversion.strategy",
+        "class": "VwapMeanReversionStrategy",
+        "config_file": "strategies/vwap_mean_reversion/config.json"
+    },
+    "backtest_settings": {
+        "initial_capital": 1000.0,
+        "window_size": 500,
+        "commission_rate": 0.0005,
+        "slippage_rate": 0.0000
+    },
+    "output": {
+        "save_trades": true,
+        "save_equity_curve": true,
+        "result_file": "backtest_result_{timestamp}.json"
+    }
+}

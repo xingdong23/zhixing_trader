@@ -1,0 +1,11 @@
+{
+    "strategy_name": "Vwap_Mean_Reversion",
+    "symbol": "1000PEPEUSDT",
+    "total_capital": 1000.0,
+    "leverage": 5,
+    "bet_amount": 100.0,
+    "entry_threshold": 0.005,
+    "stop_loss_pct": 0.02,
+    "take_profit_target": "vwap",
+    "take_profit_pct": 0.05
+}

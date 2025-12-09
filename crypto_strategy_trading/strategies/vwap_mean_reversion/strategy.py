@@ -195,7 +195,7 @@ class VwapMeanReversionStrategy:
             pnl_pct = (pos.entry_price - current_price) / pos.entry_price
             
         # Stop Loss
-        if pnl_pct < -self.stop_loss_pct:
+        if pnl_pct <= -self.stop_loss_pct: # Changed to <= just in case
             return self._close_position_signal(current_price, timestamp, 'stop_loss', pnl_pct)
             
         # Take Profit
@@ -224,6 +224,7 @@ class VwapMeanReversionStrategy:
             'price': price,
             'timestamp': timestamp,
             'reason': reason,
+            'type': reason,
             'pnl_pct': pnl_pct
         }
 
