@@ -1,0 +1,64 @@
+{
+    "max_open_trades": 5,
+    "stake_currency": "USDT",
+    "stake_amount": "unlimited",
+    "tradable_balance_ratio": 0.99,
+    "fiat_display_currency": "USD",
+    "dry_run": true,
+    "dry_run_wallet": 10000,
+    "cancel_open_orders_on_exit": false,
+    "timeframe": "15m",
+    "exchange": {
+        "name": "okx",
+        "key": "YOUR_OKX_API_KEY",
+        "secret": "YOUR_OKX_SECRET_KEY",
+        "password": "YOUR_OKX_PASSPHRASE",
+        "ccxt_config": {
+            "enableRateLimit": true
+        },
+        "ccxt_async_config": {
+            "enableRateLimit": true
+        },
+        "pair_whitelist": [
+            "DOGE/USDT:USDT",
+            "PEPE/USDT:USDT",
+            "SHIB/USDT:USDT"
+        ]
+    },
+    "entry_pricing": {
+        "price_side": "same",
+        "use_order_book": true,
+        "order_book_top": 1
+    },
+    "exit_pricing": {
+        "price_side": "same",
+        "use_order_book": true,
+        "order_book_top": 1
+    },
+    "pairlists": [
+        {
+            "method": "StaticPairList"
+        }
+    ],
+    "webhook": {
+        "enabled": true,
+        "url": "https://open.feishu.cn/open-apis/bot/v2/hook/YOUR_FEISHU_HOOK_ID",
+        "format": "json"
+    },
+    "api_server": {
+        "enabled": false,
+        "listen_ip_address": "127.0.0.1",
+        "listen_port": 8080,
+        "verbosity": "error",
+        "jwt_secret_key": "somethingrandom",
+        "CORS_origins": [],
+        "username": "freqtrader",
+        "password": "SuperSecurePassword"
+    },
+    "bot_name": "freqtrade_bot",
+    "initial_state": "running",
+    "force_entry_enable": true,
+    "internals": {
+        "process_throttle_secs": 5
+    }
+}
