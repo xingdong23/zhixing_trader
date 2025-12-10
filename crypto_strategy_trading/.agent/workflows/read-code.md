@@ -11,232 +11,102 @@ description: 阅读代码，了解当前系统功能模型
 ```
 crypto_strategy_trading/
 │
-├── strategies/              # 🎯 策略核心代码
-│   ├── martingale_sniper/   # 马丁格尔狙击策略
-│   ├── ai_gambler/          # AI赌徒策略
-│   ├── pumpkin_soup/        # 南瓜汤策略
-│   └── vwap_mean_reversion/ # VWAP均值回归
+├── freqtrade_bot/               # 🎯 工作目录（所有操作在这里进行）
+│   ├── my_strategies/           # 策略开发目录
+│   │   ├── blowup/
+│   │   └── daily_trend/
+│   ├── user_data/               # Freqtrade 框架目录
+│   ├── utils/                   # 工具类
+│   ├── configs/                 # 配置文件
+│   └── scripts/                 # 运维脚本
 │
-├── backtest/                # 📊 回测系统
-│   ├── run_backtest.py      # 回测主程序
-│   ├── configs/             # 回测配置文件
-│   ├── core/                # 回测引擎核心
-│   ├── scripts/             # 专用回测脚本
-│   ├── utils/               # 数据下载/处理工具
-│   └── results/             # 回测结果输出
+├── data/                        # 📈 历史K线数据（下载后存放这里）
+│   ├── DOGEUSDT-5m-merged.csv
+│   ├── SOLUSDT-5m-merged.csv
+│   └── ...
+```
+
+> **注意**: 所有命令都在 `freqtrade_bot/` 目录下执行，数据位于 `../data/`
 │
-├── live_trading/            # 💹 实盘交易
-│   ├── common/              # 公共组件(基类、日志等)
-│   ├── martingale_sniper/   # 马丁策略交易器
-│   ├── pumpkin_soup/        # 南瓜汤交易器
-│   └── pump_hunter/         # 泵猎手交易器
-│
-├── ai/                      # 🤖 AI/ML模块
-│   ├── mining/              # 特征工程
-│   ├── model/               # 模型训练和存储
-│   ├── optimization/        # Optuna参数优化
-│   └── verification/        # 验证脚本
-│
-├── data/                    # 📈 历史K线数据
-├── docs/                    # 📖 项目文档
-├── utils/                   # 🔧 通用工具
-├── scripts/                 # 🛠️ 辅助脚本
-└── logs/                    # 📝 运行日志
+└── .agent/workflows/            # 工作流定义
 ```
 
 ---
 
-## 🎯 strategies/ - 策略目录
+## 🎯 my_strategies/ - 策略开发目录
 
-**职责**: 存放所有交易策略的核心代码和配置
-
-### 每个策略的标准结构
-
-```
-strategies/{strategy_name}/
-├── __init__.py
-├── strategy.py      # 策略主逻辑类
-└── config.json      # 策略参数配置
-```
+**职责**: 存放所有策略的开发代码，按策略分类
 
 ### 当前策略列表
 
-| 策略名 | 描述 | 主文件 |
-|--------|------|--------|
-| `martingale_sniper` | 马丁格尔狙击 | `strategy_single.py` |
-| `ai_gambler` | AI赌徒（机器学习辅助）| `strategy.py` |
-| `pumpkin_soup` | 南瓜汤策略 | 查看子目录 |
-| `vwap_mean_reversion` | VWAP均值回归 | 查看子目录 |
+| 策略名 | 描述 | 位置 |
+|--------|------|------|
+| `blowup` | 5分钟爆破猎手（突破+放量） | `my_strategies/blowup/` |
+| `daily_trend` | 日线趋势跟随（EMA金叉）| `my_strategies/daily_trend/` |
 
----
-
-## 📊 backtest/ - 回测系统
-
-**职责**: 使用历史数据测试策略表现
-
-### 核心模块
+### 策略目录结构
 
 ```
-backtest/
-├── run_backtest.py          # 回测入口，读取配置运行回测
-│
-├── core/                    # 回测引擎
-│   ├── backtest_engine.py   # 回测主引擎（模拟交易执行）
-│   ├── data_loader.py       # 数据加载器（读取CSV）
-│   └── performance_analyzer.py  # 性能分析（计算指标）
-│
-├── configs/                 # 回测配置
-│   └── *.json               # 各种回测配置文件
-│
-├── scripts/                 # 专用回测脚本
-│   ├── run_martingale_sniper.py
-│   └── run_pump_hunter.py
-│
-└── utils/                   # 数据工具
-    ├── download_binance_data.py  # 下载币安数据
-    ├── merge_data.py            # 合并数据文件
-    └── resample_data.py         # 数据重采样
+my_strategies/{strategy_name}/
+├── strategy.py       # 策略核心逻辑
+├── backtest.py       # 回测脚本（或 backtest/ 目录）
+├── bot.py            # 实盘 Bot（可选）
+└── config.json       # 配置文件（可选）
 ```
 
 ---
 
-## 💹 live_trading/ - 实盘交易
+## 📊 user_data/strategies/ - Freqtrade 策略
 
-**职责**: 连接交易所API执行真实交易
+**职责**: Freqtrade 框架运行时加载的策略（继承 IStrategy）
 
-### 目录结构
-
-```
-live_trading/
-├── common/                  # 公共组件
-│   ├── base_trader.py       # 交易基类（API连接、下单）
-│   ├── db_logger.py         # 交易日志记录
-│   └── utils.py             # 工具函数
-│
-├── martingale_sniper/       # 马丁策略交易器
-│   ├── trader.py            # 交易执行（多仓位）
-│   └── trader_single.py     # 单仓位版本
-│
-└── pumpkin_soup/            # 南瓜汤交易器
-    ├── executor.py          # 订单执行器
-    ├── runner.py            # 策略运行器
-    └── start.sh             # 启动脚本
-```
+| 策略文件 | 描述 |
+|----------|------|
+| `freqai_strategy.py` | FreqAI 机器学习策略 |
+| `blowup_hunter_strategy.py` | 爆破猎手 Freqtrade 版 |
+| `martingale_ft.py` | 马丁格尔策略 |
 
 ---
 
-## 🤖 ai/ - AI/ML模块
-
-**职责**: 机器学习相关代码（特征工程、模型训练、参数优化）
-
-### 子目录说明
-
-| 目录 | 职责 | 关键文件 |
-|------|------|----------|
-| `mining/` | 特征工程 | `feature_factory.py` - 生成训练特征 |
-| `model/` | 模型训练 | `train_lgbm.py` - LightGBM训练脚本 |
-| `optimization/` | 参数优化 | `optuna_*.py` - Optuna搜索脚本 |
-| `verification/` | 验证测试 | `verify_*.py` - 各种验证脚本 |
-
-### 每个策略的AI模块结构
-
-```
-ai/
-├── optimization/{strategy_name}/
-│   ├── optuna_{strategy_name}.py  # 参数搜索脚本
-│   └── best_params_*.json         # 最佳参数结果
-│
-└── verification/{strategy_name}/
-    ├── verify_best_params.py      # 验证最佳参数
-    ├── verify_long_term.py        # 长期表现验证
-    └── verify_market_regimes.py   # 不同市场环境验证
-```
-
----
-
-## 📈 data/ - 数据目录
-
-**职责**: 存放历史K线数据
-
-### 文件命名规范
-
-```
-{SYMBOL}-{TIMEFRAME}-{日期/描述}.csv
-
-例如:
-- DOGEUSDT-5m-merged.csv      # 合并后的5分钟数据
-- BTCUSDT-1h-2024-01-01.csv   # 单日1小时数据
-- ETHUSDT-1h-ALL.csv          # 全部历史数据
-```
-
----
-
-## 🔧 utils/ - 通用工具
-
-**职责**: 项目级别的公共工具
+## 🔧 utils/ - 工具类
 
 | 文件 | 功能 |
 |------|------|
-| `logger.py` | 日志配置（含Telegram通知）|
-| `market_regime.py` | 市场环境识别 |
-| `test_telegram.py` | Telegram测试 |
+| `data_loader.py` | 加载和重采样历史数据 |
 
 ---
 
 ## 📝 关键入口文件
 
-### 回测入口
+### 回测
 
 ```bash
-# 通用回测
-python backtest/run_backtest.py --config backtest/configs/xxx.json
+# 在 freqtrade_bot 目录下操作
+cd freqtrade_bot
 
-# 专用脚本
-python backtest/scripts/run_martingale_sniper.py
+# Blowup 策略回测
+python my_strategies/blowup/backtest/blowup_v2_backtest.py
+
+# 日线趋势回测
+python my_strategies/daily_trend/backtest.py
+
+# Freqtrade 回测
+sh scripts/run_freqai_backtest.sh 30
 ```
 
-### 实盘入口
+### 实盘
 
 ```bash
-# 策略交易器
-python -m live_trading.martingale_sniper.trader_single
-
-# 启动脚本
-./run_martingale.sh
-./run_martingale_doge.sh
-```
-
-### AI/优化入口
-
-```bash
-# 参数优化
-python ai/optimization/martingale_sniper/optuna_martingale.py
-
-# 模型训练
-python ai/model/train_lgbm.py
+# Blowup 实盘 Bot
+python my_strategies/blowup/bot.py
 ```
 
 ---
 
-## 🔗 模块依赖关系
-
-```
-strategies/           # 策略定义（被其他模块引用）
-    ↓
-backtest/            # 回测系统（测试策略）
-    ↓
-ai/optimization/     # 参数优化（调优策略）
-    ↓
-live_trading/        # 实盘交易（执行策略）
-```
-
----
-
-## 快速查看特定策略
+## 🔗 快速查看特定策略
 
 想了解某个策略？按以下顺序阅读：
 
-1. `strategies/{name}/config.json` - 参数配置
-2. `strategies/{name}/strategy.py` - 核心逻辑
-3. `backtest/configs/{name}.json` - 回测配置
-4. `live_trading/{name}/trader.py` - 实盘实现
+1. `my_strategies/{name}/strategy.py` - 核心逻辑
+2. `my_strategies/{name}/backtest.py` - 回测验证
+3. `my_strategies/{name}/bot.py` - 实盘实现

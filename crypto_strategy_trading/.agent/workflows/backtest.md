@@ -10,29 +10,23 @@ description: 回测一个策略的完整流程
 
 ```
 crypto_strategy_trading/
-├── backtest/
-│   ├── run_backtest.py               # 回测主程序
-│   ├── configs/                       # 回测配置文件目录
-│   │   └── {strategy_name}.json
-│   ├── core/                          # 回测引擎核心代码
-│   │   ├── backtest_engine.py
-│   │   ├── data_loader.py
-│   │   └── performance_analyzer.py
-│   ├── scripts/                       # 专用回测脚本
-│   │   ├── run_martingale_sniper.py
-│   │   └── run_pump_hunter.py
-│   ├── results/                       # 回测结果输出
-│   └── utils/                         # 数据下载和处理工具
-│       └── download_binance_data.py
+├── freqtrade_bot/               # 工作目录
+│   ├── my_strategies/           # 策略开发目录
+│   │   ├── blowup/              # 5分钟爆破猎手策略
+│   │   │   ├── strategy.py
+│   │   │   ├── bot.py
+│   │   │   └── backtest/
+│   │   └── daily_trend/
+│   │       └── backtest.py
+│   ├── utils/
+│   │   └── data_loader.py
+│   ├── scripts/                 # 运维脚本
+│   └── user_data/               # Freqtrade 标准目录
 │
-├── data/                              # 历史K线数据
-│   ├── DOGEUSDT-5m-merged.csv
-│   ├── BTCUSDT-1h-merged.csv
-│   └── ...
-│
-└── strategies/{strategy_name}/        # 策略代码和配置
-    ├── strategy.py
-    └── config.json
+└── data/                        # 历史K线数据（统一数据目录）
+    ├── DOGEUSDT-5m-merged.csv
+    └── ...
+```
 ```
 
 ---
@@ -42,111 +36,48 @@ crypto_strategy_trading/
 ### 1.1 检查现有数据
 
 ```bash
-# 查看已有数据
-ls data/
+# 在 freqtrade_bot 目录下操作
+cd freqtrade_bot
 
-# 常见数据文件格式：
-# {SYMBOL}-{TIMEFRAME}-merged.csv  (如 DOGEUSDT-5m-merged.csv)
+# 查看数据目录
+ls ../data/
 ```
 
-### 1.2 下载新数据（如需要）
+### 1.2 下载新数据
 
 ```bash
-# 下载币安数据
-cd backtest/utils
-
-# 修改脚本中的参数后运行
-python download_binance_data.py
-
-# 或者使用现成的下载脚本
-# 参数: symbol, interval, start_date, end_date
-```
-
-### 1.3 合并数据
-
-```bash
-# 合并多日数据为单个文件
-python backtest/utils/merge_data.py
+# 在 freqtrade_bot 目录下运行
+sh scripts/run_download.sh 30  # 下载最近30天数据
 ```
 
 ---
 
-## 步骤 2: 创建回测配置
+## 步骤 2: 运行回测
 
-在 `backtest/configs/` 目录创建配置文件：
+### 方式 1: 直接运行回测脚本
 
-```json
-{
-  "backtest_name": "策略回测名称",
-  "description": "回测描述",
-  
-  "data": {
-    "source": "../data/DOGEUSDT-5m-merged.csv",
-    "timeframe": "5m",
-    "start_date": "2024-01-01",
-    "end_date": "2024-12-31"
-  },
-  
-  "strategy": {
-    "name": "strategy_name",
-    "module": "strategies.strategy_name.strategy",
-    "class": "StrategyClass",
-    "config_file": "../../strategies/strategy_name/config.json"
-  },
-  
-  "backtest_settings": {
-    "initial_capital": 300.0,
-    "window_size": 200,
-    "commission_rate": 0.0004,
-    "slippage_rate": 0.0001
-  },
-  
-  "output": {
-    "save_trades": true,
-    "save_equity_curve": true
-  }
-}
+```bash
+# 在 freqtrade_bot 目录下操作
+cd freqtrade_bot
+
+# Blowup 策略回测
+python my_strategies/blowup/backtest/blowup_v2_backtest.py
+
+# 日线趋势策略回测
+python my_strategies/daily_trend/backtest.py
+```
+
+### 方式 2: Freqtrade 回测（AI策略）
+
+```bash
+sh scripts/run_freqai_backtest.sh 30
 ```
 
 ---
 
-## 步骤 3: 运行回测
+## 步骤 3: 分析回测结果
 
-### 3.1 使用通用回测脚本
-
-```bash
-# 基本回测命令
-python backtest/run_backtest.py --config backtest/configs/your_config.json
-```
-
-### 3.2 使用专用回测脚本（如有）
-
-```bash
-# Martingale Sniper 策略
-python backtest/scripts/run_martingale_sniper.py
-
-# Pump Hunter 策略
-python backtest/scripts/run_pump_hunter.py
-```
-
----
-
-## 步骤 4: 分析回测结果
-
-### 4.1 查看结果文件
-
-```bash
-# 结果保存在 backtest/results/ 目录
-ls backtest/results/
-
-# JSON格式结果
-cat backtest/results/backtest_result_*.json
-
-# 文本报告
-cat backtest/results/backtest_report_*.txt
-```
-
-### 4.2 关键指标
+### 关键指标
 
 | 指标 | 优秀 | 良好 | 及格 |
 |------|------|------|------|
@@ -154,49 +85,13 @@ cat backtest/results/backtest_report_*.txt
 | 胜率 | > 60% | > 50% | > 40% |
 | 盈亏比 | > 2.0 | > 1.5 | > 1.0 |
 | 最大回撤 | < 10% | < 20% | < 30% |
-| 评分 | A+ | A/B+ | B/C |
-
----
-
-## 步骤 5: 多场景验证
-
-### 5.1 不同时间段回测
-
-```bash
-# 2022年（熊市）
-python backtest/run_backtest.py --config backtest/configs/strategy_2022.json
-
-# 2023年（震荡）
-python backtest/run_backtest.py --config backtest/configs/strategy_2023.json
-
-# 2024年（牛市）
-python backtest/run_backtest.py --config backtest/configs/strategy_2024.json
-```
-
-### 5.2 多币种验证
-
-```bash
-# 创建不同币种的配置文件，修改 data.source 字段
-# BTC, ETH, DOGE, SOL 等
-```
 
 ---
 
 ## ✅ 回测检查清单
 
 - [ ] 历史数据充足（至少6个月）
-- [ ] 回测配置正确
 - [ ] 回测运行无报错
 - [ ] 收益率为正
 - [ ] 最大回撤可接受（< 20%）
 - [ ] 在不同市场环境下测试
-- [ ] 样本外数据验证
-
----
-
-## ⚠️ 注意事项
-
-1. **过拟合风险**: 不要在同一数据上反复优化参数
-2. **数据泄露**: 确保样本外验证使用未见过的数据
-3. **实盘差异**: 回测结果 ≠ 实盘结果，需考虑滑点和手续费
-4. **流动性假设**: 回测假设所有订单都能成交
