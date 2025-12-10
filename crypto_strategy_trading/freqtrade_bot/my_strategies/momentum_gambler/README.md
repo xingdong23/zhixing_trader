@@ -50,4 +50,30 @@ python my_strategies/momentum_gambler/backtest.py --symbol DOGEUSDT
 
 **2. 核心文件**
 *   `strategy.py`: 策略逻辑
-*   `backtest.py`: 专用回测脚本 (支持 Resampling 和 资金管理逻辑)
+*   `backtest.py`: 专用回测脚本
+*   `live_runner.py`: **实盘机器人** 🤖
+*   `config.json`: 实盘配置文件
+
+## 🤖 实盘部署指南 (Live Trading)
+
+**1. 安装依赖**
+```bash
+pip install ccxt requests pandas numpy scipy
+```
+
+**2. 配置**
+编辑 `my_strategies/momentum_gambler/config.json`:
+*   填入 **Binance API Key** & **Secret** (确保开通合约交易权限)
+*   填入 **飞书 Webhook** (用于接收通知)
+*   确认 `leverage` (10x) 和 `position_size_usdt` (默认100U，即1000U仓位)
+
+**3. 启动**
+建议使用 `nohup` 或 `screen` 后台运行：
+```bash
+# 确保在 freqtrade_bot 目录下
+python my_strategies/momentum_gambler/live_runner.py
+```
+
+**4. 运维**
+*   查看日志: `tail -f bot.log`
+*   状态文件: `bot_state.json` (自动保存持仓状态，请勿随意修改)
