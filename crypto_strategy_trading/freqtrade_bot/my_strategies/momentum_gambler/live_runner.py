@@ -123,6 +123,14 @@ class LiveRunner:
             # Some exchanges default leverage or don't support setting via API easily
             logger.warning(f"Set leverage failed (might be already set): {e}")
 
+    def set_margin_mode(self):
+        try:
+            # Force ISOLATED margin to protect account balance
+            self.exchange.set_margin_mode('isolated', self.symbol)
+            logger.info(f"Margin Mode set to ISOLATED for {self.symbol}")
+        except Exception as e:
+            logger.warning(f"Set margin mode failed: {e}")
+
     def execute_order(self, side: str, price: float):
         try:
             amount_usdt = self.config['trading']['position_size_usdt']
@@ -231,7 +239,8 @@ class LiveRunner:
     def run(self):
         logger.info("Starting Main Loop...")
         self.set_leverage()
-        self.notifier.send("🤖 机器人启动", f"策略: V9\n币种: {self.symbol}\n杠杆: {self.config['trading']['leverage']}x")
+        self.set_margin_mode()
+        self.notifier.send("🤖 机器人启动", f"策略: V9\n币种: {self.symbol}\n杠杆: {self.config['trading']['leverage']}x\n模式: 逐仓 (Isolated)")
         
         error_count = 0
         
