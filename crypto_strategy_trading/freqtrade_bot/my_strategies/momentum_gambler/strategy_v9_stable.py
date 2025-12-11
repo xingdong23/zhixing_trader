@@ -118,28 +118,24 @@ class MomentumGamblerStrategy:
     def generate_signal(self, df: pd.DataFrame, i: int) -> str:
         if i < 50: return 'hold'
         
-        curr = df.iloc[i]
-        prev = df.iloc[i-1]
+        row = df.iloc[i]
+        prev_row = df.iloc[i-1]
         
-        # --- 信号来源于 V9 (Squeeze) ---
-        # 1. 挤压信号 (最近 5 根K线内有过挤压)
-        recent_squeeze = df['squeeze_on'].iloc[i-5:i].any()
+        # 1. 之前处于挤压状态 (TTM Squeeze)
+        # 检查过去5根K线是否有过 Squeeze On
+        # 只要有一根是 Squeeze On，就说明刚从低波动出来
+        was_squeeze = df['squeeze_on'].iloc[i-5:i].any()
         
         # 2. 向上突破布林上轨
-        breakout = (curr['close'] > curr['bb_upper'])
+        breakout = (row['close'] > row['bb_upper'])
         
         # 3. 趋势向上
-        trend_up = curr['close'] > curr['ema']
+        trend_up = row['close'] > row['ema']
         
         # 4. ADX 确认
-        adx_ok = curr['adx'] > self.params['adx_threshold']
+        adx_ok = row['adx'] > self.params['adx_threshold']
         
-        # --- V11 新增: 疯牛追涨模式 (Crazy Bull) ---
-        # 如果没有挤压 (recent_squeeze is False)，但是趋势极强 (ADX > 30) 且突破上轨
-        # 这就是追高，但在疯牛市中是必须的
-        crazy_bull = (curr['adx'] > 30) and breakout and trend_up
-        
-        if (recent_squeeze and breakout and trend_up and adx_ok) or crazy_bull:
+        if was_squeeze and breakout and trend_up and adx_ok:
             return 'long'
             
         return 'hold'

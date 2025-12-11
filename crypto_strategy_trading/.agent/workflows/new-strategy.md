@@ -102,6 +102,14 @@ if __name__ == "__main__":
 
 ## 步骤 4: 运行回测验证
 
+### 4.1 准备数据
+```bash
+# 下载数据 (如果尚未下载)
+# 示例：下载 DOGEUSDT 5分钟数据 (2020年-2025年)
+python scripts/download_binance_data.py --symbol DOGEUSDT --timeframe 5m --start-year 2020
+```
+
+### 4.2 运行脚本
 ```bash
 # 在 freqtrade_bot 目录下操作
 cd freqtrade_bot

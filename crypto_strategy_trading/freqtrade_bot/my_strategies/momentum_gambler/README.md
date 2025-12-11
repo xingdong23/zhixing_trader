@@ -61,7 +61,14 @@ python my_strategies/momentum_gambler/backtest.py --symbol DOGEUSDT
 pip install ccxt requests pandas numpy scipy
 ```
 
-**2. 配置**
+**2. 下载历史数据 (推荐)**
+使用项目自带的下载脚本，从 Binance Vision 官方源获取高质量数据：
+```bash
+# 下载 DOGEUSDT 5分钟数据 (2020年至今)
+python ../../scripts/download_binance_data.py --symbol DOGEUSDT --timeframe 5m --start-year 2020
+```
+
+**3. 配置**
 编辑 `my_strategies/momentum_gambler/config.json`:
 *   填入 **Binance API Key** & **Secret** (确保开通合约交易权限)
 *   填入 **飞书 Webhook** (用于接收通知)

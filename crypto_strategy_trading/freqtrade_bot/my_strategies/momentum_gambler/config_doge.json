@@ -1,0 +1,28 @@
+{
+    "exchange": {
+        "name": "binance",
+        "api_key": "YOUR_BINANCE_API_KEY",
+        "secret": "YOUR_BINANCE_SECRET",
+        "password": "",
+        "options": {
+            "defaultType": "future",
+            "adjustForTimeDifference": true
+        }
+    },
+    "feishu": {
+        "webhook_url": "YOUR_FEISHU_WEBHOOK_URL",
+        "enabled": true
+    },
+    "trading": {
+        "symbol": "DOGE/USDT:USDT",
+        "timeframe": "4h",
+        "leverage": 10,
+        "position_size_usdt": 66.0,
+        "max_open_positions": 1
+    },
+    "risk": {
+        "stop_loss_pct": 0.08,
+        "trailing_stop_activation": 0.1,
+        "trailing_stop_callback": 0.15
+    }
+}

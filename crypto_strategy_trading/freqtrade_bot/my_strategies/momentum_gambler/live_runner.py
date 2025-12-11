@@ -62,6 +62,11 @@ class StateManager:
 class LiveRunner:
     def __init__(self, config_path="config.json"):
         # 加载配置
+        self.config_path = config_path  # Save for reference
+        if not os.path.exists(config_path):
+            logger.error(f"配置文件未找到: {config_path}")
+            sys.exit(1)
+            
         with open(config_path, 'r') as f:
             self.config = json.load(f)
             
@@ -288,5 +293,10 @@ class LiveRunner:
                 time.sleep(60)
 
 if __name__ == "__main__":
-    runner = LiveRunner()
+    import argparse
+    parser = argparse.ArgumentParser(description="Momentum Gambler Live Bot")
+    parser.add_argument("--config", type=str, default="config.json", help="Path to configuration file")
+    args = parser.parse_args()
+    
+    runner = LiveRunner(config_path=args.config)
     runner.run()

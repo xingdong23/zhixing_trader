@@ -43,11 +43,14 @@ cd freqtrade_bot
 ls ../data/
 ```
 
-### 1.2 下载新数据
+### 1.2 下载新数据 (推荐)
+
+使用项目自带的通用下载脚本，支持下载任意年份的 Binance 历史数据：
 
 ```bash
 # 在 freqtrade_bot 目录下运行
-sh scripts/run_download.sh 30  # 下载最近30天数据
+# 示例：下载 DOGEUSDT 5分钟数据 (2020年-2025年)
+python scripts/download_binance_data.py --symbol DOGEUSDT --timeframe 5m --start-year 2020
 ```
 
 ---

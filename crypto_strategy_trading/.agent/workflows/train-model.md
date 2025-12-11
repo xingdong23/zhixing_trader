@@ -30,10 +30,12 @@ crypto_strategy_trading/data/    # 训练数据
 
 ### 1.2 下载数据
 
+### 1.2 下载数据
+
 ```bash
 # 在 freqtrade_bot 目录下操作
-cd freqtrade_bot
-sh scripts/run_download.sh 30  # 下载最近30天数据
+# 示例：下载 DOGEUSDT 5分钟数据 (2020年-2025年)
+python scripts/download_binance_data.py --symbol DOGEUSDT --timeframe 5m --start-year 2020
 # 数据会保存到 ../data/ 目录
 ```
 
