@@ -162,7 +162,10 @@ def run_continuous_backtest(strategy: MomentumGamblerStrategy, df: pd.DataFrame,
                     'pnl_rate': pnl_pct,
                     'pnl_amount': net_pnl,
                     'balance_after': wallet_balance,
-                    'reason': exit_reason
+                    'reason': exit_reason,
+                    'invested': active_amount,
+                    'entry_price': entry_price,
+                    'exit_price': row['close']
                 })
                 
                 position = 0
@@ -197,8 +200,43 @@ def run_continuous_backtest(strategy: MomentumGamblerStrategy, df: pd.DataFrame,
     if position == 1:
         pnl_pct = (df.iloc[-1]['close'] - entry_price) / entry_price
         trade_pnl = pnl_pct * leverage * active_amount
-        final_equity += active_amount + trade_pnl
         
+        # Log the final open trade as closed at the last price
+        net_pnl = trade_pnl - (0.0006 + 0.0006) * leverage * active_amount
+        capital_returned = active_amount + net_pnl
+        if capital_returned < 0: capital_returned = 0
+        
+        trades_log.append({
+            'entry_time': entry_date,
+            'exit_time': df.iloc[-1]['date'],
+            'year': df.iloc[-1]['year'],
+            'month': str(df.iloc[-1]['month']),
+            'pnl_rate': pnl_pct,
+            'pnl_amount': net_pnl,
+            'balance_after': wallet_balance + capital_returned, # This will be the final equity
+            'reason': 'force_exit', # Forced exit at end of backtest
+            'entry_price': entry_price,
+            'exit_price': df.iloc[-1]['close'],
+            'invested': active_amount
+        })
+        final_equity += capital_returned
+    
+    # Print Trade Log
+    if trades_log:
+        print("\n" + "="*85)
+        print(f"📝 交易明细 (Trade Journal) - {len(trades_log)} trades")
+        print("="*85)
+        print(f"{'Entry Time':<20} | {'Exit Time':<20} | {'Type':<4} | {'Entry':>8} | {'Exit':>8} | {'PnL %':>7} | {'Reason'}")
+        print("-" * 85)
+        for t in trades_log:
+            entry_t = t.get('entry_date', t.get('entry_time', pd.Timestamp.now()))
+            exit_t = t.get('exit_date', t.get('exit_time', pd.Timestamp.now()))
+            if not isinstance(entry_t, str): entry_t = entry_t.strftime('%Y-%m-%d %H:%M')
+            if not isinstance(exit_t, str): exit_t = exit_t.strftime('%Y-%m-%d %H:%M')
+            pnl = t['pnl_amount'] / t['invested'] * 100 if t['invested'] != 0 else 0
+            print(f"{entry_t:<20} | {exit_t:<20} | Long | {t['entry_price']:>8.5f} | {t['exit_price']:>8.5f} | {pnl:>+6.1f}% | {t['reason']}")
+        print("="*85 + "\n")
+            
     return trades_log, initial_capital, final_equity
 
 
@@ -230,6 +268,7 @@ def main():
     
     print("📈 计算指标...")
     df = strategy.calculate_indicators(df)
+    df = strategy.populate_entry_trend(df, {})
     
     print(f"🏃 开始连续资金回测 ({df['date'].min()} ~ {df['date'].max()})")
     print(f"💰 初始本金: {args.initial_capital} U | 每次仓位: {args.sizing_ratio*100:.0f}%")
