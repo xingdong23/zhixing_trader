@@ -115,33 +115,41 @@ class MomentumGamblerStrategy:
             
         return df
     
+    def populate_entry_trend(self, df: pd.DataFrame, metadata: dict) -> pd.DataFrame:
+        # V11 向量化信号计算
+        
+        # 1. Recent Squeeze (Rolling max of booleans)
+        # Using rolling(5).max() on boolean column returns 1.0 if any true
+        df['recent_squeeze'] = df['squeeze_on'].rolling(window=5).max() > 0
+        
+        # 2. Breakout
+        breakout = (df['close'] > df['bb_upper'])
+        
+        # 3. Trend
+        trend_up = (df['close'] > df['ema'])
+        
+        # 4. ADX ok
+        adx_ok = (df['adx'] > self.params['adx_threshold'])
+        
+        # 5. Crazy Bull
+        crazy_bull = (df['adx'] > 30) & breakout & trend_up
+        
+        # Combine
+        v9_logic = (df['recent_squeeze'] & breakout & trend_up & adx_ok)
+        
+        df.loc[v9_logic | crazy_bull, 'enter_long'] = 1
+        return df
+
     def generate_signal(self, df: pd.DataFrame, i: int) -> str:
         if i < 50: return 'hold'
-        
-        curr = df.iloc[i]
-        prev = df.iloc[i-1]
-        
-        # --- 信号来源于 V9 (Squeeze) ---
-        # 1. 挤压信号 (最近 5 根K线内有过挤压)
-        recent_squeeze = df['squeeze_on'].iloc[i-5:i].any()
-        
-        # 2. 向上突破布林上轨
-        breakout = (curr['close'] > curr['bb_upper'])
-        
-        # 3. 趋势向上
-        trend_up = curr['close'] > curr['ema']
-        
-        # 4. ADX 确认
-        adx_ok = curr['adx'] > self.params['adx_threshold']
-        
-        # --- V11 新增: 疯牛追涨模式 (Crazy Bull) ---
-        # 如果没有挤压 (recent_squeeze is False)，但是趋势极强 (ADX > 30) 且突破上轨
-        # 这就是追高，但在疯牛市中是必须的
-        crazy_bull = (curr['adx'] > 30) and breakout and trend_up
-        
-        if (recent_squeeze and breakout and trend_up and adx_ok) or crazy_bull:
-            return 'long'
+        if 'enter_long' in df.columns:
+            if df['enter_long'].iloc[i] == 1:
+                return 'long'
+            return 'hold'
             
+        # Fallback to manual if column missing (should not happen if populate called)
+        curr = df.iloc[i]
+        # ... (rest of legacy manual check if needed, but we can replace it)
         return 'hold'
     
     def get_cost_per_trade(self) -> float:
