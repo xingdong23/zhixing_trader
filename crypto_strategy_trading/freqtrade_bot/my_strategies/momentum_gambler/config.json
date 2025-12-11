@@ -18,11 +18,12 @@
         "timeframe": "4h",
         "leverage": 10,
         "position_size_usdt": 100.0,
-        "max_open_positions": 1
+        "max_open_positions": 1,
+        "margin_mode": "isolated"
     },
     "risk": {
         "stop_loss_pct": 0.08,
-        "trailing_stop_activation": 0.10,
+        "trailing_stop_activation": 0.1,
         "trailing_stop_callback": 0.15
     }
 }

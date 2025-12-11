@@ -18,7 +18,8 @@
         "timeframe": "4h",
         "leverage": 10,
         "position_size_usdt": 66.0,
-        "max_open_positions": 1
+        "max_open_positions": 1,
+        "margin_mode": "isolated"
     },
     "risk": {
         "stop_loss_pct": 0.08,
