@@ -1,213 +1,215 @@
-import ccxt
 import pandas as pd
-import time
-import argparse
-import sys
+import requests
+import zipfile
+import io
 import os
-from datetime import datetime, timedelta
+import sys
+import time
+from datetime import datetime
 
-# Add path to import strategy
+# Add path to import strategy and backtest
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 try:
-    from strategy_v11 import MomentumGamblerStrategy
+    from strategy import MomentumGamblerStrategy
+    from backtest import run_continuous_backtest
 except ImportError:
-    print("❌ Could not import strategy_v11. Make sure you are in the correct directory.")
+    print("❌ Could not import strategy or backtest.")
     sys.exit(1)
 
-def get_top_volume_pairs(limit=20):
-    """Fetch top USDT pairs by 24h quote volume"""
-    print(f"🔍 Scanning Binance for Top {limit} volume pairs...")
-    exchange = ccxt.binance()
-    tickers = exchange.fetch_tickers()
-    
-    # Filter for USDT pairs, exclude stablecoins/leverage tokens
-    usdt_pairs = {}
-    excludes = ['USDC', 'FDUSD', 'TUSD', 'DAI', 'USDP', 'BUSD', 'UP', 'DOWN', 'BEAR', 'BULL']
-    
-    for symbol, ticker in tickers.items():
-        if '/USDT' in symbol:
-            base = symbol.split('/')[0]
-            if not any(ex in base for ex in excludes):
-                usdt_pairs[symbol] = ticker['quoteVolume']
-    
-    # Sort by volume desc
-    sorted_pairs = sorted(usdt_pairs.items(), key=lambda x: x[1], reverse=True)
-    return [pair[0] for pair in sorted_pairs[:limit]]
+# Cursated List of Hot Coins (Meme, AI, L1)
+CANDIDATES = [
+    'WIFUSDT', 'PEPEUSDT', 'BONKUSDT', 'FLOKIUSDT', 'SHIBUSDT', 'DOGEUSDT', # Memes
+    'SOLUSDT', 'SUIUSDT', 'SEIUSDT', 'AVAXUSDT', 'NEARUSDT',                # L1
+    'FETUSDT', 'RNDRUSDT', 'ARKMUSDT', 'WLDUSDT',                           # AI
+    'ORDIUSDT', '1000SATSUSDT',                                             # BRC20
+    'XRPUSDT', 'BNBUSDT'                                                    # Classics
+]
 
-def fetch_ohlcv(exchange, symbol, timeframe='1h', days=90):
-    """Fetch recent candles using CCXT pagination"""
-    # 90 days of 1h data = 2160 candles. limit is 1000. Need loop.
-    # V11 backtest uses 2H/4H resampled from 5m. 
-    # For speed scanning, let's just fetch 1H and use that directly or resample.
-    # To match V11 logic, we need at least 1H data to be roughly accurate.
-    
-    since = exchange.parse8601((datetime.now() - timedelta(days=days)).strftime('%Y-%m-%d %H:%M:%S'))
-    all_candles = []
-    
-    print(f"📥 Fetching data for {symbol}...", end="", flush=True)
-    
-    while True:
-        try:
-            candles = exchange.fetch_ohlcv(symbol, timeframe, since, limit=1000)
-            if not candles:
-                break
-            
-            all_candles.extend(candles)
-            since = candles[-1][0] + 1
-            
-            if len(candles) < 1000:
-                break
-            time.sleep(0.1) # Rate limit
-        except Exception as e:
-            print(f" Error: {e}")
-            return None
+BASE_URL = "https://data.binance.vision/data/spot/monthly/klines"
 
-    print(f" Done ({len(all_candles)} candles)")
+def download_recent_months(symbol, months=3):
+    """Download last N months of data from Vision"""
+    dfs = []
+    now = datetime.now()
     
-    df = pd.DataFrame(all_candles, columns=['open_time', 'open', 'high', 'low', 'close', 'volume'])
-    df['date'] = pd.to_datetime(df['open_time'], unit='ms')
+    start_month = now.month - 1
+    start_year = now.year
     
-    # Standardization for Strategy
-    for col in ['open', 'high', 'low', 'close', 'volume']:
-        df[col] = df[col].astype(float)
+    if start_month <= 0:
+        start_month += 12
+        start_year -= 1
         
-    return df
+    for i in range(months):
+        m = start_month - i
+        y = start_year
+        if m <= 0:
+            m += 12
+            y -= 1
+            
+        url = f"{BASE_URL}/{symbol}/5m/{symbol}-5m-{y}-{m:02d}.zip"
+        
+        try:
+            r = requests.get(url)
+            if r.status_code == 200:
+                with zipfile.ZipFile(io.BytesIO(r.content)) as z:
+                    for name in z.namelist():
+                        if name.endswith('.csv'):
+                            with z.open(name) as f:
+                                df = pd.read_csv(f, header=None, names=['open_time', 'open', 'high', 'low', 'close', 'volume', 'x', 'y', 'z', 'a', 'b', 'c'])
+                                df = df[['open_time', 'open', 'high', 'low', 'close', 'volume']]
+                                dfs.append(df)
+        except Exception:
+            pass
+            
+    if not dfs:
+        return None
+        
+    full_df = pd.concat(dfs).sort_values('open_time')
+    
+    # Normalize timestamps if they are in micros/nanos
+    if full_df['open_time'].max() > 100000000000000:
+        full_df.loc[full_df['open_time'] > 100000000000000, 'open_time'] //= 1000
+        
+    full_df['date'] = pd.to_datetime(full_df['open_time'], unit='ms')
+    
+    # Normalize types
+    for col in ['open', 'high', 'low', 'close', 'volume']:
+        full_df[col] = full_df[col].astype(float)
+        
+    return full_df
 
 def simulate_v11(df):
-    """Run simplified V11 simulation"""
-    # Strategy expects resampled 2H data ideally, but works on any DF
-    # Let's resample to 2H to match production
+    """Run V11 simulation using shared backtest logic"""
+    # Resample to 2H to match logic
+    df['date'] = pd.to_datetime(df['open_time'], unit='ms')
     df.set_index('date', inplace=True)
     df_2h = df.resample('2h').agg({
-        'open': 'first', 'high': 'max', 'low': 'min', 'close': 'last', 'volume': 'sum', 'open_time': 'first'
+        'open': 'first', 'high': 'max', 'low': 'min', 'close': 'last', 'volume': 'sum'
     }).dropna().reset_index()
     
-    strategy = MomentumGamblerStrategy()
+    df_2h['year'] = df_2h['date'].dt.year
+    df_2h['month'] = df_2h['date'].dt.month
     
-    # Calculate Indicators
-    # Need minimal columns for calculate_indicators? It usually needs 'close', 'high', 'low'
+    if len(df_2h) < 50: return {'error': 'Not enough data'}
+    
+    strategy = MomentumGamblerStrategy()
     try:
         df_2h = strategy.calculate_indicators(df_2h)
-    except Exception as e:
-        return {'error': str(e)}
+    except:
+        return {'error': 'Indicator error'}
     
-    # Sim Loop
-    capital = 100.0 # Virtual 100 U unit
-    entry_price = 0
-    position = 0
-    trades = 0
-    wins = 0
+    # Use the verified backtest engine
+    # initial_capital=100, sizing_ratio=0.33 (Three Bullets)
+    # Note: run_continuous_backtest signature: (strategy, df, initial_capital, sizing_ratio)
+    trades_log, invested, final_equity = run_continuous_backtest(strategy, df_2h, initial_capital=200.0, sizing_ratio=0.33)
     
-    initial_capital = capital
-    
-    leverage = 10
-    stop_loss = 0.08
-    
-    highest_profit = 0
-    
-    for i in range(50, len(df_2h)):
-        # Check Exit
-        current_price = df_2h.iloc[i]['close']
+    roi = (final_equity - invested) / invested * 100
+    win_rate = 0
+    if trades_log:
+        wins = len([t for t in trades_log if t['pnl_amount'] > 0])
+        win_rate = wins / len(trades_log) * 100
         
-        if position == 1:
-            pnl_pct = (current_price - entry_price) / entry_price
-            if pnl_pct > highest_profit:
-                highest_profit = pnl_pct
-                
-            # SL
-            if pnl_pct <= -stop_loss:
-                capital = capital * (1 - stop_loss * leverage)
-                position = 0
-                trades += 1
-            # Trailing Stop (Simplified V11 logic: 10% activation, 15% callback from V10? No, V10 logic used in V11)
-            # Strategy params: activation 0.10, callback 0.15 (offset)
-            elif highest_profit >= 0.10 and pnl_pct < (highest_profit - 0.15):
-                # TP
-                pnl = pnl_pct * leverage
-                capital = capital * (1 + pnl)
-                position = 0
-                trades += 1
-                wins += 1
-                
-        # Check Entry
-        if position == 0:
-            try:
-                signal = strategy.generate_signal(df_2h, i)
-                if signal == 'long':
-                    position = 1
-                    entry_price = current_price
-                    highest_profit = 0
-            except:
-                pass
-                
-    # Force close at end
-    if position == 1:
-        pnl_pct = (df_2h.iloc[-1]['close'] - entry_price) / entry_price
-        capital = capital * (1 + pnl_pct * leverage)
-        trades += 1
-        if pnl_pct > 0: wins += 1
-        
-    roi = (capital - initial_capital) / initial_capital * 100
-    win_rate = (wins / trades * 100) if trades > 0 else 0
-    
     return {
         'roi': roi,
-        'trades': trades,
+        'trades': len(trades_log),
         'win_rate': win_rate
     }
 
 def main():
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--days", type=int, default=180, help="Days to scan backward")
-    parser.add_argument("--top", type=int, default=10, help="Number of top volume coins to scan")
-    args = parser.parse_args()
+    print(f"🚀 V11 Scout Patrol: Scanning {len(CANDIDATES)} candidates (Last ~3 months data)...")
+    print("-" * 65)
+    print(f"{'Symbol':<10} | {'ROI':<8} | {'Win%':<5} | {'Trades':<6} | {'Last Date':<12} | {'Grade'}")
+    print("-" * 80)
     
-    try:
-        top_pairs = get_top_volume_pairs(args.top)
-    except Exception as e:
-        print(f"Connection failed: {e}")
-        return
-
-    report = []
-    exchange = ccxt.binance()
+    results = []
     
-    print(f"\n🚀 Starting V11 Scout Patrol (Checking last {args.days} days)...")
-    print("-" * 60)
+    DATA_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), "data")
     
-    for pair in top_pairs:
-        df = fetch_ohlcv(exchange, pair, timeframe='1h', days=args.days)
+    for symbol in CANDIDATES:
+        df = None
+        best_df = None
+        max_ts = pd.Timestamp(0)
+        
+        # 1. Try Local Data
+        # Check both full and merged, pick the one with freshest data
+        local_files = [f"{symbol}-5m-merged.csv", f"{symbol}-5m-full.csv"]
+        
+        for f_name in local_files:
+            f_path = os.path.join(DATA_DIR, f_name)
+            if os.path.exists(f_path):
+                try:
+                    temp_df = pd.read_csv(f_path)
+                    
+                    if 'open_time' in temp_df.columns:
+                        if temp_df['open_time'].max() > 100000000000000:
+                            temp_df.loc[temp_df['open_time'] > 100000000000000, 'open_time'] //= 1000
+                        temp_time = pd.to_datetime(temp_df['open_time'], unit='ms')
+                    elif 'date' in temp_df.columns:
+                        temp_time = pd.to_datetime(temp_df['date'])
+                    else:
+                        continue
+                        
+                    current_max = temp_time.max()
+                    if current_max > max_ts:
+                        max_ts = current_max
+                        temp_df['open_time'] = temp_time # Standardize
+                        best_df = temp_df
+                except:
+                    pass
+        
+        # Filter best local df
+        if best_df is not None:
+             cutoff = datetime.now() - pd.Timedelta(days=120)
+             df = best_df[best_df['open_time'] > cutoff].copy()
+        
+        # 2. Fallback to Vision Download only if local is totally missing or very old (< 30 days)
+        # Verify freshness
+        is_stale = False
         if df is None or df.empty:
+            is_stale = True
+        elif df['open_time'].max() < (datetime.now() - pd.Timedelta(days=30)):
+            is_stale = True
+            
+        if is_stale:
+            # print(f"Downloading fresh for {symbol}...")
+            down_df = download_recent_months(symbol, months=4)
+            if down_df is not None and not down_df.empty:
+                # Use downloaded if it's fresher or we had nothing
+                if df is None or down_df['date'].max() > df['open_time'].max():
+                    df = down_df
+                    df['open_time'] = df['date'] # Sync
+
+        if df is None or df.empty:
+            # print(f"{symbol:<10} | No Data")
             continue
             
         res = simulate_v11(df)
         if 'error' in res:
-            print(f"Skipping {pair}: {res['error']}")
             continue
             
-        score = res['roi'] # Simple score: ROI
-        
-        # Grading
+        roi = res['roi']
         grade = "C"
-        if res['roi'] > 50: grade = "B"
-        if res['roi'] > 100: grade = "A"
-        if res['roi'] > 300: grade = "S 💎"
-        if res['roi'] < -50: grade = "F 💀"
+        if roi > 300: grade = "S 💎"
+        elif roi > 100: grade = "A 🔥"
+        elif roi > 50: grade = "B 👍"
+        elif roi < -50: grade = "F 💀"
         
-        print(f"👉 {pair:<10} | ROI: {res['roi']:>+7.1f}% | Win: {res['win_rate']:>3.0f}% | Grade: {grade}")
+        last_date = df['open_time'].max().strftime('%Y-%m-%d')
         
-        report.append({
-            'symbol': pair,
-            'roi': res['roi'],
-            'win_rate': res['win_rate'],
-            'grade': grade
+        print(f"{symbol:<10} | {roi:>+6.1f}% | {res['win_rate']:>3.0f}%  | {res['trades']:<6} | {last_date:<12} | {grade}")
+        
+        results.append({
+            'symbol': symbol,
+            'roi': roi,
+            'grade': grade,
+            'last_date': last_date
         })
         
-    print("-" * 60)
-    print("🏆 Top 3 Recommended V11 Candidates:")
-    report.sort(key=lambda x: x['roi'], reverse=True)
-    
-    for i, item in enumerate(report[:3]):
-        print(f"{i+1}. {item['symbol']} ({item['grade']}) - ROI: {item['roi']:.1f}%")
+    print("-" * 80)
+    print("🏆 Top 3 Recommendations:")
+    results.sort(key=lambda x: x['roi'], reverse=True)
+    for i, r in enumerate(results[:3]):
+        print(f"{i+1}. {r['symbol']} ({r['grade']}) - Last: {r['last_date']}")
 
 if __name__ == "__main__":
     main()

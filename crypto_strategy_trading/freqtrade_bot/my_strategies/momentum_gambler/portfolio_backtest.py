@@ -8,9 +8,9 @@ from datetime import datetime
 # Add path to import strategy
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 try:
-    from strategy_v11 import MomentumGamblerStrategy
+    from strategy import MomentumGamblerStrategy
 except ImportError:
-    print("❌ Could not import strategy_v11.")
+    print("❌ Could not import strategy.")
     sys.exit(1)
 
 DATA_DIR = "/Users/chengzheng/workspace/chuangxin/zhixing_trader/crypto_strategy_trading/data"
@@ -41,12 +41,11 @@ class PortfolioManager:
         return equity
 
     def open_position(self, symbol, price, timestamp, adx_score):
-        # Position Sizing: 1 / MaxPositions of CURRENT Equity
-        # e.g. if Equity 1000, Max 5 -> 200U per trade.
-        # But if we have 4 positions open, we check if we have cash.
+        # Position Sizing: 10% of CURRENT Equity (Safety First)
+        # Max Exposure = 5 * 10% = 50% Invested. 50% Cash Buffer.
         
         current_equity = self.get_total_equity({symbol: price}) # approx
-        target_size = current_equity / self.max_positions
+        target_size = current_equity * 0.10
         
         if self.cash < target_size:
             target_size = self.cash # Take whatever is left? Or skip?
@@ -109,6 +108,11 @@ def load_data(symbols):
                 # Check for vol/volume
                 if 'vol' in df.columns and 'volume' not in df.columns:
                     df.rename(columns={'vol': 'volume'}, inplace=True)
+                
+                # Force numeric
+                for col in ['open', 'high', 'low', 'close', 'volume']:
+                    if col in df.columns:
+                        df[col] = pd.to_numeric(df[col], errors='coerce')
                 
                 # Normalize time
                 if 'open_time' in df.columns:

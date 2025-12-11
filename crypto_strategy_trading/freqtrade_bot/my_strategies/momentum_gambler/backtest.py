@@ -207,7 +207,6 @@ def main():
     parser = argparse.ArgumentParser(description='动量赌徒 V9 4H回测')
     parser.add_argument('--symbol', type=str, default='DOGEUSDT', help='交易对')
     parser.add_argument('--year', type=int, default=None, help='指定年份回测 (例如 2025)')
-    parser.add_argument('--strategy', type=str, default='v9', help='策略版本: v9 or v10')
     parser.add_argument('--initial_capital', type=float, default=300.0, help='初始回测本金')
     parser.add_argument('--sizing_ratio', type=float, default=0.33, help='仓位比例 (0.33 = 1/3仓位, 1.0 = All in)')
     args = parser.parse_args()
@@ -223,20 +222,11 @@ def main():
             print(f"❌ {args.year} 年无数据")
             return
         
-    strategy = None
-    if args.strategy == 'v10':
-        from my_strategies.momentum_gambler.strategy_v10 import MomentumGamblerStrategy as V10
-        strategy = V10()
-        print(f"\n⚙️ 策略 V10: 激进版 | KC 2.0 | SL 6% | Trailing 8%/10%")
-    elif args.strategy == 'v11':
-        from my_strategies.momentum_gambler.strategy_v11 import MomentumGamblerStrategy as V11
-        strategy = V11()
-        print(f"\n⚙️ 策略 V11: 疯牛版 | Squeeze OR ADX>30 Breakout")
-    else:
-        # Default V9
-        from my_strategies.momentum_gambler.strategy import MomentumGamblerStrategy as V9
-        strategy = V9()
-        print(f"\n⚙️ 策略 V9: 4H波段 | BB Squeeze")
+    
+    # Load Strategy
+    from my_strategies.momentum_gambler.strategy import MomentumGamblerStrategy
+    strategy = MomentumGamblerStrategy()
+    print(f"\n⚙️ 策略: 动量赌徒 V11 (Final) | Squeeze + ADX30 Breakout")
     
     print("📈 计算指标...")
     df = strategy.calculate_indicators(df)
