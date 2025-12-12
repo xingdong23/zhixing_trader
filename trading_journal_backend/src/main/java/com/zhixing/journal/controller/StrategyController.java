@@ -15,9 +15,11 @@ import java.util.UUID;
 public class StrategyController {
 
     private final StrategyRepository strategyRepository;
+    private final com.zhixing.journal.service.StrategyExecutionService strategyExecutionService;
 
-    public StrategyController(StrategyRepository strategyRepository) {
+    public StrategyController(StrategyRepository strategyRepository, com.zhixing.journal.service.StrategyExecutionService strategyExecutionService) {
         this.strategyRepository = strategyRepository;
+        this.strategyExecutionService = strategyExecutionService;
     }
 
     @GetMapping
@@ -29,27 +31,28 @@ public class StrategyController {
     }
 
     @PostMapping("/{id}/execute")
-    public Map<String, Object> executeStrategy(@PathVariable Long id) {
-        // Mock execution
-        Map<String, Object> response = new HashMap<>();
-        response.put("executionId", UUID.randomUUID().toString());
-        response.put("strategyId", id);
-        response.put("status", "STARTED");
-        response.put("message", "Strategy execution started successfully.");
-        return response;
+    public com.zhixing.journal.dto.StrategyExecutionResult executeStrategy(
+            @PathVariable Long id,
+            @RequestParam(defaultValue = "BTCUSDT") String symbol,
+            @RequestParam(defaultValue = "15m") String timeframe) {
+        return strategyExecutionService.executeStrategy(id, symbol, timeframe);
     }
     
     @PostMapping("/{id}/execute-async")
-    public Map<String, Object> executeStrategyAsync(@PathVariable Long id) {
-        return executeStrategy(id);
+    public com.zhixing.journal.dto.StrategyExecutionResult executeStrategyAsync(
+            @PathVariable Long id,
+            @RequestParam(defaultValue = "BTCUSDT") String symbol,
+            @RequestParam(defaultValue = "15m") String timeframe) {
+        // For MVP, sync. Later use Async.
+        return executeStrategy(id, symbol, timeframe);
     }
     
     @GetMapping("/exec/status")
     public Map<String, Object> traceStatus(@RequestParam(name = "task_id", required = false) String taskId) {
          Map<String, Object> response = new HashMap<>();
          response.put("taskId", taskId);
-         response.put("status", "RUNNING");
-         response.put("progress", 45);
+         response.put("status", "COMPLETED");
+         response.put("progress", 100);
          return response;
     }
 

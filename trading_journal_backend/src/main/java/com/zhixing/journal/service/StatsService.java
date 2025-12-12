@@ -7,7 +7,9 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.List;
+import java.time.LocalDate;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class StatsService {
@@ -18,8 +20,12 @@ public class StatsService {
         this.tradeRepository = tradeRepository;
     }
 
+    /**
+     * 获取全局统计数据
+     * 计算总交易数、胜率、平均盈亏、总盈亏、盈亏比等核心指标。
+     */
     public TradeStats getGlobalStats() {
-        // Only consider CLOSED trades for stats
+        // 只统计已平仓 (CLOSED) 的交易
         List<Trade> trades = tradeRepository.findByStatus(Trade.TradeStatus.CLOSED);
 
         long totalTrades = trades.size();
@@ -48,18 +54,24 @@ public class StatsService {
             }
         }
 
-        BigDecimal winRate = BigDecimal.valueOf(winningTrades)
-                .divide(BigDecimal.valueOf(totalTrades), 4, RoundingMode.HALF_UP)
-                .multiply(BigDecimal.valueOf(100));
+        // 计算胜率 (百分比)
+        BigDecimal winRate = BigDecimal.ZERO;
+        if (totalTrades > 0) {
+            winRate = BigDecimal.valueOf(winningTrades)
+                    .divide(BigDecimal.valueOf(totalTrades), 4, RoundingMode.HALF_UP)
+                    .multiply(BigDecimal.valueOf(100));
+        }
 
+        // 平均盈亏
         BigDecimal averagePnl = totalPnl.divide(BigDecimal.valueOf(totalTrades), 2, RoundingMode.HALF_UP);
 
+        // 盈亏比 (Profit Factor) = 总盈利 / 总亏损
         BigDecimal profitFactor = BigDecimal.ZERO;
         if (grossLoss.compareTo(BigDecimal.ZERO) > 0) {
             profitFactor = grossProfit.divide(grossLoss, 2, RoundingMode.HALF_UP);
         } else if (grossProfit.compareTo(BigDecimal.ZERO) > 0) {
-            // Infinite profit factor if no losses, can represent with a large number or handle specifically
-             profitFactor = BigDecimal.valueOf(999); 
+            // 无亏损时的处理 (理论无穷大，这里用 999 标记)
+            profitFactor = BigDecimal.valueOf(999); 
         }
 
         return new TradeStats(
@@ -71,5 +83,40 @@ public class StatsService {
                 averagePnl,
                 profitFactor
         );
+    }
+
+    /**
+     * 获取资金曲线数据 (Equity Curve)
+     * 按平仓时间排序，计算每日累计盈亏。
+     */
+    public List<Map<String, Object>> getEquityCurve() {
+        var closedTrades = tradeRepository.findByStatus(Trade.TradeStatus.CLOSED).stream()
+                .filter(t -> t.getExitTime() != null)
+                .sorted(Comparator.comparing(Trade::getExitTime))
+                .collect(Collectors.toList());
+
+        // 按日期聚合 PnL
+        Map<LocalDate, BigDecimal> dailyPnL = new TreeMap<>();
+        
+        for (Trade t : closedTrades) {
+            LocalDate date = t.getExitTime().toLocalDate();
+            BigDecimal pnl = t.getPnl() != null ? t.getPnl() : BigDecimal.ZERO;
+            dailyPnL.merge(date, pnl, BigDecimal::add);
+        }
+
+        List<Map<String, Object>> curve = new ArrayList<>();
+        BigDecimal runningTotal = BigDecimal.ZERO;
+        
+        // 生成累计数据点
+        for (Map.Entry<LocalDate, BigDecimal> entry : dailyPnL.entrySet()) {
+            runningTotal = runningTotal.add(entry.getValue());
+            Map<String, Object> point = new HashMap<>();
+            point.put("date", entry.getKey().toString());
+            point.put("cumulativePnL", runningTotal);
+            point.put("dailyPnL", entry.getValue());
+            curve.add(point);
+        }
+        
+        return curve;
     }
 }

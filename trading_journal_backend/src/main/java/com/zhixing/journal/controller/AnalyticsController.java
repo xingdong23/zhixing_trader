@@ -2,12 +2,14 @@ package com.zhixing.journal.controller;
 
 import com.zhixing.journal.dto.TradeStats;
 import com.zhixing.journal.service.StatsService;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.Map;
 
 @RestController
-@RequestMapping("/api/stats")
+@RequestMapping("/api/v1/analytics")
+@CrossOrigin(origins = "*")
 public class AnalyticsController {
 
     private final StatsService statsService;
@@ -19,5 +21,10 @@ public class AnalyticsController {
     @GetMapping("/overview")
     public TradeStats getOverview() {
         return statsService.getGlobalStats();
+    }
+
+    @GetMapping("/equity-curve")
+    public List<Map<String, Object>> getEquityCurve() {
+        return statsService.getEquityCurve();
     }
 }

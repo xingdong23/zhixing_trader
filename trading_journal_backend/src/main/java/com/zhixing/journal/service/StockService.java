@@ -26,11 +26,15 @@ public class StockService {
         this.stockRepository = stockRepository;
     }
 
+    /**
+     * 批量导入股票 (支持 CSV)
+     * 解析上传的 CSV 文件，自动识别中英文表头 (如 代码/Symbol, 名称/Name)。
+     * 采用 upsert 逻辑：若股票已存在则更新，否则创建。
+     */
     public List<Stock> importStocks(MultipartFile file) {
         List<Stock> stocks = new ArrayList<>();
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(file.getInputStream(), StandardCharsets.UTF_8))) {
-            // Futu CSV might contain BOM or non-standard headers, using DEFAULT with IgnoreHeaderCase
-            // We assume headers are present.
+            // Futu CSV 可能包含 BOM 或非标准头，使用 IgnoreHeaderCase 配置
             CSVParser parser = new CSVParser(reader, CSVFormat.DEFAULT
                     .builder()
                     .setHeader()
@@ -40,21 +44,18 @@ public class StockService {
                     .build());
 
             for (CSVRecord record : parser) {
-                // Try to map fields flexibly
+                // 灵活映射字段
                 String symbol = getUiSortSafe(record, "代码", "Symbol", "Code");
                 String name = getUiSortSafe(record, "名称", "Name");
                 
                 if (symbol != null && !symbol.isEmpty()) {
-                    // Normalize symbol (e.g., HK.00700 -> HK00700 or keep dots based on preference)
-                    // Let's keep it as is for now, or maybe strip dots if standard is without.
-                    // System standard seems to be just the string.
-                    
-                    Stock stock = stockRepository.findBySymbol(symbol).orElse(
+                    // 查找现存股票或新建
+                    var stock = stockRepository.findBySymbol(symbol).orElse(
                         Stock.builder().symbol(symbol).build()
                     );
                     stock.setName(name);
                     
-                    // Try to parse sector/industry if available
+                    // 尝试解析行业信息
                     String sector = getUiSortSafe(record, "所属行业", "Sector");
                     if (sector != null) stock.setSector(sector);
 
@@ -63,11 +64,14 @@ public class StockService {
             }
             return stockRepository.saveAll(stocks);
         } catch (Exception e) {
-            throw new RuntimeException("Failed to parse CSV file: " + e.getMessage(), e);
+            throw new RuntimeException("CSV 解析失败: " + e.getMessage(), e);
         }
     }
     
-    // Helper to try multiple header names
+    /**
+     * 安全获取 CSV 字段值 (支持多个备选表头)
+     * 避免因表头不存在而抛出异常。
+     */
     private String getUiSortSafe(CSVRecord record, String... headers) {
         for (String header : headers) {
             try {
