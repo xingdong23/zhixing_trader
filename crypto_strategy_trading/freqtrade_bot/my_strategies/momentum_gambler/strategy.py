@@ -36,9 +36,9 @@ class MomentumGamblerStrategy:
         'bb_period': 20,
         'bb_std': 2.0,
         
-        # 挤压条件 (Squeeze) - 放宽以增加频率
-        'bb_width_threshold': 0.30,  # 30% (之前是15%)
-        # 或者使用相对挤压：width < 过去N根K线的最小值 * 1.5
+        # 挤压条件 (Squeeze)
+        'bb_width_threshold': 0.30, 
+        'use_relative_squeeze': False,   # 默认关闭 (回测显示 DOGE 2024/ETH 2022/XRP 2021 结果一致或略差，保持原版简单性)
         
         # 趋势过滤
         'ema_period': 50,           # 4H EMA50
@@ -70,6 +70,7 @@ class MomentumGamblerStrategy:
         rolling_std = df['close'].rolling(window=self.params['bb_period']).std()
         df['bb_upper'] = rolling_mean + (rolling_std * self.params['bb_std'])
         df['bb_lower'] = rolling_mean - (rolling_std * self.params['bb_std'])
+        df['bb_width'] = (df['bb_upper'] - df['bb_lower']) / rolling_mean
         
         # 历史上轨 (用于突破判断)
         df['bb_upper_shifted'] = df['bb_upper'].shift(1)
@@ -90,8 +91,15 @@ class MomentumGamblerStrategy:
         df['kc_upper'] = kc_mid + (atr * 2.5)  # 进一步放宽：KC 2.5 ATR
         df['kc_lower'] = kc_mid - (atr * 2.5)
         
-        # Squeeze 状态: BB 处于 KC 内部
-        df['squeeze_on'] = (df['bb_upper'] < df['kc_upper']) & (df['bb_lower'] > df['kc_lower'])
+        # Squeeze Logic
+        if self.params.get('use_relative_squeeze', False):
+            # 相对挤压: 当前Width < 过去120根(20天)的最小值 * 1.5
+            # 120根 4H K线 = 20天，足以代表近期低波状态
+            min_width = df['bb_width'].rolling(window=120).min()
+            df['squeeze_on'] = df['bb_width'] < (min_width * 1.5)
+        else:
+            # 原始逻辑: KC Squeeze
+            df['squeeze_on'] = (df['bb_upper'] < df['kc_upper']) & (df['bb_lower'] > df['kc_lower'])
         
         # ADX
         plus_dm = high.diff()

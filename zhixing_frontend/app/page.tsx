@@ -116,22 +116,22 @@ interface Stock {
 
 export default function TradingSystem() {
   const router = useRouter()
-  
+
   // 页面状态
   const [currentPage, setCurrentPage] = useState("dashboard")
   const [searchQuery, setSearchQuery] = useState("")
-  
+
   // 导入自选股相关
   const fileInputRef = useRef<HTMLInputElement | null>(null)
   const [importing, setImporting] = useState(false)
   const [importMsg, setImportMsg] = useState<string>("")
-  
+
   // 股票数据状态
   const [backendStocks, setBackendStocks] = useState<Stock[]>([])
   const [page, setPage] = useState<number>(1)
   const pageSize = 20
   const [total, setTotal] = useState<number>(0)
-  
+
   // 分类筛选状态
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null)
   // 监听 URL hash，实现页内“菜单”跳转（如 #categories）
@@ -141,7 +141,7 @@ export default function TradingSystem() {
       const hash = window.location.hash.replace('#', '')
       if (!hash) return
       const valid = [
-        'dashboard','categories','trades','notes','review','strategies','checklist','psychology','wisdom','errors','pivot','brokers','health','patterns'
+        'dashboard', 'categories', 'trades', 'notes', 'review', 'strategies', 'checklist', 'psychology', 'wisdom', 'errors', 'pivot', 'brokers', 'health', 'patterns'
       ]
       if (valid.includes(hash)) setCurrentPage(hash)
     }
@@ -157,7 +157,7 @@ export default function TradingSystem() {
     // 则优先尊重现有 hash，避免初次渲染时被覆盖回 dashboard
     const existing = window.location.hash.replace('#', '')
     const valid = [
-      'dashboard','categories','trades','notes','review','strategies','checklist','psychology','wisdom','errors','pivot','brokers','health','patterns'
+      'dashboard', 'categories', 'trades', 'notes', 'review', 'strategies', 'checklist', 'psychology', 'wisdom', 'errors', 'pivot', 'brokers', 'health', 'patterns'
     ]
     if (existing && valid.includes(existing) && existing !== currentPage) {
       // 不覆盖由外部显式指定的 hash
@@ -168,33 +168,33 @@ export default function TradingSystem() {
       window.history.replaceState(null, '', target)
     }
   }, [currentPage])
-  
+
   // 快速操作状态
   const [showAddNoteDialog, setShowAddNoteDialog] = useState(false)
   const [noteEditorOpen, setNoteEditorOpen] = useState(false)
   const [showAddAlertDialog, setShowAddAlertDialog] = useState(false)
   const [selectedStock, setSelectedStock] = useState<Stock | null>(null)
 
-  
+
   // 排序状态
   const [sortField, setSortField] = useState<string>('updated_at')
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc')
-  
+
   // 价格筛选状态
-  const [priceRange, setPriceRange] = useState<{min?: number, max?: number}>({})
-  const [changePercentRange, setChangePercentRange] = useState<{min?: number, max?: number}>({})
+  const [priceRange, setPriceRange] = useState<{ min?: number, max?: number }>({})
+  const [changePercentRange, setChangePercentRange] = useState<{ min?: number, max?: number }>({})
   const [showPriceFilter, setShowPriceFilter] = useState(false)
   const [showChangePercentFilter, setShowChangePercentFilter] = useState(false)
-  
+
   // 恐慌指数面板状态
   const [showFearIndexPanel, setShowFearIndexPanel] = useState(false)
-  
+
   // 熔断状态
   const [isCircuitBreakerActive, setIsCircuitBreakerActive] = useState(false)
 
   // 移动端侧边栏状态
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
-  
+
   // 处理排序点击
   const handleSort = (field: string) => {
     if (sortField === field) {
@@ -212,25 +212,11 @@ export default function TradingSystem() {
   async function fetchBackendStocks() {
     try {
       // 使用Mock数据（临时替代后端API）
-      const mockResponse = getMockStocks({
-        page,
-        pageSize,
-        sortField,
-        sortOrder,
-        priceMin: priceRange.min,
-        priceMax: priceRange.max,
-        changePercentMin: changePercentRange.min,
-        changePercentMax: changePercentRange.max,
-      });
-      
-      console.log('Using mock data:', mockResponse);
-      setBackendStocks(mockResponse.items);
-      setTotal(mockResponse.total);
-      
-      /* TODO: 实际使用时切换回后端API
-      const base = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000'
+
+      // 优先尝试从后端API获取数据
+      const base = process.env.NEXT_PUBLIC_API_BASE_URL ?? ''
       let url = `${base}/api/v1/stocks/overview?page=${page}&page_size=${pageSize}`
-      
+
       // 使用分类筛选
       if (selectedCategoryId) {
         // 通过分类ID获取股票
@@ -238,7 +224,7 @@ export default function TradingSystem() {
       }
       // 添加排序参数
       url += `&sort_field=${sortField}&sort_order=${sortOrder}`
-      
+
       // 添加价格筛选参数
       if (priceRange.min !== undefined) {
         url += `&price_min=${priceRange.min}`
@@ -252,39 +238,67 @@ export default function TradingSystem() {
       if (changePercentRange.max !== undefined) {
         url += `&change_percent_max=${changePercentRange.max}`
       }
-      
+
       console.log('Fetching stocks with URL:', url)
-      const res = await fetch(url)
-      const data = await res.json().catch(() => ({}))
-      if (!res.ok) throw new Error(String(data?.detail || data?.message || `HTTP ${res.status}`))
-      
-      let stocks = []
-      let total = 0
-      
-      // 根据不同的API返回格式处理数据
-      if (selectedCategoryId) {
-        // 分类API返回格式：data.stocks
-        stocks = data?.data?.stocks || []
-        total = data?.data?.total || stocks.length
-      } else {
-        // 普通股票API返回格式：data.stocks
-        stocks = data?.data?.stocks || []
-        total = data?.data?.total || 0
+      // toast.info(`正在加载数据: ${url}`) // Debug提示
+      try {
+        const res = await fetch(url)
+        if (!res.ok) {
+          // 如果后端API失败，回退到Mock数据 (可选，这里暂时保留为 fallback 或直接抛错)
+          // throw new Error(`HTTP ${res.status}`)
+          console.warn(`API request failed: ${res.status}, falling back to mock`)
+          throw new Error('API failed')
+        }
+        const data = await res.json()
+
+        let stocks = []
+        let total = 0
+
+        // 根据不同的API返回格式处理数据
+        // 根据不同的API返回格式处理数据
+        if (data?.content) {
+          // Spring Data Page 格式
+          stocks = data.content
+          total = data.totalElements || 0
+        } else if (selectedCategoryId) {
+          // 分类API返回格式：data.stocks
+          stocks = data?.data?.stocks || []
+          total = data?.data?.total || stocks.length
+        } else {
+          // 普通股票API返回格式：data.stocks
+          stocks = data?.data?.stocks || []
+          total = data?.data?.total || 0
+        }
+
+        setBackendStocks(stocks.map((s: any) => ({
+          id: s.id || 0,
+          symbol: s.code || s.symbol || '',
+          name: s.name || '',
+          market: s.market || '',
+          group_name: s.group_name || '',
+          concepts: s.concepts || [],
+          updated_at: s.updated_at || '',
+          price: s.price,
+          change_percent: s.change_percent
+        })))
+        setTotal(total)
+      } catch (err) {
+        console.warn('Backend fetch failed, using mock data:', err)
+        // 使用Mock数据（作为后备）
+        const mockResponse = getMockStocks({
+          page,
+          pageSize,
+          sortField,
+          sortOrder,
+          priceMin: priceRange.min,
+          priceMax: priceRange.max,
+          changePercentMin: changePercentRange.min,
+          changePercentMax: changePercentRange.max,
+        });
+        setBackendStocks(mockResponse.items);
+        setTotal(mockResponse.total);
       }
-      
-      setBackendStocks(stocks.map((s: any) => ({
-        id: s.id || 0,
-        symbol: s.code || s.symbol || '',
-        name: s.name || '',
-        market: s.market || '',
-        group_name: s.group_name || '',
-        concepts: s.concepts || [],
-        updated_at: s.updated_at || '',
-        price: s.price,
-        change_percent: s.change_percent
-      })))
-      setTotal(total)
-      */
+
     } catch (err) {
       console.error('fetch backend stocks error', err)
     }
@@ -298,10 +312,10 @@ export default function TradingSystem() {
   const handleCsvPicked = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
-    
+
     setImporting(true)
     setImportMsg("正在处理文件...")
-    
+
     // 这里可以添加CSV处理逻辑
     setTimeout(() => {
       setImporting(false)
@@ -313,7 +327,7 @@ export default function TradingSystem() {
 
   // 当页码变化时重新获取数据
   useEffect(() => {
-    fetchBackendStocks() 
+    fetchBackendStocks()
   }, [page])
 
   // 当选中分类变化时，重置页码并重新获取数据
@@ -321,18 +335,18 @@ export default function TradingSystem() {
     if (selectedCategoryId !== null) {
       setPage(1)
     }
-    fetchBackendStocks() 
+    fetchBackendStocks()
   }, [selectedCategoryId])
 
   // 当排序条件变化时重新获取数据
   useEffect(() => {
-    fetchBackendStocks() 
+    fetchBackendStocks()
   }, [sortField, sortOrder])
 
   // 当价格筛选条件变化时重新获取数据
   useEffect(() => {
     setPage(1) // 重置到第一页
-    fetchBackendStocks() 
+    fetchBackendStocks()
   }, [priceRange, changePercentRange])
 
   // 点击外部关闭筛选器
@@ -359,7 +373,7 @@ export default function TradingSystem() {
       <div className="flex">
         {/* Mobile Overlay */}
         {isSidebarOpen && (
-          <div 
+          <div
             className="fixed inset-0 bg-black/50 z-40 lg:hidden"
             onClick={() => setIsSidebarOpen(false)}
           />
@@ -378,7 +392,7 @@ export default function TradingSystem() {
           </div>
 
           <nav className="space-y-2">
-            {[ 
+            {[
               { id: "dashboard", label: "股票", icon: Heart },
               { id: "categories", label: "分类", icon: Folder },
               { id: "trades", label: "交易", icon: DollarSign },
@@ -402,11 +416,10 @@ export default function TradingSystem() {
                     }
                   }
                 }}
-                className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-left transition-colors ${
-                  currentPage === id
-                    ? "bg-sidebar-primary text-sidebar-primary-foreground"
-                    : "text-sidebar-foreground hover:bg-sidebar-accent"
-                }`}
+                className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-left transition-colors ${currentPage === id
+                  ? "bg-sidebar-primary text-sidebar-primary-foreground"
+                  : "text-sidebar-foreground hover:bg-sidebar-accent"
+                  }`}
               >
                 <Icon className="w-5 h-5" />
                 {label}
@@ -483,7 +496,7 @@ export default function TradingSystem() {
                     className="pl-10 w-64"
                   />
                 </div>
-                <Button 
+                <Button
                   variant="outline"
                   size="sm"
                   onClick={() => setCurrentPage('health')}
@@ -503,7 +516,7 @@ export default function TradingSystem() {
           {/* Page Content */}
           <main className="p-4 lg:p-6">
             {/* 智能提醒系统 - 只在有重要提醒时显示 */}
-            <ReverseAlertSystem 
+            <ReverseAlertSystem
               variant="banner"
               autoCheck={true}
               checkInterval={60}
@@ -623,7 +636,7 @@ export default function TradingSystem() {
           </main>
         </div>
       </div>
-      
+
       {/* 统一笔记弹框 */}
       <UnifiedNoteDialog
         open={noteEditorOpen}
@@ -632,7 +645,7 @@ export default function TradingSystem() {
         locks={{ symbol: true }}
         onSave={() => { setNoteEditorOpen(false) }}
       />
-      
+
       {/* 设定提醒对话框（样式与 NoteEditor 对齐）*/}
       <Dialog open={showAddAlertDialog} onOpenChange={setShowAddAlertDialog}>
         <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">

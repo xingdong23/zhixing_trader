@@ -2,12 +2,16 @@ package com.zhixing.journal.controller;
 
 import com.zhixing.journal.model.Stock;
 import com.zhixing.journal.repository.StockRepository;
+import com.zhixing.journal.service.StockService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/stocks")
@@ -15,14 +19,14 @@ import java.util.List;
 public class StockController {
 
     private final StockRepository stockRepository;
+    private final StockService stockService;
 
-    public StockController(StockRepository stockRepository) {
+    public StockController(StockRepository stockRepository, StockService stockService) {
         this.stockRepository = stockRepository;
+        this.stockService = stockService;
     }
 
     // Matching frontend: /api/v1/stocks/overview?page=1&page_size=200
-    // Frontend likely expects a specific structure, but let's start with standard Page<Stock>
-    
     @GetMapping("/overview")
     public Page<Stock> listStocks(
         @RequestParam(defaultValue = "1") int page,
@@ -36,7 +40,17 @@ public class StockController {
     
     @PostMapping
     public Stock createStock(@RequestBody Stock stock) {
-        return stockRepository.save(stock);
+        return stockService.createStock(stock);
+    }
+
+    @PostMapping("/import")
+    public ResponseEntity<Map<String, Object>> importStocks(@RequestParam("file") MultipartFile file) {
+        List<Stock> imported = stockService.importStocks(file);
+        return ResponseEntity.ok(Map.<String, Object>of(
+            "message", "Successfully imported " + imported.size() + " stocks",
+            "count", imported.size(),
+            "success", true
+        ));
     }
     
     // Helper to seed data if empty

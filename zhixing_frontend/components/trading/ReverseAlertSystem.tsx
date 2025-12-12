@@ -50,21 +50,27 @@ export default function ReverseAlertSystem({
   const [alerts, setAlerts] = useState<ReverseAlert[]>([])
   const [isLoading, setIsLoading] = useState(false)
 
+
   // 获取反向提醒
   const fetchAlerts = async () => {
     setIsLoading(true)
     try {
-      const response = await fetch('/api/trading/reverse-alerts')
-      const result = await response.json()
-      
-      if (result.success && result.data) {
-        // 只显示未被忽略的提醒
-        const activeAlerts = result.data.filter((alert: ReverseAlert) => !alert.dismissed)
-        setAlerts(activeAlerts)
-      }
+      // 暂时强制使用 Mock 数据，因为后端接口对应尚未实现
+      // const response = await fetch('/api/trading/reverse-alerts')
+      // const result = await response.json()
+
+      // if (result.success && result.data) {
+      //   const activeAlerts = result.data.filter((alert: ReverseAlert) => !alert.dismissed)
+      //   setAlerts(activeAlerts)
+      // }
+
+      // 直接使用 Mock
+      await new Promise(resolve => setTimeout(resolve, 500)); // 模拟延迟
+      const mockAlerts = generateMockAlerts()
+      setAlerts(mockAlerts.filter(alert => !alert.dismissed))
+
     } catch (error) {
       console.error('获取反向提醒失败:', error)
-      // 使用Mock数据
       const mockAlerts = generateMockAlerts()
       setAlerts(mockAlerts.filter(alert => !alert.dismissed))
     } finally {
@@ -75,10 +81,10 @@ export default function ReverseAlertSystem({
   // 生成Mock数据
   const generateMockAlerts = (): ReverseAlert[] => {
     const alerts: ReverseAlert[] = []
-    
+
     // 随机生成不同类型的提醒
     const rand = Math.random()
-    
+
     // 30%概率：市场大跌提醒
     if (rand < 0.3) {
       alerts.push({
@@ -97,7 +103,7 @@ export default function ReverseAlertSystem({
         dismissed: false
       })
     }
-    
+
     // 25%概率：市场大涨警告
     if (rand > 0.3 && rand < 0.55) {
       alerts.push({
@@ -116,7 +122,7 @@ export default function ReverseAlertSystem({
         dismissed: false
       })
     }
-    
+
     // 20%概率：持仓大跌联动恐慌指数
     if (rand > 0.55 && rand < 0.75) {
       alerts.push({
@@ -136,7 +142,7 @@ export default function ReverseAlertSystem({
         dismissed: false
       })
     }
-    
+
     // 15%概率：龙头疲软警告
     if (rand > 0.75 && rand < 0.9) {
       alerts.push({
@@ -153,7 +159,7 @@ export default function ReverseAlertSystem({
         dismissed: false
       })
     }
-    
+
     // 10%概率：恐慌抄底提醒
     if (rand > 0.9) {
       alerts.push({
@@ -172,7 +178,7 @@ export default function ReverseAlertSystem({
         dismissed: false
       })
     }
-    
+
     return alerts
   }
 
@@ -185,7 +191,7 @@ export default function ReverseAlertSystem({
     } catch (error) {
       console.error('忽略提醒失败:', error)
     }
-    
+
     setAlerts(prev => prev.filter(alert => alert.id !== alertId))
   }
 
@@ -222,7 +228,7 @@ export default function ReverseAlertSystem({
 
   useEffect(() => {
     fetchAlerts()
-    
+
     if (autoCheck) {
       const interval = setInterval(fetchAlerts, checkInterval * 1000)
       return () => clearInterval(interval)
@@ -237,7 +243,7 @@ export default function ReverseAlertSystem({
   // Banner变体 - 页面顶部横幅
   if (variant === 'banner') {
     const primaryAlert = alerts[0]
-    
+
     return (
       <Alert className={`${getAlertColorClass(primaryAlert.severity)} mb-4`}>
         <div className="flex items-start justify-between gap-4 w-full">
@@ -274,7 +280,7 @@ export default function ReverseAlertSystem({
             <X className="h-4 w-4" />
           </Button>
         </div>
-        
+
         {alerts.length > 1 && (
           <div className="mt-3 pt-3 border-t border-current/20 text-xs">
             还有 {alerts.length - 1} 个提醒，
@@ -282,7 +288,7 @@ export default function ReverseAlertSystem({
               variant="link"
               size="sm"
               className="h-auto p-0 text-xs ml-1"
-              onClick={() => {/* TODO: 打开提醒面板 */}}
+              onClick={() => {/* TODO: 打开提醒面板 */ }}
             >
               查看全部
             </Button>

@@ -9,10 +9,25 @@ import numpy as np
 from datetime import datetime, timedelta
 import pytz
 
+import argparse
+
+# Parse Arguments
+parser = argparse.ArgumentParser(description='IB V11 Option Sniper')
+parser.add_argument('--live', action='store_true', help='Connect to Live Trading Port (4002). Default is Paper (7497)')
+parser.add_argument('--port', type=int, help='Override specific port number')
+parser.add_argument('--client', type=int, default=1, help='Client ID (default: 1)')
+parser.add_argument('--delayed', action='store_true', help='Use Delayed Market Data (Type 3) if no subscription')
+args = parser.parse_args()
+
 # Config
 IB_HOST = '127.0.0.1'
-IB_PORT = 7497 # 7497 for TWS Paper, 4002 for Gateway
-CLIENT_ID = 1
+if args.port:
+    IB_PORT = args.port
+else:
+    IB_PORT = 4002 if args.live else 7497
+
+CLIENT_ID = args.client
+
 
 # Setup Logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -41,7 +56,15 @@ class OptionSniperBot:
         try:
             if not self.ib.isConnected():
                 await self.ib.connectAsync(IB_HOST, IB_PORT, clientId=CLIENT_ID) 
-            logger.info("✅ Connected!")
+            
+            # Set Market Data Type
+            if args.delayed:
+                self.ib.reqMarketDataType(3) # Delayed
+                logger.warning("⚠️ Using DELAYED Market Data (Type 3). Signals might be 15-20min old!")
+            else:
+                self.ib.reqMarketDataType(1) # Live
+                
+            logger.info(f"✅ Connected to {IB_HOST}:{IB_PORT} (ClientID: {CLIENT_ID})")
             return True
         except Exception as e:
             logger.error(f"❌ Connection Failed: {e}")

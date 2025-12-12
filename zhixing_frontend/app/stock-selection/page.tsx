@@ -90,10 +90,10 @@ export default function StockSelectionPage() {
     const header = rows[0].map(h => h.trim())
     const data = rows.slice(1)
     const findIdx = (candidates: string[]) => header.findIndex(h => candidates.some(c => h.toLowerCase() === c.toLowerCase()))
-    const idxCode = findIdx(['代码','symbol','股票代码','ticker','证券代码'])
-    const idxName = findIdx(['名称','name','股票名称','security name'])
-    const idxMarket = findIdx(['市场','market','交易所'])
-    const idxGroup = findIdx(['分组','分组名称','行业','所属行业','板块','板块名称','group','group_name','industry','sector'])
+    const idxCode = findIdx(['代码', 'symbol', '股票代码', 'ticker', '证券代码'])
+    const idxName = findIdx(['名称', 'name', '股票名称', 'security name'])
+    const idxMarket = findIdx(['市场', 'market', '交易所'])
+    const idxGroup = findIdx(['分组', '分组名称', '行业', '所属行业', '板块', '板块名称', 'group', 'group_name', 'industry', 'sector'])
     return data.map(r => {
       const code = (idxCode >= 0 ? r[idxCode] : '').toUpperCase()
       const name = idxName >= 0 ? r[idxName] : ''
@@ -122,7 +122,7 @@ export default function StockSelectionPage() {
         setImporting(false)
         return
       }
-      const base = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000'
+      const base = process.env.NEXT_PUBLIC_API_BASE_URL ?? ''
       const res = await fetch(`${base}/api/v1/stocks/import`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -148,7 +148,7 @@ export default function StockSelectionPage() {
   async function fetchWatchlist() {
     try {
       setWatchlistLoading(true)
-      const base = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000'
+      const base = process.env.NEXT_PUBLIC_API_BASE_URL ?? ''
       console.log('Fetching watchlist from:', `${base}/api/v1/stocks/?page=1&page_size=200`)
       const res = await fetch(`${base}/api/v1/stocks/?page=1&page_size=200`)
       console.log('Response status:', res.status)
@@ -176,11 +176,11 @@ export default function StockSelectionPage() {
   // 获取策略执行结果
   const fetchStrategyResults = async () => {
     try {
-      const base = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000'
+      const base = process.env.NEXT_PUBLIC_API_BASE_URL ?? ''
       // 获取可用策略
       const strategiesRes = await fetch(`${base}/api/v1/strategies/`)
       const strategiesData = await strategiesRes.json()
-      
+
       if (strategiesData.success && strategiesData.data.strategies.length > 0) {
         // 执行第一个策略作为示例
         const strategyId = strategiesData.data.strategies[0].id
@@ -188,7 +188,7 @@ export default function StockSelectionPage() {
           method: 'POST'
         })
         const executeData = await executeRes.json()
-        
+
         if (executeData.success) {
           // 转换为前端格式
           const formattedResults: StockSelectionResult[] = executeData.data.map((item: any, index: number) => ({
@@ -239,8 +239,8 @@ export default function StockSelectionPage() {
   const strategies = ['all', ...Array.from(new Set(results.map(r => r.strategy)))]
 
   // 过滤结果
-  const filteredResults = selectedStrategy === 'all' 
-    ? results 
+  const filteredResults = selectedStrategy === 'all'
+    ? results
     : results.filter(r => r.strategy === selectedStrategy)
 
   // 跳转到股票详情
@@ -301,7 +301,7 @@ export default function StockSelectionPage() {
             <p className="text-sm text-gray-600">从雅虎财经同步自选股的最新价格和K线数据</p>
           </CardHeader>
           <CardContent>
-            <DataSyncButton 
+            <DataSyncButton
               onSyncComplete={(result) => {
                 console.log('同步完成:', result)
                 // 同步完成后可以刷新自选股列表
@@ -346,7 +346,7 @@ export default function StockSelectionPage() {
                         <td className="p-2">{s.name}</td>
                         <td className="p-2">{s.market || '-'}</td>
                         <td className="p-2">{s.group_name || '-'}</td>
-                        <td className="p-2 text-sm text-muted-foreground">{s.updated_at ? s.updated_at.replace('T', ' ').replace('Z','') : '-'}</td>
+                        <td className="p-2 text-sm text-muted-foreground">{s.updated_at ? s.updated_at.replace('T', ' ').replace('Z', '') : '-'}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -376,8 +376,8 @@ export default function StockSelectionPage() {
                 >
                   {strategy === 'all' ? '全部策略' : strategy}
                   <Badge variant="secondary" className="ml-1">
-                    {strategy === 'all' 
-                      ? results.length 
+                    {strategy === 'all'
+                      ? results.length
                       : results.filter(r => r.strategy === strategy).length
                     }
                   </Badge>
@@ -402,7 +402,7 @@ export default function StockSelectionPage() {
               </div>
             </CardContent>
           </Card>
-          
+
           <Card>
             <CardContent className="p-6">
               <div className="flex items-center gap-3">
@@ -463,15 +463,14 @@ export default function StockSelectionPage() {
                           {result.strategy}
                         </Badge>
                       </div>
-                      
+
                       <div className="flex items-center gap-4">
                         <div className="text-right">
                           <p className="text-lg font-semibold text-gray-900">
                             ${result.currentPrice}
                           </p>
-                          <p className={`text-sm flex items-center gap-1 ${
-                            result.changePercent >= 0 ? 'text-green-600' : 'text-red-600'
-                          }`}>
+                          <p className={`text-sm flex items-center gap-1 ${result.changePercent >= 0 ? 'text-green-600' : 'text-red-600'
+                            }`}>
                             {result.changePercent >= 0 ? (
                               <ArrowUpRight className="h-3 w-3" />
                             ) : (
@@ -480,10 +479,10 @@ export default function StockSelectionPage() {
                             {result.changePercent >= 0 ? '+' : ''}{result.changePercent}%
                           </p>
                         </div>
-                        
+
                         <div className="flex items-center gap-2">
                           <span className="text-sm text-gray-600">评分:</span>
-                          <Badge 
+                          <Badge
                             variant={result.score >= 8.5 ? 'default' : result.score >= 7.5 ? 'secondary' : 'outline'}
                             className="font-bold"
                           >

@@ -2,15 +2,21 @@ package com.zhixing.journal.controller;
 
 import com.zhixing.journal.model.Trade;
 import com.zhixing.journal.service.TradeService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.List;
+import java.util.Map;
 
 @RestController
-@RequestMapping("/api/trades")
+@RequestMapping("/api/v1/trades")
+@CrossOrigin(origins = "*")
 public class TradeController {
 
     private final TradeService tradeService;
@@ -19,42 +25,57 @@ public class TradeController {
         this.tradeService = tradeService;
     }
 
-    @GetMapping
-    public List<Trade> getAllTrades() {
-        return tradeService.getAllTrades();
+    @PostMapping("/plan")
+    public ResponseEntity<Trade> createTradePlan(
+            @RequestBody Trade trade,
+            @RequestParam(required = false) Long accountId) {
+        return ResponseEntity.ok(tradeService.createTradePlan(trade, accountId));
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<Trade> updateTrade(@PathVariable Long id, @RequestBody Trade trade) {
+        return ResponseEntity.ok(tradeService.updateTrade(id, trade));
+    }
+
+    @PostMapping("/{id}/execute")
+    public ResponseEntity<Trade> executeTrade(
+            @PathVariable Long id,
+            @RequestParam BigDecimal entryPrice,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime entryTime) {
+        return ResponseEntity.ok(tradeService.executeTrade(id, entryPrice, entryTime));
+    }
+
+    @PostMapping("/{id}/close")
+    public ResponseEntity<Trade> closeTrade(
+            @PathVariable Long id,
+            @RequestParam BigDecimal exitPrice,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime exitTime) {
+        return ResponseEntity.ok(tradeService.closeTrade(id, exitPrice, exitTime));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Trade> getTradeById(@PathVariable Long id) {
-        return tradeService.getTradeById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<Trade> getTrade(@PathVariable Long id) {
+        return ResponseEntity.ok(tradeService.getTrade(id));
     }
 
-    @PostMapping
-    public Trade createTrade(@RequestBody Trade trade) {
-        // Ensure status is initialized if not provided, though @PrePersist handles it too
-        if (trade.getStatus() == null) {
-            trade.setStatus(Trade.TradeStatus.OPEN);
-        }
-        return tradeService.createTrade(trade);
+    @GetMapping
+    public Page<Trade> searchTrades(
+            @RequestParam(required = false) String symbol,
+            @RequestParam(required = false) String status,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate,
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "20") int page_size,
+            @RequestParam(defaultValue = "entryTime") String sortBy,
+            @RequestParam(defaultValue = "desc") String direction) {
+        
+        int pageNo = page > 0 ? page - 1 : 0;
+        Sort sort = direction.equalsIgnoreCase("asc") ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
+        Pageable pageable = PageRequest.of(pageNo, page_size, sort);
+        
+        return tradeService.searchTrades(symbol, status, startDate, endDate, pageable);
     }
-
-    @PutMapping("/{id}/close")
-    public ResponseEntity<Trade> closeTrade(@PathVariable Long id, 
-                                            @RequestParam BigDecimal exitPrice,
-                                            @RequestParam(required = false) LocalDateTime exitTime) {
-        if (exitTime == null) {
-            exitTime = LocalDateTime.now();
-        }
-        try {
-            Trade closedTrade = tradeService.closeTrade(id, exitPrice, exitTime);
-            return ResponseEntity.ok(closedTrade);
-        } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
-        }
-    }
-
+    
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteTrade(@PathVariable Long id) {
         tradeService.deleteTrade(id);

@@ -23,7 +23,17 @@ public class Account {
     @Column(nullable = false)
     private String name;
 
+    private String broker; // e.g. "IBKR", "Longbridge"
+    
+    private String accountNumber; 
+    
+    private String type; // "CASH", "MARGIN"
+    
+    private String status; // "ACTIVE", "INACTIVE"
+
     private BigDecimal balance;
+
+    private BigDecimal initialBalance;
 
     private String currency;
 

@@ -73,7 +73,6 @@ export default function TradeDetail({
   };
 
   return (
-  return (
     <>
       <Dialog open={open} onOpenChange={onClose}>
         <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto">

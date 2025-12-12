@@ -34,6 +34,9 @@ public class Note {
     private NoteType type;
 
     private String relatedId; // ID of the related object (e.g., Symbol, TradeID, StrategyID)
+    
+    @Builder.Default
+    private Boolean isStarred = false;
 
     @CreationTimestamp
     private LocalDateTime createdAt;

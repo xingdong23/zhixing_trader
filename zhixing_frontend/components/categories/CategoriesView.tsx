@@ -8,13 +8,13 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { 
-  Plus, 
-  Folder, 
-  FolderOpen, 
-  Edit, 
-  Trash2, 
-  ChevronRight, 
+import {
+  Plus,
+  Folder,
+  FolderOpen,
+  Edit,
+  Trash2,
+  ChevronRight,
   ChevronDown,
   BarChart3,
   TrendingUp,
@@ -37,7 +37,9 @@ interface Category {
 }
 
 // ========== Mock模式配置 ==========
-const USE_MOCK_DATA = true; // 启用Mock模式,不调用后端API
+
+// ========== Mock模式配置 ==========
+const USE_MOCK_DATA = false; // 默认关闭Mock模式，优先使用真实API
 
 export default function CategoriesView() {
   const [categories, setCategories] = useState<Category[]>([]);
@@ -45,7 +47,7 @@ export default function CategoriesView() {
   const [isLoading, setIsLoading] = useState(true);
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
-  
+
   // 表单状态
   const [formData, setFormData] = useState({
     name: '',
@@ -56,7 +58,7 @@ export default function CategoriesView() {
 
   // 可选图标
   const iconOptions = ['📁', '📂', '⭐', '🎯', '💼', '🏢', '🚀', '💡', '🔥', '⚡', '🌟', '📊'];
-  
+
   // 可选颜色
   const colorOptions = [
     { name: '蓝色', value: 'blue' },
@@ -75,101 +77,122 @@ export default function CategoriesView() {
   const fetchCategories = async () => {
     try {
       setIsLoading(true);
-      
+
+      const base = process.env.NEXT_PUBLIC_API_BASE_URL ?? '';
+
       if (USE_MOCK_DATA) {
         // ========== Mock模式: 直接使用Mock数据 ==========
         const mockCategories: Category[] = [
-        {
-          id: 1,
-          category_id: 'cat_1',
-          name: '行业板块',
-          parent_id: null,
-          path: '行业板块',
-          level: 0,
-          icon: '📁',
-          color: 'blue',
-          stock_count: 0,
-          total_stock_count: 50,
-          children: [
-            {
-              id: 2,
-              category_id: 'cat_2',
-              name: '科技股',
-              parent_id: 'cat_1',
-              path: '行业板块/科技股',
-              level: 1,
-              icon: '💻',
-              color: 'blue',
-              stock_count: 30,
-              total_stock_count: 30,
-              children: []
-            },
-            {
-              id: 3,
-              category_id: 'cat_3',
-              name: '能源',
-              parent_id: 'cat_1',
-              path: '行业板块/能源',
-              level: 1,
-              icon: '⚡',
-              color: 'green',
-              stock_count: 20,
-              total_stock_count: 20,
-              children: []
-            }
-          ]
-        },
-        {
-          id: 4,
-          category_id: 'cat_4',
-          name: '交易策略',
-          parent_id: null,
-          path: '交易策略',
-          level: 0,
-          icon: '🎯',
-          color: 'purple',
-          stock_count: 0,
-          total_stock_count: 15,
-          children: [
-            {
-              id: 5,
-              category_id: 'cat_5',
-              name: '长线持有',
-              parent_id: 'cat_4',
-              path: '交易策略/长线持有',
-              level: 1,
-              icon: '📈',
-              color: 'green',
-              stock_count: 15,
-              total_stock_count: 15,
-              children: []
-            }
-          ]
-        }
+          {
+            id: 1,
+            category_id: 'cat_1',
+            name: '行业板块',
+            parent_id: null,
+            path: '行业板块',
+            level: 0,
+            icon: '📁',
+            color: 'blue',
+            stock_count: 0,
+            total_stock_count: 50,
+            children: [
+              {
+                id: 2,
+                category_id: 'cat_2',
+                name: '科技股',
+                parent_id: 'cat_1',
+                path: '行业板块/科技股',
+                level: 1,
+                icon: '💻',
+                color: 'blue',
+                stock_count: 30,
+                total_stock_count: 30,
+                children: []
+              },
+              {
+                id: 3,
+                category_id: 'cat_3',
+                name: '能源',
+                parent_id: 'cat_1',
+                path: '行业板块/能源',
+                level: 1,
+                icon: '⚡',
+                color: 'green',
+                stock_count: 20,
+                total_stock_count: 20,
+                children: []
+              }
+            ]
+          },
+          {
+            id: 4,
+            category_id: 'cat_4',
+            name: '交易策略',
+            parent_id: null,
+            path: '交易策略',
+            level: 0,
+            icon: '🎯',
+            color: 'purple',
+            stock_count: 0,
+            total_stock_count: 15,
+            children: [
+              {
+                id: 5,
+                category_id: 'cat_5',
+                name: '长线持有',
+                parent_id: 'cat_4',
+                path: '交易策略/长线持有',
+                level: 1,
+                icon: '📈',
+                color: 'green',
+                stock_count: 15,
+                total_stock_count: 15,
+                children: []
+              }
+            ]
+          }
         ];
-        
+
         setCategories(mockCategories);
         const allIds = getAllCategoryIds(mockCategories);
         setExpandedNodes(new Set(allIds));
         setIsLoading(false);
         return;
       }
-      
+
       // ========== 真实API调用 ==========
       try {
-        const response = await fetch('http://localhost:8000/api/v1/categories/');
+        const response = await fetch(`${base}/api/v1/categories/`);
+
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}`);
+        }
+
         const result = await response.json();
-        
-        if (result.success) {
-          setCategories(result.data);
-          const allIds = getAllCategoryIds(result.data);
-          setExpandedNodes(new Set(allIds));
+
+        if (result.success !== false) { // 兼容不同的API响应格式，有的可能直接返回数组
+          const data = result.data || result; // 尝试获取 data 字段，或者直接使用 result
+          if (Array.isArray(data)) {
+            setCategories(data);
+            const allIds = getAllCategoryIds(data);
+            setExpandedNodes(new Set(allIds));
+          } else {
+            // 处理可能的非标准响应
+            console.warn('API returned non-array data:', result);
+            setCategories([]);
+          }
         }
       } catch (apiError) {
         console.error('后端API连接失败:', apiError);
-        toast.error('无法连接到后端API');
+        // 如果API失败，可以根据需求决定是否回退到Mock，当前选择提示错误
+        // toast.error('无法连接到后端API');
+
+        // 临时回退 Mock 以展示界面 (可选)
+        /*
+        const mockCategories: Category[] = [...];
+        setCategories(mockCategories);
+        */
       }
-      
+
     } catch (error) {
       console.error('获取分类失败:', error);
       toast.error('获取分类失败');
@@ -227,28 +250,28 @@ export default function CategoriesView() {
       if (USE_MOCK_DATA) {
         // ========== Mock模式: 本地操作 ==========
         if (editingCategory) {
-        // 编辑模式
-        const updateCategory = (cats: Category[]): Category[] => {
-          return cats.map(cat => {
-            if (cat.category_id === editingCategory.category_id) {
-              return {
-                ...cat,
-                name: formData.name,
-                icon: formData.icon,
-                color: formData.color,
-                parent_id: formData.parent_id || null
-              };
-            }
-            if (cat.children.length > 0) {
-              return {
-                ...cat,
-                children: updateCategory(cat.children)
-              };
-            }
-            return cat;
-          });
-        };
-        
+          // 编辑模式
+          const updateCategory = (cats: Category[]): Category[] => {
+            return cats.map(cat => {
+              if (cat.category_id === editingCategory.category_id) {
+                return {
+                  ...cat,
+                  name: formData.name,
+                  icon: formData.icon,
+                  color: formData.color,
+                  parent_id: formData.parent_id || null
+                };
+              }
+              if (cat.children.length > 0) {
+                return {
+                  ...cat,
+                  children: updateCategory(cat.children)
+                };
+              }
+              return cat;
+            });
+          };
+
           setCategories(updateCategory(categories));
           toast.success('✅ 分类更新成功 (Mock模式)');
         } else {
@@ -266,7 +289,7 @@ export default function CategoriesView() {
             total_stock_count: 0,
             children: []
           };
-          
+
           if (!formData.parent_id) {
             // 顶级分类
             setCategories([...categories, newCategory]);
@@ -289,25 +312,26 @@ export default function CategoriesView() {
                 return cat;
               });
             };
-            
+
             setCategories(addToParent(categories));
           }
-          
+
           toast.success('✅ 分类创建成功 (Mock模式)');
         }
-        
+
         setShowCreateDialog(false);
         return;
       }
-      
+
       // ========== 真实API调用 ==========
       try {
+        const base = process.env.NEXT_PUBLIC_API_BASE_URL ?? '';
         const url = editingCategory
-          ? `http://localhost:8000/api/v1/categories/${editingCategory.category_id}`
-          : 'http://localhost:8000/api/v1/categories/';
-        
+          ? `${base}/api/v1/categories/${editingCategory.category_id}`
+          : `${base}/api/v1/categories/`;
+
         const method = editingCategory ? 'PUT' : 'POST';
-        
+
         const response = await fetch(url, {
           method,
           headers: { 'Content-Type': 'application/json' },
@@ -320,7 +344,7 @@ export default function CategoriesView() {
         });
 
         const result = await response.json();
-        
+
         if (result.success) {
           toast.success(editingCategory ? '分类更新成功' : '分类创建成功');
           setShowCreateDialog(false);
@@ -330,7 +354,7 @@ export default function CategoriesView() {
         console.error('后端API连接失败:', apiError);
         toast.error('无法连接到后端API');
       }
-      
+
     } catch (error) {
       console.error('操作失败:', error);
       toast.error('操作失败');
@@ -349,27 +373,29 @@ export default function CategoriesView() {
           return cats.filter(cat => {
             if (cat.category_id === categoryId) {
               return false;
-          }
-          if (cat.children.length > 0) {
-            cat.children = removeCategory(cat.children);
-          }
-          return true;
-        });
+            }
+            if (cat.children.length > 0) {
+              cat.children = removeCategory(cat.children);
+            }
+            return true;
+          });
         };
-        
+
         setCategories(removeCategory(categories));
         toast.success('✅ 分类删除成功 (Mock模式)');
         return;
       }
-      
+
+
       // ========== 真实API调用 ==========
       try {
-        const response = await fetch(`http://localhost:8000/api/v1/categories/${categoryId}`, {
+        const base = process.env.NEXT_PUBLIC_API_BASE_URL ?? '';
+        const response = await fetch(`${base}/api/v1/categories/${categoryId}`, {
           method: 'DELETE'
         });
 
         const result = await response.json();
-        
+
         if (result.success) {
           toast.success('分类删除成功');
           fetchCategories();
@@ -378,7 +404,7 @@ export default function CategoriesView() {
         console.error('后端API连接失败:', apiError);
         toast.error('无法连接到后端API');
       }
-      
+
     } catch (error) {
       console.error('删除失败:', error);
       toast.error('删除失败');
@@ -519,7 +545,7 @@ export default function CategoriesView() {
             </div>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
@@ -531,7 +557,7 @@ export default function CategoriesView() {
             </div>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
@@ -620,11 +646,10 @@ export default function CategoriesView() {
                     key={icon}
                     type="button"
                     onClick={() => setFormData({ ...formData, icon })}
-                    className={`w-10 h-10 flex items-center justify-center text-xl border-2 rounded-lg transition-colors ${
-                      formData.icon === icon
-                        ? 'border-blue-500 bg-blue-50'
-                        : 'border-gray-200 hover:border-gray-300'
-                    }`}
+                    className={`w-10 h-10 flex items-center justify-center text-xl border-2 rounded-lg transition-colors ${formData.icon === icon
+                      ? 'border-blue-500 bg-blue-50'
+                      : 'border-gray-200 hover:border-gray-300'
+                      }`}
                   >
                     {icon}
                   </button>
@@ -641,11 +666,10 @@ export default function CategoriesView() {
                     key={color.value}
                     type="button"
                     onClick={() => setFormData({ ...formData, color: color.value })}
-                    className={`px-3 py-1.5 text-sm border-2 rounded-lg transition-colors ${
-                      formData.color === color.value
-                        ? 'border-blue-500 bg-blue-50'
-                        : 'border-gray-200 hover:border-gray-300'
-                    }`}
+                    className={`px-3 py-1.5 text-sm border-2 rounded-lg transition-colors ${formData.color === color.value
+                      ? 'border-blue-500 bg-blue-50'
+                      : 'border-gray-200 hover:border-gray-300'
+                      }`}
                   >
                     {color.name}
                   </button>

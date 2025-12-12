@@ -36,7 +36,29 @@ public class Trade {
     private BigDecimal entryPrice;
 
     private BigDecimal exitPrice;
+    
+    // --- Plan & Risk Management ---
+    private BigDecimal stopLoss;
+    private BigDecimal takeProfit;
+    private BigDecimal riskAmount; // Calculated risk value
+    private BigDecimal positionSizeRel; // % of account balance
+    private BigDecimal rMultiple; // Realized R
+    private BigDecimal plannedRR; // Planned Risk/Reward
+    
+    // --- 6-Step Wizard Data ---
+    @Column(columnDefinition = "TEXT")
+    private String trendAnalysis; // JSON: { timeframe: "D1", trend: "UP" ... }
+    
+    @Column(columnDefinition = "TEXT")
+    private String keyLevels; // JSON: { support: 100, resistance: 120 }
+    
+    @Column(columnDefinition = "TEXT")
+    private String entryTrigger; // JSON or Text: "Breakout", "Pullback"
+    
+    @Column(columnDefinition = "TEXT")
+    private String technicalConditions; // JSON: High-level indicators
 
+    // --- Execution ---
     @Column(nullable = false)
     private BigDecimal quantity;
 
@@ -46,24 +68,36 @@ public class Trade {
     private LocalDateTime exitTime;
 
     private BigDecimal pnl; // Profit and Loss
-
-    private String notes;
+    
+    @Column(columnDefinition = "TEXT")
+    private String notes; // General notes
+    
+    @Column(columnDefinition = "TEXT")
+    private String entryReason;
+    
+    @Column(columnDefinition = "TEXT")
+    private String exitReason;
+    
+    @Column(columnDefinition = "TEXT")
+    private String violations; // JSON List of violations
+    
+    private Integer reviewRating; // 1-5
 
     @Enumerated(EnumType.STRING)
-    private TradeStatus status; // OPEN, CLOSED
+    private TradeStatus status; // PLANNING, PENDING, ACTIVE, CLOSED, CANCELLED
 
     public enum Direction {
         LONG, SHORT
     }
 
     public enum TradeStatus {
-        OPEN, CLOSED
+        PLANNING, PENDING_ENTRY, ACTIVE, CLOSED, CANCELLED
     }
     
     @PrePersist
     public void prePersist() {
         if (this.status == null) {
-            this.status = TradeStatus.OPEN;
+            this.status = TradeStatus.PLANNING;
         }
     }
 }
