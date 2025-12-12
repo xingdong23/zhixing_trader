@@ -186,7 +186,7 @@ export default function KLineChart({ symbol }: KLineChartProps) {
   const fetchKlineData = async () => {
     try {
       setLoading(true)
-      const base = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000'
+      const base = process.env.NEXT_PUBLIC_API_BASE_URL || ''
       const response = await fetch(
         `${base}/api/v1/market-data/klines/${symbol}?timeframe=${timeframe}&days=${days}`
       )

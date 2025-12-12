@@ -87,7 +87,7 @@ export default function CreateTradingPlanPage() {
             {/* 两种模式选择 */}
             <div className="grid md:grid-cols-2 gap-8">
               {/* 6步向导模式 */}
-              <Card 
+              <Card
                 className="cursor-pointer transition-all hover:shadow-2xl hover:scale-105 border-2 border-blue-500 bg-gradient-to-br from-blue-50 to-purple-50 dark:from-blue-950 dark:to-purple-950"
                 onClick={() => setMode("wizard")}
               >
@@ -150,7 +150,7 @@ export default function CreateTradingPlanPage() {
               </Card>
 
               {/* 快速创建模式 */}
-              <Card 
+              <Card
                 className="cursor-pointer transition-all hover:shadow-xl hover:scale-105"
                 onClick={() => setMode("quick")}
               >

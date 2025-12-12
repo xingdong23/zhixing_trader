@@ -68,7 +68,7 @@ export default function DataSyncButton({
   }
 
   // 获取API基础URL
-  const getApiBase = () => process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000'
+  const getApiBase = () => process.env.NEXT_PUBLIC_API_BASE_URL || ''
 
   // 获取运行中的任务
   const fetchRunningTasks = useCallback(async () => {

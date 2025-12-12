@@ -40,7 +40,7 @@ export default function CategoryHeatmap({ onSelectCategory }: CategoryHeatmapPro
   const fetchHeatmapData = async () => {
     try {
       setIsLoading(true);
-      const response = await fetch('http://localhost:8000/api/v1/categories/heatmap/data');
+      const response = await fetch('/api/v1/categories/heatmap/data');
       const result = await response.json();
       
       if (result.success) {

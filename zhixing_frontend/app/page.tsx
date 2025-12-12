@@ -212,11 +212,25 @@ export default function TradingSystem() {
   async function fetchBackendStocks() {
     try {
       // 使用Mock数据（临时替代后端API）
+      const mockResponse = getMockStocks({
+        page,
+        pageSize,
+        sortField,
+        sortOrder,
+        priceMin: priceRange.min,
+        priceMax: priceRange.max,
+        changePercentMin: changePercentRange.min,
+        changePercentMax: changePercentRange.max,
+      });
 
-      // 优先尝试从后端API获取数据
-      const base = process.env.NEXT_PUBLIC_API_BASE_URL ?? ''
+      console.log('Using mock data:', mockResponse);
+      setBackendStocks(mockResponse.items);
+      setTotal(mockResponse.total);
+
+      /* TODO: 实际使用时切换回后端API
+      const base = process.env.NEXT_PUBLIC_API_BASE_URL || ''
       let url = `${base}/api/v1/stocks/overview?page=${page}&page_size=${pageSize}`
-
+      
       // 使用分类筛选
       if (selectedCategoryId) {
         // 通过分类ID获取股票
@@ -224,7 +238,7 @@ export default function TradingSystem() {
       }
       // 添加排序参数
       url += `&sort_field=${sortField}&sort_order=${sortOrder}`
-
+      
       // 添加价格筛选参数
       if (priceRange.min !== undefined) {
         url += `&price_min=${priceRange.min}`
@@ -238,67 +252,39 @@ export default function TradingSystem() {
       if (changePercentRange.max !== undefined) {
         url += `&change_percent_max=${changePercentRange.max}`
       }
-
+      
       console.log('Fetching stocks with URL:', url)
-      // toast.info(`正在加载数据: ${url}`) // Debug提示
-      try {
-        const res = await fetch(url)
-        if (!res.ok) {
-          // 如果后端API失败，回退到Mock数据 (可选，这里暂时保留为 fallback 或直接抛错)
-          // throw new Error(`HTTP ${res.status}`)
-          console.warn(`API request failed: ${res.status}, falling back to mock`)
-          throw new Error('API failed')
-        }
-        const data = await res.json()
-
-        let stocks = []
-        let total = 0
-
-        // 根据不同的API返回格式处理数据
-        // 根据不同的API返回格式处理数据
-        if (data?.content) {
-          // Spring Data Page 格式
-          stocks = data.content
-          total = data.totalElements || 0
-        } else if (selectedCategoryId) {
-          // 分类API返回格式：data.stocks
-          stocks = data?.data?.stocks || []
-          total = data?.data?.total || stocks.length
-        } else {
-          // 普通股票API返回格式：data.stocks
-          stocks = data?.data?.stocks || []
-          total = data?.data?.total || 0
-        }
-
-        setBackendStocks(stocks.map((s: any) => ({
-          id: s.id || 0,
-          symbol: s.code || s.symbol || '',
-          name: s.name || '',
-          market: s.market || '',
-          group_name: s.group_name || '',
-          concepts: s.concepts || [],
-          updated_at: s.updated_at || '',
-          price: s.price,
-          change_percent: s.change_percent
-        })))
-        setTotal(total)
-      } catch (err) {
-        console.warn('Backend fetch failed, using mock data:', err)
-        // 使用Mock数据（作为后备）
-        const mockResponse = getMockStocks({
-          page,
-          pageSize,
-          sortField,
-          sortOrder,
-          priceMin: priceRange.min,
-          priceMax: priceRange.max,
-          changePercentMin: changePercentRange.min,
-          changePercentMax: changePercentRange.max,
-        });
-        setBackendStocks(mockResponse.items);
-        setTotal(mockResponse.total);
+      const res = await fetch(url)
+      const data = await res.json().catch(() => ({}))
+      if (!res.ok) throw new Error(String(data?.detail || data?.message || `HTTP ${res.status}`))
+      
+      let stocks = []
+      let total = 0
+      
+      // 根据不同的API返回格式处理数据
+      if (selectedCategoryId) {
+        // 分类API返回格式：data.stocks
+        stocks = data?.data?.stocks || []
+        total = data?.data?.total || stocks.length
+      } else {
+        // 普通股票API返回格式：data.stocks
+        stocks = data?.data?.stocks || []
+        total = data?.data?.total || 0
       }
-
+      
+      setBackendStocks(stocks.map((s: any) => ({
+        id: s.id || 0,
+        symbol: s.code || s.symbol || '',
+        name: s.name || '',
+        market: s.market || '',
+        group_name: s.group_name || '',
+        concepts: s.concepts || [],
+        updated_at: s.updated_at || '',
+        price: s.price,
+        change_percent: s.change_percent
+      })))
+      setTotal(total)
+      */
     } catch (err) {
       console.error('fetch backend stocks error', err)
     }
@@ -417,8 +403,8 @@ export default function TradingSystem() {
                   }
                 }}
                 className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-left transition-colors ${currentPage === id
-                  ? "bg-sidebar-primary text-sidebar-primary-foreground"
-                  : "text-sidebar-foreground hover:bg-sidebar-accent"
+                    ? "bg-sidebar-primary text-sidebar-primary-foreground"
+                    : "text-sidebar-foreground hover:bg-sidebar-accent"
                   }`}
               >
                 <Icon className="w-5 h-5" />

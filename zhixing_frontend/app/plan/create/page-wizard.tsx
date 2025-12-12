@@ -16,45 +16,45 @@ import { toast } from "sonner"
 
 // 6步交易体系的步骤定义
 const TRADING_STEPS = [
-  { 
-    id: 1, 
-    name: "分析趋势", 
-    icon: TrendingUp, 
+  {
+    id: 1,
+    name: "分析趋势",
+    icon: TrendingUp,
     description: "准确判断市场趋势方向",
     color: "text-green-600"
   },
-  { 
-    id: 2, 
-    name: "找关键位", 
-    icon: Target, 
+  {
+    id: 2,
+    name: "找关键位",
+    icon: Target,
     description: "识别支撑、阻力等关键价格区域",
     color: "text-blue-600"
   },
-  { 
-    id: 3, 
-    name: "入场时机", 
-    icon: Clock, 
+  {
+    id: 3,
+    name: "入场时机",
+    icon: Clock,
     description: "等待趋势确认与关键位突破",
     color: "text-orange-600"
   },
-  { 
-    id: 4, 
-    name: "制定计划", 
-    icon: FileText, 
+  {
+    id: 4,
+    name: "制定计划",
+    icon: FileText,
     description: "明确入场、止损、止盈及仓位管理",
     color: "text-purple-600"
   },
-  { 
-    id: 5, 
-    name: "执行检查", 
-    icon: Shield, 
+  {
+    id: 5,
+    name: "执行检查",
+    icon: Shield,
     description: "交易前强制检查清单",
     color: "text-red-600"
   },
-  { 
-    id: 6, 
-    name: "确认保存", 
-    icon: CheckCircle, 
+  {
+    id: 6,
+    name: "确认保存",
+    icon: CheckCircle,
     description: "复盘计划，确认无误后保存",
     color: "text-cyan-600"
   },
@@ -64,13 +64,13 @@ export default function CreateTradingPlanWizard() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [currentStep, setCurrentStep] = useState(1)
-  
+
   // 交易计划数据
   const [plan, setPlan] = useState({
     // 基本信息
     name: "",
     ticker: searchParams.get("ticker") || "",
-    
+
     // 步骤1: 分析趋势
     trendAnalysis: {
       marketTrend: "" as "uptrend" | "downtrend" | "sideways" | "",
@@ -78,7 +78,7 @@ export default function CreateTradingPlanWizard() {
       trendStrength: 5, // 1-10
       trendConfirmed: false,
     },
-    
+
     // 步骤2: 找关键位
     keyLevels: {
       currentPrice: "",
@@ -87,7 +87,7 @@ export default function CreateTradingPlanWizard() {
       pivotPoints: [] as string[],
       positionType: "" as "low" | "middle" | "high" | "", // 当前位置
     },
-    
+
     // 步骤3: 入场时机
     entryTiming: {
       entryType: "" as "breakout" | "pullback" | "support" | "pattern" | "",
@@ -96,7 +96,7 @@ export default function CreateTradingPlanWizard() {
       macdGoldenCross: false,
       priceAboveMA: false,
     },
-    
+
     // 步骤4: 制定计划
     tradingPlan: {
       entry: "",
@@ -112,24 +112,24 @@ export default function CreateTradingPlanWizard() {
         ? `基于${searchParams.get("author")}的观点: ${decodeURIComponent(searchParams.get("note") || "")}`
         : "",
     },
-    
+
     // 步骤5: 执行检查清单
     preTradeChecklist: {
       // 机会判断
       isFamiliarPattern: false,
       meetsSelectionCriteria: false,
       canExplainLogic: false,
-      
+
       // 位置判断
       isKeyLevelEntry: false,
       knowsPosition: false,
       hasStopLoss: false,
-      
+
       // 情绪检查
       emotionScore: 5, // 1-10
       isCalm: false,
       recentWinRate: "",
-      
+
       // 市场状态
       vixNormal: true,
       volatilityOk: true,
@@ -169,7 +169,7 @@ export default function CreateTradingPlanWizard() {
           return false
         }
         return true
-      
+
       case 2: // 找关键位
         if (!plan.keyLevels.currentPrice) {
           toast.error("请输入当前价格")
@@ -180,14 +180,14 @@ export default function CreateTradingPlanWizard() {
           return false
         }
         return true
-      
+
       case 3: // 入场时机
         if (!plan.entryTiming.entryType) {
           toast.error("请选择入场类型")
           return false
         }
         return true
-      
+
       case 4: // 制定计划
         if (!plan.tradingPlan.entry || !plan.tradingPlan.tp || !plan.tradingPlan.sl) {
           toast.error("请填写完整的交易参数（入场、止盈、止损）")
@@ -198,7 +198,7 @@ export default function CreateTradingPlanWizard() {
           return false
         }
         return true
-      
+
       case 5: // 执行检查
         const criticalChecks = [
           plan.preTradeChecklist.isFamiliarPattern,
@@ -208,19 +208,19 @@ export default function CreateTradingPlanWizard() {
           plan.preTradeChecklist.knowsPosition,
           plan.preTradeChecklist.isCalm,
         ]
-        
+
         const failedCount = criticalChecks.filter(check => !check).length
         if (failedCount > 0) {
           toast.warning(`还有 ${failedCount} 项关键检查未通过，建议重新审视交易计划`)
           return true // 允许继续但发出警告
         }
-        
+
         if (plan.preTradeChecklist.emotionScore > 7) {
           toast.error("情绪评分过高，建议冷静10分钟后再交易")
           return false
         }
         return true
-      
+
       default:
         return true
     }
@@ -230,7 +230,7 @@ export default function CreateTradingPlanWizard() {
   const handleSave = () => {
     console.log("保存交易计划:", plan)
     toast.success("✅ 交易计划已保存！")
-    
+
     // 保存到localStorage（实际应该保存到后端）
     const existingPlans = JSON.parse(localStorage.getItem('trading_plans') || '[]')
     existingPlans.push({
@@ -240,7 +240,7 @@ export default function CreateTradingPlanWizard() {
       status: 'pending'
     })
     localStorage.setItem('trading_plans', JSON.stringify(existingPlans))
-    
+
     // 返回上一页
     router.back()
   }
@@ -285,7 +285,7 @@ export default function CreateTradingPlanWizard() {
               步骤 {currentStep}/{TRADING_STEPS.length}
             </Badge>
           </div>
-          
+
           {/* 进度条 */}
           <div className="mt-4">
             <Progress value={progress} className="h-2" />
@@ -300,18 +300,17 @@ export default function CreateTradingPlanWizard() {
             const Icon = step.icon
             const isActive = currentStep === step.id
             const isCompleted = currentStep > step.id
-            
+
             return (
               <div key={step.id} className="flex-1 relative">
                 <div className="flex flex-col items-center">
                   <div
-                    className={`w-14 h-14 rounded-full flex items-center justify-center border-2 transition-all ${
-                      isActive
+                    className={`w-14 h-14 rounded-full flex items-center justify-center border-2 transition-all ${isActive
                         ? "bg-blue-600 border-blue-600 text-white scale-110 shadow-lg"
                         : isCompleted
-                        ? "bg-green-600 border-green-600 text-white"
-                        : "bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-400"
-                    }`}
+                          ? "bg-green-600 border-green-600 text-white"
+                          : "bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-400"
+                      }`}
                   >
                     {isCompleted ? (
                       <CheckCircle className="w-6 h-6" />
@@ -328,13 +327,12 @@ export default function CreateTradingPlanWizard() {
                     </p>
                   </div>
                 </div>
-                
+
                 {/* 连接线 */}
                 {index < TRADING_STEPS.length - 1 && (
                   <div
-                    className={`absolute top-7 left-[60%] w-full h-0.5 -z-10 ${
-                      isCompleted ? "bg-green-600" : "bg-gray-300 dark:bg-gray-600"
-                    }`}
+                    className={`absolute top-7 left-[60%] w-full h-0.5 -z-10 ${isCompleted ? "bg-green-600" : "bg-gray-300 dark:bg-gray-600"
+                      }`}
                   />
                 )}
               </div>
@@ -357,7 +355,7 @@ export default function CreateTradingPlanWizard() {
             <ArrowLeft className="w-4 h-4 mr-2" />
             上一步
           </Button>
-          
+
           {currentStep < TRADING_STEPS.length ? (
             <Button onClick={handleNext}>
               下一步
@@ -401,7 +399,7 @@ function Step1TrendAnalysis({ plan, setPlan }: any) {
               className="text-lg"
             />
           </div>
-          
+
           <div>
             <Label htmlFor="planName">计划名称 (可选)</Label>
             <Input
@@ -415,13 +413,13 @@ function Step1TrendAnalysis({ plan, setPlan }: any) {
 
         <div className="border-t pt-6 space-y-4">
           <h3 className="font-semibold text-lg">1. 定周期 - 确定交易时间框架</h3>
-          
+
           <div>
             <Label>参考周期: 你随的是哪一波的势？*</Label>
             <Select
               value={plan.trendAnalysis.timeframe}
-              onValueChange={(value: any) => 
-                setPlan({ ...plan, trendAnalysis: { ...plan.trendAnalysis, timeframe: value }})
+              onValueChange={(value: any) =>
+                setPlan({ ...plan, trendAnalysis: { ...plan.trendAnalysis, timeframe: value } })
               }
             >
               <SelectTrigger className="mt-2">
@@ -441,7 +439,7 @@ function Step1TrendAnalysis({ plan, setPlan }: any) {
 
         <div className="border-t pt-6 space-y-4">
           <h3 className="font-semibold text-lg">2. 分清楚现在所处的阶段</h3>
-          
+
           <div>
             <Label>当前市场趋势 *</Label>
             <div className="grid grid-cols-3 gap-3 mt-2">
@@ -452,11 +450,10 @@ function Step1TrendAnalysis({ plan, setPlan }: any) {
               ].map((trend) => (
                 <Card
                   key={trend.value}
-                  className={`cursor-pointer transition-all ${
-                    plan.trendAnalysis.marketTrend === trend.value
+                  className={`cursor-pointer transition-all ${plan.trendAnalysis.marketTrend === trend.value
                       ? "ring-2 ring-blue-600 bg-blue-50 dark:bg-blue-950"
                       : "hover:bg-gray-50 dark:hover:bg-gray-800"
-                  }`}
+                    }`}
                   onClick={() =>
                     setPlan({
                       ...plan,
@@ -548,7 +545,7 @@ function Step2KeyLevels({ plan, setPlan }: any) {
       <CardContent className="space-y-6">
         <div className="space-y-4">
           <h3 className="font-semibold text-lg">1. 水平关键位</h3>
-          
+
           <div className="grid grid-cols-3 gap-4">
             <div>
               <Label htmlFor="currentPrice">当前价格 *</Label>
@@ -566,7 +563,7 @@ function Step2KeyLevels({ plan, setPlan }: any) {
                 placeholder="245.00"
               />
             </div>
-            
+
             <div>
               <Label htmlFor="supportLevel">主要支撑位 *</Label>
               <Input
@@ -584,7 +581,7 @@ function Step2KeyLevels({ plan, setPlan }: any) {
               />
               <p className="text-xs text-gray-500 mt-1">做多不破空，只开空单，不平多单</p>
             </div>
-            
+
             <div>
               <Label htmlFor="resistanceLevel">主要阻力位 *</Label>
               <Input
@@ -615,17 +612,16 @@ function Step2KeyLevels({ plan, setPlan }: any) {
                     阻力位: ${plan.keyLevels.resistanceLevel}
                   </Badge>
                 </div>
-                
+
                 {/* 当前价格 */}
                 <div
                   className="absolute left-0 right-0 flex items-center transition-all"
                   style={{
-                    top: `${
-                      ((Number(plan.keyLevels.resistanceLevel) - Number(plan.keyLevels.currentPrice)) /
+                    top: `${((Number(plan.keyLevels.resistanceLevel) - Number(plan.keyLevels.currentPrice)) /
                         (Number(plan.keyLevels.resistanceLevel) - Number(plan.keyLevels.supportLevel))) *
                       (256 - 64) +
                       16
-                    }px`,
+                      }px`,
                   }}
                 >
                   <div className="flex-1 border-t-2 border-blue-500" />
@@ -633,7 +629,7 @@ function Step2KeyLevels({ plan, setPlan }: any) {
                     当前: ${plan.keyLevels.currentPrice}
                   </Badge>
                 </div>
-                
+
                 {/* 支撑位 */}
                 <div className="absolute bottom-4 left-0 right-0 flex items-center">
                   <div className="flex-1 border-t-2 border-dashed border-green-500" />
@@ -641,7 +637,7 @@ function Step2KeyLevels({ plan, setPlan }: any) {
                     支撑位: ${plan.keyLevels.supportLevel}
                   </Badge>
                 </div>
-                
+
                 {/* 趋势线 */}
                 <div className="absolute left-8 top-8 bottom-8 w-0.5 bg-yellow-500" />
                 <p className="absolute left-12 top-1/2 transform -translate-y-1/2 text-sm text-yellow-600 font-medium">
@@ -654,7 +650,7 @@ function Step2KeyLevels({ plan, setPlan }: any) {
 
         <div className="border-t pt-6 space-y-4">
           <h3 className="font-semibold text-lg">2. 形态识别</h3>
-          
+
           <div>
             <Label>主要观察反转形态</Label>
             <div className="grid grid-cols-2 gap-3 mt-2">
@@ -780,7 +776,7 @@ function Step3EntryTiming({ plan, setPlan }: any) {
         {/* 技术信号确认 */}
         <div className="border-t pt-6 space-y-4">
           <h3 className="font-semibold text-lg">技术信号确认</h3>
-          
+
           <div className="space-y-3">
             <div className="flex items-center gap-2">
               <Checkbox
@@ -897,13 +893,13 @@ function Step4TradingPlan({ plan, setPlan }: any) {
     const entry = Number.parseFloat(plan.tradingPlan.entry)
     const tp = Number.parseFloat(plan.tradingPlan.tp)
     const sl = Number.parseFloat(plan.tradingPlan.sl)
-    
+
     if (!entry || !tp || !sl || entry === sl) return null
-    
+
     const reward = Math.abs(tp - entry)
     const risk = Math.abs(entry - sl)
     const ratio = reward / risk
-    
+
     return {
       ratio: ratio.toFixed(2),
       reward,
@@ -1090,7 +1086,7 @@ function Step4TradingPlan({ plan, setPlan }: any) {
         {/* 技术指标条件（可选） */}
         <div className="border-t pt-6 space-y-4">
           <h3 className="font-semibold text-lg">技术指标条件（可选）</h3>
-          
+
           <div>
             <div className="flex items-center justify-between mb-2">
               <Label htmlFor="entryCondition">入场触发条件</Label>
@@ -1166,13 +1162,13 @@ function Step4TradingPlan({ plan, setPlan }: any) {
               可以考虑：移动止损？分批止盈？<br />
               滚动加仓？统一止盈？
             </p>
-            
+
             <p className="mt-3"><strong>第二种：反向发展（浮亏）</strong></p>
             <p className="ml-4 text-red-600 dark:text-red-400 font-semibold">
               带着止损，考虑补仓（<span className="underline">不建议这种操作</span>）<br />
               也可以用坐波那梯重置一下撤有超过61%
             </p>
-            
+
             <p className="mt-3"><strong>第三种：行情停滞</strong></p>
             <p className="ml-4">
               浮盈：可以考虑先拿或者减合为主<br />
@@ -1320,7 +1316,7 @@ function Step5PreTradeChecklist({ plan, setPlan }: any) {
         {/* 情绪检查 */}
         <div className="border-t pt-4">
           <h3 className="font-semibold text-lg mb-4">🧠 情绪检查</h3>
-          
+
           <div className="space-y-4">
             <div className="flex items-start gap-3 p-3 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-900">
               <Checkbox
@@ -1364,13 +1360,12 @@ function Step5PreTradeChecklist({ plan, setPlan }: any) {
                 />
                 <Badge
                   variant="outline"
-                  className={`text-lg w-16 justify-center ${
-                    plan.preTradeChecklist.emotionScore <= 3
+                  className={`text-lg w-16 justify-center ${plan.preTradeChecklist.emotionScore <= 3
                       ? "bg-green-100 text-green-800"
                       : plan.preTradeChecklist.emotionScore <= 7
-                      ? "bg-yellow-100 text-yellow-800"
-                      : "bg-red-100 text-red-800"
-                  }`}
+                        ? "bg-yellow-100 text-yellow-800"
+                        : "bg-red-100 text-red-800"
+                    }`}
                 >
                   {plan.preTradeChecklist.emotionScore}
                 </Badge>
@@ -1380,7 +1375,7 @@ function Step5PreTradeChecklist({ plan, setPlan }: any) {
                 <span>正常 ⚡</span>
                 <span>冲动 🚨</span>
               </div>
-              
+
               {plan.preTradeChecklist.emotionScore > 7 && (
                 <div className="mt-3 p-3 bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 rounded">
                   <p className="text-sm text-red-800 dark:text-red-200">
@@ -1451,7 +1446,7 @@ function Step6ReviewAndSave({ plan }: any) {
             <p className="text-gray-600 dark:text-gray-400">
               把交易行为转化为规则化、习惯化的过程
             </p>
-            
+
             <div className="mt-6 p-4 bg-white dark:bg-gray-900 rounded-lg">
               <h4 className="font-semibold text-green-600 mb-2">最终目标</h4>
               <p className="text-sm">
@@ -1491,7 +1486,7 @@ function Step6ReviewAndSave({ plan }: any) {
           {/* 交易计划总览 */}
           <div className="border-t pt-6">
             <h3 className="font-semibold text-lg mb-4">📋 交易计划总览</h3>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {/* 技术分析 */}
               <Card className="bg-green-50 dark:bg-green-950">

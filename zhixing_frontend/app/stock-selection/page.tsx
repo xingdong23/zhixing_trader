@@ -122,7 +122,7 @@ export default function StockSelectionPage() {
         setImporting(false)
         return
       }
-      const base = process.env.NEXT_PUBLIC_API_BASE_URL ?? ''
+      const base = process.env.NEXT_PUBLIC_API_BASE_URL || ''
       const res = await fetch(`${base}/api/v1/stocks/import`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -148,7 +148,7 @@ export default function StockSelectionPage() {
   async function fetchWatchlist() {
     try {
       setWatchlistLoading(true)
-      const base = process.env.NEXT_PUBLIC_API_BASE_URL ?? ''
+      const base = process.env.NEXT_PUBLIC_API_BASE_URL || ''
       console.log('Fetching watchlist from:', `${base}/api/v1/stocks/?page=1&page_size=200`)
       const res = await fetch(`${base}/api/v1/stocks/?page=1&page_size=200`)
       console.log('Response status:', res.status)
@@ -176,7 +176,7 @@ export default function StockSelectionPage() {
   // 获取策略执行结果
   const fetchStrategyResults = async () => {
     try {
-      const base = process.env.NEXT_PUBLIC_API_BASE_URL ?? ''
+      const base = process.env.NEXT_PUBLIC_API_BASE_URL || ''
       // 获取可用策略
       const strategiesRes = await fetch(`${base}/api/v1/strategies/`)
       const strategiesData = await strategiesRes.json()

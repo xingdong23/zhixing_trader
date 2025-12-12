@@ -48,7 +48,7 @@ export default function CategoryTree({ onSelectCategory, showHeatmap = false }: 
   const fetchCategories = async () => {
     try {
       setIsLoading(true);
-      const response = await fetch('http://localhost:8000/api/v1/categories/');
+      const response = await fetch('/api/v1/categories/');
       const result = await response.json();
       
       if (result.success) {
@@ -85,7 +85,7 @@ export default function CategoryTree({ onSelectCategory, showHeatmap = false }: 
     if (!newCategoryName.trim()) return;
 
     try {
-      const response = await fetch('http://localhost:8000/api/v1/categories/', {
+      const response = await fetch('/api/v1/categories/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -115,7 +115,7 @@ export default function CategoryTree({ onSelectCategory, showHeatmap = false }: 
     if (!confirm('确定要删除这个分类吗？')) return;
 
     try {
-      const response = await fetch(`http://localhost:8000/api/v1/categories/${categoryId}?force=false`, {
+      const response = await fetch(`/api/v1/categories/${categoryId}?force=false`, {
         method: 'DELETE',
       });
 

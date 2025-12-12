@@ -37,9 +37,7 @@ interface Category {
 }
 
 // ========== Mock模式配置 ==========
-
-// ========== Mock模式配置 ==========
-const USE_MOCK_DATA = false; // 默认关闭Mock模式，优先使用真实API
+const USE_MOCK_DATA = true; // 启用Mock模式,不调用后端API
 
 export default function CategoriesView() {
   const [categories, setCategories] = useState<Category[]>([]);
@@ -77,8 +75,6 @@ export default function CategoriesView() {
   const fetchCategories = async () => {
     try {
       setIsLoading(true);
-
-      const base = process.env.NEXT_PUBLIC_API_BASE_URL ?? '';
 
       if (USE_MOCK_DATA) {
         // ========== Mock模式: 直接使用Mock数据 ==========
@@ -161,36 +157,17 @@ export default function CategoriesView() {
 
       // ========== 真实API调用 ==========
       try {
-        const response = await fetch(`${base}/api/v1/categories/`);
-
-        if (!response.ok) {
-          throw new Error(`HTTP ${response.status}`);
-        }
-
+        const response = await fetch('/api/v1/categories/');
         const result = await response.json();
 
-        if (result.success !== false) { // 兼容不同的API响应格式，有的可能直接返回数组
-          const data = result.data || result; // 尝试获取 data 字段，或者直接使用 result
-          if (Array.isArray(data)) {
-            setCategories(data);
-            const allIds = getAllCategoryIds(data);
-            setExpandedNodes(new Set(allIds));
-          } else {
-            // 处理可能的非标准响应
-            console.warn('API returned non-array data:', result);
-            setCategories([]);
-          }
+        if (result.success) {
+          setCategories(result.data);
+          const allIds = getAllCategoryIds(result.data);
+          setExpandedNodes(new Set(allIds));
         }
       } catch (apiError) {
         console.error('后端API连接失败:', apiError);
-        // 如果API失败，可以根据需求决定是否回退到Mock，当前选择提示错误
-        // toast.error('无法连接到后端API');
-
-        // 临时回退 Mock 以展示界面 (可选)
-        /*
-        const mockCategories: Category[] = [...];
-        setCategories(mockCategories);
-        */
+        toast.error('无法连接到后端API');
       }
 
     } catch (error) {
@@ -325,10 +302,9 @@ export default function CategoriesView() {
 
       // ========== 真实API调用 ==========
       try {
-        const base = process.env.NEXT_PUBLIC_API_BASE_URL ?? '';
         const url = editingCategory
-          ? `${base}/api/v1/categories/${editingCategory.category_id}`
-          : `${base}/api/v1/categories/`;
+          ? `/api/v1/categories/${editingCategory.category_id}`
+          : '/api/v1/categories/';
 
         const method = editingCategory ? 'PUT' : 'POST';
 
@@ -386,11 +362,9 @@ export default function CategoriesView() {
         return;
       }
 
-
       // ========== 真实API调用 ==========
       try {
-        const base = process.env.NEXT_PUBLIC_API_BASE_URL ?? '';
-        const response = await fetch(`${base}/api/v1/categories/${categoryId}`, {
+        const response = await fetch(`/api/v1/categories/${categoryId}`, {
           method: 'DELETE'
         });
 
@@ -647,8 +621,8 @@ export default function CategoriesView() {
                     type="button"
                     onClick={() => setFormData({ ...formData, icon })}
                     className={`w-10 h-10 flex items-center justify-center text-xl border-2 rounded-lg transition-colors ${formData.icon === icon
-                      ? 'border-blue-500 bg-blue-50'
-                      : 'border-gray-200 hover:border-gray-300'
+                        ? 'border-blue-500 bg-blue-50'
+                        : 'border-gray-200 hover:border-gray-300'
                       }`}
                   >
                     {icon}
@@ -667,8 +641,8 @@ export default function CategoriesView() {
                     type="button"
                     onClick={() => setFormData({ ...formData, color: color.value })}
                     className={`px-3 py-1.5 text-sm border-2 rounded-lg transition-colors ${formData.color === color.value
-                      ? 'border-blue-500 bg-blue-50'
-                      : 'border-gray-200 hover:border-gray-300'
+                        ? 'border-blue-500 bg-blue-50'
+                        : 'border-gray-200 hover:border-gray-300'
                       }`}
                   >
                     {color.name}

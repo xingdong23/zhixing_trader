@@ -33,6 +33,9 @@ import { getViolationColor, getViolationLabel } from "@/lib/violations";
 import { toast } from "sonner";
 
 
+export async function generateStaticParams() {
+  return []
+}
 
 export default function TradeDetailPage() {
   const params = useParams();

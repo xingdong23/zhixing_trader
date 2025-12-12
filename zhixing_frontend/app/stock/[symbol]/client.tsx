@@ -48,6 +48,9 @@ interface StockData {
 }
 
 
+export async function generateStaticParams() {
+  return []
+}
 
 export default function StockDetailPage() {
   const params = useParams()

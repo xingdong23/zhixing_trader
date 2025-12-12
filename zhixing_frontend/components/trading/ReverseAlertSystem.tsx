@@ -50,27 +50,21 @@ export default function ReverseAlertSystem({
   const [alerts, setAlerts] = useState<ReverseAlert[]>([])
   const [isLoading, setIsLoading] = useState(false)
 
-
   // 获取反向提醒
   const fetchAlerts = async () => {
     setIsLoading(true)
     try {
-      // 暂时强制使用 Mock 数据，因为后端接口对应尚未实现
-      // const response = await fetch('/api/trading/reverse-alerts')
-      // const result = await response.json()
+      const response = await fetch('/api/trading/reverse-alerts')
+      const result = await response.json()
 
-      // if (result.success && result.data) {
-      //   const activeAlerts = result.data.filter((alert: ReverseAlert) => !alert.dismissed)
-      //   setAlerts(activeAlerts)
-      // }
-
-      // 直接使用 Mock
-      await new Promise(resolve => setTimeout(resolve, 500)); // 模拟延迟
-      const mockAlerts = generateMockAlerts()
-      setAlerts(mockAlerts.filter(alert => !alert.dismissed))
-
+      if (result.success && result.data) {
+        // 只显示未被忽略的提醒
+        const activeAlerts = result.data.filter((alert: ReverseAlert) => !alert.dismissed)
+        setAlerts(activeAlerts)
+      }
     } catch (error) {
       console.error('获取反向提醒失败:', error)
+      // 使用Mock数据
       const mockAlerts = generateMockAlerts()
       setAlerts(mockAlerts.filter(alert => !alert.dismissed))
     } finally {

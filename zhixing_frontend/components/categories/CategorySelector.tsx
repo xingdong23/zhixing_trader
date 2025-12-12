@@ -132,7 +132,7 @@ export default function CategorySelector({
       }
 
       // 真实API调用(保留以便切换)
-      const response = await fetch('http://localhost:8000/api/v1/categories/');
+      const response = await fetch('/api/v1/categories/');
       const result = await response.json();
       if (result.success) {
         setCategories(result.data);
@@ -164,7 +164,7 @@ export default function CategorySelector({
       }
 
       // 真实API调用(保留以便切换)
-      const response = await fetch('http://localhost:8000/api/v1/categories/heatmap/data');
+      const response = await fetch('/api/v1/categories/heatmap/data');
       const result = await response.json();
       if (result.success) {
         const heatmapMap: { [key: string]: any } = {};

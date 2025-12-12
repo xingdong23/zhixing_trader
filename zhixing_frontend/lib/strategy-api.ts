@@ -3,7 +3,7 @@
  */
 
 // 获取API基础URL
-const getApiBase = () => process.env.NEXT_PUBLIC_API_BASE_URL ?? ''
+const getApiBase = () => process.env.NEXT_PUBLIC_API_BASE_URL || ''
 
 // 策略数据类型定义
 export interface Strategy {

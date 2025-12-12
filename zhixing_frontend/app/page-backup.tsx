@@ -237,7 +237,7 @@ export default function TradingSystem() {
       const rows = parseCSV(text)
       const stocks = futuCsvToStocks(rows)
       if (!stocks.length) throw new Error('解析失败：未识别到有效的股票数据（请确认是富途导出的自选股 CSV）')
-      const base = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000'
+      const base = process.env.NEXT_PUBLIC_API_BASE_URL || ''
       const res = await fetch(`${base}/api/v1/stocks/import`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ stocks }) })
       const data = await res.json().catch(() => ({}))
       if (!res.ok) { throw new Error(String((data && (data.detail || data.message)) || `HTTP ${res.status}`)) }
@@ -260,7 +260,7 @@ export default function TradingSystem() {
   async function fetchWatchlistAndShow() {
     try {
       setWatchlistLoading(true)
-      const base = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000'
+      const base = process.env.NEXT_PUBLIC_API_BASE_URL || ''
       const res = await fetch(`${base}/api/v1/stocks/?page=1&page_size=200`)
       const data = await res.json().catch(() => ({}))
       if (!res.ok) throw new Error(String(data?.detail || data?.message || `HTTP ${res.status}`))
@@ -282,7 +282,7 @@ export default function TradingSystem() {
 
   async function fetchBackendStocks() {
     try {
-      const base = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000'
+      const base = process.env.NEXT_PUBLIC_API_BASE_URL || ''
       // 单接口返回当前页全部展示信息（分页20条）
       let url = `${base}/api/v1/stocks/overview?page=${page}&page_size=${pageSize}`
       if (selectedConcept) {
@@ -833,7 +833,7 @@ def select_stocks():
   // 获取概念分类数据
   async function fetchConceptCategories() {
     try {
-      const base = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000'
+      const base = process.env.NEXT_PUBLIC_API_BASE_URL || ''
       const res = await fetch(`${base}/api/v1/concepts/categories`)
       const data = await res.json().catch(() => ({}))
       if (!res.ok) throw new Error(String(data?.detail || data?.message || `HTTP ${res.status}`))

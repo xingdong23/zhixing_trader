@@ -27,22 +27,22 @@ export function StockList({ selectedConcept, onConceptSelect }: StockListProps) 
   const [loading, setLoading] = useState(false)
   const [page, setPage] = useState(1)
   const [total, setTotal] = useState(0)
-  const [allConcepts, setAllConcepts] = useState<{[key: string]: string[]}>({
+  const [allConcepts, setAllConcepts] = useState<{ [key: string]: string[] }>({
     industry: [],
     fundamentals: [],
     custom: []
   })
-  
+
   const pageSize = 20
 
   // 获取概念分类数据
   async function fetchConceptCategories() {
     try {
-      const base = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000'
+      const base = process.env.NEXT_PUBLIC_API_BASE_URL || ''
       const res = await fetch(`${base}/api/v1/concepts/categories`)
       const data = await res.json().catch(() => ({}))
       if (!res.ok) throw new Error(String(data?.detail || data?.message || `HTTP ${res.status}`))
-      
+
       const categories = data?.data?.categories || {}
       setAllConcepts(categories)
     } catch (err) {
@@ -59,16 +59,16 @@ export function StockList({ selectedConcept, onConceptSelect }: StockListProps) 
   async function fetchStocks() {
     try {
       setLoading(true)
-      const base = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000'
+      const base = process.env.NEXT_PUBLIC_API_BASE_URL || ''
       let url = `${base}/api/v1/stocks/overview?page=${page}&page_size=${pageSize}`
       if (selectedConcept) {
         url += `&concept_name=${encodeURIComponent(selectedConcept)}`
       }
-      
+
       const res = await fetch(url)
       const data = await res.json().catch(() => ({}))
       if (!res.ok) throw new Error(String(data?.detail || data?.message || `HTTP ${res.status}`))
-      
+
       const items = (data?.data?.stocks || []) as any[]
       setStocks(items.map(it => ({
         id: it.id,
@@ -90,11 +90,11 @@ export function StockList({ selectedConcept, onConceptSelect }: StockListProps) 
   }
 
   // 当选中概念变化时，重置页码并重新获取数据
-  useEffect(() => { 
+  useEffect(() => {
     if (selectedConcept !== null) {
       setPage(1)
     }
-    fetchStocks() 
+    fetchStocks()
   }, [selectedConcept])
 
   useEffect(() => { fetchStocks() }, [page])
@@ -203,7 +203,7 @@ export function StockList({ selectedConcept, onConceptSelect }: StockListProps) 
             </tbody>
           </table>
         </div>
-        
+
         {/* 分页控件 */}
         <div className="flex items-center justify-between mt-4">
           <div className="text-sm text-muted-foreground">共 {total} 条 · 每页 {pageSize} 条</div>
