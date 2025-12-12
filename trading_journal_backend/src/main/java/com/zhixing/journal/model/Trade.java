@@ -20,6 +20,11 @@ public class Trade {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "account_id") // Nullable for now to support existing tests/data, or make nullable=false if we migrate data
+    @com.fasterxml.jackson.annotation.JsonIgnore
+    private Account account;
+
     @Column(nullable = false)
     private String symbol; // e.g., BTCUSDT, AAPL
 

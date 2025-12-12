@@ -1,0 +1,5 @@
+ib_insync
+pandas
+numpy
+pytz
+ta-lib
