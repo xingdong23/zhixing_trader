@@ -5,6 +5,7 @@
 1. 自动复利 - 根据账户余额动态调整仓位
 2. 提现保护 - 盈利超过阈值时提现一半，防止归零
 3. 动态仓位 - 连续亏损后自动减小仓位
+4. 金字塔加仓 - 盈利10%后加仓到满仓
 """
 import logging
 from dataclasses import dataclass, field
@@ -32,6 +33,7 @@ class SmartMoneyManager:
     1. 自动复利 - 账户越多，下注越大
     2. 提现保护 - 盈利超过阈值时锁定一半利润
     3. 动态减仓 - 连续亏损时自动减仓
+    4. 金字塔加仓 - 做对了加仓
     """
     
     def __init__(
@@ -50,6 +52,9 @@ class SmartMoneyManager:
         loss_scale_factor: float = 0.5,       # 亏损后仓位缩减因子
         win_scale_factor: float = 1.5,        # 盈利后仓位恢复因子
         consecutive_losses_trigger: int = 2,  # 触发减仓的连续亏损次数
+        # 金字塔加仓参数
+        pyramid_add_threshold: float = 0.10,  # 加仓触发阈值 (10% 盈利)
+        pyramid_add_enabled: bool = True,     # 是否启用金字塔加仓
     ):
         self.initial_capital = initial_capital
         self.capital = initial_capital
@@ -71,13 +76,18 @@ class SmartMoneyManager:
         self.win_scale_factor = win_scale_factor
         self.consecutive_losses_trigger = consecutive_losses_trigger
         
+        # 金字塔加仓参数
+        self.pyramid_add_threshold = pyramid_add_threshold
+        self.pyramid_add_enabled = pyramid_add_enabled
+        self.has_added_position = False  # 当前仓位是否已加仓
+        
         # 状态
         self.position_scale = 1.0
         self.consecutive_losses = 0
         self.total_withdrawn = 0.0
         self.withdraw_records: List[WithdrawRecord] = []
         
-        logger.info(f"SmartMoneyManager initialized: {initial_capital} USDT, 复利比例: {position_ratio:.0%}")
+        logger.info(f"SmartMoneyManager初始化: {initial_capital} USDT, 复利{position_ratio:.0%}, 加仓门槛{pyramid_add_threshold:.0%}")
     
     # ==================== 复利计算 ====================
     
@@ -178,6 +188,40 @@ class SmartMoneyManager:
     def get_position_scale(self) -> float:
         """获取当前仓位倍数"""
         return self.position_scale
+    
+    # ==================== 金字塔加仓 ====================
+    
+    def get_max_position_size(self) -> float:
+        """获取满仓仓位大小（不受position_scale影响）"""
+        base_size = self.capital * self.position_ratio
+        return max(self.min_position_size, min(self.max_position_size, base_size))
+    
+    def should_add_position(self, current_pnl_pct: float) -> bool:
+        """
+        判断是否应该加仓
+        
+        Args:
+            current_pnl_pct: 当前持仓盈亏比例
+            
+        Returns:
+            是否应该加仓
+        """
+        if not self.pyramid_add_enabled:
+            return False
+        if self.has_added_position:
+            return False
+        if current_pnl_pct >= self.pyramid_add_threshold:
+            return True
+        return False
+    
+    def mark_position_added(self) -> None:
+        """标记当前仓位已加仓"""
+        self.has_added_position = True
+        logger.info("📈 金字塔加仓触发!")
+    
+    def reset_position_state(self) -> None:
+        """平仓后重置仓位状态"""
+        self.has_added_position = False
     
     # ==================== 状态查询 ====================
     

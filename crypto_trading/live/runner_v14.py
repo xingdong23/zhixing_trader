@@ -169,6 +169,10 @@ class LiveRunnerV14:
             
             self.state_manager.close_position()
             
+            # 重置加仓状态
+            if self.money_manager:
+                self.money_manager.reset_position_state()
+            
             action = 'stop_loss' if pnl_pct < 0 else 'trailing_stop'
             self.notifier.send_trade_signal(action, self.symbol, current_price, reason, dry_run=True)
             logger.info(f"[DRY RUN] Close {side}: {self.symbol} @ {current_price} ({reason})")
@@ -214,7 +218,7 @@ class LiveRunnerV14:
     # ==================== 风控检查 ====================
     
     def check_risk_management(self, current_price: float) -> None:
-        """检查风控"""
+        """检查风控和金字塔加仓"""
         if not self.state_manager.has_position():
             return
         
@@ -232,6 +236,10 @@ class LiveRunnerV14:
         
         self.state_manager.update_highest_profit(pnl_pct)
         
+        # =============== 金字塔加仓 ===============
+        if self.money_manager and self.money_manager.should_add_position(pnl_pct):
+            self._add_position(current_price, side)
+        
         # 止损
         if self.strategy.should_stop_loss(entry_price, current_price, side):
             logger.info(f"Stop loss triggered: {pnl_pct*100:.2f}%")
@@ -244,6 +252,48 @@ class LiveRunnerV14:
             logger.info(f"Trailing stop triggered")
             self.close_position(current_price, "移动止盈触发")
             return
+    
+    def _add_position(self, current_price: float, side: str) -> bool:
+        """金字塔加仓"""
+        if not self.money_manager:
+            return False
+        
+        max_size = self.money_manager.get_max_position_size()
+        current_size = self.money_manager.get_position_size()
+        add_size = max_size - current_size
+        
+        if add_size <= 10:  # 加仓量太小
+            return False
+        
+        leverage = self.strategy.params.get('leverage', 10)
+        
+        if self.dry_run:
+            self.money_manager.mark_position_added()
+            self.notifier.send(
+                "📈 金字塔加仓",
+                f"币种: {self.symbol}\n"
+                f"方向: {'做多' if side == 'long' else '做空'}\n"
+                f"加仓: {add_size:.0f} USDT → 满仓 {max_size:.0f} USDT"
+            )
+            logger.info(f"[DRY RUN] Pyramid add: +{add_size:.0f} USDT")
+            return True
+        
+        try:
+            amount = (add_size * leverage) / current_price
+            order_side = 'buy' if side == 'long' else 'sell'
+            order = self.exchange.create_market_order(self.symbol, order_side, amount)
+            
+            if order:
+                self.money_manager.mark_position_added()
+                self.notifier.send(
+                    "📈 金字塔加仓",
+                    f"币种: {self.symbol}\n加仓: +{add_size:.0f} USDT"
+                )
+                return True
+        except Exception as e:
+            logger.error(f"Failed to add position: {e}")
+        
+        return False
     
     # ==================== 心跳 ====================
     
