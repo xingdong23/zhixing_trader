@@ -106,19 +106,36 @@ class LiveRunner:
         logger.info(f"机器人已初始化: {self.symbol} [{self.timeframe}] - {mode_str}")
     
     def sync_position_from_exchange(self):
-        """启动时从交易所同步持仓状态"""
-        if self.dry_run:
-            logger.info("[观察模式] 跳过持仓同步")
-            return
+        """启动时从交易所同步持仓状态和账户信息（观察模式和实盘都执行）"""
+        mode_tag = "[观察模式] " if self.dry_run else ""
         
         try:
+            # 1. 获取账户余额
+            balance = self.exchange.fetch_balance()
+            usdt_balance = balance.get('USDT', {})
+            total_usdt = usdt_balance.get('total', 0)
+            free_usdt = usdt_balance.get('free', 0)
+            used_usdt = usdt_balance.get('used', 0)
+            
+            logger.info(f"账户余额: 总计 {total_usdt} USDT, 可用 {free_usdt} USDT, 占用 {used_usdt} USDT")
+            
+            # 2. 获取当前价格
+            try:
+                ticker = self.exchange.fetch_ticker(self.symbol)
+                current_price = ticker.get('last', 0)
+            except:
+                current_price = 0
+            
+            # 3. 获取持仓信息
             positions = self.exchange.fetch_positions([self.symbol])
             target_pos = next((p for p in positions if p['symbol'] == self.symbol), None)
             
             if target_pos and float(target_pos.get('contracts', 0)) > 0:
-                # 交易所有持仓，同步到本地
+                # 有持仓
                 entry_price = float(target_pos.get('entryPrice', 0))
                 unrealized_pnl = float(target_pos.get('unrealizedPnl', 0))
+                contracts = float(target_pos.get('contracts', 0))
+                leverage = target_pos.get('leverage', self.config['trading']['leverage'])
                 
                 self.state = {
                     "position": "long",
@@ -128,20 +145,53 @@ class LiveRunner:
                 }
                 self.state_manager.save(self.state)
                 
-                msg = f"交易对: {self.symbol}\n开仓价: {entry_price}\n未实现盈亏: {unrealized_pnl}"
-                logger.info(f"同步到现有持仓: {msg}")
-                self.notifier.send("🔄 同步持仓", msg)
+                pnl_pct = (current_price - entry_price) / entry_price * 100 if entry_price else 0
+                
+                msg = f"""{mode_tag}✅ OKX 连接成功
+
+━━━ 账户信息 ━━━
+💰 总余额: {total_usdt:.2f} USDT
+💵 可用: {free_usdt:.2f} USDT
+🔒 占用: {used_usdt:.2f} USDT
+
+━━━ 持仓信息 ━━━
+📊 交易对: {self.symbol}
+📈 当前价: {current_price}
+🎯 开仓价: {entry_price}
+📦 持仓量: {contracts}
+⚡ 杠杆: {leverage}x
+💹 浮盈: {unrealized_pnl:.2f} USDT ({pnl_pct:+.2f}%)"""
+                
+                logger.info(f"同步到现有持仓")
+                self.notifier.send("🔄 同步账户 (有持仓)", msg)
             else:
-                # 交易所无持仓，清空本地状态
-                if self.state.get("position"):
-                    logger.warning("本地记录有持仓但交易所无，重置状态")
+                # 无持仓
                 self.state = {"position": None, "entry_price": 0.0, "highest_profit_pct": 0.0, "entry_time": None}
                 self.state_manager.save(self.state)
+                
+                msg = f"""{mode_tag}✅ OKX 连接成功
+
+━━━ 账户信息 ━━━
+💰 总余额: {total_usdt:.2f} USDT
+💵 可用: {free_usdt:.2f} USDT
+🔒 占用: {used_usdt:.2f} USDT
+
+━━━ 持仓信息 ━━━
+📊 交易对: {self.symbol}
+📈 当前价: {current_price}
+📦 持仓: 无
+
+━━━ 交易设置 ━━━
+⚡ 杠杆: {self.config['trading']['leverage']}x
+💵 单次仓位: {self.config['trading']['position_size_usdt']} USDT
+🛡️ 止损: {self.config['risk']['stop_loss_pct']*100}%"""
+                
                 logger.info("交易所无持仓，状态已重置")
+                self.notifier.send("🔄 同步账户 (无持仓)", msg)
                 
         except Exception as e:
-            logger.error(f"同步持仓失败: {e}")
-            self.notifier.send("⚠️ 同步持仓失败", str(e))
+            logger.error(f"同步账户失败: {e}")
+            self.notifier.send("❌ OKX 连接失败", f"错误: {str(e)[:200]}")
     
     def send_heartbeat(self, current_price: float = None):
         """发送心跳状态报告"""
