@@ -205,7 +205,7 @@ class InstanceManager:
             
             # 延迟导入避免循环依赖
             from core.exchange import ExchangeClient
-            from strategies.momentum_v11 import MomentumV11Strategy
+            from strategies.momentum_v11 import TurboEngineV15
             from notifications.feishu import FeishuNotifier
             from config.settings import settings
             from live.runner_v15 import LiveRunnerV15
@@ -216,7 +216,7 @@ class InstanceManager:
                 secret=settings.OKX_SECRET,
                 password=settings.OKX_PASSPHRASE
             )
-            strategy = MomentumV11Strategy()
+            strategy = TurboEngineV15()
             notifier = FeishuNotifier(settings.FEISHU_WEBHOOK_URL)
             
             runner = LiveRunnerV15(
