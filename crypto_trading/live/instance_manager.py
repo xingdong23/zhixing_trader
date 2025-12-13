@@ -276,13 +276,31 @@ class InstanceManager:
                     except Exception as e:
                         logger.error(f"更新数据库状态失败: {e}")
     
-    def stop_instance(self, instance_id: str) -> bool:
-        """停止实例"""
+    def stop_instance(self, instance_id: str, close_position: bool = False) -> bool:
+        """
+        停止实例
+        
+        Args:
+            instance_id: 实例 ID
+            close_position: 是否先平仓再停止
+        """
         with self._lock:
             if instance_id not in self.instances:
                 return False
             
             inst = self.instances[instance_id]
+            
+            # 如果需要平仓且有运行中的 runner
+            if close_position and inst["runner"]:
+                try:
+                    # 检查是否有持仓并平仓
+                    if inst["runner"].state_manager and inst["runner"].state_manager.has_position():
+                        current_price = inst["runner"].exchange.get_current_price(inst["config"].symbol)
+                        inst["runner"].close_position(current_price, reason="manual_stop")
+                        logger.info(f"实例 {instance_id} 已平仓")
+                except Exception as e:
+                    logger.error(f"平仓失败: {e}")
+            
             if inst["runner"]:
                 inst["runner"].stop()
             if inst["status"]:
@@ -295,7 +313,7 @@ class InstanceManager:
             except Exception as e:
                 logger.error(f"更新数据库状态失败: {e}")
         
-        logger.info(f"停止实例: {instance_id}")
+        logger.info(f"停止实例: {instance_id} (平仓: {close_position})")
         return True
     
     def get_instance_status(self, instance_id: str) -> Optional[InstanceStatus]:

@@ -341,6 +341,25 @@
         </div>
     </div>
 
+    <!-- 停止确认弹窗 -->
+    <div class="modal" id="stop-modal">
+        <div class="modal-content">
+            <h3>确认停止实例</h3>
+            <div id="stop-position-info"
+                style="padding: 16px; background: #f9f9f9; border-radius: 8px; margin-bottom: 16px;">
+                <div style="color: #666; font-size: 13px;">加载中...</div>
+            </div>
+            <div style="color: #666; font-size: 13px; margin-bottom: 16px;">
+                请选择停止方式：
+            </div>
+            <div class="modal-actions" style="flex-direction: column; gap: 12px;">
+                <button class="btn btn-danger" onclick="confirmStop(true)" style="width: 100%;">停止并平仓</button>
+                <button class="btn btn-secondary" onclick="confirmStop(false)" style="width: 100%;">仅停止监控（保留持仓）</button>
+                <button class="btn btn-secondary" onclick="hideModal('stop-modal')" style="width: 100%;">取消</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         async function refresh() {
             const summary = await (await fetch('/api/summary')).json();
@@ -401,8 +420,52 @@
         }
 
         async function start(id) { await fetch(`/api/instances/${id}/start`, { method: 'POST' }); refresh(); }
-        async function stop(id) { await fetch(`/api/instances/${id}/stop`, { method: 'POST' }); refresh(); }
-        async function del(id) { if (confirm('删除?')) { await fetch(`/api/instances/${id}`, { method: 'DELETE' }); refresh(); } }
+
+        // 停止确认弹窗相关
+        let stopInstanceId = null;
+        let stopInstanceData = null;
+
+        async function stop(id) {
+            stopInstanceId = id;
+            // 获取实例详情
+            const inst = await (await fetch(`/api/instances/${id}`)).json();
+            stopInstanceData = inst;
+
+            const infoEl = document.getElementById('stop-position-info');
+            const symbol = inst.symbol.replace('/USDT:USDT', '');
+
+            let positionHtml = '';
+            if (inst.position) {
+                const posType = inst.position === 'long' ? '多头' : '空头';
+                const pnlClass = inst.position_pnl_pct >= 0 ? 'green' : 'red';
+                positionHtml = `
+                    <div style="font-size: 16px; font-weight: 600; margin-bottom: 8px;">⚠️ 当前有持仓</div>
+                    <div>币种: <strong>${symbol}</strong></div>
+                    <div>方向: <strong>${posType}</strong></div>
+                    <div>浮动盈亏: <span class="${pnlClass}"><strong>${(inst.position_pnl_pct * 100).toFixed(1)}%</strong></span></div>
+                `;
+            } else {
+                positionHtml = `
+                    <div style="font-size: 16px; font-weight: 600; margin-bottom: 8px;">✅ 当前无持仓</div>
+                    <div>币种: <strong>${symbol}</strong></div>
+                    <div>当前资金: <strong>${inst.current_capital.toFixed(0)} U</strong></div>
+                `;
+            }
+            infoEl.innerHTML = positionHtml;
+
+            document.getElementById('stop-modal').classList.add('active');
+        }
+
+        async function confirmStop(closePosition) {
+            if (!stopInstanceId) return;
+
+            await fetch(`/api/instances/${stopInstanceId}/stop?close_position=${closePosition}`, { method: 'POST' });
+            hideModal('stop-modal');
+            stopInstanceId = null;
+            refresh();
+        }
+
+        async function del(id) { if (confirm('确认删除此实例？删除后数据无法恢复！')) { await fetch(`/api/instances/${id}`, { method: 'DELETE' }); refresh(); } }
 
         async function showDetail(id, symbol) {
             document.getElementById('detail-title').textContent = symbol + ' 交易记录';

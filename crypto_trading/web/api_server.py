@@ -78,7 +78,8 @@ def start_instance(instance_id):
 @app.route('/api/instances/<instance_id>/stop', methods=['POST'])
 def stop_instance(instance_id):
     """停止实例"""
-    success = manager.stop_instance(instance_id)
+    close_position = request.args.get('close_position', 'false').lower() == 'true'
+    success = manager.stop_instance(instance_id, close_position=close_position)
     return jsonify({"success": success})
 
 
