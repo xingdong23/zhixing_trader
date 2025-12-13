@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>V15 复利引擎监控</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #f5f5f5;
+            color: #333;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        h1 {
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        .summary {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .summary-item {
+            background: #fff;
+            padding: 16px;
+            border-radius: 8px;
+            border: 1px solid #e0e0e0;
+        }
+
+        .summary-item .label {
+            color: #666;
+            font-size: 13px;
+        }
+
+        .summary-item .value {
+            font-size: 24px;
+            font-weight: 600;
+            margin-top: 4px;
+        }
+
+        .green {
+            color: #22c55e;
+        }
+
+        .red {
+            color: #ef4444;
+        }
+
+        .btn {
+            background: #3b82f6;
+            color: #fff;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .btn:hover {
+            background: #2563eb;
+        }
+
+        .btn-danger {
+            background: #ef4444;
+        }
+
+        .btn-danger:hover {
+            background: #dc2626;
+        }
+
+        .btn-secondary {
+            background: #fff;
+            color: #333;
+            border: 1px solid #ddd;
+        }
+
+        .instances {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 16px;
+        }
+
+        .instance {
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #e0e0e0;
+            cursor: pointer;
+        }
+
+        .instance:hover {
+            border-color: #3b82f6;
+        }
+
+        .instance-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .instance-symbol {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .status {
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+
+        .status.running {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .status.stopped {
+            background: #f3f4f6;
+            color: #6b7280;
+        }
+
+        .instance-roi {
+            font-size: 28px;
+            font-weight: 700;
+            margin: 12px 0;
+        }
+
+        .instance-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            font-size: 13px;
+            color: #666;
+        }
+
+        .instance-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 16px;
+        }
+
+        .instance-actions .btn {
+            flex: 1;
+            padding: 6px;
+            font-size: 13px;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: #fff;
+            padding: 24px;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal h3 {
+            margin-bottom: 16px;
+            font-size: 18px;
+        }
+
+        .form-group {
+            margin-bottom: 12px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 13px;
+            color: #666;
+            margin-bottom: 4px;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 20px;
+        }
+
+        .modal-actions .btn {
+            flex: 1;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+        th,
+        td {
+            padding: 8px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        th {
+            color: #666;
+            font-weight: 500;
+        }
+
+        .empty {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>V15 复利引擎监控</h1>
+            <button class="btn" onclick="showAddModal()">+ 新增实例</button>
+        </header>
+
+        <div class="summary">
+            <div class="summary-item">
+                <div class="label">运行中</div>
+                <div class="value" id="running">0</div>
+            </div>
+            <div class="summary-item">
+                <div class="label">总投入</div>
+                <div class="value" id="capital">0 U</div>
+            </div>
+            <div class="summary-item">
+                <div class="label">总价值</div>
+                <div class="value green" id="value">0 U</div>
+            </div>
+            <div class="summary-item">
+                <div class="label">总收益</div>
+                <div class="value green" id="roi">+0%</div>
+            </div>
+        </div>
+
+        <div class="instances" id="instances"></div>
+    </div>
+
+    <!-- 新增弹窗 -->
+    <div class="modal" id="add-modal">
+        <div class="modal-content">
+            <h3>新增交易实例</h3>
+            <div class="form-group">
+                <label>交易对</label>
+                <select id="symbol">
+                    <option value="DOGE/USDT:USDT">DOGE</option>
+                    <option value="WLD/USDT:USDT">WLD (AI)</option>
+                    <option value="FET/USDT:USDT">FET (AI)</option>
+                    <option value="BONK/USDT:USDT">BONK (Meme)</option>
+                    <option value="PEPE/USDT:USDT">PEPE (Meme)</option>
+                    <option value="SOL/USDT:USDT">SOL</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>资金 (USDT)</label>
+                <input type="number" id="capital-input" value="100" min="10">
+            </div>
+            <div class="form-group">
+                <label>模式</label>
+                <select id="mode">
+                    <option value="true">观察模式</option>
+                    <option value="false">实盘模式</option>
+                </select>
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-secondary" onclick="hideModal('add-modal')">取消</button>
+                <button class="btn" onclick="createInstance()">创建</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 详情弹窗 -->
+    <div class="modal" id="detail-modal">
+        <div class="modal-content">
+            <h3 id="detail-title">交易记录</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>时间</th>
+                        <th>方向</th>
+                        <th>入场</th>
+                        <th>出场</th>
+                        <th>盈亏</th>
+                    </tr>
+                </thead>
+                <tbody id="trades-table"></tbody>
+            </table>
+            <div class="modal-actions">
+                <button class="btn btn-secondary" onclick="hideModal('detail-modal')">关闭</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function refresh() {
+            const summary = await (await fetch('/api/summary')).json();
+            document.getElementById('running').textContent = summary.running_instances;
+            document.getElementById('capital').textContent = summary.total_capital.toFixed(0) + ' U';
+            document.getElementById('value').textContent = summary.total_value.toFixed(0) + ' U';
+            const roiEl = document.getElementById('roi');
+            roiEl.textContent = (summary.total_roi_pct >= 0 ? '+' : '') + summary.total_roi_pct.toFixed(1) + '%';
+            roiEl.className = 'value ' + (summary.total_roi_pct >= 0 ? 'green' : 'red');
+
+            const instances = await (await fetch('/api/instances')).json();
+            const container = document.getElementById('instances');
+
+            if (instances.length === 0) {
+                container.innerHTML = '<div class="empty">暂无实例</div>';
+                return;
+            }
+
+            container.innerHTML = instances.map(i => {
+                const symbol = i.symbol.replace('/USDT:USDT', '');
+                const roiClass = i.roi_pct >= 0 ? 'green' : 'red';
+                return `
+                    <div class="instance" onclick="showDetail('${i.id}', '${symbol}')">
+                        <div class="instance-header">
+                            <span class="instance-symbol">${symbol}</span>
+                            <span class="status ${i.is_running ? 'running' : 'stopped'}">${i.is_running ? '运行中' : '已停止'}</span>
+                        </div>
+                        <div class="instance-roi ${roiClass}">${i.roi_pct >= 0 ? '+' : ''}${i.roi_pct.toFixed(1)}%</div>
+                        <div class="instance-stats">
+                            <div>初始: ${i.capital.toFixed(0)} U</div>
+                            <div>当前: ${i.current_capital.toFixed(0)} U</div>
+                            <div>提现: ${i.withdrawn.toFixed(0)} U</div>
+                            <div>总值: ${i.total_value.toFixed(0)} U</div>
+                        </div>
+                        <div class="instance-actions" onclick="event.stopPropagation()">
+                            ${i.is_running
+                        ? `<button class="btn btn-danger" onclick="stop('${i.id}')">停止</button>`
+                        : `<button class="btn" onclick="start('${i.id}')">启动</button>`}
+                            <button class="btn btn-secondary" onclick="del('${i.id}')">删除</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        async function createInstance() {
+            await fetch('/api/instances', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    symbol: document.getElementById('symbol').value,
+                    capital: parseFloat(document.getElementById('capital-input').value),
+                    dry_run: document.getElementById('mode').value === 'true'
+                })
+            });
+            hideModal('add-modal');
+            refresh();
+        }
+
+        async function start(id) { await fetch(`/api/instances/${id}/start`, { method: 'POST' }); refresh(); }
+        async function stop(id) { await fetch(`/api/instances/${id}/stop`, { method: 'POST' }); refresh(); }
+        async function del(id) { if (confirm('删除?')) { await fetch(`/api/instances/${id}`, { method: 'DELETE' }); refresh(); } }
+
+        async function showDetail(id, symbol) {
+            document.getElementById('detail-title').textContent = symbol + ' 交易记录';
+            const trades = await (await fetch(`/api/instances/${id}/trades`)).json();
+            const tbody = document.getElementById('trades-table');
+            if (trades.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:#999">暂无记录</td></tr>';
+            } else {
+                tbody.innerHTML = trades.map(t => `
+                    <tr>
+                        <td>${t.created_at ? t.created_at.substring(5, 16) : '-'}</td>
+                        <td>${t.side === 'long' ? '做多' : '做空'}</td>
+                        <td>${parseFloat(t.entry_price).toFixed(5)}</td>
+                        <td>${parseFloat(t.exit_price).toFixed(5)}</td>
+                        <td class="${t.pnl_pct >= 0 ? 'green' : 'red'}">${(t.pnl_pct * 100).toFixed(1)}%</td>
+                    </tr>
+                `).join('');
+            }
+            document.getElementById('detail-modal').classList.add('active');
+        }
+
+        function showAddModal() { document.getElementById('add-modal').classList.add('active'); }
+        function hideModal(id) { document.getElementById(id).classList.remove('active'); }
+
+        refresh();
+        setInterval(refresh, 5000);
+    </script>
+</body>
+
+</html>
