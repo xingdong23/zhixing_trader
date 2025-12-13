@@ -26,7 +26,7 @@ import logging
 
 from config.settings import settings
 from core.exchange import ExchangeClient
-from strategies.momentum_v11 import MomentumV11Strategy
+from strategies.turbo_engine_v15 import TurboEngineV15
 from notifications.feishu import FeishuNotifier
 from live.runner_v15 import LiveRunnerV15
 
@@ -69,7 +69,7 @@ def main():
     
     # 初始化组件
     exchange = ExchangeClient()
-    strategy = MomentumV11Strategy()
+    strategy = TurboEngineV15()
     notifier = FeishuNotifier(settings.FEISHU_WEBHOOK_URL)
     
     # 创建 V15 运行器

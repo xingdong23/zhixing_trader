@@ -16,7 +16,7 @@ from config.settings import (
     FEISHU_WEBHOOK_URL, DRY_RUN, LOGS_DIR
 )
 from core.exchange import ExchangeClient
-from strategies.momentum_v11 import MomentumV11Strategy
+from strategies.turbo_engine_v15 import TurboEngineV15
 from notifications.feishu import FeishuNotifier
 from live.runner import LiveRunner
 
@@ -42,7 +42,7 @@ def main():
     parser.add_argument(
         "--strategy", 
         type=str, 
-        default="momentum_v11",
+        default="turbo_engine_v15",
         help="Strategy name"
     )
     parser.add_argument(
@@ -88,8 +88,8 @@ def main():
         )
         
         # 策略
-        if args.strategy == "momentum_v11":
-            strategy = MomentumV11Strategy()
+        if args.strategy == "turbo_engine_v15":
+            strategy = TurboEngineV15()
         else:
             raise ValueError(f"Unknown strategy: {args.strategy}")
         

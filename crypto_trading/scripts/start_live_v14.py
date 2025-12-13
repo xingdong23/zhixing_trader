@@ -16,7 +16,7 @@ from config.settings import (
     FEISHU_WEBHOOK_URL, DRY_RUN, LOGS_DIR
 )
 from core.exchange import ExchangeClient
-from strategies.momentum_v11 import MomentumV11Strategy
+from strategies.turbo_engine_v15 import TurboEngineV15
 from notifications.feishu import FeishuNotifier
 from live.runner_v14 import LiveRunnerV14
 
@@ -38,7 +38,7 @@ def setup_logging(log_file: str = None):
 
 def main():
     parser = argparse.ArgumentParser(description="Start V14 live trading bot")
-    parser.add_argument("--strategy", type=str, default="momentum_v11")
+    parser.add_argument("--strategy", type=str, default="turbo_engine_v15")
     parser.add_argument("--symbol", type=str, default="DOGE/USDT:USDT")
     parser.add_argument("--dry-run", action="store_true", default=None)
     parser.add_argument("--capital", type=float, default=1000, help="Initial capital")
@@ -65,8 +65,8 @@ def main():
             password=OKX_PASSPHRASE
         )
         
-        if args.strategy == "momentum_v11":
-            strategy = MomentumV11Strategy()
+        if args.strategy == "turbo_engine_v15":
+            strategy = TurboEngineV15()
         else:
             raise ValueError(f"Unknown strategy: {args.strategy}")
         
