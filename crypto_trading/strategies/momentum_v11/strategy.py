@@ -5,6 +5,7 @@
 - 频率：捕捉极强趋势和波动率挤压
 - 周期：4H 级别
 - 逻辑：V9 Squeeze + V11 Crazy Bull (ADX>30 强力突破)
+- 支持：多空双向交易
 
 核心参数：
 - Timeframe: 4h
@@ -30,7 +31,10 @@ class MomentumV11Strategy(BaseStrategy):
     
     核心逻辑:
     1. V9 经典模式 (埋伏): Squeeze + Breakout
-    2. V11 疯牛模式 (追涨): ADX > 30 + Breakout (忽略 Squeeze)
+    2. V11 疯牛模式 (追涨/追跌): ADX > 30 + Breakout (忽略 Squeeze)
+    
+    多头: 价格突破上轨 + 趋势向上
+    空头: 价格跌破下轨 + 趋势向下
     """
     
     DEFAULT_PARAMS = {
@@ -45,12 +49,12 @@ class MomentumV11Strategy(BaseStrategy):
         
         # 交易控制
         'max_daily_trades': 1,
-        'only_long': True,
+        'only_long': False,  # 现在支持双向
     }
     
     @property
     def name(self) -> str:
-        return "Momentum V11 - Crazy Bull"
+        return "Momentum V11 - Dual Direction"
     
     @property
     def timeframe(self) -> str:
@@ -93,7 +97,7 @@ class MomentumV11Strategy(BaseStrategy):
     
     def populate_entry_signals(self, df: pd.DataFrame) -> pd.DataFrame:
         """
-        批量计算入场信号
+        批量计算入场信号（多空双向）
         用于回测时的向量化计算
         """
         df = df.copy()
@@ -101,23 +105,31 @@ class MomentumV11Strategy(BaseStrategy):
         # 1. 最近 5 根 K 线有 Squeeze
         df['recent_squeeze'] = df['squeeze_on'].rolling(window=5).max() > 0
         
-        # 2. 突破上轨
-        breakout = df['close'] > df['bb_upper']
+        # 2. 突破
+        breakout_up = df['close'] > df['bb_upper']
+        breakout_down = df['close'] < df['bb_lower']
         
-        # 3. 趋势向上
+        # 3. 趋势
         trend_up = df['close'] > df['ema']
+        trend_down = df['close'] < df['ema']
         
         # 4. ADX 过滤
         adx_ok = df['adx'] > self.params['adx_threshold']
+        crazy_adx = df['adx'] > self.params['crazy_bull_adx']
         
-        # 5. Crazy Bull (V11 特性)
-        crazy_bull = (df['adx'] > self.params['crazy_bull_adx']) & breakout & trend_up
+        # ========== 做多信号 ==========
+        # Squeeze 逻辑 (埋伏)
+        long_squeeze = df['recent_squeeze'] & breakout_up & trend_up & adx_ok
+        # Crazy Bull 逻辑 (追涨)
+        long_crazy = crazy_adx & breakout_up & trend_up
+        df['enter_long'] = (long_squeeze | long_crazy).astype(int)
         
-        # 6. Squeeze 逻辑
-        squeeze_logic = df['recent_squeeze'] & breakout & trend_up & adx_ok
-        
-        # 合并信号
-        df['enter_long'] = (squeeze_logic | crazy_bull).astype(int)
+        # ========== 做空信号 ==========
+        # Squeeze 逻辑 (埋伏)
+        short_squeeze = df['recent_squeeze'] & breakout_down & trend_down & adx_ok
+        # Crazy Bear 逻辑 (追跌)
+        short_crazy = crazy_adx & breakout_down & trend_down
+        df['enter_short'] = (short_squeeze | short_crazy).astype(int)
         
         return df
     
@@ -136,28 +148,40 @@ class MomentumV11Strategy(BaseStrategy):
             return 'hold'
         
         # 如果已经计算过信号
-        if 'enter_long' in df.columns:
+        if 'enter_long' in df.columns and 'enter_short' in df.columns:
             if df['enter_long'].iloc[index] == 1:
                 return 'long'
+            if df['enter_short'].iloc[index] == 1:
+                return 'short'
             return 'hold'
         
         # 实时计算信号
         curr = df.iloc[index]
         prev_5 = df.iloc[max(0, index-5):index+1]
         
-        # 检查条件
-        breakout = curr['close'] > curr['bb_upper']
-        trend_up = curr['close'] > curr['ema']
+        # 公共条件
         adx_ok = curr['adx'] > self.params['adx_threshold']
+        crazy_adx = curr['adx'] > self.params['crazy_bull_adx']
         recent_squeeze = prev_5['squeeze_on'].any()
-        crazy_bull = curr['adx'] > self.params['crazy_bull_adx']
         
-        # V9 Squeeze 逻辑
-        if recent_squeeze and breakout and trend_up and adx_ok:
+        # ========== 做多条件 ==========
+        breakout_up = curr['close'] > curr['bb_upper']
+        trend_up = curr['close'] > curr['ema']
+        
+        if recent_squeeze and breakout_up and trend_up and adx_ok:
+            return 'long'
+        if crazy_adx and breakout_up and trend_up:
             return 'long'
         
-        # V11 Crazy Bull 逻辑
-        if crazy_bull and breakout and trend_up:
-            return 'long'
+        # ========== 做空条件 ==========
+        if not self.params.get('only_long', False):
+            breakout_down = curr['close'] < curr['bb_lower']
+            trend_down = curr['close'] < curr['ema']
+            
+            if recent_squeeze and breakout_down and trend_down and adx_ok:
+                return 'short'
+            if crazy_adx and breakout_down and trend_down:
+                return 'short'
         
         return 'hold'
+

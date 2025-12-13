@@ -144,7 +144,11 @@ class BacktestEngine:
             
             # 如果有持仓，检查风控
             if position:
-                pnl_pct = (current_price - position.entry_price) / position.entry_price
+                # 根据方向计算盈亏
+                if position.side == 'long':
+                    pnl_pct = (current_price - position.entry_price) / position.entry_price
+                else:  # short
+                    pnl_pct = (position.entry_price - current_price) / position.entry_price
                 
                 # 更新最高盈利
                 if pnl_pct > highest_pnl_pct:
@@ -188,10 +192,20 @@ class BacktestEngine:
                         side='long'
                     )
                     highest_pnl_pct = 0.0
+                elif signal == 'short':
+                    position = Trade(
+                        entry_time=current_time,
+                        entry_price=current_price,
+                        side='short'
+                    )
+                    highest_pnl_pct = 0.0
             
             # 记录权益
             if position:
-                unrealized_pnl_pct = (current_price - position.entry_price) / position.entry_price
+                if position.side == 'long':
+                    unrealized_pnl_pct = (current_price - position.entry_price) / position.entry_price
+                else:  # short
+                    unrealized_pnl_pct = (position.entry_price - current_price) / position.entry_price
                 current_equity = capital + (capital * unrealized_pnl_pct * self.leverage)
             else:
                 current_equity = capital
@@ -201,7 +215,10 @@ class BacktestEngine:
         # 如果还有持仓，强制平仓
         if position:
             final_price = df.iloc[-1]['close']
-            pnl_pct = (final_price - position.entry_price) / position.entry_price
+            if position.side == 'long':
+                pnl_pct = (final_price - position.entry_price) / position.entry_price
+            else:  # short
+                pnl_pct = (position.entry_price - final_price) / position.entry_price
             position.exit_time = df.iloc[-1]['date'] if 'date' in df.iloc[-1] else len(df)
             position.exit_price = final_price
             position.pnl_pct = pnl_pct - cost_per_trade
