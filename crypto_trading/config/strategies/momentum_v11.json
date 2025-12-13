@@ -1,0 +1,20 @@
+{
+    "name": "Momentum V11",
+    "description": "动量赌徒 V11 - Crazy Bull Edition",
+    "symbol": "DOGE/USDT:USDT",
+    "timeframe": "4h",
+    "leverage": 10,
+    "position_size_usdt": 70,
+    "risk": {
+        "stop_loss_pct": 0.08,
+        "trailing_stop_activation": 0.10,
+        "trailing_stop_callback": 0.15
+    },
+    "params": {
+        "bb_period": 20,
+        "bb_std": 2.0,
+        "ema_period": 50,
+        "adx_threshold": 15,
+        "crazy_bull_adx": 30
+    }
+}

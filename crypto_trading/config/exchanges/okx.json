@@ -1,0 +1,8 @@
+{
+    "name": "okx",
+    "sandbox": false,
+    "options": {
+        "defaultType": "swap",
+        "adjustForTimeDifference": true
+    }
+}
