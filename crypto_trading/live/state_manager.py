@@ -1,9 +1,7 @@
 """
-状态管理器 - 持久化交易状态
+状态管理器 - 使用数据库持久化交易状态
 """
-import json
 import logging
-from pathlib import Path
 from typing import Dict, Any, Optional
 from datetime import datetime
 
@@ -13,7 +11,7 @@ logger = logging.getLogger(__name__)
 class StateManager:
     """
     交易状态管理器
-    负责持久化和恢复交易状态
+    使用数据库持久化和恢复交易状态
     """
     
     DEFAULT_STATE = {
@@ -25,12 +23,12 @@ class StateManager:
         "trades_today": 0,
     }
     
-    def __init__(self, state_file: str = "bot_state.json"):
+    def __init__(self, instance_id: str):
         """
         Args:
-            state_file: 状态文件路径
+            instance_id: 实例 ID，用于数据库存储
         """
-        self.state_file = Path(state_file)
+        self.instance_id = instance_id
         self._state = self.load()
     
     @property
@@ -39,28 +37,22 @@ class StateManager:
         return self._state
     
     def load(self) -> Dict[str, Any]:
-        """从文件加载状态"""
-        if self.state_file.exists():
-            try:
-                with open(self.state_file, 'r') as f:
-                    state = json.load(f)
-                logger.info(f"State loaded from {self.state_file}")
-                return {**self.DEFAULT_STATE, **state}
-            except Exception as e:
-                logger.error(f"Failed to load state: {e}")
-        
-        return dict(self.DEFAULT_STATE)
+        """从数据库加载状态"""
+        try:
+            from db.database import db
+            state = db.get_instance_state(self.instance_id)
+            logger.info(f"State loaded from database for {self.instance_id}")
+            return {**self.DEFAULT_STATE, **state}
+        except Exception as e:
+            logger.error(f"Failed to load state: {e}")
+            return dict(self.DEFAULT_STATE)
     
     def save(self) -> bool:
-        """保存状态到文件"""
+        """保存状态到数据库"""
         try:
-            # 确保目录存在
-            self.state_file.parent.mkdir(parents=True, exist_ok=True)
-            
-            with open(self.state_file, 'w') as f:
-                json.dump(self._state, f, indent=2, default=str)
-            
-            logger.debug(f"State saved to {self.state_file}")
+            from db.database import db
+            db.save_instance_state(self.instance_id, self._state)
+            logger.debug(f"State saved to database for {self.instance_id}")
             return True
         except Exception as e:
             logger.error(f"Failed to save state: {e}")

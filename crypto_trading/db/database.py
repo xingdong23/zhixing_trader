@@ -201,6 +201,79 @@ class Database:
         except Exception as e:
             logger.error(f"获取交易统计失败: {e}")
             return {"total_trades": 0, "wins": 0, "total_pnl": 0}
+    
+    # ==================== 实例状态 ====================
+    
+    def save_instance_state(self, instance_id: str, state: dict):
+        """保存实例持仓状态"""
+        sql = """
+        INSERT INTO v15_instance_state (instance_id, position, entry_price, entry_time, highest_profit_pct, last_signal_time, trades_today)
+        VALUES (%s, %s, %s, %s, %s, %s, %s)
+        ON DUPLICATE KEY UPDATE position=%s, entry_price=%s, entry_time=%s, highest_profit_pct=%s, last_signal_time=%s, trades_today=%s
+        """
+        try:
+            conn = self._get_connection()
+            with conn.cursor() as cursor:
+                cursor.execute(sql, (
+                    instance_id,
+                    state.get('position'),
+                    state.get('entry_price', 0),
+                    state.get('entry_time'),
+                    state.get('highest_profit_pct', 0),
+                    state.get('last_signal_time'),
+                    state.get('trades_today', 0),
+                    # ON DUPLICATE KEY UPDATE 部分
+                    state.get('position'),
+                    state.get('entry_price', 0),
+                    state.get('entry_time'),
+                    state.get('highest_profit_pct', 0),
+                    state.get('last_signal_time'),
+                    state.get('trades_today', 0)
+                ))
+            conn.commit()
+            conn.close()
+        except Exception as e:
+            logger.error(f"保存实例状态失败: {e}")
+    
+    def get_instance_state(self, instance_id: str) -> dict:
+        """获取实例持仓状态"""
+        try:
+            conn = self._get_connection()
+            with conn.cursor() as cursor:
+                cursor.execute("SELECT * FROM v15_instance_state WHERE instance_id=%s", (instance_id,))
+                result = cursor.fetchone()
+            conn.close()
+            if result:
+                return {
+                    'position': result.get('position'),
+                    'entry_price': float(result.get('entry_price', 0) or 0),
+                    'entry_time': str(result.get('entry_time') or ''),
+                    'highest_profit_pct': float(result.get('highest_profit_pct', 0) or 0),
+                    'last_signal_time': str(result.get('last_signal_time') or ''),
+                    'trades_today': int(result.get('trades_today', 0) or 0)
+                }
+            return {
+                'position': None,
+                'entry_price': 0,
+                'entry_time': None,
+                'highest_profit_pct': 0,
+                'last_signal_time': None,
+                'trades_today': 0
+            }
+        except Exception as e:
+            logger.error(f"获取实例状态失败: {e}")
+            return {'position': None, 'entry_price': 0, 'entry_time': None, 'highest_profit_pct': 0, 'last_signal_time': None, 'trades_today': 0}
+    
+    def delete_instance_state(self, instance_id: str):
+        """删除实例状态"""
+        try:
+            conn = self._get_connection()
+            with conn.cursor() as cursor:
+                cursor.execute("DELETE FROM v15_instance_state WHERE instance_id=%s", (instance_id,))
+            conn.commit()
+            conn.close()
+        except Exception as e:
+            logger.error(f"删除实例状态失败: {e}")
 
 
 # 全局数据库实例

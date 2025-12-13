@@ -21,9 +21,7 @@ app = Flask(__name__, static_folder='static', template_folder='static')
 CORS(app)
 
 # 全局实例管理器
-manager = InstanceManager(
-    config_file=str(Path(__file__).parent.parent / "instances.json")
-)
+manager = InstanceManager()
 
 
 # ==================== 页面路由 ====================

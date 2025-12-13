@@ -45,7 +45,7 @@ class LiveRunnerV15:
         exchange: ExchangeClient,
         symbol: str,
         notifier: Optional[FeishuNotifier] = None,
-        state_file: str = "bot_state_v15.json",
+        instance_id: str = "default",
         dry_run: bool = True,
         heartbeat_interval: int = 4 * 60 * 60,
         initial_capital: float = 220,
@@ -54,7 +54,8 @@ class LiveRunnerV15:
         self.exchange = exchange
         self.symbol = symbol
         self.notifier = notifier or FeishuNotifier("")
-        self.state_manager = StateManager(state_file)
+        self.instance_id = instance_id
+        self.state_manager = StateManager(instance_id)
         self.dry_run = dry_run
         self.heartbeat_interval = heartbeat_interval
         

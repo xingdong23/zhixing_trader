@@ -56,12 +56,11 @@ class InstanceManager:
     管理多个 V15 复利引擎实例
     """
     
-    def __init__(self, config_file: str = "instances.json"):
-        self.config_file = Path(config_file)
+    def __init__(self):
         self.instances: Dict[str, dict] = {}  # id -> {config, runner, thread, status}
         self._lock = threading.Lock()
         
-        # 加载配置
+        # 从数据库加载配置
         self._load_config()
         
         logger.info(f"InstanceManager 初始化: {len(self.instances)} 个实例")
@@ -117,12 +116,7 @@ class InstanceManager:
                 except Exception as e2:
                     logger.error(f"加载 JSON 配置失败: {e2}")
     
-    def _save_config(self) -> None:
-        """保存实例配置"""
-        data = {
-            "instances": [asdict(inst["config"]) for inst in self.instances.values()]
-        }
-        self.config_file.write_text(json.dumps(data, indent=2, ensure_ascii=False))
+
     
     def create_instance(self, symbol: str, capital: float, dry_run: bool = True) -> str:
         """
@@ -163,7 +157,6 @@ class InstanceManager:
                     last_update=datetime.now().isoformat()
                 )
             }
-            self._save_config()
             
             # 保存到数据库
             try:
@@ -186,12 +179,12 @@ class InstanceManager:
                 inst["runner"].stop()
             
             del self.instances[instance_id]
-            self._save_config()
             
             # 从数据库删除
             try:
                 from db.database import db
                 db.delete_instance(instance_id)
+                db.delete_instance_state(instance_id)  # 删除状态数据
             except Exception as e:
                 logger.error(f"从数据库删除实例失败: {e}")
         
@@ -231,7 +224,7 @@ class InstanceManager:
                 exchange=exchange,
                 symbol=config.symbol,
                 notifier=notifier,
-                state_file=f"state_{instance_id}.json",
+                instance_id=instance_id,
                 dry_run=config.dry_run,
                 initial_capital=config.capital,
             )
