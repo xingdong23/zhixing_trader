@@ -205,7 +205,7 @@ class InstanceManager:
             
             # 延迟导入避免循环依赖
             from core.exchange import ExchangeClient
-            from strategies.momentum_v11 import TurboEngineV15
+            from strategies.turbo_engine_v15 import TurboEngineV15
             from notifications.feishu import FeishuNotifier
             from config.settings import settings
             from live.runner_v15 import LiveRunnerV15
