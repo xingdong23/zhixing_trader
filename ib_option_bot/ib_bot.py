@@ -1,15 +1,29 @@
 """
-IB V11 Option Sniper (Main Bot)
+IB V11 Option Sniper (Main Bot) - V2 Architecture
+Two-Phase Scanning: EOD Scan -> Next-Day Execution
 """
 import asyncio
 import logging
+import json
 from ib_insync import *
 import pandas as pd
 import numpy as np
 from datetime import datetime, timedelta
 import pytz
-
 import argparse
+from typing import List, Dict, Optional
+
+# Import Configuration
+try:
+    import config
+except ImportError:
+    config = None
+    
+# Import Tickers
+try:
+    from tickers import TICKERS
+except ImportError:
+    TICKERS = ['TSLA', 'NVDA', 'COIN', 'MSTR', 'GME']
 
 # Parse Arguments
 parser = argparse.ArgumentParser(description='IB V11 Option Sniper')
@@ -17,38 +31,59 @@ parser.add_argument('--live', action='store_true', help='Connect to Live Trading
 parser.add_argument('--port', type=int, help='Override specific port number')
 parser.add_argument('--client', type=int, default=1, help='Client ID (default: 1)')
 parser.add_argument('--delayed', action='store_true', help='Use Delayed Market Data (Type 3) if no subscription')
+parser.add_argument('--scan-only', action='store_true', help='Phase 1: Only scan and generate candidates, do not trade')
+parser.add_argument('--execute', action='store_true', help='Phase 2: Execute trades from candidates.json')
+parser.add_argument('--max-positions', type=int, default=None, help='Override MAX_POSITIONS from config')
 args = parser.parse_args()
 
-# Config
-IB_HOST = '127.0.0.1'
+# Config Values (with fallbacks)
+IB_HOST = getattr(config, 'IB_HOST', '127.0.0.1')
+IB_PORT_PAPER = getattr(config, 'IB_PORT_PAPER', 7497)
+IB_PORT_LIVE = getattr(config, 'IB_PORT_LIVE', 4002)
+
 if args.port:
     IB_PORT = args.port
 else:
-    IB_PORT = 4002 if args.live else 7497
+    IB_PORT = IB_PORT_LIVE if args.live else IB_PORT_PAPER
 
 CLIENT_ID = args.client
+MAX_POSITIONS = args.max_positions or getattr(config, 'MAX_POSITIONS', 1)
+RISK_PER_TRADE = getattr(config, 'RISK_PER_TRADE', 500)
+SCAN_DELAY = getattr(config, 'SCAN_DELAY_SECONDS', 0.5)
+HISTORICAL_DURATION = getattr(config, 'HISTORICAL_DURATION', '1 Y')
 
+# Option Selection
+EXPIRY_DAYS_MIN = getattr(config, 'EXPIRY_DAYS_MIN', 30)
+EXPIRY_DAYS_MAX = getattr(config, 'EXPIRY_DAYS_MAX', 45)
+OTM_PERCENT_MIN = getattr(config, 'OTM_PERCENT_MIN', 0.05)
+OTM_PERCENT_MAX = getattr(config, 'OTM_PERCENT_MAX', 0.10)
+
+# Strategy Parameters
+STRATEGY_PARAMS = getattr(config, 'STRATEGY_PARAMS', {
+    'ema_period': 50,
+    'bb_period': 20,
+    'bb_std': 2.0,
+    'kc_period': 20,
+    'kc_mult': 2.5,
+    'adx_period': 14,
+    'adx_threshold': 15,
+    'adx_crazy_bull': 30,
+})
+
+CANDIDATES_FILE = 'candidates.json'
 
 # Setup Logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
+
 class OptionSniperBot:
     def __init__(self):
         self.ib = IB()
-        self.targets = ['TSLA', 'NVDA', 'COIN', 'MSTR', 'GME']
+        self.targets = TICKERS
         self.positions = {}
-        # Strategy Parameters
-        self.params = {
-            'ema_period': 50,
-            'bb_period': 20,
-            'bb_std': 2.0,
-            'kc_period': 20,
-            'kc_mult': 2.5, # V11 relaxed from 1.5 to 2.5
-            'adx_period': 14,
-            'adx_threshold': 15,
-            'adx_crazy_bull': 30
-        }
+        self.params = STRATEGY_PARAMS
+        self.candidates: List[Dict] = []
         
     async def connect(self):
         """Connect to IB TWS/Gateway"""
@@ -76,22 +111,13 @@ class OptionSniperBot:
             self.ib.disconnect()
             logger.info("Disconnected from IB.")
 
-    async def fetch_daily_data(self, symbol: str, duration_str='1 Y') -> pd.DataFrame:
-        """
-        Fetch daily OHLCV data for a stock.
-        
-        Args:
-            symbol (str): Ticker symbol (e.g. 'TSLA')
-            duration_str (str): Duration of data (e.g. '1 Y', '6 M')
+    async def fetch_daily_data(self, symbol: str, duration_str: str = None) -> pd.DataFrame:
+        """Fetch daily OHLCV data for a stock."""
+        if duration_str is None:
+            duration_str = HISTORICAL_DURATION
             
-        Returns:
-            pd.DataFrame: DataFrame with columns [date, open, high, low, close, volume]
-        """
-        logger.info(f"Fetching data for {symbol}...")
-        
         contract = Stock(symbol, 'SMART', 'USD')
         
-        # Qualify contract to get conId etc.
         try:
             contracts = await self.ib.qualifyContractsAsync(contract)
             if not contracts:
@@ -103,7 +129,6 @@ class OptionSniperBot:
             return pd.DataFrame()
 
         try:
-            # Request historical data
             bars = await self.ib.reqHistoricalDataAsync(
                 contract,
                 endDateTime='',
@@ -111,25 +136,18 @@ class OptionSniperBot:
                 barSizeSetting='1 day',
                 whatToShow='TRADES',
                 useRTH=True,
-                formatDate=1, # 1 = string "YYYYMMDD..."
+                formatDate=1,
                 keepUpToDate=False 
             )
             
             if not bars:
-                logger.warning(f"No data returned for {symbol}")
                 return pd.DataFrame()
 
-            # Convert to DataFrame
             df = util.df(bars)
             if df is None or df.empty:
                  return pd.DataFrame()
 
-            # Clean up DataFrame
             df['date'] = pd.to_datetime(df['date'])
-            # Ensure columns are what we expect for V11 logic
-            # V11 logic usually expects: date, open, high, low, close, volume (lowercase)
-            # IB util.df returns: date, open, high, low, close, volume, average, barCount
-            
             return df
 
         except Exception as e:
@@ -151,7 +169,6 @@ class OptionSniperBot:
         df['bb_lower'] = rolling_mean - (rolling_std * self.params['bb_std'])
         
         # 3. Keltner Channels
-        # TR calculation
         high = df['high']
         low = df['low']
         close = df['close']
@@ -160,7 +177,7 @@ class OptionSniperBot:
         tr2 = abs(high - close.shift(1))
         tr3 = abs(low - close.shift(1))
         tr = pd.concat([tr1, tr2, tr3], axis=1).max(axis=1)
-        atr = tr.rolling(window=self.params['bb_period']).mean() # V11 uses bb_period (20) for ATR
+        atr = tr.rolling(window=self.params['bb_period']).mean()
         
         kc_mid = df['close'].rolling(window=self.params['bb_period']).mean()
         df['kc_upper'] = kc_mid + (atr * self.params['kc_mult'])
@@ -169,64 +186,13 @@ class OptionSniperBot:
         # 4. Squeeze Status (BB inside KC)
         df['squeeze_on'] = (df['bb_upper'] < df['kc_upper']) & (df['bb_lower'] > df['kc_lower'])
         
-        # 5. ADX
-        plus_dm = high.diff()
-        minus_dm = low.diff()
-        
-        # Vectorized modification of plus_dm/minus_dm
-        # If +DM < 0, set to 0
-        plus_dm = np.where(plus_dm < 0, 0, plus_dm)
-        # If -DM > 0, set to 0 (since it's low.diff, usually negative if going down, but formula is prev_low - curr_low)
-        # Wait, low.diff() is curr_low - prev_low
-        # Formula: -DM = prev_high - curr_high ? No.
-        # Standard: +DM = current_high - previous_high
-        #           -DM = previous_low - current_low
-        
-        # Let's stick to the implementation I read in `strategy.py` which was functioning.
-        # strategy.py:
-        # plus_dm = high.diff()
-        # minus_dm = low.diff()
-        # plus_dm[plus_dm < 0] = 0
-        # minus_dm[minus_dm > 0] = 0
-        # minus_dm = -minus_dm 
-        
-        plus_dm = high.diff() 
-        minus_dm = low.diff()
-        
-        plus_dm = np.where(plus_dm < 0, 0, plus_dm)
-        minus_dm = np.where(minus_dm > 0, 0, minus_dm)
-        minus_dm = -minus_dm
-        
-        # plus_dm[plus_dm > minus_dm] = 0 -> Incorrect in strategy.py?
-        # strategy.py says: plus_dm[plus_dm > minus_dm] = 0 ... wait? 
-        # Standard ADX: If +DM > -DM, then -DM=0. If -DM > +DM, then +DM=0.
-        # strategy.py code:
-        # plus_dm[plus_dm > minus_dm] -> No, this looks suspicious or I misread.
-        # Let's check previous file view.
-        # Line 102: plus_dm[plus_dm > minus_dm] = 0  <-- This assumes we only count the dominant move?
-        # Actually standard Wilder's ADX: 
-        # If (+DM > -DM) and (+DM > 0), then +DM=+DM, -DM=0.
-        # The code in strategy.py line 102: `plus_dm[plus_dm > minus_dm] = 0` seems WRONG if it means "If +DM > -DM, set +DM to 0".
-        # It should be: If +DM is NOT greater than -DM, then +DM = 0.
-        # Let's look at strategy.py again...
-        # plus_dm[plus_dm > minus_dm] = 0 -> This effectively kills the DOMINANT side? That would be weird.
-        # Maybe it meant `plus_dm[plus_dm < minus_dm] = 0`?
-        
-        # Actually, let's use the standard pandas implementation which is safer.
-        # Ref: https://school.stockcharts.com/doku.php?id=technical_indicators:average_directional_index_adx
-        # UpMove = high - high.shift(1)
-        # DownMove = low.shift(1) - low
-        # If UpMove > DownMove and UpMove > 0: +DM = UpMove
-        # If DownMove > UpMove and DownMove > 0: -DM = DownMove
-        
+        # 5. ADX (Standard Wilder's)
         up_move = high - high.shift(1)
         down_move = low.shift(1) - low
         
         plus_dm = np.zeros(len(df))
         minus_dm = np.zeros(len(df))
         
-        # We need to iterate or use complex logic. 
-        # Vectorized approach:
         up_idx = (up_move > down_move) & (up_move > 0)
         down_idx = (down_move > up_move) & (down_move > 0)
         
@@ -244,10 +210,10 @@ class OptionSniperBot:
         
         return df
 
-    def check_signal(self, df: pd.DataFrame) -> str:
+    def check_signal(self, df: pd.DataFrame) -> Optional[Dict]:
         """
         Check V11 Signal logic on the latest candle.
-        Returns: 'LONG' or None
+        Returns: Dict with signal info or None
         """
         if df.empty or len(df) < 50:
             return None
@@ -255,18 +221,12 @@ class OptionSniperBot:
         last = df.iloc[-1]
         
         # Logic Components
-        # 1. Recent Squeeze (was there a squeeze in last 5 days?)
         recent_squeeze = df['squeeze_on'].rolling(window=5).max().iloc[-1] > 0
-        
-        # 2. Breakout (Close > BB Upper)
         breakout = last['close'] > last['bb_upper']
-        
-        # 3. Trend (Close > EMA)
         trend_up = last['close'] > last['ema']
-        
-        # 4. ADX Check
-        adx_ok = last['adx'] > self.params['adx_threshold']
-        crazy_adx = last['adx'] > self.params['adx_crazy_bull']
+        adx_value = last['adx']
+        adx_ok = adx_value > self.params['adx_threshold']
+        crazy_adx = adx_value > self.params['adx_crazy_bull']
         
         # Signal A: Squeeze + Breakout + Trend + ADX
         signal_a = recent_squeeze and breakout and trend_up and adx_ok
@@ -275,110 +235,184 @@ class OptionSniperBot:
         signal_b = crazy_adx and breakout and trend_up
         
         if signal_a or signal_b:
-            logger.info(f"🔥 Signal Triggered! Squeeze:{recent_squeeze}, Breakout:{breakout}, Trend:{trend_up}, ADX:{last['adx']:.2f}")
-            if signal_b: logger.info("🐂 Crazy Bull Mode Active!")
-            return 'LONG'
+            signal_type = 'CRAZY_BULL' if signal_b else 'SQUEEZE_BREAKOUT'
+            return {
+                'signal_type': signal_type,
+                'adx': float(adx_value) if not pd.isna(adx_value) else 0,
+                'recent_squeeze': bool(recent_squeeze),
+                'price': float(last['close']),
+                'date': str(last['date'])
+            }
             
         return None
 
-    async def run_once(self):
-        """Run a single scan iteration"""
+    # ========================
+    # PHASE 1: EOD SCANNER
+    # ========================
+    async def scan_all(self) -> List[Dict]:
+        """
+        Phase 1: Scan all tickers and return candidates sorted by ADX.
+        """
+        if not await self.connect():
+            return []
+
+        total_tickers = len(self.targets)
+        logger.info(f"📋 Phase 1: Starting EOD Scan for {total_tickers} tickers...")
+        
+        candidates = []
+        
+        for i, symbol in enumerate(self.targets):
+            try:
+                logger.info(f"[{i+1}/{total_tickers}] Scanning {symbol}...")
+                
+                df = await self.fetch_daily_data(symbol)
+                
+                if not df.empty and len(df) > 50:
+                    df = self.calculate_indicators(df)
+                    signal_info = self.check_signal(df)
+                    
+                    if signal_info:
+                        candidate = {
+                            'symbol': symbol,
+                            **signal_info
+                        }
+                        candidates.append(candidate)
+                        logger.info(f"🚀 {symbol}: SIGNAL FOUND! (ADX: {signal_info['adx']:.2f}, Type: {signal_info['signal_type']})")
+                
+                # Rate Limiting
+                await asyncio.sleep(SCAN_DELAY)
+                
+            except Exception as e:
+                logger.error(f"❌ Error scanning {symbol}: {e}")
+                continue
+
+        self.disconnect()
+        
+        # Rank by ADX (descending)
+        candidates = self.rank_candidates(candidates)
+        self.candidates = candidates
+        
+        # Save to file
+        self.save_candidates(candidates)
+        
+        logger.info("=" * 60)
+        logger.info(f"✅ Phase 1 Complete. Found {len(candidates)} candidates.")
+        if candidates:
+            logger.info("Top Candidates:")
+            for i, c in enumerate(candidates[:5]):
+                logger.info(f"  {i+1}. {c['symbol']} - ADX: {c['adx']:.2f} ({c['signal_type']})")
+        logger.info("=" * 60)
+        
+        return candidates
+
+    def rank_candidates(self, candidates: List[Dict]) -> List[Dict]:
+        """Rank candidates by ADX (strongest trend first)."""
+        return sorted(candidates, key=lambda x: x.get('adx', 0), reverse=True)
+
+    def save_candidates(self, candidates: List[Dict]):
+        """Save candidates to JSON file."""
+        with open(CANDIDATES_FILE, 'w') as f:
+            json.dump({
+                'scan_time': datetime.now().isoformat(),
+                'candidates': candidates
+            }, f, indent=2)
+        logger.info(f"💾 Saved {len(candidates)} candidates to {CANDIDATES_FILE}")
+
+    def load_candidates(self) -> List[Dict]:
+        """Load candidates from JSON file."""
+        try:
+            with open(CANDIDATES_FILE, 'r') as f:
+                data = json.load(f)
+                logger.info(f"📂 Loaded candidates from {CANDIDATES_FILE} (Scanned: {data.get('scan_time', 'Unknown')})")
+                return data.get('candidates', [])
+        except FileNotFoundError:
+            logger.warning(f"⚠️ {CANDIDATES_FILE} not found. Run --scan-only first.")
+            return []
+
+    # ========================
+    # PHASE 2: EXECUTION
+    # ========================
+    async def execute_top_candidates(self, max_positions: int = None):
+        """
+        Phase 2: Execute trades for top N candidates.
+        """
+        if max_positions is None:
+            max_positions = MAX_POSITIONS
+            
+        candidates = self.load_candidates()
+        if not candidates:
+            logger.warning("No candidates to execute. Run Phase 1 (--scan-only) first.")
+            return
+            
+        # Take top N
+        top_candidates = candidates[:max_positions]
+        logger.info(f"📋 Phase 2: Executing Top {len(top_candidates)} candidates (MAX_POSITIONS={max_positions})...")
+        
         if not await self.connect():
             return
 
-        for symbol in self.targets:
-            df = await self.fetch_daily_data(symbol)
-            if not df.empty and len(df) > 50:
-                logger.info(f"Fetched {len(df)} candles for {symbol}")
-                df = self.calculate_indicators(df)
-                signal = self.check_signal(df)
-                
-                if signal:
-                    logger.info(f"🚀 {symbol}: FOUND {signal} SIGNAL!")
-                    
-                    # Phase 3: Find Option
-                    current_price = df.iloc[-1]['close']
-                    contract = await self.find_target_option(symbol, current_price)
-                    if contract:
-                        logger.info(f"🎯 Target Option Found: {contract.localSymbol} (Strike: {contract.strike}, Exp: {contract.lastTradeDateOrContractMonth})")
-                        await self.place_order(contract)
-                    else:
-                        logger.warning(f"⚠️ No suitable option found for {symbol}")
-                else:
-                    logger.info(f"{symbol}: No Signal.")
+        for candidate in top_candidates:
+            symbol = candidate['symbol']
+            price = candidate['price']
             
-            else:
-                logger.warning(f"Skipping {symbol} (insufficient data).")
+            logger.info(f"🎯 Processing {symbol} @ ${price:.2f}...")
+            
+            try:
+                contract = await self.find_target_option(symbol, price)
+                if contract:
+                    logger.info(f"  Found Option: {contract.localSymbol} (Strike: {contract.strike}, Exp: {contract.lastTradeDateOrContractMonth})")
+                    await self.place_order(contract)
+                else:
+                    logger.warning(f"  ⚠️ No suitable option found for {symbol}")
+            except Exception as e:
+                logger.error(f"  ❌ Error processing {symbol}: {e}")
 
         self.disconnect()
+        logger.info("✅ Phase 2 Complete.")
 
-    async def find_target_option(self, symbol: str, current_price: float) -> Contract:
-        """
-        FIND THE BULLET: 
-        1. Expiry: 30-45 days
-        2. Strike: 5-10% OTM Call
-        3. Simple Filter
-        """
+    async def find_target_option(self, symbol: str, current_price: float) -> Optional[Contract]:
+        """Find the best option contract for a symbol."""
         try:
             contract = Stock(symbol, 'SMART', 'USD')
             await self.ib.qualifyContractsAsync(contract)
             
-            # Get Option Chains
             chains = await self.ib.reqSecDefOptParamsAsync(contract.symbol, '', contract.secType, contract.conId)
             if not chains:
-                logger.warning(f"No option chains for {symbol}")
                 return None
                 
-            # Usually multiple chains (different exchanges), pick the one with 'SMART'
             chain = next((c for c in chains if c.exchange == 'SMART'), chains[0])
             
-            # 1. Filter Expirations (30-45 days)
-            target_date_min = datetime.now() + timedelta(days=30)
-            target_date_max = datetime.now() + timedelta(days=45)
+            # Filter Expirations
+            target_date_min = datetime.now() + timedelta(days=EXPIRY_DAYS_MIN)
+            target_date_max = datetime.now() + timedelta(days=EXPIRY_DAYS_MAX)
             
             valid_expirations = []
             for exp in chain.expirations:
-                # exp format: 'YYYYMMDD'
                 d = datetime.strptime(exp, '%Y%m%d')
                 if target_date_min <= d <= target_date_max:
                     valid_expirations.append(exp)
             
             if not valid_expirations:
-                logger.warning(f"No expirations between 30-45 days for {symbol}")
-                # Fallback: Relax to 20-60 days if needed, strictly return None for now
                 return None
                 
-            # Pick the one closest to 30 days (shortest time in range) to maximize squeeze potential?
-            # Or middle? Let's pick the first one (usually earliest in the sorted list)
             target_expiry = sorted(valid_expirations)[0]
             
-            # 2. Filter Strikes (OTM 5%-10%)
-            # Call: Strike > Price
-            # Target: 1.05 * Price <= Strike <= 1.10 * Price
-            min_strike = current_price * 1.05
-            max_strike = current_price * 1.10
+            # Filter Strikes (OTM)
+            min_strike = current_price * (1 + OTM_PERCENT_MIN)
+            max_strike = current_price * (1 + OTM_PERCENT_MAX)
             
             valid_strikes = [s for s in chain.strikes if min_strike <= s <= max_strike]
             if not valid_strikes:
-                logger.warning(f"No strikes found 5%-10% OTM (Price: {current_price}, Range: {min_strike}-{max_strike})")
                 return None
                 
-            # Pick Strike closest to 1.05 (Aggressive) or 1.10?
-            # V11 "Gambler" prefers leverage, so slightly closer (cheaper) or further (cheaper)?
-            # Closer = higher delta. Further = cheaper.
-            # Strategy says "OTM 5%". Let's pick the one closest to min_strike (1.05)
             target_strike = min(valid_strikes, key=lambda x: abs(x - min_strike))
             
-            # Build Contract
             opt = Option(symbol, target_expiry, target_strike, 'C', 'SMART')
             
-            # Check Liquidity / Open Interest?
-            # Requesting details to confirm it exists and maybe get localSymbol
             details = await self.ib.reqContractDetailsAsync(opt)
             if not details:
                 return None
                 
-            # Use the first detail
             return details[0].contract
             
         except Exception as e:
@@ -386,55 +420,62 @@ class OptionSniperBot:
             return None
 
     async def place_order(self, contract: Contract):
-        """Place an order for the contract"""
+        """Place an order for the contract."""
         try:
-            # 1. Get Ask Price to calculate Quantity
-            logger.info("requesting market data...")
+            logger.info("  Requesting market data...")
             tickers = await self.ib.reqTickersAsync(contract)
             if not tickers:
-                logger.error("Could not get market data for option")
+                logger.error("  Could not get market data for option")
                 return
                 
             ticker = tickers[0]
             price = ticker.ask 
             if pd.isna(price) or price <= 0:
-                # Fallbck to close or last
                 price = ticker.close if not pd.isna(ticker.close) else ticker.last
             
             if pd.isna(price) or price <= 0:
-                logger.error(f"Invalid price {price} for {contract.localSymbol}")
+                logger.error(f"  Invalid price {price} for {contract.localSymbol}")
                 return
                 
-            # 2. Calculate Quantity ($500 Risk)
-            # Contract Multiplier is 100 usually
-            bet_size = 500 # USD
+            # Calculate Quantity
             cost_per_contract = price * 100
-            quantity = int(bet_size // cost_per_contract)
+            quantity = int(RISK_PER_TRADE // cost_per_contract)
             
             if quantity < 1:
-                logger.warning(f"Option too expensive ({price}), need >$500 for 1 contract. Skipping.")
+                logger.warning(f"  Option too expensive (${price}), need >${RISK_PER_TRADE} for 1 contract. Skipping.")
                 return
                 
-            # 3. Place Limit Order
-            logger.info(f"Placing BUY LMT Order: {quantity}x {contract.localSymbol} @ ${price}")
+            logger.info(f"  Placing BUY LMT Order: {quantity}x {contract.localSymbol} @ ${price}")
             
             order = LimitOrder('BUY', quantity, price)
             trade = self.ib.placeOrder(contract, order)
             
-            # Wait for order status (optional, unblocking for now)
-            logger.info(f"Order placed! Id: {trade.order.orderId}")
+            logger.info(f"  ✅ Order placed! Id: {trade.order.orderId}")
             
         except Exception as e:
-            logger.error(f"Error placing order: {e}")
+            logger.error(f"  Error placing order: {e}")
 
-    async def run_continuous(self):
-        """Main loop for continuous execution (if needed later)"""
-        # For now, we focus on the scanner run
-        await self.run_once()
+    # ========================
+    # MAIN ENTRY POINTS
+    # ========================
+    async def run(self):
+        """Main entry point based on arguments."""
+        if args.scan_only:
+            await self.scan_all()
+        elif args.execute:
+            await self.execute_top_candidates()
+        else:
+            # Default: Run both phases (legacy behavior)
+            logger.info("Running full pipeline (Scan + Execute)...")
+            candidates = await self.scan_all()
+            if candidates:
+                # Reconnect for Phase 2
+                await self.execute_top_candidates()
+
 
 if __name__ == '__main__':
     bot = OptionSniperBot()
     try:
-        asyncio.run(bot.run_continuous())
+        asyncio.run(bot.run())
     except (KeyboardInterrupt, SystemExit):
         print("🛑 Bot Stopped.")
