@@ -11,7 +11,7 @@ import pandas as pd
 import numpy as np
 import os
 
-DATA_DIR = "/Users/chengzheng/workspace/chuangxin/zhixing_trader/crypto_strategy_trading/data"
+DATA_DIR = "/crypto_trading/data"
 INITIAL_CAPITAL = 300.0
 LEVERAGE = 3  # 日线用3x杠杆，更保守
 

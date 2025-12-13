@@ -17,7 +17,7 @@ import argparse
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 from my_strategies.momentum_gambler.strategy import MomentumGamblerStrategy
 
-DATA_DIR = "/Users/chengzheng/workspace/chuangxin/zhixing_trader/crypto_strategy_trading/data"
+DATA_DIR = "/crypto_trading/data"
 MONTHLY_CAPITAL = 300.0
 BULLET_SIZE = 100.0
 

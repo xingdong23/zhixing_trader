@@ -13,7 +13,7 @@ except ImportError:
     print("❌ Could not import strategy.")
     sys.exit(1)
 
-DATA_DIR = "/Users/chengzheng/workspace/chuangxin/zhixing_trader/crypto_strategy_trading/data"
+DATA_DIR = "/crypto_trading/data"
 
 class PortfolioManager:
     def __init__(self, initial_capital=1000.0, max_positions=5):

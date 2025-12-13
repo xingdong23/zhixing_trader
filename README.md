@@ -232,7 +232,7 @@ zhixing_trader/
 ### 模块文档
 - [Trading Journal 文档](trading_journal/文档/)
 - [Stock Strategy Trading 文档](stock_strategy_trading/文档/)
-- [Crypto Strategy Trading 文档](crypto_strategy_trading/docs/)
+- [Crypto Strategy Trading 文档](crypto_trading/docs/)
 - [Stock Market Data 文档](stock_market_data/文档/)
 - [Unified Backtesting 文档](unified_backtesting/README.md)
 

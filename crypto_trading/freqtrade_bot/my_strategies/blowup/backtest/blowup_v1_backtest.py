@@ -14,7 +14,7 @@ import glob
 import os
 
 # 配置
-DATA_DIR = "/Users/chengzheng/workspace/chuangxin/zhixing_trader/crypto_strategy_trading/data"
+DATA_DIR = "/crypto_trading/data"
 INITIAL_CAPITAL = 300.0
 LEVERAGE = 10
 TAKE_PROFIT_PCT = 0.005     # 0.5% 价格止盈 → 5% 账户盈利

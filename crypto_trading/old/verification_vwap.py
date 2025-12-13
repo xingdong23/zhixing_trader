@@ -5,7 +5,7 @@ from datetime import datetime, timedelta
 import sys
 import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-from crypto_strategy_trading.strategies.vwap_mean_reversion.strategy import VwapMeanReversionStrategy
+from crypto_trading.strategies.vwap_mean_reversion.strategy import VwapMeanReversionStrategy
 
 def run_verification():
     print("Starting verification of VwapMeanReversionStrategy...")

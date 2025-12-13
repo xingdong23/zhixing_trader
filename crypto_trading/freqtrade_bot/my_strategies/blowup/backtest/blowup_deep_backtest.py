@@ -1,67 +1,54 @@
 """
-5分钟爆破猎手策略 - 多币种回测
+SOL策略深度回测 - 按月份拆分分析
 
-币种: BTC, ETH, SOL, DOGE, WIF, 1000PEPE
+使用现有60天数据，按不同时间段分析策略稳定性
+同时对比DOGE(338天)和WIF(94天)的分段表现
 """
 import pandas as pd
 import numpy as np
 import glob
 import os
 
-DATA_DIR = "/Users/chengzheng/workspace/chuangxin/zhixing_trader/crypto_strategy_trading/data"
+DATA_DIR = "/crypto_trading/data"
 INITIAL_CAPITAL = 300.0
 LEVERAGE = 10
 TAKE_PROFIT_PCT = 0.005
 STOP_LOSS_PCT = 0.003
 MAX_HOLD_BARS = 3
-MAX_DAILY_TRADES = 6
-MAX_CONSECUTIVE_LOSS = 3
 BREAKOUT_PERIOD = 20
 VOLUME_MA_PERIOD = 50
 VOLUME_MULTIPLIER = 1.8
 TRADING_HOURS = [0, 1, 2, 3, 14, 15, 16, 17]
+MAX_DAILY_TRADES = 6
+MAX_CONSECUTIVE_LOSS = 3
 
-COINS = [
-    {"symbol": "BTCUSDT", "name": "BTC"},
-    {"symbol": "ETHUSDT", "name": "ETH"},
-    {"symbol": "SOLUSDT", "name": "SOL"},
-    {"symbol": "DOGEUSDT", "name": "DOGE"},
-    {"symbol": "WIFUSDT", "name": "WIF"},
-    {"symbol": "1000PEPEUSDT", "name": "PEPE"},
-]
-
-def load_5m_data(symbol: str):
-    """加载指定币种的5分钟数据"""
-    # 优先使用merged文件
+def load_data(symbol):
+    """加载数据"""
     merged = os.path.join(DATA_DIR, f"{symbol}-5m-merged.csv")
     if os.path.exists(merged):
-        data = pd.read_csv(merged)
+        data = pd.read_csv(merged, low_memory=False)
     else:
         files = sorted(glob.glob(os.path.join(DATA_DIR, f"{symbol}-5m-*.csv")))
         if not files:
             return None
         dfs = []
         for f in files:
-            # 跳过特殊文件
             if 'all' in f.lower() or 'months' in f.lower():
                 continue
             df = pd.read_csv(f)
-            df = df[df['open_time'] != 'open_time']  # 过滤header
+            df = df[df['open_time'] != 'open_time']
             dfs.append(df)
         if not dfs:
             return None
         data = pd.concat(dfs, ignore_index=True)
     
-    # 过滤header行
     data = data[data['open_time'] != 'open_time']
     data['open_time'] = pd.to_numeric(data['open_time'], errors='coerce')
     data = data.dropna(subset=['open_time'])
     
-    # 处理列名差异
     if 'vol' in data.columns and 'volume' not in data.columns:
         data = data.rename(columns={'vol': 'volume'})
     
-    # 数值转换
     for col in ['open', 'high', 'low', 'close', 'volume']:
         if col in data.columns:
             data[col] = pd.to_numeric(data[col], errors='coerce')
@@ -74,6 +61,7 @@ def load_5m_data(symbol: str):
 
 def calculate_indicators(df):
     """计算指标"""
+    df = df.copy()
     df['highest'] = df['high'].shift(1).rolling(window=BREAKOUT_PERIOD).max()
     df['volume_ma'] = df['volume'].rolling(window=VOLUME_MA_PERIOD).mean()
     df['volume_spike'] = df['volume'] > (df['volume_ma'] * VOLUME_MULTIPLIER)
@@ -81,6 +69,7 @@ def calculate_indicators(df):
     df['hour'] = df['date'].dt.hour
     df['in_session'] = df['hour'].isin(TRADING_HOURS)
     df['trade_date'] = df['date'].dt.date
+    df['month'] = df['date'].dt.to_period('M')
     return df
 
 def run_backtest(df):
@@ -112,7 +101,7 @@ def run_backtest(df):
             if pnl_pct >= TAKE_PROFIT_PCT:
                 account_pnl = pnl_pct * LEVERAGE
                 balance *= (1 + account_pnl)
-                trades.append({'reason': 'tp', 'pnl': account_pnl})
+                trades.append({'month': row['month'], 'pnl': account_pnl, 'reason': 'tp'})
                 position = 0
                 daily_consecutive_loss[current_date] = 0
                 continue
@@ -120,7 +109,7 @@ def run_backtest(df):
             if pnl_pct <= -STOP_LOSS_PCT:
                 account_pnl = pnl_pct * LEVERAGE
                 balance *= (1 + account_pnl)
-                trades.append({'reason': 'sl', 'pnl': account_pnl})
+                trades.append({'month': row['month'], 'pnl': account_pnl, 'reason': 'sl'})
                 position = 0
                 daily_consecutive_loss[current_date] += 1
                 continue
@@ -128,7 +117,7 @@ def run_backtest(df):
             if bars_held >= MAX_HOLD_BARS:
                 account_pnl = pnl_pct * LEVERAGE
                 balance *= (1 + account_pnl)
-                trades.append({'reason': 'timeout', 'pnl': account_pnl})
+                trades.append({'month': row['month'], 'pnl': account_pnl, 'reason': 'timeout'})
                 position = 0
                 if pnl_pct < 0:
                     daily_consecutive_loss[current_date] += 1
@@ -154,17 +143,29 @@ def run_backtest(df):
     
     return trades, balance, max_drawdown
 
+def analyze_by_month(trades):
+    """按月份分析"""
+    if not trades:
+        return {}
+    
+    df = pd.DataFrame(trades)
+    monthly = df.groupby('month').agg({
+        'pnl': ['count', 'sum', lambda x: (x > 0).sum() / len(x) * 100]
+    })
+    monthly.columns = ['trades', 'total_pnl', 'win_rate']
+    return monthly.to_dict('index')
+
 def main():
     print("=" * 70)
-    print("5分钟爆破猎手策略 - 多币种回测")
+    print("SOL/DOGE/WIF 深度回测分析 - 按月份拆分")
     print("=" * 70)
     
-    results = []
-    
-    for coin in COINS:
-        print(f"\n📊 {coin['name']}...", end=" ")
-        df = load_5m_data(coin['symbol'])
+    for symbol, name in [("SOLUSDT", "SOL"), ("DOGEUSDT", "DOGE"), ("WIFUSDT", "WIF")]:
+        print(f"\n{'='*70}")
+        print(f"📊 {name}")
+        print("="*70)
         
+        df = load_data(symbol)
         if df is None or len(df) < 100:
             print("数据不足")
             continue
@@ -172,58 +173,36 @@ def main():
         df = calculate_indicators(df)
         trades, balance, max_dd = run_backtest(df)
         
+        # 总体统计
         profit_pct = (balance - INITIAL_CAPITAL) / INITIAL_CAPITAL * 100
         sell_trades = [t for t in trades if 'pnl' in t]
         wins = len([t for t in sell_trades if t['pnl'] > 0])
         win_rate = wins / len(sell_trades) * 100 if sell_trades else 0
         
-        # 计算数据天数
         days = (df['date'].max() - df['date'].min()).days
+        print(f"日期范围: {df['date'].min().strftime('%Y-%m-%d')} ~ {df['date'].max().strftime('%Y-%m-%d')}")
+        print(f"总天数: {days} | K线: {len(df)}")
+        print(f"总收益: {profit_pct:+.1f}% | 交易: {len(sell_trades)} | 胜率: {win_rate:.1f}% | 回撤: {max_dd*100:.1f}%")
         
-        results.append({
-            'name': coin['name'],
-            'days': days,
-            'candles': len(df),
-            'return': profit_pct,
-            'trades': len(sell_trades),
-            'win_rate': win_rate,
-            'max_dd': max_dd * 100,
-            'final': balance
-        })
-        
-        print(f"{days}天 | {profit_pct:+.1f}% | {len(sell_trades)}笔 | 胜率{win_rate:.0f}%")
+        # 按月份分析
+        monthly = analyze_by_month(trades)
+        if monthly:
+            print(f"\n月度表现:")
+            print(f"{'月份':<12} {'交易':>6} {'收益%':>10} {'胜率%':>8}")
+            print("-" * 40)
+            
+            for month, stats in sorted(monthly.items()):
+                pnl_pct = stats['total_pnl'] * 100
+                print(f"{str(month):<12} {stats['trades']:>6} {pnl_pct:>+9.1f}% {stats['win_rate']:>7.1f}%")
+            
+            # 统计盈利/亏损月份
+            profit_months = sum(1 for s in monthly.values() if s['total_pnl'] > 0)
+            loss_months = len(monthly) - profit_months
+            print(f"\n盈利月份: {profit_months}/{len(monthly)} ({profit_months/len(monthly)*100:.0f}%)")
     
-    # 汇总
     print("\n" + "=" * 70)
-    print("📈 多币种回测汇总")
+    print("🎯 结论")
     print("=" * 70)
-    print(f"{'币种':<8} {'天数':>6} {'K线':>8} {'收益%':>10} {'交易':>6} {'胜率%':>8} {'回撤%':>8} {'最终':>10}")
-    print("-" * 70)
-    
-    for r in results:
-        print(f"{r['name']:<8} {r['days']:>6} {r['candles']:>8} {r['return']:>+9.1f}% {r['trades']:>6} {r['win_rate']:>7.1f}% {r['max_dd']:>7.1f}% {r['final']:>10.2f}")
-    
-    print("-" * 70)
-    
-    # 最佳币种
-    if results:
-        best = max(results, key=lambda x: x['return'])
-        worst = min(results, key=lambda x: x['return'])
-        avg_return = np.mean([r['return'] for r in results])
-        
-        print(f"\n🥇 最佳: {best['name']} → {best['return']:+.1f}%")
-        print(f"🥉 最差: {worst['name']} → {worst['return']:+.1f}%")
-        print(f"📊 平均: {avg_return:+.1f}%")
-        
-        positive = len([r for r in results if r['return'] > 0])
-        print(f"\n✅ 盈利币种: {positive}/{len(results)}")
-        
-        if avg_return > 10:
-            print("\n🔥 多币种平均表现良好！")
-        elif avg_return > 0:
-            print("\n⚠️ 有正收益但不稳定")
-        else:
-            print("\n❌ 整体亏损")
 
 if __name__ == "__main__":
     main()
